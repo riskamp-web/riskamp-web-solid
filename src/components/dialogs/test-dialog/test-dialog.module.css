@@ -1,0 +1,11 @@
+
+.grid {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+
+  [contenteditable] {
+    min-width: 20em;
+  }
+}

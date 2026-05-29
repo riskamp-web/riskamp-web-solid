@@ -1,0 +1,150 @@
+
+.toolbar.toolbar {
+
+  /* 
+   special handling to make the command palette take up extra space.
+   we could probably expand login instead, it doesn't matter. but this
+   is fragile
+   */
+
+  grid-template-columns: repeat(6, auto) 1fr repeat(3, auto);
+  column-gap: 1em;
+
+  & > * {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  background: rgb(244, 245, 246);
+
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+label.tab {
+  padding: 0 1em;
+  &:has(input:checked) {
+    background: #fff;
+  }
+}
+
+.toolbar-button {
+  border: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: transparent;
+  font-size: inherit;
+  font-family: inherit;
+  gap: .5em;
+
+  svg {
+    font-size: 16px;
+  }
+
+}
+
+.tab-content {
+  background: #fff;
+  height: 3em;
+  display: flex;
+  align-items: center;
+  padding: 0 1em;
+  gap: 1em;
+}
+
+.logo {
+  padding: .5em 0 .5em .5em;
+  grid-row: 1/2;
+  grid-column: 1/2;
+  font-size: 25px;
+}
+
+.menubar {
+  grid-row: 1/2;
+  grid-column: 2/3; /* FIXME: separator before menu? */
+  gap: 1em;
+}
+
+button.menu-item {
+
+  will-change: transform; /* prevents subpixel shift on color change */
+
+  min-width: fit-content;
+  min-height: var(--toolbar-control-size);
+  padding-right: 1em;
+  padding-left: .5em;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--toolbar-transition-delay);
+  overflow: hidden;
+
+  /*
+
+  border: 1px solid transparent;
+
+
+  svg { 
+    font-size: var(--icon-size); 
+  }
+
+  .svg-placeholder {
+    font-size: var(--icon-size); 
+    width: 1em;
+  }
+
+  */
+
+  &:not([disabled]):hover {
+
+    background: var(--toolbar-control-hover-background);
+    color: var(--toolbar-control-hover-color);
+    
+    /*
+    background: var(--toolbar-control-hover-background);
+    */
+  }
+
+}
+
+.command-palette-container {
+  grid-row: 1/2;
+}
+
+.login {
+  grid-row: 1/2;
+}
+
+.trailer {
+  grid-row: 1/2;
+  padding-right: 1em;
+  display: flex;
+  align-items: center;
+  gap: .5em;
+}
+
+.separator {
+  grid-row: 1/2;
+  width: 1px;
+  border-left: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  height: 100%;
+}
+
+button.menu-item {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  border: none;
+  background: transparent;
+}

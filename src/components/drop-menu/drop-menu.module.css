@@ -1,0 +1,64 @@
+
+.drop-menu {
+  --menu-transition: 0.05s;
+  --menu-transition-tranform: scale(.95);
+}
+
+button.label {
+  border: none;
+  display: flex;
+  flex-direction: row;
+  gap: .5em;
+  align-items: center;
+}
+
+.menu {
+
+  margin: 0;
+  transform-origin: top left;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  margin-top: 3px;
+
+  ul, menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+}
+
+.menu[popover]:popover-open {
+  transform: scale(1);
+  opacity: 1;
+
+  /* transition must include display and overlay */
+  transition: 
+    transform var(--menu-transition) ease, 
+    opacity var(--menu-transition) ease, 
+    display var(--menu-transition) allow-discrete, 
+    overlay var(--menu-transition) allow-discrete;
+}
+
+@starting-style {
+  .menu[popover]:popover-open {
+    transform: var(--menu-transition-tranform);
+    opacity: 0;
+  }
+}
+
+/* 3. The state when it is closed */
+.menu[popover] {
+  transform: scale(1);
+  opacity: 0;
+  transition: 
+    transform var(--menu-transition) ease, 
+    opacity var(--menu-transition) ease, 
+    display var(--menu-transition) allow-discrete, 
+    overlay var(--menu-transition) allow-discrete;
+}
+

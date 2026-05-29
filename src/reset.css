@@ -1,0 +1,14 @@
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+
+}
+
+input, select, label, button {
+  font-family: inherit;
+  font-size: inherit;
+}
+

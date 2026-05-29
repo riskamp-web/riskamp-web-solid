@@ -1,0 +1,150 @@
+
+
+:root {
+  --inteface-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --toolbar-accent-color: #0d9488;
+  --toolbar-accent-color: #08756c;
+  --toolbar-accent-color: #000;
+
+  --toolbar-background-color: #fff;
+  
+  --toolbar-border-color: #e5e7eb;
+
+  --toolbar-tab-background-color: #f8f9fb;
+  --toolbar-tab-background-color: #f4f5f6;
+
+  --toolbar-tab-text-color: #9ca3af;
+  --toolbar-tab-text-color: #62666d;
+  --toolbar-tab-text-color: #000;
+
+  --toolbar-tab-hover-color: #6b7280;
+  --toolbar-container-border-radius: 8px;
+  --toolbar-tab-padding: 12px 18px;
+  --toolbar-tab-font-size: 13px;
+  --toolbar-transition-delay: .15s;
+  --toolbar-transition-method: ease;
+  --toolbar-tab-bar-padding: 8px;
+  --toolbar-tab-pane-height: 50px;
+  --toolbar-tab-pane-padding: 8px 12px;
+  --toolbar-tab-pane-gap: 4px;
+  --toolbar-control-size: 34px;
+  --toolbar-dropdown-caret-size: 16px;
+  --toolbar-control-border-radius: 4px;
+
+  --toolbar-control-text-color: #112;
+  --toolbar-control-text-color: #002;
+
+  --toolbar-control-icon-color: #6b7280;
+  --toolbar-control-icon-color: #012;
+
+  --toolbar-control-color: #6b7280;
+  --toolbar-control-hover-color: #374151;
+
+  --toolbar-control-hover-background: #f3f4f6;
+
+  --toolbar-control-active-background: rgba(13, 148, 136, 0.1);
+  --toolbar-divider-margin: 0 10px;
+
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+
+  font-size: 13px;
+}
+
+a {
+  margin-right: 1rem;
+}
+
+/* patch */
+.treb-address-label.treb-address-label.treb-address-label.treb-address-label {
+    margin-left: .5em
+}
+
+main.app {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  --splitter-color: transparent;
+
+  & > div {
+    overflow: hidden;
+  }
+}
+
+h1 {
+  color: #335d92;
+  text-transform: uppercase;
+  font-size: 4rem;
+  font-weight: 100;
+  line-height: 1.1;
+  margin: 4rem auto;
+  max-width: 14rem;
+}
+
+p {
+  max-width: 14rem;
+  margin: 2rem auto;
+  line-height: 1.35;
+}
+
+@media (min-width: 480px) {
+  h1 {
+    max-width: none;
+  }
+
+  p {
+    max-width: none;
+  }
+}
+
+.spreadsheet-container {
+  width: 600px;
+  height: 400px;
+}
+
+.spreadsheet-container-fill {
+  width: 100%;
+  height: 100%;
+}
+
+.splitter-example-container {
+
+  --splitter-color: transparent;
+
+  border: 1px dotted red;
+  width: 90%;
+  min-height: 600px;
+  height: 600px;
+  margin-top: 2em;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  display: block;
+  opacity: 0;
+  transition: opacity .125s ease;
+
+  &.visible {
+    opacity: 1;
+  }
+}
+
+.display-contents {
+  display: contents;
+}

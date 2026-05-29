@@ -1,0 +1,41 @@
+
+nav {
+  margin-right: 1em;
+  height: 100%;
+  /*
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: .5em;
+
+}
+
+header {
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgb(255, 238, 221);
+  font-weight: bold;
+  padding: .5em .75em;
+  font-size: 1.2rem;
+
+  button.close-sidebar {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+  }
+
+}
+
+.container {
+  display: contents;
+  font-size: 14px;
+  overflow: hidden;
+  position: relative;
+}

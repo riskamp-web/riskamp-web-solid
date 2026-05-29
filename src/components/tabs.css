@@ -1,0 +1,87 @@
+
+/*
+
+grid-based tab layout using radio buttons.
+
+there's a variable --max-tabs for the number of tabs, it 
+defaults to 8 but you can increase it if necessary. unused
+tabs should take 0 space so it's better to go high, but they
+also burn layout cycles so keep it reasonable.
+
+example usage:
+
+<div class="tab-container">
+  <div class="tab-pane">
+    <label class="tab">
+
+      <!-- old style -->
+      <input type="radio" name={tab-group-name} [checked]>
+      <span>Tab label</span>
+
+      <!-- new style -->
+      <input type="radio" data-label={tab-label} name={tab-group-name} [checked]>
+
+    </label>
+    <div class="tab-content">
+      ...tab content...
+    </div>
+  </div>
+</div>
+
+ */
+
+.tab-container {
+  
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: repeat(var(--max-tabs, 8), auto) 1fr; /* max tabs = the number of autos */
+
+  .tab-pane {
+    display: contents;
+    & > label.tab {
+      display: flex;
+      flex-direction: row;
+      gap: 0;
+      align-items: center;
+      justify-content: center;
+      input[type=radio] {
+        appearance: none;
+        padding: 0;
+        margin: 0;
+
+        /*
+         * NEW: set content using attribute, so we can show the default
+         * control focus ring. otherwise there's no visual indication when
+         * tabs are selected. backwards compatible (!)
+         */
+        &:after {
+          content: attr(data-label);
+          user-select: none;
+        }
+      }
+      grid-row: 1/2;
+      z-index: 2;
+    }
+    
+    & > div.tab-content {
+      grid-row: 2/3;
+      grid-column: 1/-1;
+    }
+
+    /*
+     * why are we hiding the unselected tabs, rather than showing the 
+     * selected tab? this allows you to select your own display for the
+     * visible tab, e.g. block or flex. if we set it explicitly we'd have
+     * to pick one. 
+     *
+     * I guess we could use visibility:hidden instead? not sure if it 
+     * actually has any benefits. if it causes layout calculations, even
+     * if not shown, then maybe it's less useful.
+     */
+    & > label.tab:not(:has(input[type=radio]:checked)) + div.tab-content {
+      display: none;
+    }
+
+  }
+}
+

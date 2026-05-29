@@ -1,0 +1,33 @@
+
+input[type=text].input, select.select, button.control-button {
+  
+  height: var(--toolbar-control-size);
+  border-radius: var(--toolbar-control-border-radius);
+  border: 1px solid var(--toolbar-border-color);
+
+  font-size: inherit;
+  color: inherit;
+  font-family: inherit;
+
+  padding: 0 6px;
+  background: var(--toolbar-tab-background-color);
+
+  &:hover {
+    background: var(--toolbar-control-hover-background);
+  }
+
+  /*
+  cursor: pointer;
+  */
+
+}
+
+button.icon-button {
+  border: none;
+}
+
+button svg {
+  pointer-events: none;
+}
+
+
