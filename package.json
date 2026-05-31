@@ -21,8 +21,17 @@
   "devDependencies": {
     "@trebco/treb": "file:../TREB",
     "@types/node": "^25.9.1",
+    "@vscode/markdown-it-katex": "^1.1.2",
+    "dompurify": "^3.4.7",
+    "front-matter": "^4.0.2",
+    "highlight.js": "^11.11.1",
     "jose": "^6.2.3",
+    "markdown-it": "^14.2.0",
+    "markdown-it-link-attributes": "^4.0.1",
+    "minisearch": "^7.2.0",
     "riskamp-web": "file:../RAW",
-    "s5-icon-lib": "file:../s5/icons"
+    "s5-icon-lib": "file:../s5/icons",
+    "treb-llm-support": "file:../treb-llm-support",
+    "valibot": "^1.4.1"
   }
 }

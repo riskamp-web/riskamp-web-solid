@@ -171,7 +171,7 @@ export default function Page() {
             <Spreadsheet fill bind={[getSheet, setSheet]} function-handler={() => InsertFunction()}/>
           </div>
           <div data-right>
-            <Sidebar bind={[sidebar, setSidebar]}></Sidebar>
+            <Sidebar bind={[sidebar, setSidebar]} sheet={getSheet()}></Sidebar>
           </div>
         </Splitter>
       </div>  

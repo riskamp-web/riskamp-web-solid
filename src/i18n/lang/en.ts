@@ -336,6 +336,7 @@ export default {
 
 
   "llm-chat.label.api-key": "API key",
+  "llm-chat.label.model": "Model",
   "llm-chat.label.choose-a-model": "Chose a model",
   "llm-chat.label.select-a-model": "Select a model",
   "llm-chat.label.header.important": "Important",

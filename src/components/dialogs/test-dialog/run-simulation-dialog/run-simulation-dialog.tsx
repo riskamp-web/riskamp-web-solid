@@ -6,7 +6,7 @@ import { t } from '~/i18n/i18n';
 import style from './run-simulation-dialog.module.css';
 import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
-import { appData, setAppData } from '~/lib/app-data';
+import { sessionData, persistentData, setPersistentData } from '~/lib/app-data';
 import { produce } from 'solid-js/store';
 
 interface Props extends DialogProps<boolean> {
@@ -42,10 +42,10 @@ export function RunSimulationDialog(props: Props) {
   function Start() {
     if (local.sheet) {
       setRunning(true);
-      local.sheet.RunSimulation(appData.persisted.trials, {
+      local.sheet.RunSimulation(persistentData.trials, {
         abort_on_dialog_close: false,
         // TODO lhs
-        stepped: appData.persisted.stepped ? 25 : false,
+        stepped: persistentData.stepped ? 25 : false,
       });
     }
   }
@@ -54,8 +54,6 @@ export function RunSimulationDialog(props: Props) {
 
   createEffect(on(open, value => {
     if (value) {
-
-      console.info(appData);
 
       setProgress(0);
 
@@ -110,11 +108,11 @@ export function RunSimulationDialog(props: Props) {
     if (event.currentTarget instanceof HTMLInputElement) {
       let value = Number(event.currentTarget.value);
       if (value <= 0 || isNaN(value)) {
-        value = appData.persisted.trials;
+        value = persistentData.trials;
         event.currentTarget.value = number_format.Format(value);
       }
       else {
-        setAppData(produce(s => { s.persisted.trials = value; }));
+        setPersistentData(produce(s => { s.trials = value; }));
         event.currentTarget.value = number_format.Format(value);
       }
     }
@@ -129,7 +127,7 @@ export function RunSimulationDialog(props: Props) {
         <div>
           <span>{t('run-simulation.number-of-trials')}</span>
           <input disabled={running()} 
-                 value={number_format.Format(appData.persisted.trials)}
+                 value={number_format.Format(persistentData.trials)}
                  onchange={UpdateTrials}
                  type="text" 
                  class="input"></input>
@@ -138,8 +136,8 @@ export function RunSimulationDialog(props: Props) {
           <label>
             <input disabled={running()} 
                    type="checkbox" 
-                   onchange={e => setAppData(produce(s => { s.persisted.stepped = e.currentTarget.checked; })) }
-                   checked={appData.persisted.stepped}></input>
+                   onchange={e => setPersistentData(produce(s => { s.stepped = e.currentTarget.checked; })) }
+                   checked={persistentData.stepped}></input>
             <span>{t('run-simulation.screen-updates')}</span>
           </label>
         </div>

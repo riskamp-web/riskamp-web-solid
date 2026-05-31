@@ -1,12 +1,13 @@
 
 import type { ToolbarCommandKey } from '../toolbar/toolbar-commands';
-import './ai-sidebar';
+import './ai-sidebar/ai-sidebar';
 import './search-sidebar';
 import { type Component } from 'solid-js';
+import { SidebarProps } from './sidebar-main';
 
-export const registry: Map<ToolbarCommandKey, Component> = new Map();
+export const registry: Map<ToolbarCommandKey, Component<SidebarProps>> = new Map();
 
-export function Register(key: ToolbarCommandKey, fn: Component, pass = 0) {
+export function Register(key: ToolbarCommandKey, fn: Component<SidebarProps>, pass = 0) {
 
   // OK initialization gets out of order here, not sure if
   // thats a code optimization thing or a solid thing, but

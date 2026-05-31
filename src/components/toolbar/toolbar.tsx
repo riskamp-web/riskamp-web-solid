@@ -13,7 +13,7 @@ import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, Composi
 import { ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
 import { sessionSignal, loggedInSignal } from '~/lib/auth';
 import { goto } from '~/lib/navigate';
-import { appData, setAppData } from '~/lib/app-data';
+import { persistentData, sessionData, setSessionData } from '~/lib/app-data';
 import { produce } from 'solid-js/store';
 import { bootstrap_icons } from 's5-icon-lib';
 import { MenuButton } from '../menu-button/menu-button';
@@ -164,8 +164,8 @@ export function Toolbar(props: ParentProps<Partial<Props>>) {
             <input type="radio" 
                    data-label={t(tab.label)} 
                    name={tab_group_name} 
-                   checked={index === appData.ephemeral.active_tab} 
-                   onchange={e => { if (e.currentTarget.checked) { setAppData(produce(s => s.ephemeral.active_tab = index)) }}}
+                   checked={index === sessionData.active_tab} 
+                   onchange={e => { if (e.currentTarget.checked) { setSessionData(produce(s => s.active_tab = index)) }}}
                    />
           </label>
           <div classList={{

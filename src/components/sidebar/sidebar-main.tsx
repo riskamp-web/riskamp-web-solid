@@ -1,8 +1,9 @@
 
 import { JSX } from 'solid-js/h/jsx-runtime';
 
-import './ai-sidebar';
-import './search-sidebar';
+// import './ai-sidebar/ai-sidebar';
+// import './search-sidebar';
+
 import { Dynamic, Show } from 'solid-js/web';
 import { Signal, type Component } from 'solid-js';
 
@@ -22,7 +23,7 @@ export interface SidebarProps {
 export function Sidebar(main_props: SidebarProps) {
   const [sidebar, setSidebar] = main_props.bind;
 
-  function RenderComponent(props: {component?: Component}) {
+  function RenderComponent(props: {component?: Component<SidebarProps>}) {
     return <>
       <Show when={props.component}>
         <Dynamic component={props.component} {...main_props} />
