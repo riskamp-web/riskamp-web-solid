@@ -33,17 +33,48 @@ label.tab {
 }
 
 .toolbar-button {
-  border: none;
+  
+  --toolbar-control-size: 28px;
+  --toolbar-control-border-radius: 0px;
+
+  border: 1px solid transparent;
+  border-radius: var(--toolbar-control-border-radius);
+  width: var(--toolbar-control-size);
+  height: var(--toolbar-control-size);
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   background: transparent;
   font-size: inherit;
   font-family: inherit;
   gap: .5em;
 
+
+    &:not([disabled]):hover {
+      background: var(--toolbar-control-hover-background);
+      color: var(--toolbar-control-hover-color);
+      border-color: var(--toolbar-border-color);
+    }
+
+    &.active {
+      background: var(--toolbar-control-active-background);
+      color: var(--toolbar-accent-color);
+      border-color: var(--toolbar-accent-color);
+    }
+
+    &.active:not([disabled]):hover {
+      border-color: var(--toolbar-accent-color);
+    }
+
   svg {
     font-size: 16px;
+  }
+
+  &.text-button {
+    width: auto;
   }
 
 }
@@ -146,4 +177,14 @@ button.menu-item {
   gap: 1em;
   border: none;
   background: transparent;
+}
+
+menu.horizontal.horizontal.horizontal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: .5em;
+
+  padding: 0 .5em 0 .5em;
+  margin: 0;
 }

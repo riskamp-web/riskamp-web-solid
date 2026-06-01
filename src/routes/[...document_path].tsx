@@ -17,6 +17,8 @@ import { OpenExternal } from '~/lib/navigate';
 
 import { RunSimulationDialog } from '~/components/dialogs/test-dialog/run-simulation-dialog/run-simulation-dialog';
 import { HijackDialog } from '~/lib/hijack-dialog';
+import { ApplyProperty, BooleanKeys } from '~/lib/typescript-magic';
+import type { CellStyle, Color } from 'riskamp-web';
 
 function Spin() {
   spinner.show();
@@ -51,6 +53,16 @@ export default function Page() {
   const RunSimulationSignal = createSignal(false);
   const [auto, setAuto] = createSignal(false);
 
+  function ToggleStyle(sheet: SpreadsheetType, name: BooleanKeys<CellStyle>) {
+    let value = false;
+    if (sheet.selection_state?.style) {
+      value = sheet.selection_state.style[name] || false;
+    }
+    sheet.ApplyStyle(undefined, { [name]: !value });
+    sheet.Focus();
+  }
+ 
+
   // FIXME: move this to a lib file, it doesn't need to clog up this file
   function HandleCommand(command: ToolbarCommand & { key: ToolbarCommandKey}) {
 
@@ -83,6 +95,128 @@ export default function Page() {
         sheet.HandleToolbarMessage({
           command: command.key
         });
+        break;
+
+
+    case 'number-format':
+      ApplyProperty(sheet, 'number_format', typeof command.value === 'string' ? command.value : undefined);
+      break;
+
+    case 'text-color':
+    case 'fill-color':
+    case 'border-color':
+      {
+        let color: Color|undefined;
+        if (command.type === 'color') {
+          color = command.active_color;
+        }
+        sheet.HandleToolbarMessage({
+          command: command.key,
+          color,
+        });
+      }
+      break;
+
+      case 'lock-cells':
+        ToggleStyle(sheet, 'locked');
+        break;
+
+      case 'bold':
+      case 'underline':
+      case 'strike':
+      case 'italic':
+      case 'wrap':
+        ToggleStyle(sheet, command.key);
+        break;
+
+      case 'font-scale':
+        if (typeof command.value === 'string') {
+          let scale = sheet.ParseNumber(command.value);
+          if (typeof scale !== 'number' || !scale || isNaN(scale)) {
+            scale = 1;
+          }  
+          sheet.HandleToolbarMessage({ command: 'font-scale', scale });
+        }
+        break;
+
+      case 'toggle-grouping':
+      case 'increase-precision':
+      case 'decrease-precision':
+      case 'insert-column-chart':
+      case 'insert-bar-chart':
+      case 'insert-line-chart':
+      case 'insert-donut-chart':
+      case 'insert-scatter-plot':
+      case 'insert-image':
+      case 'indent':
+      case 'outdent':
+
+        sheet.HandleToolbarMessage({ command: command.key });
+        sheet.Focus();
+        break;
+
+      case 'insert-column':
+        sheet.InsertColumns();
+        sheet.Focus();
+        break;
+
+      case 'insert-row':
+        sheet.InsertRows();
+        sheet.Focus();
+        break;
+
+      case 'delete-column':
+        sheet.DeleteColumns();
+        sheet.Focus();
+        break;
+
+      case 'delete-row':
+        sheet.DeleteRows();
+        sheet.Focus();
+        break;
+
+      case 'merge-cells':
+        if (sheet.selection_state.merge) {
+          sheet.UnmergeCells();
+        }
+        else {
+          sheet.MergeCells();
+        }
+        sheet.Focus();
+        break;
+
+      case 'align-left':
+        ApplyProperty(sheet, 'horizontal_align', 'left');
+        sheet.Focus();
+        break;
+
+      case 'align-right':
+        ApplyProperty(sheet, 'horizontal_align', 'right');
+        sheet.Focus();
+        break;
+
+      case 'align-center':
+        ApplyProperty(sheet, 'horizontal_align', 'center');
+        sheet.Focus();
+        break;
+
+      case 'align-top':
+        ApplyProperty(sheet, 'vertical_align', 'top');
+        sheet.Focus();
+        break;
+
+      case 'align-middle':
+        ApplyProperty(sheet, 'vertical_align', 'middle');
+        sheet.Focus();
+        break;
+
+      case 'align-bottom':
+        ApplyProperty(sheet, 'vertical_align', 'bottom');
+        sheet.Focus();
+        break;
+
+      case 'function-docs':
+        window.open('https://docs.riskamp.com', '_blank');
         break;
 
       case 'ai':
@@ -162,7 +296,7 @@ export default function Page() {
     <main class="app">
       
       <div>
-        <Toolbar oncommand={HandleCommand} sidebar={active_sidebar}/>
+        <Toolbar oncommand={HandleCommand} sidebar={active_sidebar} sheet={getSheet}/>
       </div>
 
       <div>

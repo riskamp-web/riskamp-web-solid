@@ -85,6 +85,10 @@
   display: contents;
 }
 
+.fit-content {
+  width: fit-content;
+}
+
 .debug-border {
   border: 1px dashed red;
 }

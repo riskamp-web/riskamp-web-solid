@@ -21,7 +21,7 @@ interface AppData {
 }
 
 export const [sessionData, setSessionData] = createStore<SessionData>({
-  active_tab: 1,
+  active_tab: 0,
   llm_tab_split: 70,
 });
 

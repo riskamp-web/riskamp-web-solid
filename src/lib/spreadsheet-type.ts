@@ -8,6 +8,7 @@ import type { Color } from '@trebco/treb';
 import type { Localization } from '@trebco/treb/treb-base-types';
 import type { Calculator } from '@trebco/treb/treb-calculator';
 import { createSignal } from 'solid-js';
+import type { SelectionState } from '@trebco/treb/treb-embed/src/selection-state';
 
 /**
  * this is an attempt to unwind some of our field hiding.
@@ -19,6 +20,7 @@ export type SpreadsheetType<T = unknown> = EmbeddedSpreadsheet<T> & {
   grid: Grid,
   model: DataModel,
   calculator: Calculator,
+  selection_state: SelectionState;
   HandleToolbarMessage: (event: ToolbarMessage) => void,
   document_styles: {
     number_formats: string[], 

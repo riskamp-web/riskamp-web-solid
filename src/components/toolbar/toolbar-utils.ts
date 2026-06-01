@@ -56,6 +56,7 @@ export interface CompositeMenuControl {
   active: number;
   icons?: boolean;
   text?: boolean;
+  horizontal?: boolean;
 }
 
 /** more controls, hidden */
@@ -150,13 +151,14 @@ export function textmenu(commands: ToolbarCommandKey[], active = 0, icons?: bool
    };
 }
 
-export function iconmenu(commands: ToolbarCommandKey[], active = 0): CompositeMenuControl {
+export function iconmenu(commands: ToolbarCommandKey[], active = 0, horizontal = false): CompositeMenuControl {
   return { 
     type: 'composite-menu', 
     commands: commands.map(key => WrapCommand(key)),
     active,
     text: false,
     icons: true,
+    horizontal,
    };
 }
 

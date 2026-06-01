@@ -83,7 +83,7 @@ export const toolbar_config: ToolbarConfig = {
             'align-left',
             'align-center',
             'align-right',
-          ]),
+          ], 0, true),
         ],
         /*
         [
@@ -98,7 +98,7 @@ export const toolbar_config: ToolbarConfig = {
             'align-top',
             'align-middle',
             'align-bottom',
-          ])
+          ], 0, true),
         ],
 
         /*
