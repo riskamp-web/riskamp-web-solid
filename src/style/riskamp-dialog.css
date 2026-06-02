@@ -33,7 +33,8 @@
  
   .frame {
     border: var(--dialog-border);
-    transform: translateZ(0); /* prevent subpixel errors */
+    transform: translate(-50%, -50%) /* from the original, we are overwriting */
+               translateZ(0); /* prevent subpixel errors */
   }
 
   .dialog-buttons {

@@ -26,6 +26,8 @@ import { AwaitSignal } from '~/lib/await-signal';
 import { createStore } from 'solid-js/store';
 import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline-dialog/sparkline';
+import { TrendForecastingDialog } from '~/components/dialogs/trend-forecasting/trend-forecasting-dialog';
+import { RunTrendForecast, trend_forecast_props } from '~/components/dialogs/trend-forecasting/trend-forecasting';
 
 function Spin() {
   spinner.show();
@@ -79,6 +81,10 @@ export default function Page() {
     }
 
     switch (command.key) {
+      case 'forecast':
+        RunTrendForecast(getSheet());
+        break;
+
       case 'sparkline':
         InsertSparkline(getSheet());
         break;
@@ -322,6 +328,7 @@ export default function Page() {
       </div>  
 
       <SparklineDialog {...sparkline_props} sheet={getSheet} />
+      <TrendForecastingDialog {...trend_forecast_props} sheet={getSheet} />
 
       <RunSimulationDialog open={RunSimulationSignal[0]} 
                            setOpen={RunSimulationSignal[1]}

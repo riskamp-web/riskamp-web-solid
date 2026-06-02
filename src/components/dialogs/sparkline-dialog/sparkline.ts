@@ -82,7 +82,7 @@ export async function InsertSparkline(sheet?: SpreadsheetType) {
   setSparklineData(data);
   setOpen(true);
 
-  await AwaitSignal(open, (val) => val === false);
+  await AwaitSignal(open, (val) => !val); // can be undefined
   const result = sparklineResult();
 
   if (result) {
