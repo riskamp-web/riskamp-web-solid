@@ -81,6 +81,27 @@ export default function Page() {
     }
 
     switch (command.key) {
+      case 'save-to-desktop':
+
+        // options? what are the defaults?
+        sheet.SaveToDesktop();
+        break;
+
+      case 'import':
+        sheet.LoadLocalFile().then(() => {
+          sheet.Focus();
+        });
+        return;
+        break;
+
+      case 'export-csv':
+        sheet.SaveToDesktop('csv');
+        break;
+
+      case 'export-xlsx':
+        sheet.Export();
+        break;
+
       case 'forecast':
         RunTrendForecast(getSheet());
         break;
@@ -250,6 +271,8 @@ export default function Page() {
         console.warn('unhandled', command.key);
         // setOpen(true);
     }
+
+    sheet.Focus();
 
   }
 
