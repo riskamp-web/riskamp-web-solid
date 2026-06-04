@@ -8,6 +8,7 @@
    */
 
   grid-template-columns: repeat(6, auto) 1fr repeat(3, auto);
+
   column-gap: 1em;
 
   & > * {
@@ -81,7 +82,7 @@ label.tab {
 
 .tab-content {
   background: #fff;
-  height: 3em;
+  height: 4em;
   display: flex;
   align-items: center;
   padding: 0 1em;
@@ -187,4 +188,115 @@ menu.horizontal.horizontal.horizontal {
 
   padding: 0 .5em 0 .5em;
   margin: 0;
+}
+
+menu.text.text {
+  li {
+    padding: 0;
+  }
+}
+
+menu.text.overflow {
+  max-height: 50vh;
+  max-height: 50dvh;
+  overflow-y: auto;
+}
+
+
+.toolbar-split-button {
+
+  width: var(--toolbar-control-size);
+  height: var(--toolbar-control-size);
+  border-radius: var(--toolbar-control-border-radius);
+
+  /* color: var(--toolbar-control-color); */
+  color: var(--toolbar-control-text-color);
+  svg {
+    color: var(--toolbar-control-icon-color);
+  }
+
+  display: grid;
+  grid-template-rows: 50% 50%;
+  grid-template-columns: 1fr;
+  overflow: hidden;
+
+  & > button {
+    background: transparent;
+    cursor: pointer;
+    color: inherit;
+    border: 0px solid transparent;
+    font-size: 11px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+
+    &:hover {
+      background: var(--toolbar-control-hover-background);
+      color: var(--toolbar-control-hover-color);
+      border-color: var(--toolbar-border-color);
+    }
+
+    &.active {
+      background: var(--toolbar-control-active-background);
+      color: var(--toolbar-accent-color);
+      border-color: var(--toolbar-accent-color);
+    }
+
+  }
+
+}
+
+.toolbar-button.color-button {
+    position: relative;
+    overflow: visible;
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0px;
+      width: 100%;
+      background: var(--applied-color);
+      height: 3px;
+      box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
+    }
+  }
+
+.color-picker {
+
+  padding: 1em;
+
+  h1 {
+    font-size: 20px;
+    font-weight: 400;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  h2 {
+    border-bottom: 1px solid currentColor;
+    font-size: 14px;
+    font-weight: 400;
+    margin-top: 1em;
+  }
+
+  .swatches {
+    display: grid;
+    row-gap: 8px;
+    column-gap: 8px;
+
+    button.swatch {
+      border: 1px solid var(--toolbar-border-color);
+      padding: 0;
+      margin: 0;
+      background-color: var(--swatch-color);
+      height: 18px;
+      width: 18px;
+      font-size: 16px;
+    }
+
+  }
+
 }

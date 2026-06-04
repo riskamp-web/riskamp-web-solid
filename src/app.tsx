@@ -30,7 +30,7 @@ function Root(props: RouteSectionProps) {
 
   return (
     <MetaProvider>
-      <Title>SolidStart - Basic</Title>
+      <Title>RiskAMP Web</Title>
       <Suspense>{props.children}</Suspense>
       <Spinner />
     </MetaProvider>

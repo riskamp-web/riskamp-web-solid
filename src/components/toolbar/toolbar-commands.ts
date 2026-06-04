@@ -143,6 +143,7 @@ export const ToolbarCommands = {
     // icon: phosphor.text_aa,
     icon: bs.type,
     default_color: { type: 'theme', theme: 1 },
+    active_color: { type: 'theme', theme: 5 },
   },
 
   'fill-color': {
@@ -154,6 +155,7 @@ export const ToolbarCommands = {
     icon: bs.paint_bucket,
     default_color_text: 'color-picker.no_fill',
     default_color: { type: 'theme', theme: 0 },
+    active_color: { type: 'theme', theme: 7 },
   },
 
   'border-top': {
@@ -197,11 +199,12 @@ export const ToolbarCommands = {
     icon: bs.palette2,
     // icon: phosphor.palette,
     default_color: { type: 'theme', theme: 1 },
+    active_color: { type: 'theme', theme: 1 },
   },
 
   'font-scale': {
     
-    title: 'toolbar.combobox.font-scale.label',
+    title: 'toolbar.combobox.font-size.label',
     icon: fa_regular.text_size,
     state_key: 'font_scale',
   },
@@ -212,6 +215,7 @@ export const ToolbarCommands = {
     //icon: bs.hash,
     icon: phosphor.hash,
     state_key: 'number_format',
+
   },
 
   'increase-precision': {

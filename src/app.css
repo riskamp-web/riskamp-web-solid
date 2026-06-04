@@ -91,6 +91,7 @@ main.app {
   }
 }
 
+/*
 h1 {
   color: #335d92;
   text-transform: uppercase;
@@ -100,6 +101,7 @@ h1 {
   margin: 4rem auto;
   max-width: 14rem;
 }
+*/
 
 p {
   max-width: 14rem;
@@ -150,4 +152,8 @@ p {
 
 .display-contents {
   display: contents;
+}
+
+.narrow {
+  width: 7em;
 }

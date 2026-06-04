@@ -69,7 +69,7 @@ export default {
   'toolbar.button.decrease-indent.label': 'Decrease indent',
   'toolbar.button.wrap-text.label': 'Wrap text',
 
-  'toolbar.combobox.font-scale.label': 'Font scale',
+  'toolbar.combobox.font-size.label': 'Font size',
   'toolbar.combobox.number-format.label': 'Number format',
 
   'toolbar.button.toggle-integer-grouping.label': 'Toggle grouping',

@@ -18,6 +18,7 @@ import type { SelectionState } from '@trebco/treb/treb-embed/src/selection-state
 export type SpreadsheetType<T = unknown> = EmbeddedSpreadsheet<T> & {
   parser: Parser,
   grid: Grid,
+  Localization: Localization;
   model: DataModel,
   calculator: Calculator,
   selection_state: SelectionState;

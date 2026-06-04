@@ -9,17 +9,46 @@ import '~/components/tabs.css';
 
 import { toolbar_config as base_toolbar_config } from './toolbar-config';
 import html from 'solid-js/html';
-import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, CompositeMenuControl, MoreControl } from './toolbar-utils';
+import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl } from './toolbar-utils';
 import { ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
 import { sessionSignal, loggedInSignal } from '~/lib/auth';
 import { goto } from '~/lib/navigate';
 import { persistentData, sessionData, setSessionData } from '~/lib/app-data';
-import { createMutable, produce } from 'solid-js/store';
+import { createMutable, produce, unwrap } from 'solid-js/store';
 import { bootstrap_icons } from 's5-icon-lib';
 import { MenuButton } from '../menu-button/menu-button';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { ResolveColors, UpdateState } from './util';
+import { NumberFormatCache } from '@trebco/treb/treb-format';
+import { Color, ThemeColor } from '@trebco/treb';
+import { Measurement } from '@trebco/treb/treb-utils';
+
+//////////////
+
+interface ColorType {
+  color: Color;
+  resolved: string;
+};
+
+const base_other_colors = ['Black', 'White', 'Gray', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Indigo', 'Violet'];
+
+const color_map: Map<string, string> = new Map();
+function MapColor(color: string) {
+  color = color.toLowerCase();
+  let mapped = color_map.get(color);
+  if (mapped) { return mapped; }
+  const clamped = Measurement.MeasureColor(color).slice(0, 3);
+  mapped = '#' + Array.from(clamped).map((value: number) => {
+    const s = value.toString(16);
+    if (s.length === 1) { return '0' + s; }
+    return s;
+  }).join('').toUpperCase();
+  color_map.set(color, mapped);
+  return mapped;
+};
+
+////////////
 
 interface Props {
   oncommand: (command: ToolbarCommand & { key: ToolbarCommandKey}) => void|Promise<void>;
@@ -88,23 +117,28 @@ export function Toolbar(props: ParentProps<Props>) {
       subscription = sheet.Subscribe((event: MCEmbeddedSheetEvent|EmbeddedSheetEvent) => {
         switch (event.type) {
           case 'theme-change':
-            ResolveColors();
+          case 'load':
+          case 'reset':
+          case 'document-change':
+            ResolveColors(sheet, toolbar_config);
             // fall through
 
           case 'selection':
           case 'annotation-selection':
           case 'focus-view':
-          case 'load':
-          case 'reset':
           case 'view-change':
-          case 'document-change':
             UpdateState(sheet, toolbar_config);
             break;
 
         }
       });
-      ResolveColors();
     }
+
+    if (sheet) {
+      ResolveColors(sheet, toolbar_config);
+      UpdateState(sheet, toolbar_config);
+    }
+
   }));
 
   onCleanup(() => {
@@ -185,13 +219,67 @@ export function Toolbar(props: ParentProps<Props>) {
     </>;
   }
 
+  function UpdateNumberFormat(event: Event, command: ToolbarCommand & {key: ToolbarCommandKey}, item?: {value: string, label: string}) {
+
+    if (item) {
+      command.text = item.label;
+      command.value = item.value;
+    }
+    else if (event.target instanceof HTMLInputElement) {
+      const value = 
+        NumberFormatCache.SymbolicName(event.target.value || '');
+
+      command.text = command.value = event.target.value || '';
+    }
+
+    HandleCommand(event, command);
+
+  }
+
+  function ComboBox(props: {control: ComboBoxControl}) {
+    return <div class="flex-row gap-0_5">
+        <Show when={props.control.command.icon}>
+          <div class="icon" innerHTML={props.control.command.icon}></div>
+        </Show>
+        <MenuButton>
+          <MenuButton.Static>
+            <input type="text" 
+                   class={["input", props.control.width || '' ].join(' ')} 
+                   placeholder={t(props.control.command.title)} 
+                   value={props.control.command.text || ''} 
+                   onchange={e => UpdateNumberFormat(e, props.control.command)}
+                   /> 
+          </MenuButton.Static>
+          <MenuButton.Menu>
+            <menu classList={{ [style.text]: true, [style.overflow]: true }}>
+              <For each={props.control.values || []}>
+                {item => <Switch>
+                  <Match when={item === 'separator'}>
+                    <hr />
+                  </Match>
+                  <Match when={true}>
+                    <li>
+                      <button class={style['menu-item']} 
+                          onclick={e => UpdateNumberFormat(e, props.control.command, item as { value: string, label: string })}>
+                        {(item as { value: string, label: string }).label}
+                      </button>
+                    </li>
+                  </Match>
+                </Switch>}
+              </For>
+            </menu>
+          </MenuButton.Menu>
+        </MenuButton>
+      </div>;
+  }
+
   function More(props: {control: MoreControl}) {
     return <>
       <MenuButton single_button_style>
         <MenuButton.Static class={style['toolbar-button']}>
           <div class=""
             title={t('toolbar.more-commands-button.label')}
-            ref={(el) => (el.innerHTML = bootstrap_icons.three_dots)} />
+            innerHTML={bootstrap_icons.three_dots} />
         </MenuButton.Static>
         <MenuButton.Menu>
           <menu class={style.horizontal}>
@@ -202,6 +290,164 @@ export function Toolbar(props: ParentProps<Props>) {
         </MenuButton.Menu>
       </MenuButton>
     </>;
+  }
+
+  function IsThemeColor(color: Color): color is ThemeColor {
+    return !!color && (typeof (color as ThemeColor).theme !== 'undefined');
+  }
+
+  function ThemeColorTitle(color: Color) {
+    let text = '';
+    if (IsThemeColor(color)) {
+      switch (color.theme) {
+        case 0:
+        case 2:
+          text = t('color-picker.theme.background');
+          break;
+
+        case 1:
+        case 3:
+          text = t('color-picker.theme.text');
+          break;
+
+        default:
+          text = t('color-picker.theme.accent');
+          break;
+      }
+
+      if (color.tint) {
+        text += ` (${props.sheet()?.FormatNumber(color.tint, '+0%;-0%')})`;
+      }
+
+    }
+    return text;
+  }
+
+  function ColorButton(props: { control: ColorButtonControl, sheet: () => SpreadsheetType|undefined }) {
+
+    const [themeColors, setThemeColors] = createSignal<ColorType[][]>([]);
+    const [otherColors, setOtherColors] = createSignal<ColorType[]>([]);
+
+    function BeforeToggle(event: ToggleEvent) {
+      if (event.newState === 'open') {
+        console.info("OPEN");
+      }
+
+      const sheet = props.sheet();
+      if (sheet) {
+        const colors: ColorType[][] = [];
+        const source = (sheet?.document_styles.theme_colors || []) as ColorType[][];
+
+        const columns = source.length;
+        const rows = source[0]?.length || 0; 
+
+        for (let i = 0; i < rows; i++) {
+          const row: ColorType[] = [];
+          for (let j = 0; j < columns; j++) {
+            row.push(source[j][i]);
+            // row.push({ color: { type: 'text', text: 'green' }, resolved: '#def' });
+          }
+          colors.push(row);
+        }
+
+        console.info({colors}, 'st', sheet?.document_styles.theme_colors);
+        setThemeColors(colors);
+        
+        const mapped_colors = base_other_colors.map(MapColor);
+        const additional_colors: string[] = sheet?.document_styles.colors.map((color: string) => MapColor(color)).filter((test: string) => {
+          return !mapped_colors.includes(test);
+        }) || [];
+
+        setOtherColors([...mapped_colors, ...additional_colors].map(text => {
+          return {
+            resolved: text,
+            color: { text },
+          };
+        }));
+
+      }
+
+    }
+
+    return <>
+        <MenuButton onbeforetoggle={BeforeToggle}>
+          <MenuButton.Static>
+            <button style={`--applied-color: ${props.control.command.value || '#fff'};`}
+                    classList={{ 
+                      [style['toolbar-button']]: true, 
+                      [style['color-button']]: true,
+                    }}
+                    onclick={e => HandleCommand(e, props.control.command)}
+                    innerHTML={props.control.command.icon || ''} 
+            ></button>
+                  
+          </MenuButton.Static>
+          <MenuButton.Menu>
+            <div class={style['color-picker']}>
+              <h1>{t(props.control.command.title)}</h1>
+
+              <h2>{t('color-picker.theme_colors')}</h2>
+              <div class={style.swatches} style={`grid-template-columns: repeat(${
+                themeColors()[0]?.length || 0}, auto)`}>
+
+                <For each={themeColors()}>
+                  {row => <div class="display-contents">
+                    <For each={row}>
+                      {color => <button class={style.swatch} 
+                                        data-color='theme' 
+                                        data-color-theme={IsThemeColor(color.color) ? color.color.theme : undefined} 
+                                        data-color-tint={IsThemeColor(color.color) ? color.color.tint : undefined} 
+                                        title={ThemeColorTitle(color.color)}
+                                        style={`--swatch-color: ${color.resolved};`}
+                                      />}
+                    </For>
+                  </div>}
+                </For>
+
+              </div>
+
+              <Show when={props.control.command.default_color_text}>
+                <h2>{t('color-picker.no_color')}</h2>
+                <div class={style.swatches}>
+                  <div class="flex-row gap-1">
+                    <button class={style.swatch} innerHTML={bootstrap_icons.x_lg} />
+                    <div>{t(props.control.command.default_color_text)}</div>
+                  </div>
+                </div>
+              </Show>
+
+              <h2>{t('color-picker.other_colors')}</h2>
+              <div class={style.swatches} style={`grid-template-columns: repeat(${
+                themeColors()[0]?.length || 0}, auto)`}>
+
+                  <For each={otherColors()}>
+                    {color => <button class={style.swatch} 
+                                      data-color='theme' 
+                                      data-color-theme={IsThemeColor(color.color) ? color.color.theme : undefined} 
+                                      data-color-tint={IsThemeColor(color.color) ? color.color.tint : undefined} 
+                                      title={ThemeColorTitle(color.color)}
+                                      style={`--swatch-color: ${color.resolved};`}
+                                    />}
+                  </For>
+
+              </div>
+
+              <h2>{t('color-picker.new_color')}</h2>
+                <div class={style.swatches}>
+                  <div class="flex-row gap-1">
+                    <input type="color" />
+                    <div>{t('color-picker.choose_color')}</div>
+                    <div class="flex-grow"></div>
+                    <button class={style.swatch} 
+                            title={t('color-picker.use_selected_color')}
+                            innerHTML={bootstrap_icons.check_lg} />
+                  </div>
+                </div>
+
+            </div>
+          </MenuButton.Menu>
+        </MenuButton>
+      </>    
   }
 
   function RenderButton(props: {control: ButtonControl}) {
@@ -250,6 +496,45 @@ export function Toolbar(props: ParentProps<Props>) {
 
   }
 
+  function SplitButton(props: {control: SplitButtonControl, sheet: () => SpreadsheetType|undefined}) {
+
+    // we're formatting the numbers here which implies 
+    // we know what this control is; it's not really 
+    // generic. this might bite later. we could force it
+    // into the config, but that might be overoptimizing.
+
+    // ALSO: we're using localization, and hoping that passing in
+    // the dummy text (which is translated) will make this update 
+    // on a locale change
+
+    function Reformat(text: string, dummy: string) {
+
+      // not great reaching around for Localization here. a better
+      // option might be to just format a number and read it.
+
+      const mark = (props.sheet()?.Localization as any)?.decimal_separator;
+      if (mark === ',') {
+        return text.replace(/\./, mark);
+      }
+      else {
+        return text;
+      }
+
+    }
+
+    return <div class={style['toolbar-split-button']}>
+        <button title={t(props.control.commands[0].title)}
+                onclick={e => HandleCommand(e, props.control.commands[0])}>
+          {Reformat(props.control.commands[0].text || '', t(props.control.commands[0].title))}
+        </button>
+        <button title={t(props.control.commands[1].title)}
+                onclick={e => HandleCommand(e, props.control.commands[1])}>
+          {Reformat(props.control.commands[1].text || '', t(props.control.commands[1].title))}
+        </button>
+      </div>;
+     
+  }
+
   return <>
     <div classList={{
       [style.toolbar]: true,
@@ -272,12 +557,10 @@ export function Toolbar(props: ParentProps<Props>) {
                     <button class={style['menu-item']} onclick={event => HandleMenuItem(event, item)}>
                       <Switch>
                         <Match when={item.menuicon && item.icon}>
-                          <div class='display-contents'
-                               ref={(el) => (el.innerHTML = item.icon || '')}/>
+                          <div class='display-contents' innerHTML={item.icon || ''} />
                         </Match>
                         <Match when={props.sidebar?.() === item.key}>
-                          <div class='display-contents'
-                               ref={(el) => (el.innerHTML = bootstrap_icons.check2 || '')}/>
+                          <div class='display-contents' innerHTML={bootstrap_icons.check2 || ''} />
                         </Match>
                         <Match when={true}>
                           <div class={style['svg-placeholder']}></div>
@@ -327,7 +610,7 @@ export function Toolbar(props: ParentProps<Props>) {
                           </button>
                         </Match>
                         <Match when={item.type === 'color-button'}>
-                          <div>Color!</div>
+                          <ColorButton control={item as ColorButtonControl} sheet={props.sheet}/>
                         </Match>
                         <Match when={item.type === 'icon'}>
                           <div class={style['toolbar-icon']} ref={(el) => (el.innerHTML = (item as ToolbarIcon).icon || '')} />
@@ -335,8 +618,14 @@ export function Toolbar(props: ParentProps<Props>) {
                         <Match when={item.type === 'label'}>
                           <div>{`label`}</div>
                         </Match>
+                        <Match when={item.type === 'combo-box'}>
+                          <ComboBox control={item as ComboBoxControl} />
+                        </Match>
                         <Match when={item.type === 'more'}>
                           <More control={item as MoreControl} />
+                        </Match>
+                        <Match when={item.type === 'split-button'}>
+                          <SplitButton sheet={props.sheet} control={item as SplitButtonControl} />
                         </Match>
                         <Match when={true}>
                           <div>{item.type}</div>
@@ -373,14 +662,17 @@ export function Toolbar(props: ParentProps<Props>) {
               <DropMenu label={session().email || ''}>
               <menu>
                 <button class={style['menu-item']} onclick={event => goto('/account')}>
+                  <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.account-page')}</span>
                 </button>
                 <button class={style['menu-item']} onclick={event => goto('/documents')}>
+                  <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.documents')}</span>
                 </button>
 
                 <hr />
                 <button class={style['menu-item']} onclick={event => goto('/sign-out')}>
+                  <div class='display-contents' innerHTML={bootstrap_icons.box_arrow_right}></div>
                   <span>{t('toolbar.menu-commands.sign-out')}</span>
                 </button>
               </menu>

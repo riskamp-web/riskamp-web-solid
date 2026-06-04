@@ -1,11 +1,12 @@
 
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 import { toolbar_config } from './toolbar-config';
-import { ButtonControl, ComboBoxControl, TextButtonControl } from './toolbar-utils';
+import { ButtonControl, ColorButtonControl, ComboBoxControl, TextButtonControl } from './toolbar-utils';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { t } from '~/i18n/i18n';
 import { BooleanKeys } from '~/lib/typescript-magic';
 import { CellStyle } from 'riskamp-web';
+import { ResolveThemeColor } from '@trebco/treb/treb-base-types';
 
 let command_list: [string, ComboBoxControl|ButtonControl|TextButtonControl][]|undefined;
 
@@ -41,12 +42,57 @@ function GenerateCommandList(config: typeof toolbar_config) {
 
 }
 
+let color_list: ColorButtonControl[]|undefined;
+
+function GenerateColorList(config: typeof toolbar_config) {
+
+  const list: ColorButtonControl[] = [];
+
+  for (const tab of config.tabs) {
+
+    for (const group of tab.groups || []) {
+      if (Array.isArray(group)) {
+        for (const control of group) {
+          if (control.type === 'color-button') {
+            // if (control.command.state_key) {
+              list.push(control);
+            //}
+          }
+          else if (control.type === 'more') {
+            for (const subcontrol of control.controls) {
+              if (subcontrol.type === 'color-button') {
+                //if (subcontrol.command.state_key) {
+                  list.push(subcontrol);
+                //}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return list;
+
+}
+
 interface StateMenuItem {
   value: string;
   label: string; // i18n
 }
 
-export function ResolveColors() {
+export function ResolveColors(sheet: SpreadsheetType, config: typeof toolbar_config) {
+
+  if (!color_list) {
+    color_list = GenerateColorList(config);
+  }
+
+  for (const control of color_list) {
+    if (control.command.active_color) {
+      control.command.value = ResolveThemeColor(sheet.grid.theme, control.command.active_color, 0);
+    }
+  }
+
   // placeholder
 }
 

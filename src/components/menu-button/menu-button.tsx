@@ -17,6 +17,9 @@ interface Props {
    */
   single_button_style?: boolean;
 
+  onbeforetoggle?: (event: ToggleEvent) => void;
+  ontoggle?: (event: ToggleEvent) => void;
+
 }
 
 const Context = createContext<{
@@ -24,6 +27,9 @@ const Context = createContext<{
   container_id: string;
   inline_style: string;
   single_button_style?: boolean;
+
+  onbeforetoggle?: (event: ToggleEvent) => void;
+  ontoggle?: (event: ToggleEvent) => void;
 }>();
 
 export function MenuButton(props: ParentProps<Props>) {
@@ -42,7 +48,14 @@ export function MenuButton(props: ParentProps<Props>) {
     `left: anchor(--${container_id} left);`,
   ].join(' ');
 
-  return <Context.Provider value={{ popover_id, container_id, inline_style, single_button_style: props.single_button_style }}>
+  return <Context.Provider value={{ 
+          popover_id, 
+          container_id, 
+          inline_style, 
+          single_button_style: props.single_button_style,
+          onbeforetoggle: props.onbeforetoggle,
+          ontoggle: props.ontoggle,
+        }}>
       <div class={style.container} 
           id={container_id} 
           style={`anchor-name: --${container_id}`}>{props.children}</div>
@@ -71,7 +84,12 @@ MenuButton.Static = (props: ParentProps<{class?: string}>) => {
 MenuButton.Menu = (props: ParentProps<{}>) => {
   const ctx = useContext(Context);
   return <>
-      <div class={style.menu} popover id={ctx?.popover_id} data-anchor={`--${ctx?.container_id}`} style={ctx?.inline_style || ''}>
+      <div class={style.menu} 
+           popover id={ctx?.popover_id} 
+           data-anchor={`--${ctx?.container_id}`} 
+           onbeforetoggle={ctx?.onbeforetoggle}
+           ontoggle={ctx?.ontoggle}
+           style={ctx?.inline_style || ''}>
         {props.children}
       </div>
     </>;

@@ -70,7 +70,16 @@ export default function Page() {
     sheet.ApplyStyle(undefined, { [name]: !value });
     sheet.Focus();
   }
- 
+
+  function NewDocument() {
+
+    // TOOD: path
+
+    // TODO: alert
+
+    getSheet()?.Reset();
+
+  }
 
   // FIXME: move this to a lib file, it doesn't need to clog up this file
   function HandleCommand(command: ToolbarCommand & { key: ToolbarCommandKey}) {
@@ -81,6 +90,10 @@ export default function Page() {
     }
 
     switch (command.key) {
+      case 'new':
+        NewDocument();
+        break;
+
       case 'save-to-desktop':
 
         // options? what are the defaults?
