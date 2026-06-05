@@ -8,12 +8,15 @@ interface SessionData {
   llm_tab_split: number;
 }
 
-interface PersistentData {
+export interface PersistentData {
   lhs: boolean;
   stepped: boolean; 
   trials: number; // FIXME: should be per-sheet
   llm_model: Model|undefined;
   llm_api_keys: Record<string, string>;
+  quickview_tab: number;
+  quickview_minmax: "minmax"|"iqr";
+  quickview_bin_algorithm: "ss"|"fd"|"sturges"|"auto";
 }
 
 interface AppData {
@@ -33,6 +36,9 @@ export const [persistentData, setPersistentData] = createStore<PersistentData>({
   trials: 6781,
   llm_model: undefined,
   llm_api_keys: {},
+  quickview_tab: 0,
+  quickview_bin_algorithm: 'auto',
+  quickview_minmax: "minmax",
 });
 
 export function InitAppData() {

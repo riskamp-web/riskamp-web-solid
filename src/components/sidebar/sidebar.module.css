@@ -55,3 +55,102 @@ header {
   overflow: hidden;
 }
 
+.quick-view-layout {
+  padding: 1em 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto auto;
+  overflow: hidden;
+  row-gap: 1em;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+
+  & > div {
+    overflow: hidden;
+  }
+
+  & > div + div {
+    border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    padding-top: 1em;
+  }
+
+  :global(.tab-container) {
+    column-gap: .75em;
+  }
+
+  :global(.tab) {
+    border-bottom: 3px solid transparent;
+    padding: .5em;
+    margin-bottom: .5em;
+    padding-bottom: 0;
+    &:has(input:checked) {
+      border-bottom: 3px solid orange;
+    }
+  }
+
+  .trailer {
+    grid-row: 1/2;
+    grid-column: 3/-1;
+    text-align: right;
+    border-bottom: 3px solid transparent;
+    padding: .5em;
+    padding-bottom: 0;
+    margin-bottom: .5em;
+  }
+
+  :global(.tab-content) {
+
+    display: block;
+    position: relative;
+    min-height: 40%;
+    padding: 1em 0 0 0 ;
+  }
+
+  /*
+  :global(.tab:has(input:checked)) {
+    border-bottom: 3px solid red;
+  }
+  */
+
+
+  .chart-container {
+    height: 100%;
+    width: 100%;
+    position: relative;
+  }
+
+  .box-stats-table {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    font-size: 14px;
+    overflow: hidden;
+
+    .row {
+      display: contents;
+      &:hover {
+        & > div {
+          background: rgba(0, 0, 0, .025);
+        }
+
+      }
+
+      & > div {
+        padding: .375em 1em;
+      }
+
+      
+    }
+
+    .separator {
+      grid-column: 1/-1;
+      border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+      margin-top: .5em;
+      padding-top: .5em;
+      display: block;
+    }
+
+  }
+
+}

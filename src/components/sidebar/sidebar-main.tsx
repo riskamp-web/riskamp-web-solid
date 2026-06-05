@@ -5,7 +5,7 @@ import { JSX } from 'solid-js/h/jsx-runtime';
 // import './search-sidebar';
 
 import { Dynamic, Show } from 'solid-js/web';
-import { Signal, type Component } from 'solid-js';
+import { Accessor, Signal, type Component } from 'solid-js';
 
 import { registry } from './registry';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
@@ -18,6 +18,7 @@ import { t } from '~/i18n/i18n';
 export interface SidebarProps {
   bind: Signal<string|undefined>;
   sheet?: SpreadsheetType;
+  split: Accessor<number>;
 }
 
 export function Sidebar(main_props: SidebarProps) {
@@ -44,8 +45,9 @@ export function Sidebar(main_props: SidebarProps) {
       <Show when={sidebar()}>
         <span>{t(ToolbarCommands[sidebar() as ToolbarCommandKey].title)}</span>
       </Show>
-      <button class={style['close-sidebar']} onclick={() => setSidebar()} 
-              ref={(el) => (el.innerHTML = bootstrap_icons.x_lg || '')}/>
+      <button class={style['close-sidebar']} 
+              onclick={() => setSidebar()} 
+              innerHTML={bootstrap_icons.x_lg} />
     </header>
     <div class={style.container}>
       <RenderForKey key={sidebar()} />
