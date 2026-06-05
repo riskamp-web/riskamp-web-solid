@@ -143,7 +143,7 @@ export const ToolbarCommands = {
     // icon: phosphor.text_aa,
     icon: bs.type,
     default_color: { type: 'theme', theme: 1 },
-    active_color: { type: 'theme', theme: 5 },
+    active_color: { type: 'theme', theme: 4 },
   },
 
   'fill-color': {

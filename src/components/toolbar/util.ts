@@ -91,6 +91,9 @@ export function ResolveColors(sheet: SpreadsheetType, config: typeof toolbar_con
     if (control.command.active_color) {
       control.command.value = ResolveThemeColor(sheet.grid.theme, control.command.active_color, 0);
     }
+    else {
+      control.command.value = ResolveThemeColor(sheet.grid.theme, control.command.default_color, 0);
+    }
   }
 
   // placeholder

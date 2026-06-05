@@ -57,6 +57,7 @@ export interface CompositeMenuControl {
   icons?: boolean;
   text?: boolean;
   horizontal?: boolean;
+  group_icon?: string;
 }
 
 /** more controls, hidden */

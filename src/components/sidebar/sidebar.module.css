@@ -20,7 +20,7 @@ header {
   justify-content: space-between;
   background-color: rgb(255, 238, 221);
   font-weight: bold;
-  padding: .5em .75em;
+  padding: .35em .5em;
   font-size: 1.2rem;
 
   button.close-sidebar {
@@ -39,3 +39,19 @@ header {
   overflow: hidden;
   position: relative;
 }
+
+.find-layout {
+  padding: 1em 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  row-gap: 1em;
+  height: 100%;
+}
+
+.find-grid-table {
+  grid-template-columns: auto auto 1fr;
+  overflow: hidden;
+}
+

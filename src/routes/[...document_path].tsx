@@ -28,6 +28,8 @@ import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline-dialog/sparkline';
 import { TrendForecastingDialog } from '~/components/dialogs/trend-forecasting/trend-forecasting-dialog';
 import { RunTrendForecast, trend_forecast_props } from '~/components/dialogs/trend-forecasting/trend-forecasting';
+import { BorderConstants } from '@trebco/treb';
+import { sessionData, setSessionData } from '~/lib/app-data';
 
 function Spin() {
   spinner.show();
@@ -38,22 +40,7 @@ function Spin() {
 
 export default function Page() {
 
-  const params = useParams();
-
-  let initial_value = 40;
-
-  onMount(() => {
-    const text = localStorage.getItem('split');
-    if (text) {
-      setSplit(JSON.parse(text));
-    }
-    queueMicrotask(() => {
-      setInitialized(true);
-    });
-  });
-
-  const [split, setSplit] = createSignal(initial_value);
-  const [initialized, setInitialized] = createSignal(false);
+  const [split, setSplit] = createSignal(100);
   const OpenSignal = createSignal(false);
   const [open, setOpen] = OpenSignal;
   const [getSheet, setSheet] = createSignal<SpreadsheetType|undefined>();
@@ -86,6 +73,17 @@ export default function Page() {
 
     const sheet = getSheet();
     if (!sheet) {
+      return;
+    }
+
+    if (command?.key.startsWith('border-') && command.key !== 'border-color') {
+      let border_command = command.key.substring(7);
+      let width = 1;
+      if (border_command.startsWith('double-')) {
+        width = 2;
+        border_command = border_command.substring(7);
+      }
+      sheet.ApplyBorders(undefined, border_command as BorderConstants, width);
       return;
     }
 
@@ -236,6 +234,21 @@ export default function Page() {
         sheet.Focus();
         break;
 
+      case 'text-color':
+      case 'fill-color':
+      case 'border-color':
+        {
+          let color: Color|undefined;
+          if (command.type === 'color') {
+            color = command.active_color;
+          }
+          sheet.HandleToolbarMessage({
+            command: command.key,
+            color,
+          });
+        }
+        break;
+
       case 'align-left':
         ApplyProperty(sheet, 'horizontal_align', 'left');
         sheet.Focus();
@@ -277,7 +290,12 @@ export default function Page() {
       case 'quick-view-correlation':
       case 'notes':
       case 'simulation-settings':
-        setSidebar(command.key);
+        if (active_sidebar() === command.key) {
+          setSidebar(undefined);
+        }
+        else {
+          setSidebar(command.key);
+        }
         break;
 
       default:
@@ -303,15 +321,11 @@ export default function Page() {
     }
   }));
 
-
+  /** show the sidebar when you select one (if it's hidden) */
   createEffect(on(sidebar, (value) => {
-
     if (value) {
-
-      console.info("Value", value, "split", split());
-
       if (split() >= 90) {
-        setSplit(75);
+        setSplit(sessionData.last_split); 
       }
     }
     else {
@@ -320,18 +334,16 @@ export default function Page() {
   }));
 
   /** FIXME: this should be part of a larger app state */
-  createEffect(
-    on(
-      split, 
-      (value) => {
-        localStorage.setItem('split', JSON.stringify(value));
-        if (value >= 90) {
-          setSidebar(undefined);
-        }
-      }, 
-      { defer: true }
-    )
-  );
+  createEffect(on(split, value => {
+      if (value >= 90) {
+        // setSidebar(undefined);
+      }
+      else {
+        setSessionData({ last_split: value });
+      }
+    }, 
+    { defer: true }
+  ));
 
   function active_sidebar() {
 

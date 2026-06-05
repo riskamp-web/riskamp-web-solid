@@ -1,7 +1,7 @@
 
 import type { ToolbarCommandKey } from '../toolbar/toolbar-commands';
 import './ai-sidebar/ai-sidebar';
-import './search-sidebar';
+import './search-sidebar/search-sidebar';
 import { type Component } from 'solid-js';
 import { SidebarProps } from './sidebar-main';
 

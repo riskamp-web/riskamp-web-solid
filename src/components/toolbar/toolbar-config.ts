@@ -1,5 +1,5 @@
 
-import { bootstrap_icons } from 's5-icon-lib';
+import { bootstrap_icons, fa_regular, fa_sharp_light, lucide } from 's5-icon-lib';
 import type { ToolbarCommandKey } from './toolbar-commands';
 import type { ToolbarConfig, ToolbarMenu } from './toolbar-utils';
 import { iconmenu, button, more, textbutton, textmenu, colorbutton, splitbutton, spacer, separator, WrapCommand } from './toolbar-utils';
@@ -131,11 +131,11 @@ export const toolbar_config: ToolbarConfig = {
         ],
         [
           colorbutton('text-color'),
-          spacer(),
+          // spacer(),
           colorbutton('fill-color'),
         ],
         [
-          iconmenu([
+          {...iconmenu([
             'border-top',
             'border-left',
             'border-right',
@@ -144,7 +144,7 @@ export const toolbar_config: ToolbarConfig = {
             'border-outside',
             'border-none',
             'border-double-bottom',
-          ], 3),
+          ], 3), text: true },
           colorbutton('border-color'),
         ],
         [
@@ -206,18 +206,22 @@ export const toolbar_config: ToolbarConfig = {
             [
               // label('toolbar.label.spreadsheet-cells'),
 
+              /*
               {
                 type: 'icon',
                 // icon: lucide.pencil_ruler,
                 icon: bootstrap_icons.rulers,
+                // icon: bootstrap_icons.columns,
+                // icon: fa_regular.ruler_triangle,
               },
+              */
 
-              textmenu([
+              { ...textmenu([
                 'insert-row',
                 'insert-column',
                 'delete-row',
                 'delete-column',
-              ]),
+              ]), group_icon: bootstrap_icons.rulers },
             ],
       ],
 

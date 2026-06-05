@@ -24,7 +24,7 @@
 .chart {
   border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
   flex-grow: 1;
-  min-width: 300px;
+  min-width: 350px;
   height: 100%;
 }
 

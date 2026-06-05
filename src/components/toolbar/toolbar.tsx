@@ -23,30 +23,10 @@ import { ResolveColors, UpdateState } from './util';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { Color, ThemeColor } from '@trebco/treb';
 import { Measurement } from '@trebco/treb/treb-utils';
+import { ColorButton } from './toolbar-color-picker';
+import { CompositeMenu } from './composite-menu';
 
 //////////////
-
-interface ColorType {
-  color: Color;
-  resolved: string;
-};
-
-const base_other_colors = ['Black', 'White', 'Gray', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Indigo', 'Violet'];
-
-const color_map: Map<string, string> = new Map();
-function MapColor(color: string) {
-  color = color.toLowerCase();
-  let mapped = color_map.get(color);
-  if (mapped) { return mapped; }
-  const clamped = Measurement.MeasureColor(color).slice(0, 3);
-  mapped = '#' + Array.from(clamped).map((value: number) => {
-    const s = value.toString(16);
-    if (s.length === 1) { return '0' + s; }
-    return s;
-  }).join('').toUpperCase();
-  color_map.set(color, mapped);
-  return mapped;
-};
 
 ////////////
 
@@ -175,50 +155,6 @@ export function Toolbar(props: ParentProps<Props>) {
     props.oncommand?.(command);
   }
 
-  function CompositeMenu(props: {item: CompositeMenuControl}) {
-    return <>
-      <MenuButton>
-        <MenuButton.Static>
-          <button class={style['toolbar-button']} >
-            <Show when={props.item.commands[props.item.active].icon}>
-              <span ref={(el) => (el.innerHTML = props.item.commands[props.item.active].icon || '')} />
-            </Show>
-          </button>
-        </MenuButton.Static>
-        <MenuButton.Menu>
-          <menu classList={{
-                  [style.horizontal]: props.item.horizontal,
-                }}>
-            <Switch>
-              <Match when={props.item.icons && props.item.text}>
-                <>both?</>
-              </Match>
-              <Match when={props.item.text}>
-                <>
-                  {props.item.commands.map(subitem => <li>
-                    <button class={style['toolbar-button']}
-                            onclick={e => HandleCommand(e, subitem)}>
-                      {t(subitem.title)}
-                    </button>
-                  </li>)}
-                </>
-              </Match>
-              <Match when={props.item.icons}>
-                <>
-                  {props.item.commands.map(subitem => <li>
-                    <button class={style['toolbar-button']} 
-                            onclick={e => HandleCommand(e, subitem)}
-                            ref={(el) => (el.innerHTML = subitem.icon || '')} />
-                  </li>)}
-                </>
-              </Match>
-            </Switch>
-          </menu>
-        </MenuButton.Menu>
-      </MenuButton>
-    </>;
-  }
-
   function UpdateNumberFormat(event: Event, command: ToolbarCommand & {key: ToolbarCommandKey}, item?: {value: string, label: string}) {
 
     if (item) {
@@ -292,163 +228,7 @@ export function Toolbar(props: ParentProps<Props>) {
     </>;
   }
 
-  function IsThemeColor(color: Color): color is ThemeColor {
-    return !!color && (typeof (color as ThemeColor).theme !== 'undefined');
-  }
 
-  function ThemeColorTitle(color: Color) {
-    let text = '';
-    if (IsThemeColor(color)) {
-      switch (color.theme) {
-        case 0:
-        case 2:
-          text = t('color-picker.theme.background');
-          break;
-
-        case 1:
-        case 3:
-          text = t('color-picker.theme.text');
-          break;
-
-        default:
-          text = t('color-picker.theme.accent');
-          break;
-      }
-
-      if (color.tint) {
-        text += ` (${props.sheet()?.FormatNumber(color.tint, '+0%;-0%')})`;
-      }
-
-    }
-    return text;
-  }
-
-  function ColorButton(props: { control: ColorButtonControl, sheet: () => SpreadsheetType|undefined }) {
-
-    const [themeColors, setThemeColors] = createSignal<ColorType[][]>([]);
-    const [otherColors, setOtherColors] = createSignal<ColorType[]>([]);
-
-    function BeforeToggle(event: ToggleEvent) {
-      if (event.newState === 'open') {
-        console.info("OPEN");
-      }
-
-      const sheet = props.sheet();
-      if (sheet) {
-        const colors: ColorType[][] = [];
-        const source = (sheet?.document_styles.theme_colors || []) as ColorType[][];
-
-        const columns = source.length;
-        const rows = source[0]?.length || 0; 
-
-        for (let i = 0; i < rows; i++) {
-          const row: ColorType[] = [];
-          for (let j = 0; j < columns; j++) {
-            row.push(source[j][i]);
-            // row.push({ color: { type: 'text', text: 'green' }, resolved: '#def' });
-          }
-          colors.push(row);
-        }
-
-        console.info({colors}, 'st', sheet?.document_styles.theme_colors);
-        setThemeColors(colors);
-        
-        const mapped_colors = base_other_colors.map(MapColor);
-        const additional_colors: string[] = sheet?.document_styles.colors.map((color: string) => MapColor(color)).filter((test: string) => {
-          return !mapped_colors.includes(test);
-        }) || [];
-
-        setOtherColors([...mapped_colors, ...additional_colors].map(text => {
-          return {
-            resolved: text,
-            color: { text },
-          };
-        }));
-
-      }
-
-    }
-
-    return <>
-        <MenuButton onbeforetoggle={BeforeToggle}>
-          <MenuButton.Static>
-            <button style={`--applied-color: ${props.control.command.value || '#fff'};`}
-                    classList={{ 
-                      [style['toolbar-button']]: true, 
-                      [style['color-button']]: true,
-                    }}
-                    onclick={e => HandleCommand(e, props.control.command)}
-                    innerHTML={props.control.command.icon || ''} 
-            ></button>
-                  
-          </MenuButton.Static>
-          <MenuButton.Menu>
-            <div class={style['color-picker']}>
-              <h1>{t(props.control.command.title)}</h1>
-
-              <h2>{t('color-picker.theme_colors')}</h2>
-              <div class={style.swatches} style={`grid-template-columns: repeat(${
-                themeColors()[0]?.length || 0}, auto)`}>
-
-                <For each={themeColors()}>
-                  {row => <div class="display-contents">
-                    <For each={row}>
-                      {color => <button class={style.swatch} 
-                                        data-color='theme' 
-                                        data-color-theme={IsThemeColor(color.color) ? color.color.theme : undefined} 
-                                        data-color-tint={IsThemeColor(color.color) ? color.color.tint : undefined} 
-                                        title={ThemeColorTitle(color.color)}
-                                        style={`--swatch-color: ${color.resolved};`}
-                                      />}
-                    </For>
-                  </div>}
-                </For>
-
-              </div>
-
-              <Show when={props.control.command.default_color_text}>
-                <h2>{t('color-picker.no_color')}</h2>
-                <div class={style.swatches}>
-                  <div class="flex-row gap-1">
-                    <button class={style.swatch} innerHTML={bootstrap_icons.x_lg} />
-                    <div>{t(props.control.command.default_color_text)}</div>
-                  </div>
-                </div>
-              </Show>
-
-              <h2>{t('color-picker.other_colors')}</h2>
-              <div class={style.swatches} style={`grid-template-columns: repeat(${
-                themeColors()[0]?.length || 0}, auto)`}>
-
-                  <For each={otherColors()}>
-                    {color => <button class={style.swatch} 
-                                      data-color='theme' 
-                                      data-color-theme={IsThemeColor(color.color) ? color.color.theme : undefined} 
-                                      data-color-tint={IsThemeColor(color.color) ? color.color.tint : undefined} 
-                                      title={ThemeColorTitle(color.color)}
-                                      style={`--swatch-color: ${color.resolved};`}
-                                    />}
-                  </For>
-
-              </div>
-
-              <h2>{t('color-picker.new_color')}</h2>
-                <div class={style.swatches}>
-                  <div class="flex-row gap-1">
-                    <input type="color" />
-                    <div>{t('color-picker.choose_color')}</div>
-                    <div class="flex-grow"></div>
-                    <button class={style.swatch} 
-                            title={t('color-picker.use_selected_color')}
-                            innerHTML={bootstrap_icons.check_lg} />
-                  </div>
-                </div>
-
-            </div>
-          </MenuButton.Menu>
-        </MenuButton>
-      </>    
-  }
 
   function RenderButton(props: {control: ButtonControl}) {
 
@@ -546,109 +326,105 @@ export function Toolbar(props: ParentProps<Props>) {
         </div>
         
         <div class={style.menubar}>
-
-          {/* this is never going to change at runtime, so we can use a map -- I think? */}
-
-          {toolbar_config.menus?.map(menu => <>
-            <DropMenu label={t(menu.label)}>
-              <menu>
-                {menu.items?.map(item => <li>
-                  {item === 'separator' ? <hr/> :
-                    <button class={style['menu-item']} onclick={event => HandleMenuItem(event, item)}>
-                      <Switch>
-                        <Match when={item.menuicon && item.icon}>
-                          <div class='display-contents' innerHTML={item.icon || ''} />
-                        </Match>
-                        <Match when={props.sidebar?.() === item.key}>
-                          <div class='display-contents' innerHTML={bootstrap_icons.check2 || ''} />
-                        </Match>
-                        <Match when={true}>
-                          <div class={style['svg-placeholder']}></div>
-                        </Match>
-                      </Switch>
-                      <span>{t(item.title)}</span>
-                    </button>}
-                </li>)}
-              </menu>
-            </DropMenu>
-          </>)}
-
+          <For each={toolbar_config.menus||[]}>
+            {menu => <>
+              <DropMenu label={t(menu.label)}>
+                <menu>
+                  <For each={menu.items || []}>
+                    {item => <li>
+                      {item === 'separator' ? <hr/> :
+                        <button class={style['menu-item']} onclick={event => HandleMenuItem(event, item)}>
+                          <Switch>
+                            <Match when={item.menuicon && item.icon}>
+                              <div class='display-contents' innerHTML={item.icon || ''} />
+                            </Match>
+                            <Match when={props.sidebar?.() === item.key}>
+                              <div class='display-contents' innerHTML={bootstrap_icons.check2 || ''} />
+                            </Match>
+                            <Match when={true}>
+                              <div class={style['svg-placeholder']}></div>
+                            </Match>
+                          </Switch>
+                          <span>{t(item.title)}</span>
+                        </button>}
+                    </li>}
+                  </For>
+                </menu>
+              </DropMenu>
+            </>}
+          </For>
         </div>
 
         <div class={style.separator}></div>
 
-        {toolbar_config.tabs.map((tab, index) => <div class="tab-pane">
-          <label classList={{"tab": true, [style.tab]: true}}>
-            <input type="radio" 
-                   data-label={t(tab.label)} 
-                   name={tab_group_name} 
-                   checked={index === sessionData.active_tab} 
-                   onchange={e => { if (e.currentTarget.checked) { setSessionData(produce(s => s.active_tab = index)) }}}
-                   />
-          </label>
-          <div classList={{
-            'tab-content': true,
-            [style['tab-content']]: true,
-            }}>
-              {tab.groups?.map(group => <>
+          <For each={toolbar_config.tabs}>
+            {(tab, index) => <div class="tab-pane">
+              <label classList={{"tab": true, [style.tab]: true}}>
+                <input type="radio" 
+                      data-label={t(tab.label)} 
+                      name={tab_group_name} 
+                      checked={index() === sessionData.active_tab} 
+                      onchange={e => { if (e.currentTarget.checked) { setSessionData(produce(s => s.active_tab = index())) }}}
+                      />
+              </label>
+              <div classList={{
+                  'tab-content': true,
+                  [style['tab-content']]: true,
+                  }}>
+                    
+                  <For each={tab.groups || []}>
+                    {group => <>
 
-                <Switch>
-                  <Match when={Array.isArray(group)}>
-                    <For each={group as Control[]}>{(item, index) =>
-                      <Switch>
-                        <Match when={item.type === 'composite-menu'}>
-                          <CompositeMenu item={item as CompositeMenuControl}/>
-                        </Match>
-                        <Match when={item.type === 'button'}>
-                          <RenderButton control={item as ButtonControl}/>
-                        </Match>
-                        <Match when={item.type === 'text-button'}>
-                          <button classList={{[style['toolbar-button']]: true, [style['text-button']]: true }}
-                                  onclick={e => HandleCommand(e, (item as TextButtonControl).command)}>
-                            <span ref={(el) => (el.innerHTML = (item as TextButtonControl).command.icon || '')} />
-                            <span>{t((item as TextButtonControl).command.title)}</span>
-                          </button>
-                        </Match>
-                        <Match when={item.type === 'color-button'}>
-                          <ColorButton control={item as ColorButtonControl} sheet={props.sheet}/>
-                        </Match>
-                        <Match when={item.type === 'icon'}>
-                          <div class={style['toolbar-icon']} ref={(el) => (el.innerHTML = (item as ToolbarIcon).icon || '')} />
-                        </Match>
-                        <Match when={item.type === 'label'}>
-                          <div>{`label`}</div>
-                        </Match>
-                        <Match when={item.type === 'combo-box'}>
-                          <ComboBox control={item as ComboBoxControl} />
-                        </Match>
-                        <Match when={item.type === 'more'}>
-                          <More control={item as MoreControl} />
-                        </Match>
-                        <Match when={item.type === 'split-button'}>
-                          <SplitButton sheet={props.sheet} control={item as SplitButtonControl} />
-                        </Match>
-                        <Match when={true}>
-                          <div>{item.type}</div>
-                        </Match>
-                      </Switch>
-                    }</For>
-                  </Match>
-                  <Match when={true}>
-                    not array!
-                  </Match>
-                </Switch>
+                      <div class={style.group}>
 
-                {/* 
-                {Array.isArray(group) ? group.map(control => <>{
-                  control.type === 'button' ? RenderButton(control) : 
-                  control.type === 'text-button' ? RenderTextButton(control) : <>OTHER</>
-                }</>) : <>N</>}
+                      <For each={group as Control[]}>{(item, index) =>
+                        <Switch>
+                          <Match when={item.type === 'composite-menu'}>
+                            <CompositeMenu item={item as CompositeMenuControl} HandleCommand={HandleCommand}/>
+                          </Match>
+                          <Match when={item.type === 'button'}>
+                            <RenderButton control={item as ButtonControl}/>
+                          </Match>
+                          <Match when={item.type === 'text-button'}>
+                            <button classList={{[style['toolbar-button']]: true, [style['text-button']]: true }}
+                                    onclick={e => HandleCommand(e, (item as TextButtonControl).command)}>
+                              <span ref={(el) => (el.innerHTML = (item as TextButtonControl).command.icon || '')} />
+                              <span>{t((item as TextButtonControl).command.title)}</span>
+                            </button>
+                          </Match>
+                          <Match when={item.type === 'color-button'}>
+                            <ColorButton HandleCommand={HandleCommand} control={item as ColorButtonControl} sheet={props.sheet}/>
+                          </Match>
+                          <Match when={item.type === 'icon'}>
+                            <div class={style['toolbar-icon']} innerHTML={(item as ToolbarIcon).icon || ''} />
+                          </Match>
+                          <Match when={item.type === 'label'}>
+                            <div>{`label`}</div>
+                          </Match>
+                          <Match when={item.type === 'combo-box'}>
+                            <ComboBox control={item as ComboBoxControl} />
+                          </Match>
+                          <Match when={item.type === 'more'}>
+                            <More control={item as MoreControl} />
+                          </Match>
+                          <Match when={item.type === 'split-button'}>
+                            <SplitButton sheet={props.sheet} control={item as SplitButtonControl} />
+                          </Match>
+                          <Match when={true}>
+                            <div>{item.type}</div>
+                          </Match>
+                        </Switch>
+                      }</For>
 
-                */}
+                      </div>             
 
-              </>)}
-          </div>
-        </div>)}
+                    </>}
+                  </For>
+
+                </div>
+            </div>}
+          </For>
+
 
         <div class={style.separator}></div>
 
@@ -688,12 +464,14 @@ export function Toolbar(props: ParentProps<Props>) {
         <div class={style.separator}></div>
 
         <div class={style.trailer}>
-          {toolbar_config.trailer?.map(item => <>
-            <button class={style['toolbar-button']} 
-                    onclick={e => HandleCommand(e, (item as ButtonControl).command)}
-                    title={t((item as ButtonControl).command.title)}
-                    ref={(el) => (el.innerHTML = (item as ButtonControl).command.icon || '')} />          
-          </>)}
+          <For each={toolbar_config.trailer || []}>
+            {item =><>
+              <button class={style['toolbar-button']} 
+                      onclick={e => HandleCommand(e, (item as ButtonControl).command)}
+                      title={t((item as ButtonControl).command.title)}
+                      ref={(el) => (el.innerHTML = (item as ButtonControl).command.icon || '')} />          
+            </>}
+          </For>
         </div>
 
     </div>

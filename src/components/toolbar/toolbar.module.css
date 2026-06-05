@@ -33,6 +33,10 @@ label.tab {
   }
 }
 
+.toolbar-icon {
+  font-size: 16px;
+}
+
 .toolbar-button {
   
   --toolbar-control-size: 28px;
@@ -52,6 +56,7 @@ label.tab {
   font-size: inherit;
   font-family: inherit;
   gap: .5em;
+  line-height: 0;
 
 
     &:not([disabled]):hover {
@@ -86,7 +91,19 @@ label.tab {
   display: flex;
   align-items: center;
   padding: 0 1em;
+}
+
+.group {
+  display: flex;
+  align-items: center;
   gap: 1em;
+}
+
+.group + .group {
+  border-left: 1px solid var(--toolbar-border-color);
+  border-left: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  padding-left: 1em;
+  margin-left: 1em;
 }
 
 .logo {
@@ -178,6 +195,11 @@ button.menu-item {
   gap: 1em;
   border: none;
   background: transparent;
+
+  &.composite {
+    line-height: 0;
+  }
+
 }
 
 menu.horizontal.horizontal.horizontal {
@@ -300,3 +322,19 @@ menu.text.overflow {
   }
 
 }
+
+.plaintext-button {
+  border: none;
+  background: transparent;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+}
+
+.composite-label {
+  padding-left: .5em;
+  padding-right: .5em;
+}
+

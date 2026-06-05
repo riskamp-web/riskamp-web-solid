@@ -4,6 +4,7 @@ import { type Model } from 'treb-llm-support';
 
 interface SessionData {
   active_tab: number;
+  last_split: number;
   llm_tab_split: number;
 }
 
@@ -22,6 +23,7 @@ interface AppData {
 
 export const [sessionData, setSessionData] = createStore<SessionData>({
   active_tab: 0,
+  last_split: 70,
   llm_tab_split: 70,
 });
 

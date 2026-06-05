@@ -1,5 +1,5 @@
 
-.grid-table {
+.simple-grid-table {
 
   display: grid;
   grid-template-columns: repeat(2, auto);
@@ -10,7 +10,88 @@
   & > .row {
     display: contents;
   }
+}
+
+/**
+ * scrollable table with fixed header, optional footer
+ */
+
+.grid-table {
+  border: 1px dotted currentColor;
+  border-radius: 3px;
+  display: grid;
+  column-gap: 1em;
+  row-gap: .5em;
+  padding: .5em;
+  grid-template-rows: [header] auto [body] 1fr [footer] auto;
 
 
+  .spaced {
+    width: 2em;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+  }
 
+  .limit {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+}
+
+.grid-table-row {
+  display: grid;
+  grid-template-columns: subgrid;
+  /* scroll-snap-align: start; */
+  grid-column: 1/-1;
+  transition: background-color .125s ease;
+
+  &:hover {
+    background: color-mix(in srgb, currentColor 3%, transparent);
+  }
+}
+
+.grid-table-header {
+  font-weight: 700;
+  grid-row: header;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1/-1;
+}
+
+.grid-table-footer {
+  grid-row: footer;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1/-1;
+}
+
+.grid-table-body {
+  align-content: start;
+  display: grid;
+  grid-row: body;
+  grid-column: 1/-1;
+  border-top: 1px dotted currentColor;
+  border-bottom: 1px dotted currentColor;
+  overflow: hidden;
+  overflow-y: scroll;
+  /* scroll-snap-type: y proximity; */
+  grid-template-columns: subgrid;  
+
+  & > * {
+    padding: .5em 0;
+  }
+
+  &.no-borders {
+    border-top: none;
+    border-bottom: none;
+  }
+
+}
+
+.all-columns {
+  grid-column: 1/-1;
 }

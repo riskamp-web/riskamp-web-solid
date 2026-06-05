@@ -70,6 +70,8 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
 
     setChartError(false);
 
+    try {
+
     const dates = props.data.timeline || ''; // parameters[0].value() || '';
     const values = props.data.values || ''; // parameters[1].value() || '';
     const sheet = props.sheet();
@@ -238,6 +240,12 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
       dates, values, sheet, chart_container
     });
 
+    }
+    catch (err) {
+      console.error(err);
+      setChartError(true);
+    }
+
   }
 
   createEffect(on(() => JSON.stringify(props.data), value => RedrawChart(), { defer: true }));
@@ -281,12 +289,21 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
 
               <div class={style.group}>
                 <label>{t('forecast-dialog.settings')}</label>
-                <div classList={{"grid-table": true, [style.table]: true }}>
+                <div classList={{"simple-grid-table": true, [style.table]: true }}>
 
                   <div class="row">
                     <div>{t('forecast-dialog.options.forecast-type')}</div>
                     <select class="select" value={props.data.forecast_type} onchange={
-                        e => props.setData({ forecast_type: e.currentTarget.value as typeof props.data.forecast_type})}>
+                        e => {
+                          const update: Partial<ForecastData> = { 
+                            forecast_type: e.currentTarget.value as typeof props.data.forecast_type,
+                          };
+                          if (update.forecast_type === 'excel-compatible') {
+                            update.type = 0; // force AAA
+                          }
+                          props.setData(update);
+                        }
+                      }>
                       <option value='excel-compatible'>{t('forecast-dialog.model-type.excel-compatible-forecast')}</option>
                       <option value='static'>{t('forecast-dialog.model-type.static-forecast')}</option>
                       <option value='stochastic'>{t('forecast-dialog.model-type.stochastic-forecast')}</option>
@@ -295,11 +312,11 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
 
                   <div class="row">
                     <div>{t('forecast-dialog.options.model-type')}</div>
-                    <select class="select" value={props.data.type} onchange={e => props.setData({ type: Number(e.currentTarget.value) as 0|1|2 })}>
-                      <option value={0}>AAA</option>
-                      <option value={1}>MAM</option>
-                      <option value={2}>MAdM</option>
-                    </select>
+                      <select class="select" value={props.data.type} onchange={e => props.setData({ type: Number(e.currentTarget.value) as 0|1|2 })}>
+                        <option value={0}>AAA</option>
+                        <option value={1} disabled={props.data.forecast_type === 'excel-compatible'}>MAM</option>
+                        <option value={2} disabled={props.data.forecast_type === 'excel-compatible'}>MAdM</option>
+                      </select>
                   </div>
 
                   <div class="row">
