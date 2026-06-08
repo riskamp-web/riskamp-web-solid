@@ -119,7 +119,7 @@ export function InsertFunctionDialog(props: Props) {
   }
 
   function Cancel() {
-    props.setData(undefined);
+    
     props.setOpen(false);
   }
 
