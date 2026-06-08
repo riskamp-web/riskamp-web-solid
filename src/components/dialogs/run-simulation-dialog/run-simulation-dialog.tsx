@@ -11,20 +11,23 @@ import { produce } from 'solid-js/store';
 import { ICellAddress } from '@trebco/treb';
 import { IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 
+export interface Options {
+  trials: number;
+  seed: number;
+  auto: boolean;
+  additional_cells: string[];
+}
+
 interface Props extends DialogProps<boolean> {
-  sheet?: SpreadsheetType;
-  'auto-start'?: boolean;
-  'additional-cells': Accessor<string[]>;
+  sheet: Accessor<SpreadsheetType|undefined>;
+  options: Accessor<Partial<Options>>;
 }
 
 export function RunSimulationDialog(props: Props) {
 
-  const [local, base_props] = splitProps(props, ['sheet', 'auto-start']);
   const [running, setRunning] = createSignal(false);
   const [progress, setProgress] = createSignal(0);
-
-  // const [screenUpdates, setScreenUpdates] = createSignal(true);
-  // const [trials, setTrials] = createSignal(5000);
+  const [trials, setTrials] = createSignal(0);
 
   const number_format = NumberFormatCache.Get('#,##0');
 
@@ -38,44 +41,69 @@ export function RunSimulationDialog(props: Props) {
   }
 
   function Stop() {
-    
+    if (running()) {
+      props.sheet()?.AbortSimulation();
+      setRunning(false);
+    }
+    else {
+      props.setOpen(false);
+    }
   }
 
   function Start() {
-    if (local.sheet) {
-
-      console.info("AC", props['additional-cells']());
+    const sheet = props.sheet();
+    if (sheet) {
 
       const additional_cells: ICellAddress[] = [];
-      for (const cell of props['additional-cells']?.() || []) {
-        const resolved = local.sheet.Resolve(cell);
-        if (IsCellAddress(resolved)) {
-          additional_cells.push(resolved);
-        }
-        else if (IsArea(resolved)) {
-          additional_cells.push(resolved.start);
+      const options = props.options();
+
+      if (options?.additional_cells) {
+        for (const cell of options?.additional_cells) {
+          const resolved = sheet.Resolve(cell);
+          if (IsCellAddress(resolved)) {
+            additional_cells.push(resolved);
+          }
+          else if (IsArea(resolved)) {
+            additional_cells.push(resolved.start);
+          }
         }
       }
 
+      const seed = sheet.user_data?.simulation?.seed || 0;
+
       setRunning(true);
-      local.sheet.RunSimulation(persistentData.trials, {
-        abort_on_dialog_close: false,
-        // TODO lhs
-        stepped: persistentData.stepped ? 25 : false,
-        additional_cells,
-      });
+      sheet.RunSimulation(trials(), {
+          abort_on_dialog_close: false,
+          lhs: persistentData.lhs,
+          stepped: persistentData.stepped ? 25 : false,
+          additional_cells,
+          seed: seed === 0 ? undefined : seed, // this is clunky
+        });
     }
   }
 
   let subscription = 0;
 
+  function HandleEscape(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      event.stopPropagation();
+      event.preventDefault();
+      Stop();
+    }
+  }
+
   createEffect(on(props.open, value => {
     if (value) {
 
       setProgress(0);
+      const sheet = props.sheet();
+      window.addEventListener('keydown', HandleEscape);
 
-      if (local.sheet) {
-        subscription = local.sheet.Subscribe((event: MCEmbeddedSheetEvent|EmbeddedSheetEvent) => {
+      if (sheet) {
+
+        setTrials(sheet.user_data?.simulation?.trials || persistentData.trials);
+
+        subscription = sheet.Subscribe((event: MCEmbeddedSheetEvent|EmbeddedSheetEvent) => {
           switch (event.type) {
             case 'simulation-complete':
               setRunning(false);
@@ -98,17 +126,19 @@ export function RunSimulationDialog(props: Props) {
           }
         });
 
-        if (local['auto-start']) {
+        if (props.options()?.auto) {
           queueMicrotask(() => Start());
         }
 
       }
     }
     else {
-      if (subscription) {
-        local.sheet?.Cancel(subscription);
+      const sheet = props.sheet();
+      if (sheet && subscription) {
+        sheet.Cancel(subscription);
         subscription = 0;
       }
+      window.removeEventListener('keydown', HandleEscape);
     }
   }));
 
@@ -122,15 +152,34 @@ export function RunSimulationDialog(props: Props) {
   };
 
   function UpdateTrials(event: Event) {
-    if (event.currentTarget instanceof HTMLInputElement) {
-      let value = Number(event.currentTarget.value);
-      if (value <= 0 || isNaN(value)) {
-        value = persistentData.trials;
-        event.currentTarget.value = number_format.Format(value);
+    if (event.target instanceof HTMLInputElement) {
+
+      const sheet = props.sheet();
+      if (sheet) {
+        let value = sheet.ParseNumber(event.target.value || '');
+        if (typeof value === 'number' && value > 0 && !isNaN(value)) {
+          const num = value;
+          setPersistentData(produce(s => { s.trials = num; }));
+          const user_data = sheet.user_data || {};
+          user_data.simulation = user_data.simulation || {};
+          user_data.simulation.trials = value;
+          sheet.user_data = user_data;
+        }
+        else {
+          value = trials();
+        }
+        event.target.value = number_format.Format(value);
       }
-      else {
-        setPersistentData(produce(s => { s.trials = value; }));
-        event.currentTarget.value = number_format.Format(value);
+    }
+  }
+
+  function InputKeyDown(event: KeyboardEvent) {
+    if (event.target instanceof HTMLInputElement) {
+      if (event.key === 'Enter') {
+        event.stopPropagation();
+        event.preventDefault();
+        event.target.blur();
+        queueMicrotask(() => Start());
       }
     }
   }
@@ -146,6 +195,7 @@ export function RunSimulationDialog(props: Props) {
           <input disabled={running()} 
                  value={number_format.Format(persistentData.trials)}
                  onchange={UpdateTrials}
+                 onkeydown={InputKeyDown}
                  type="text" 
                  class="input"></input>
         </div>
@@ -168,7 +218,7 @@ export function RunSimulationDialog(props: Props) {
         </div>
       </section>
       <footer>
-        <div> 
+        <div class={style.buttons}> 
           <button autofocus class="button" onclick={Start} disabled={running()}>{t('run-simulation-start-label')}</button>
           <button class="button" onClick={Stop} >{close_label()}</button>
         </div>

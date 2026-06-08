@@ -224,6 +224,7 @@ export default {
   "sparkline-dialog.sparkline-type-column-chart": "Column",
 
   "quick-view-dialog.title": "Quick view",
+  "quick-view-dialog.select-cell": "Select cell",
   "quick-view-dialog.tab-histogram": "Histogram",
   "quick-view-dialog.tab-box-plot": "Box plot",
   "quick-view-dialog.show-statistics": "Statistics",

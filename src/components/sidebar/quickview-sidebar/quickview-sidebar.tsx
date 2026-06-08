@@ -342,7 +342,7 @@ function RedrawInternal() {
         'quick-view': true,
       }}>
       <div class="flex-row">
-        <div class="reference-editor tc flex-grow" 
+        <div class="reference-editor tc contenteditable-placeholder flex-grow" 
               data-selection-target 
               tabindex="0"
               role="textbox" 
@@ -351,6 +351,7 @@ function RedrawInternal() {
               onfocusout={FocusOut}
               onfocusin={FocusIn}
               onkeydown={KeyDown}
+              data-placeholder={t('quick-view-dialog.select-cell')}
               oninput={e => TollRedraw()}
               onchange={e => TollRedraw()}
               ref={parameter_element}>{initial_value}</div>

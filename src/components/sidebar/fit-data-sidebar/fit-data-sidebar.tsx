@@ -3,7 +3,7 @@ import style from '../sidebar.module.css';
 import { Register } from '../registry';
 import { t } from '~/i18n/i18n';
 import { createMutable } from 'solid-js/store';
-import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, Show, Switch } from 'solid-js';
+import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, ParentProps, Show, Switch } from 'solid-js';
 
 import FindWorker from './find-worker?worker';
 import { type SidebarProps } from '../sidebar-main';
@@ -15,6 +15,8 @@ import { InteractiveSidebar } from '../interactive-sidebar';
 import { Heuristics } from '@trebco/treb/treb-data-model';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { RenderGraph } from './util';
+import { MCEmbeddedSheetEvent } from 'riskamp-web';
+import { persistentData } from '~/lib/app-data';
 
 export function Sidebar(props: SidebarProps) {
 
@@ -26,6 +28,7 @@ export function Sidebar(props: SidebarProps) {
   let chart_container: HTMLDivElement|undefined;
 
   let number_format = 'General';
+  let subscription = 0;
 
   function Resize() {
     if (chart_container) {
@@ -43,6 +46,20 @@ export function Sidebar(props: SidebarProps) {
       // RedrawInternal();
     });
 
+    const sheet = props.sheet();
+    if (sheet) {
+      if (subscription) {
+        sheet.Cancel(subscription);
+      }
+      subscription = sheet.Subscribe((event: EmbeddedSheetEvent|MCEmbeddedSheetEvent) => {
+        switch (event.type) {
+          case 'simulation-complete':
+            TollUpdate();
+            break;
+        }
+      });
+    }
+
     window.addEventListener('resize', Resize);
     requestAnimationFrame(() => {
       TollUpdate();
@@ -53,6 +70,11 @@ export function Sidebar(props: SidebarProps) {
 
   onCleanup(() => {
     window.removeEventListener('resize', Resize);
+    const sheet = props.sheet();
+    if (sheet && subscription) {
+      sheet.Cancel(subscription);
+      subscription = 0;
+    }
   });
 
   function FocusOut(event: FocusEvent) {
@@ -62,6 +84,13 @@ export function Sidebar(props: SidebarProps) {
   function FocusIn(event: FocusEvent) {
     // placeholder
   }
+
+  createEffect(on(props.split, value => {
+    if (value < 90) {
+      Resize();
+    }
+  }));
+
 
   function KeyDown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
@@ -268,17 +297,46 @@ export function Sidebar(props: SidebarProps) {
             area = target.RealArea(area as any) as any as Area;
         }
 
-        /*
-        area = Heuristics.TrimUndefined(area, target as any) as any as Area;
-        const headers = Heuristics.HasHeaders(area, target as any);
-
-        if (headers.row_headers) {
-          area = area.RemoveHeaderRow();
-        }
-        */
-
         const values = sheet.Evaluate(sheet.Unresolve(area));
         if (Array.isArray(values)) {
+
+          const temp: number[] = [];
+
+          for (const row of values) {
+            for (const element of row) {
+              switch (typeof element) {
+                case 'number':
+                  temp.push(element);
+                  break;
+
+                case 'undefined':
+                  if (!persistentData.fit_ignore_blanks) {
+                    temp.push(0);
+                  } 
+                  break;
+                  
+                case 'boolean':
+                  if (!persistentData.fit_ignore_boolean) {
+                    temp.push(element ? 1 : 0);
+                  }
+                  break;
+
+                case 'string':
+                  if (!persistentData.fit_ignore_strings) {
+                    if (element === '') {
+                      temp.push(0);
+                    }
+                    else {
+                      temp.push(1);
+                    }
+                  }
+                  break;
+              }
+
+            }
+          }
+
+          /*
           const temp = values.map(row => {
             return row.map(element => {
               switch (typeof element) {
@@ -298,87 +356,143 @@ export function Sidebar(props: SidebarProps) {
             });
           });
           setData(temp.flat());
+          */
+
+          setData(temp);
         }
       }
     }
   }
 
+  let copy_error = false;
+
+  let [copiedData, setCopiedData] = createSignal('');
+
+  async function CopyData(text?: string) {
+
+    if (!text) {
+      return;
+    }
+    
+    try {
+      await navigator.clipboard.writeText(text);
+      copy_error = false;
+      setCopiedData(text);
+      setTimeout(() => setCopiedData(''), 3000);
+    }
+    catch (err) {
+      setCopiedData('');
+      copy_error = true;
+      console.error(err);
+    }
+  }
+  
+  function CopyHeader(props: ParentProps<{ data: string }>) {
+    return <h1 class={style['copy-header']}>
+      <span>{props.children}</span>
+      <button disabled={!results()}
+              title={
+                copiedData() === props.data ?
+                  t('ui-interaction.copy-to-clipboard.copied') :
+                  t('ui-interaction.copy-to-clipboard')
+                }
+              onclick={() => CopyData(props.data)}
+              innerHTML={
+                copiedData() === props.data ?
+                bootstrap_icons.check :
+                bootstrap_icons.copy} />
+    </h1>
+  }
+
+  function FormatCopyData(table: string[][]) {
+    return table.map(row => row.join('\t')).join('\n');
+  }
+
   return <InteractiveSidebar {...props}>
     <div class={style['fit-data-layout']}>
 
-    <div class="flex-row">
-        <div class="reference-editor tc flex-grow" 
-              data-selection-target 
-              tabindex="0"
-              role="textbox" 
-              spellcheck="false"
-              contenteditable="true"
-              onfocusout={FocusOut}
-              onfocusin={FocusIn}
-              onkeydown={KeyDown}
-              data-placeholder={t('fit-data-panel.select-range')}
-              oninput={e => TollUpdate()}
-              onchange={e => TollUpdate()}
-              ref={parameter_element}>{initial_value}</div>
-      </div>
-
-    <hr />
-  
-    <h1>
-      <span>{t('fit-data-panel.candidate-distributions')}</span>
-      <select class="select" onchange={e => setSelectedIndex(Number(e.currentTarget.value) || 0)}>
-        <For each={fitResults()}>
-          {(result, index) => <option value={index()}>{result.distribution}</option>}
-        </For>
-      </select>
-    </h1>
-    <p>
-      <span>{t('fit-data-panel.candidate-distributions.description')}</span>
-    </p>
-
-    <h1>
-      <span>{t('fit-data-panel.distribution-parameters')}</span>
-    </h1>
-
-    <div class={style.boxed}>
-      <For each={parametersTable()}>
-        {row => <div class={style.row}>
-            <div>{row[0]}</div>
-            <div>{row[1]}</div>
-          </div>}
-      </For>
+      <div class="section flex-column">
+      <div class="flex-row">
+          <div class="reference-editor tc contenteditable-placeholder flex-grow" 
+                data-selection-target 
+                tabindex="0"
+                role="textbox" 
+                spellcheck="false"
+                contenteditable="true"
+                onfocusout={FocusOut}
+                onfocusin={FocusIn}
+                onkeydown={KeyDown}
+                data-placeholder={t('fit-data-panel.select-range')}
+                oninput={e => TollUpdate()}
+                onchange={e => TollUpdate()}
+                ref={parameter_element}>{initial_value}</div>
+        </div>
+      <hr />
     </div>
 
-<div class={style["graph-container"]} ref={chart_container}>
-    <svg xmlns="http://www.w3.org/2000/svg" 
-         preserveAspectRatio="none"
-         vector-effect="non-scaling-stroke"
-         viewBox={`0 0 ${graphSize().width} ${graphSize().height}`}
-         class="graph" >
-      <Show when={graphData()}>
-        <path d={graphData().data_points} class={style['fit-data']}></path>
-        <path d={graphData().sample_path} class={style['fit-theoretical']}></path>
-      </Show>
-    </svg>   
-  </div>
+    <div class="section flex-column">
+      <h1>
+        <span>{t('fit-data-panel.candidate-distributions')}</span>
+        <select class="select" onchange={e => setSelectedIndex(Number(e.currentTarget.value) || 0)}>
+          <For each={fitResults()}>
+            {(result, index) => <option value={index()}>{result.distribution}</option>}
+          </For>
+        </select>
+      </h1>
+      <p>
+        <span>{t('fit-data-panel.candidate-distributions.description')}</span>
+      </p>
+    </div>
 
-    <h1>
-      <span>{t('fit-data-panel.spreadsheet-function')}</span>
-    </h1>
+    <div class="section flex-column">
+      <CopyHeader data={FormatCopyData(parametersTable())}>
+        <span>{t('fit-data-panel.distribution-parameters')}</span>
+      </CopyHeader>
+      <div class={style.boxed}>
+        <For each={parametersTable()}>
+          {row => <div class={style.row}>
+              <div>{row[0]}</div>
+              <div>{row[1]}</div>
+              <div class="flex-grow" />
+            </div>}
+        </For>
+      </div>
+    </div>
 
-    <input type="text" class="input" disabled value={spreadsheetFunction()} />
+    <div class={style["graph-container"]} ref={chart_container}>
+      <svg xmlns="http://www.w3.org/2000/svg" 
+          preserveAspectRatio="none"
+          vector-effect="non-scaling-stroke"
+          viewBox={`0 0 ${graphSize().width} ${graphSize().height}`}
+          class="graph" >
+        <Show when={graphData()}>
+          <path d={graphData().data_points} class={style['fit-data']}></path>
+          <path d={graphData().sample_path} class={style['fit-theoretical']}></path>
+        </Show>
+      </svg>   
+    </div>
 
-    <h1>
-      <span>{t('fit-data-panel.statistics.error')}</span>
-    </h1>
+    <div class="section flex-column">
+      <CopyHeader data={spreadsheetFunction() || ''}>
+        <span>{t('fit-data-panel.spreadsheet-function')}</span>
+      </CopyHeader>
+      <input type="text" class="input" disabled value={spreadsheetFunction()} />
+    </div>
 
-    <div class={style.boxed}>
-      <For each={errorTable()}>
-        {row => <div class={style.row}>
-            <div>{row[0]}</div>
-            <div>{row[1]}</div>
-          </div>}
-      </For>
+
+    <div class="section flex-column">
+      <CopyHeader data={FormatCopyData(errorTable())}>
+        <span>{t('fit-data-panel.statistics.error')}</span>
+      </CopyHeader>
+      <div class={style.boxed}>
+        <For each={errorTable()}>
+          {row => <div class={style.row}>
+              <div>{row[0]}</div>
+              <div>{row[1]}</div>
+              <div class="flex-grow" />
+            </div>}
+        </For>
+      </div>
     </div>
 
   </div>

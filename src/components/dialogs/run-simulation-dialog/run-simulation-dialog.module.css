@@ -3,18 +3,26 @@
 
   display: flex;
   flex-direction: column;
-  gap: .5em;
+  gap: 1em;
 
   & > * {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: .5em;
+    gap: 1em;
     justify-content: center;
   }
 
-  input[type=text] { width: 8em; }
+  input[type=text] { 
+    width: 8em; 
+  }
 
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: .5em;
 }
 
 .progress {

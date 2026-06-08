@@ -15,12 +15,12 @@ import type { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { Sidebar } from '~/components/sidebar/sidebar-main';
 import { goto, OpenExternal } from '~/lib/navigate';
 
-import { RunSimulationDialog } from '~/components/dialogs/run-simulation-dialog/run-simulation-dialog';
+import { RunSimulationDialog, type Options as RunSimulationOptions } from '~/components/dialogs/run-simulation-dialog/run-simulation-dialog';
 import { SparklineDialog, SparklineData } from '~/components/dialogs/sparkline-dialog/sparkline-dialog';
 
 import { HijackDialog } from '~/lib/hijack-dialog';
 import { ApplyProperty, BooleanKeys } from '~/lib/typescript-magic';
-import { type CellStyle, type Color } from 'riskamp-web';
+import { MCEmbeddedSheetEvent, type CellStyle, type Color } from 'riskamp-web';
 import { Heuristics } from '@trebco/treb/treb-data-model';
 import { AwaitSignal } from '~/lib/await-signal';
 import { createStore } from 'solid-js/store';
@@ -52,9 +52,13 @@ export default function Page() {
   const [getSheet, setSheet] = createSignal<SpreadsheetType|undefined>();
   const [sidebar, setSidebar] = createSignal<string|undefined>();
 
-  const RunSimulationSignal = createSignal(false);
-  const [auto, setAuto] = createSignal(false);
-  const [additionalCells, setAdditionalCells] = createSignal<string[]>([]);
+  const [runSimulationOpen, setRunSimulationOpen] = createSignal(false);
+  const [runSimulationOptions, setRunSimulationOptions] = createSignal<Partial<RunSimulationOptions>>({});
+
+  // const RunSimulationSignal = createSignal(false);
+  // const [auto, setAuto] = createSignal(false);
+  // const [additionalCells, setAdditionalCells] = createSignal<string[]>([]);
+
 
   /**
    * listen for path changes, and (try to) load. we'll handle the 
@@ -146,16 +150,15 @@ export default function Page() {
 
       case 'run-simulation':
       case 'run-simulation-again':
-
-        if (Array.isArray(command.additional_data)) {
-          setAdditionalCells([...command.additional_data as string[]]);
+        {
+          const options: Partial<RunSimulationOptions> = {};
+          if (Array.isArray(command.additional_data)) {
+            options.additional_cells = [...command.additional_data as string[]];
+          }
+          options.auto = (command.key === 'run-simulation-again');
+          setRunSimulationOptions(options);
+          setRunSimulationOpen(true);
         }
-        else {
-          setAdditionalCells([]);
-        }
-
-        setAuto(command.key === 'run-simulation-again');
-        RunSimulationSignal[1](true);
         break;
 
       case 'recalculate':
@@ -355,16 +358,27 @@ export default function Page() {
       HijackDialog(sheet);
       TryLoadPath(sheet as SpreadsheetType, params.document_path || '');
 
-      sheet.Subscribe((event: EmbeddedSheetEvent) => {
+      sheet.Subscribe((event: EmbeddedSheetEvent|MCEmbeddedSheetEvent) => {
+
+        // store updates in cache
+
+        // NOTE: the load event here is unecessary if the document
+        // comes from cache. can we flag that somehow?
+
         switch (event.type) {
-          case 'selection':
-          case 'annotation-selection':
-          case 'focus-view':
           case 'load':
+          // case 'selection':
+          // case 'annotation-selection':
+          // case 'focus-view':
           case 'reset':
-          case 'view-change':
+          // case 'view-change':
           case 'document-change':
+          case 'simulation-complete':
+          case 'simulation-aborted':
+
             {
+              // console.info("save on event", event.type);
+
               const cache_path = params.document_path || '';
               // const cache_path = page_pathname + (historical_version ? `//${historical_version}` : '');
 
@@ -452,11 +466,10 @@ export default function Page() {
       <SparklineDialog {...sparkline_props} sheet={getSheet} />
       <TrendForecastingDialog {...trend_forecast_props} sheet={getSheet} />
 
-      <RunSimulationDialog open={RunSimulationSignal[0]} 
-                           setOpen={RunSimulationSignal[1]}
-                           auto-start={auto()}
-                           additional-cells={additionalCells}
-                           sheet={getSheet()} />
+      <RunSimulationDialog open={runSimulationOpen} 
+                           setOpen={setRunSimulationOpen}
+                           options={runSimulationOptions}
+                           sheet={getSheet} />
 
 
     </main>

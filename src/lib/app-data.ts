@@ -18,6 +18,7 @@ interface SessionData {
     view_scroll?: number;
     edit_scroll?: number;
   }
+
 }
 
 export interface PersistentData {
@@ -26,9 +27,15 @@ export interface PersistentData {
   trials: number; // FIXME: should be per-sheet
   llm_model: Model|undefined;
   llm_api_keys: Record<string, string>;
+
   quickview_tab: number;
   quickview_minmax: "minmax"|"iqr";
   quickview_bin_algorithm: "ss"|"fd"|"sturges"|"auto";
+
+  fit_ignore_blanks: boolean;
+  fit_ignore_strings: boolean;
+  fit_ignore_boolean: boolean;
+
 }
 
 interface AppData {
@@ -46,11 +53,18 @@ export const [persistentData, setPersistentData] = createStore<PersistentData>({
   lhs: true,
   stepped: false,
   trials: 6781,
+  
   llm_model: undefined,
   llm_api_keys: {},
+  
   quickview_tab: 0,
   quickview_bin_algorithm: 'auto',
   quickview_minmax: "minmax",
+
+  fit_ignore_blanks: true,
+  fit_ignore_boolean: true,
+  fit_ignore_strings: true,
+
 });
 
 export function InitAppData() {

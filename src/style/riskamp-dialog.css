@@ -173,6 +173,15 @@ div.editor-layout {
   align-items: center;
 }
 
+div.contenteditable-placeholder {
+
+  &:empty::after {
+    content: attr(data-placeholder);
+    opacity: .6;
+    user-select: none;
+  }
+}
+
 div.reference-editor {
 
   cursor: text;

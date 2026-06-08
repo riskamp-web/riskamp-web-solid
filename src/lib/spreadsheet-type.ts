@@ -11,11 +11,28 @@ import { createSignal } from 'solid-js';
 import type { SelectionState } from '@trebco/treb/treb-embed/src/selection-state';
 
 /**
+ * this type kind of grew accidentally, it would be nice to clean
+ * it up but we'll have to handle old layouts
+ */
+interface UserData {
+  simulation?: {
+    trials?: number;
+    seed?: number;
+  }
+  note?: string;
+  lv?: {
+    accept?: string,
+    terminate?: string,
+    fail?: string,
+  }
+}
+
+/**
  * this is an attempt to unwind some of our field hiding.
  * TODO: just undo that at the source
  */
 
-export type SpreadsheetType<T = unknown> = EmbeddedSpreadsheet<T> & {
+export type SpreadsheetType = EmbeddedSpreadsheet<UserData> & {
   parser: Parser,
   grid: Grid,
   Localization: Localization;
@@ -28,6 +45,9 @@ export type SpreadsheetType<T = unknown> = EmbeddedSpreadsheet<T> & {
     colors: string[],
     theme_colors: Array<{ color: Color, resolved: string, }>[] // FIXME: type
   }
+
+  AbortSimulation: () => void;
+
   // Localization: Localization; ??
 }
 

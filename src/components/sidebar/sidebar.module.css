@@ -158,13 +158,15 @@ header {
 .fit-data-layout {
 
   padding: 1em .5em;
-  display: flex;
-  flex-direction: column;
-  gap: .5em;
   height: 100%;
   max-height: 100%;
   overflow-y: hidden;
   position: relative;
+  row-gap: 1em;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto auto 1fr auto auto;
 
   & > * {
     min-height: fit-content;
@@ -188,6 +190,23 @@ header {
     align-items: center;
     font-size: 16px;
     gap: 1em;
+    margin-bottom: .5em;
+
+    &.copy-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+
+      button {
+        border: none;
+        background: transparent;
+        font-size: inherit;
+        font-family: inherit;
+      }
+
+    }
+
   }
 
   p {
@@ -198,18 +217,38 @@ header {
   .boxed {
     border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: auto auto 1fr;
+    column-gap: 0;
+    padding: .5em .5em;
 
     .row {
       display: contents;
+      line-height: 1.8;
+
+      & > * {
+        padding: .25em .5em;
+      }
+
+      & > :nth-child(2) {
+        text-align: right;
+      }
+
+      &:hover > * {
+        background: rgba(0, 0, 0, .1);
+      }
+
     }
 
   }
 
   .graph-container {
+    border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    overflow: hidden;
+
     line-height: 0;
     svg {
       line-height: 0;
+      height: 100%;
     }
     padding: 0;
     margin: 0;

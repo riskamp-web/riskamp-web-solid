@@ -33,6 +33,7 @@ dialog {
   width: fit-content;
   display: grid;
   box-shadow: var(--dialog-box-shadow, 1px 10px 18px 1px rgba(0,0,0,0.124));
+  outline: none;
 
   transform: translate(-50%, -50%);
   left: 50%;

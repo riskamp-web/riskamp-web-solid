@@ -57,8 +57,14 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
 
   function HandleEscape(event: KeyboardEvent) {
     if (event.key === 'Escape') {
-      props.setResult?.(undefined);
-      props.setOpen(false);
+      if (props.escape) {
+        props.setResult?.(undefined);
+        props.setOpen(false);
+      }
+      else {
+        event.stopPropagation();
+        event.preventDefault();
+      }
     }
   }
 
@@ -70,8 +76,8 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
         }
         else {
           dialog.show();
-          window.addEventListener('keydown', HandleEscape);
         }
+        window.addEventListener('keydown', HandleEscape);
       }
     }
     else {
@@ -104,7 +110,7 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
     if (pos) {
       style.position = 'absolute';
       style.margin = '0';
-      style.transform = 'none';
+      style.transform = 'translateZ(0)';
       style.top = `${pos.y}px`;
       style.left = `${pos.x}px`;
     }
