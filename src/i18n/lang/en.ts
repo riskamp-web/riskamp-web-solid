@@ -304,8 +304,10 @@ export default {
   "las-vegas-simulation.running-simulation": "Running simulation...",
   "las-vegas-simulation.options-overview": "Enter options for a Las Vegas simulation. Options will be saved with your model.",
 
+  "insert-function.button.title": "Insert function...",
   "insert-function.insert-function": "Insert function",
   "insert-function.search-for-function": "Search for function...",
+  "insert-function.function-result": "Result",
 
   "function-dialog.select-function.title": "Select function",
 
@@ -344,7 +346,6 @@ export default {
   "llm-chat.label.header.important": "Important",
   "llm-chat.label.disclaimer": "The AI interface runs in bring-your-own-key mode. To use it, you must provide an API key for a supported provider/model.\nWe never see your API key. It stays in your browser and only gets sent to the official provider when you send a chat message.\nYou will be charged by your model provider for tokens or under your subscription plan.",
 
-  "insert-function.button.title": "Insert function...",
   "developer-panel.title": "Developer info",
 
   'fit-data-panel.select-range': 'Select range',

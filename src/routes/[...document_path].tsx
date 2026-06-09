@@ -57,7 +57,8 @@ export default function Page() {
   const [runSimulationOpen, setRunSimulationOpen] = createSignal(false);
   const [runSimulationOptions, setRunSimulationOptions] = createSignal<Partial<RunSimulationOptions>>({});
   const [insertFunctionDialogOpen, setInsertFunctionDialogOpen] = createSignal(false);
-  const [insertFunctionData, setInsertFunctionData] = createSignal<CheckFunctionData|undefined>(undefined);
+  const [insertFunctionData, setInsertFunctionData] = createSignal<(CheckFunctionData & { result?: string })|undefined>(undefined);
+  const [functionResult, setFunctionResult] = createSignal<string|undefined>('');
 
   // const RunSimulationSignal = createSignal(false);
   // const [auto, setAuto] = createSignal(false);
@@ -351,7 +352,6 @@ export default function Page() {
   }
 
   async function InsertFunction() {
-
     const sheet = getSheet();
     if (sheet) {
       const check = CheckFunction(sheet);
@@ -359,13 +359,13 @@ export default function Page() {
         RestoreEditor(sheet, check);
       }
       else {
-        setInsertFunctionData(check);
+        setFunctionResult(undefined);
+        setInsertFunctionData({...check});
         setInsertFunctionDialogOpen(true);
-        await AwaitSignal(insertFunctionDialogOpen);
+        await AwaitSignal(insertFunctionDialogOpen, val => !val);
+        RestoreEditor(sheet, check, functionResult());
       }
     }
-
-    getSheet()?.Focus();
   }
 
   /** 
@@ -488,7 +488,7 @@ export default function Page() {
                             open={insertFunctionDialogOpen} 
                             setOpen={setInsertFunctionDialogOpen} 
                             data={insertFunctionData}
-                            setData={setInsertFunctionData}
+                            setFunctionResult={setFunctionResult}
                             />
 
       <RunSimulationDialog open={runSimulationOpen} 

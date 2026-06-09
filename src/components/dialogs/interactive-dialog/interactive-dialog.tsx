@@ -8,10 +8,19 @@ import type { DependencyList } from 'riskamp-web';
 import { bootstrap_icons } from 's5-icon-lib';
 import style from './interactive-dialog.module.css';
 
+export interface InteractiveDialogRef {
+  Update: () => void;
+}
+
 export interface Props extends DialogProps<boolean> {
+
   clear_primary_selection?: boolean;
   sheet: () => SpreadsheetType|undefined;
   update?: (dependencies: DependencyList) => void;
+  'update-parameter'?: (parameter: ParameterType) => void|Promise<void>;
+
+  ref?: (ref: InteractiveDialogRef) => void;
+
 }
 
 /**
@@ -43,6 +52,7 @@ export interface ParameterType {
 type DialogContextType = {
   register?: (parameter: ParameterType) => void;
   unregister?: (parameter: ParameterType) => void;
+  update?: (parameter: ParameterType) => void;
 }
 
 /**
@@ -57,7 +67,12 @@ const DialogContext = createContext<DialogContextType>({});
  * 
  * optionally include a validation marker (X or check)
  */
-export function Parameter(props: {parameter: ParameterType, 'show-validation'?: boolean }) {
+export function Parameter(props: {
+    parameter: ParameterType, 
+    'show-validation'?: boolean,
+    focusin?: (event: FocusEvent) => void,
+    focusout?: (event: FocusEvent) => void,
+  }) {
 
   const context = useContext(DialogContext);
 
@@ -74,11 +89,17 @@ export function Parameter(props: {parameter: ParameterType, 'show-validation'?: 
 
   const initial_value = props.parameter.initialValue() || '';
 
+  createEffect(on(props.parameter.value, value => {
+    context.update?.(props.parameter);
+  }, { defer: true }));
+
   return <>
     <div class="flex-row">
       <div class="reference-editor tc flex-grow" 
             data-selection-target 
             tabindex="0"
+            onfocusin={props.focusin}
+            onfocusout={props.focusout}
             role="textbox" 
             spellcheck="false"
             contenteditable="true"
@@ -125,16 +146,29 @@ export function InteractiveDialog(props: ParentProps<Props>) {
   let registry: ParameterType[] = [];
 
   let microtask_lock = false;
+
+  //
+  // switching to rAF based on guidance for solidjs
+  //
   function CompositeMircotask() {
     if (microtask_lock) {
       return;
     }
     microtask_lock = true;
-    queueMicrotask(() => {
+    requestAnimationFrame(() => {
       microtask_lock = false;
       if (root_node) {
         UpdateNodes(root_node, props.sheet());
       }
+    });
+  }
+
+  function UnifiedUpdate(parameter: ParameterType) {
+
+    // decoupling
+
+    queueMicrotask(() => {
+      props['update-parameter']?.(parameter);
     });
   }
 
@@ -220,7 +254,6 @@ export function InteractiveDialog(props: ParentProps<Props>) {
     }
 
   }
-
  
   let initialized = false;
   createEffect(on(props.open, (value) => {
@@ -240,10 +273,26 @@ export function InteractiveDialog(props: ParentProps<Props>) {
     }
   }, { defer: true }));
 
+  onMount(() => {
+    if (props.ref) {
+      props.ref({
+        Update: () => {
+          if (initialized && root_node) {
+            local.sheet()?.ExternalEditor(); // flush
+            DetachObserver();
+            Init(root_node, local.sheet(), local.clear_primary_selection, local.update);
+            AttachObserver();
+          }
+        },
+      })
+    }
+  });
+
   return <>
     <DialogContext.Provider value={{ 
       register: RegisterParameter,
       unregister: UnregisterParameter,
+      update: UnifiedUpdate,
      }}>
       <Dialog {...base_props}>
         <div ref={root_node} 
