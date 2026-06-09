@@ -122,7 +122,7 @@ export function CalculateAndRender(sheet: EmbeddedSpreadsheet, argument: boolean
       if (parsed.expression) {
         parser.Walk(parsed.expression, (unit) => {
           if (unit.type === 'call') {
-            console.info(unit.name);
+            // console.info(unit.name);
             const resolved = lib.Get(unit.name);
             if (resolved.volatile) {
               is_volatile = true;

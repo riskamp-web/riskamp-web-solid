@@ -54,7 +54,7 @@ const PatchFormula = (sheet: SpreadsheetType, check: CheckFunctionData, result: 
 
   if (check.target) {
 
-    console.info("parsing result:", result);
+    // console.info("parsing result:", result);
 
     let replacement: UnitCall|undefined;
     let parse_result = parser.Parse(result);

@@ -9,10 +9,11 @@ import { createMutable } from 'solid-js/store';
 
 import style from './insert-function-dialog.module.css';
 import { Size } from '../dialog-base/dialog';
-import { ApplyArgs, FunctionArg, TranslateDescriptor } from './function-utils';
+import { ApplyArgs, CalculateAndRender, FunctionArg, TranslateDescriptor } from './function-utils';
 import { ExtendedFunctionDescriptor } from '@trebco/treb/treb-calculator';
 import { FunctionLibrary } from '@trebco/treb/treb-calculator/src/function-library';
 import { bootstrap_icons } from 's5-icon-lib';
+import { CellValue } from '@trebco/treb';
 
 export interface SearchState {
   results: FunctionData[];
@@ -36,10 +37,11 @@ export function InsertFunctionDialog(props: Props) {
   const [state, setState] = createSignal<'arguments'|'functions'>('functions');
   let worker: Worker|undefined;
   let query_input: HTMLInputElement|undefined;
-  const [numberFormat, setNumberFormat] = createSignal('General');
+  // const [numberFormat, setNumberFormat] = createSignal('General');
   const [functionData, setFunctionData] = createSignal<CompositeData|undefined>();
   const bindsize = createSignal<Size|undefined>({width: 400, height: 500});
   const [backButton, setBackButton] = createSignal(false);
+  const [calculatedResult, setCalculatedResult] = createSignal('');
 
   let interactiveDialogRef: InteractiveDialogRef|undefined;
 
@@ -127,7 +129,7 @@ export function InsertFunctionDialog(props: Props) {
           const fd = TranslateDescriptor(lib.Get(data.target.name || ''), sheet.model.language_model);
           setFunctionData({
             data: fd,
-            args: ApplyArgs(sheet, fd, data.target.args || [], numberFormat()),
+            args: ApplyArgs(sheet, fd, data.target.args || [], props.data()?.cell_format || 'General'),
           });
         }
       }
@@ -177,7 +179,7 @@ export function InsertFunctionDialog(props: Props) {
       const fd = TranslateDescriptor(lib.Get(result.canonical_name));
       setFunctionData({
         data: fd,
-        args: ApplyArgs(sheet, fd, [], numberFormat()),
+        args: ApplyArgs(sheet, fd, [], props.data()?.cell_format || 'General'),
       });
 
       setBackButton(true);
@@ -186,7 +188,62 @@ export function InsertFunctionDialog(props: Props) {
     }
   }
 
+  function FormatCompositeResult(result: CellValue|CellValue[][]): string {
+    if (Array.isArray(result)) {
+      return result.flat().map(FormatCompositeResult).join(', ');
+    }
+    switch (typeof result) {
+      case 'undefined':
+        return '';
+      case 'boolean':
+        return result.toString().toUpperCase();
+      case 'string':
+        return `"${result}"`;
+      case 'number':
+        return props.sheet()?.FormatNumber(result, props.data()?.cell_format || 'General') || result.toString();
+      default: 
+        return '??';
+    }
+  }
+
+  function UpdateResult() {
+
+    const fn = RenderFunction();
+    const sheet = props.sheet();
+
+    if (sheet && fn) {
+      const result = CalculateAndRender(sheet, false, fn, props.data()?.cell_format || 'General');
+      if (result.volatile) {
+        setCalculatedResult(t('arguments-dialog.volatile'));
+      }
+      else {
+        setCalculatedResult(result.text);
+      }
+    }
+
+    /*
+    if (functionData()?.data.volatile) {
+        setCalculatedResult(t('arguments-dialog.volatile'));
+    }
+    else {
+      const fn = RenderFunction();
+      const sheet = props.sheet();
+      if (sheet && fn) {
+        const result = sheet.Evaluate(`=` + fn);
+        setCalculatedResult(FormatCompositeResult(result) || '');
+      }
+      else {
+        setCalculatedResult('');
+      }
+    }
+    */
+  }
+
   function HandleParameterUpdate(parameter: ParameterType) {
+
+    // function result
+
+    UpdateResult();
 
     // check if this is the last argument, and if it 
     // repeats
@@ -317,6 +374,7 @@ export function InsertFunctionDialog(props: Props) {
       return `${name}(${args.join(sheet.parser.argument_separator + ' ')})`;
     }
     return undefined;
+
   }
 
   function FunctionArguments(local: {composite: Accessor<CompositeData>}) {
@@ -352,6 +410,7 @@ export function InsertFunctionDialog(props: Props) {
         }
       }
 
+      UpdateResult();
       setParameters(initial_parameters);
       requestAnimationFrame(() => interactiveDialogRef?.Update());
       setLink(`https://docs.riskamp.com/help/${local.composite().data.canonical_name.toLowerCase()}/`);
@@ -422,13 +481,18 @@ export function InsertFunctionDialog(props: Props) {
                            focusout={e => FocusOut(e)}
                            parameter={parameters()[index()]} />
               </div>
-              <div>...</div>
+              <div>
+                {/* 
+                  space for the argument value. but I'm not sure we need it
+                  */}
+              </div>
             </div>}
           </For>
         </div>
       </div>
       <div class={style['function-result']}>
         <span>{t('insert-function.function-result')}</span>
+        <span class={style.calculated}>{calculatedResult()}</span>
       </div>
       <div class={style.information}>{info()}</div>
     </div>
