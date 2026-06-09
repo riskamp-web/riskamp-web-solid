@@ -7,6 +7,7 @@ import type { ExpressionUnit, Parser } from '@trebco/treb/treb-parser';
 import { NumberFormat, NumberFormatCache } from '@trebco/treb/treb-format';
 import type { FunctionLibrary } from '@trebco/treb/treb-calculator/src/function-library';
 import type { Calculator } from '@trebco/treb/treb-calculator';
+import { MCCompositeFunctionDescriptor } from '../../../../../RAW/treb-mc/src/descriptors';
 
 export interface FunctionArg {
   name: string;
@@ -124,7 +125,7 @@ export function CalculateAndRender(sheet: EmbeddedSpreadsheet, argument: boolean
           if (unit.type === 'call') {
             // console.info(unit.name);
             const resolved = lib.Get(unit.name);
-            if (resolved.volatile) {
+            if (resolved.volatile || (resolved as MCCompositeFunctionDescriptor).simulation_volatile) {
               is_volatile = true;
               return false;
             }
