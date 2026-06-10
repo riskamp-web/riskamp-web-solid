@@ -43,6 +43,7 @@
     flex-direction: row;
     align-items: center;
     gap: .5em;
+    overflow: hidden;
 
     .calculated {
       overflow: hidden;
