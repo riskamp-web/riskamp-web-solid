@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "vinxi dev --port 5173",
     "build": "vinxi build",
-    "start": "vinxi start"
+    "start": "vinxi start",
+    "deploy": "wrangler pages deploy dist"
   },
   "dependencies": {
     "@solidjs/meta": "^0.29.4",
