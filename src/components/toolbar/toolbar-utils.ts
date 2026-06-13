@@ -91,15 +91,17 @@ export type Control
   | Icon
   ;
 
-export type ControlGroup = {
-  rows: Control[][];
-}
+export type SteppedGroup = {
+  type: 'steps';
+  steps: {
+    step?: number;
+    controls: Control[];
+  }[];
+};
 
 export type Tab = {
   label: keyof I18N;
-  // controls?: Control[];
-  // groups?: (ControlGroup|Control[])[];
-  groups: Control[][];
+  groups: (SteppedGroup|Control[])[];
 };
 
 export type ToolbarMenu = {

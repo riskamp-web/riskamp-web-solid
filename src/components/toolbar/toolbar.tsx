@@ -1,5 +1,5 @@
 
-import { ParentProps, Switch, Match, For, Show, onMount, onCleanup, createEffect, on, createSignal } from 'solid-js';
+import { ParentProps, Switch, Match, For, Show, onMount, onCleanup, createEffect, on, createSignal, createMemo } from 'solid-js';
 import style from './toolbar.module.css';
 import { Logo } from '../logo';
 import { DropMenu } from '~/components/drop-menu/drop-menu';
@@ -9,7 +9,7 @@ import '~/components/tabs.css';
 
 import { toolbar_config as base_toolbar_config } from './toolbar-config';
 import html from 'solid-js/html';
-import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl } from './toolbar-utils';
+import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl, SteppedGroup } from './toolbar-utils';
 import { ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
 // import { sessionSignal, loggedInSignal } from '~/lib/auth';
 import { session, loggedIn } from '~/lib/auth';
@@ -68,9 +68,7 @@ function RenderTextButton(control: TextButtonControl) {
 
 export function Toolbar(props: ParentProps<Props>) {
 
-  // const [loggedIn] = loggedInSignal;
-  // const [session] = sessionSignal;
-
+ 
   const toolbar_config = createMutable(base_toolbar_config);
  
   let subscription = 0;
@@ -103,6 +101,18 @@ export function Toolbar(props: ParentProps<Props>) {
     }
 
   }));
+
+  function GetInitialWidth() {
+    return window.innerWidth;
+  }
+
+  const [width, setWidth] = createSignal(GetInitialWidth());
+
+  function ResizeHandler() {  
+    setWidth(window.innerWidth);
+  }
+
+  window.addEventListener('resize', ResizeHandler);
 
   onCleanup(() => {
     const sheet = props.sheet();
@@ -298,6 +308,65 @@ export function Toolbar(props: ParentProps<Props>) {
      
   }
 
+  function GroupControls(local: { controls: Control[] }) {
+    return <>
+      <div class={style.group}>
+        <For each={local.controls}>{(item, index) =>
+          <Switch>
+            <Match when={item.type === 'composite-menu'}>
+              <CompositeMenu item={item as CompositeMenuControl} HandleCommand={HandleCommand}/>
+            </Match>
+            <Match when={item.type === 'button'}>
+              <RenderButton control={item as ButtonControl}/>
+            </Match>
+            <Match when={item.type === 'text-button'}>
+              <button classList={{[style['toolbar-button']]: true, [style['text-button']]: true }}
+                      onclick={e => HandleCommand(e, (item as TextButtonControl).command)}>
+                <span ref={(el) => (el.innerHTML = (item as TextButtonControl).command.icon || '')} />
+                <span>{t((item as TextButtonControl).command.title)}</span>
+              </button>
+            </Match>
+            <Match when={item.type === 'color-button'}>
+              <ColorButton HandleCommand={HandleCommand} control={item as ColorButtonControl} sheet={props.sheet}/>
+            </Match>
+            <Match when={item.type === 'icon'}>
+              <div class={style['toolbar-icon']} innerHTML={(item as ToolbarIcon).icon || ''} />
+            </Match>
+            <Match when={item.type === 'label'}>
+              <div>{`label`}</div>
+            </Match>
+            <Match when={item.type === 'combo-box'}>
+              <ComboBox control={item as ComboBoxControl} />
+            </Match>
+            <Match when={item.type === 'more'}>
+              <More control={item as MoreControl} />
+            </Match>
+            <Match when={item.type === 'split-button'}>
+              <SplitButton sheet={props.sheet} control={item as SplitButtonControl} />
+            </Match>
+            <Match when={true}>
+              <div>{item.type}</div>
+            </Match>
+          </Switch>
+        }</For>
+      </div>
+    </>;
+  }
+
+  function SteppedGroup(local: {steps: SteppedGroup['steps']}) {
+    const steps = local.steps.sort((a, b) => ((b.step || 0) - (a.step || 0)));
+    const group = createMemo(on(width, width => {
+      for (const step of steps) {
+        const compare = step.step || 0;
+        if (width >= compare) {
+          return step.controls || [];
+        }
+      }
+      return [];
+    }));
+    return <GroupControls controls={group()} />;
+  }
+
   return <>
     <div classList={{
       [style.toolbar]: true,
@@ -355,54 +424,18 @@ export function Toolbar(props: ParentProps<Props>) {
                   [style['tab-content']]: true,
                   }}>
                     
-                  <For each={tab.groups || []}>
-                    {group => <>
-
-                      <div class={style.group}>
-
-                      <For each={group as Control[]}>{(item, index) =>
-                        <Switch>
-                          <Match when={item.type === 'composite-menu'}>
-                            <CompositeMenu item={item as CompositeMenuControl} HandleCommand={HandleCommand}/>
-                          </Match>
-                          <Match when={item.type === 'button'}>
-                            <RenderButton control={item as ButtonControl}/>
-                          </Match>
-                          <Match when={item.type === 'text-button'}>
-                            <button classList={{[style['toolbar-button']]: true, [style['text-button']]: true }}
-                                    onclick={e => HandleCommand(e, (item as TextButtonControl).command)}>
-                              <span ref={(el) => (el.innerHTML = (item as TextButtonControl).command.icon || '')} />
-                              <span>{t((item as TextButtonControl).command.title)}</span>
-                            </button>
-                          </Match>
-                          <Match when={item.type === 'color-button'}>
-                            <ColorButton HandleCommand={HandleCommand} control={item as ColorButtonControl} sheet={props.sheet}/>
-                          </Match>
-                          <Match when={item.type === 'icon'}>
-                            <div class={style['toolbar-icon']} innerHTML={(item as ToolbarIcon).icon || ''} />
-                          </Match>
-                          <Match when={item.type === 'label'}>
-                            <div>{`label`}</div>
-                          </Match>
-                          <Match when={item.type === 'combo-box'}>
-                            <ComboBox control={item as ComboBoxControl} />
-                          </Match>
-                          <Match when={item.type === 'more'}>
-                            <More control={item as MoreControl} />
-                          </Match>
-                          <Match when={item.type === 'split-button'}>
-                            <SplitButton sheet={props.sheet} control={item as SplitButtonControl} />
-                          </Match>
-                          <Match when={true}>
-                            <div>{item.type}</div>
-                          </Match>
-                        </Switch>
-                      }</For>
-
-                      </div>             
-
-                    </>}
-                  </For>
+                <For each={tab.groups || []}>
+                  {group => 
+                    <Switch>
+                      <Match when={Array.isArray(group)}>
+                        <GroupControls controls={group as Control[]} />
+                      </Match>
+                      <Match when={true}>
+                        <SteppedGroup steps={(group as SteppedGroup).steps} />
+                      </Match>
+                    </Switch>
+                  }
+                </For>
 
                 </div>
             </div>}
@@ -413,6 +446,11 @@ export function Toolbar(props: ParentProps<Props>) {
 
         <div class={style['command-palette-container']}>
           <CommandPalette sheet={props.sheet} oncommand={props.oncommand}/>
+
+          <div>
+            {width()}
+          </div>
+
         </div>
 
         <div class={style.login}>

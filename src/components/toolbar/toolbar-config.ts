@@ -68,61 +68,87 @@ export const toolbar_config: ToolbarConfig = {
 
   tabs: [
 
-    /*
-    {
-      label: 'toolbar.tabs.home',
-    },
-    */
-
     {
       label: 'toolbar.tabs.format',
 
       groups: [
-        [
-          iconmenu([
-            'align-left',
-            'align-center',
-            'align-right',
-          ], 0, true),
-        ],
-        /*
-        [
-          button('align-left'),
-          button('align-center'),
-          button('align-right'),
-        ],
-        */
 
-        [
-          iconmenu([
-            'align-top',
-            'align-middle',
-            'align-bottom',
-          ], 0, true),
-        ],
+        {
+          type: 'steps',
+          steps: [
+            {
+              step: 1400,
+              controls: [
+                button('align-left'),
+                button('align-center'),
+                button('align-right'),
+              ]
+            },
+            {
+              controls: [
+                iconmenu([
+                  'align-left',
+                  'align-center',
+                  'align-right',
+                ], 0, true),
+              ] 
+            }
+          ]
+        },
 
-        /*
-        [
-          button('align-top'),
-          button('align-middle'),
-          button('align-bottom'),
-        ],
-        */
-        [
-          button('indent'),
-          button('outdent'),
-          more([
-            button('wrap'),
-            button('merge-cells'),
-            button('lock-cells'),
-          ]),
+        {
+          type: 'steps',
+          steps: [
+            {
+              step: 1500,
+              controls: [
+                button('align-top'),
+                button('align-middle'),
+                button('align-bottom'),
+              ],
+            },
+            {
+              controls: [
+                iconmenu([
+                  'align-top',
+                  'align-middle',
+                  'align-bottom',
+                ], 0, true),
+              ],
 
-          /*
-          button('wrap'),
-          button('merge-cells'),
-          button('lock-cells'),
-          */
-        ],
+            },
+          ],
+        },
+
+        {
+          type: 'steps',
+          steps: [
+            {
+              step: 1600,
+              controls: [
+                button('indent'),
+                button('outdent'),
+                button('wrap'),
+                button('merge-cells'),
+                button('lock-cells'),
+              ],
+
+            },
+            {
+              controls: [
+                button('indent'),
+                button('outdent'),
+                more([
+                  button('wrap'),
+                  button('merge-cells'),
+                  button('lock-cells'),
+                ]),
+              ],
+            },
+          ],
+        },
+
+
         [
           button('bold'),
           button('italic'),
@@ -131,7 +157,6 @@ export const toolbar_config: ToolbarConfig = {
         ],
         [
           colorbutton('text-color'),
-          // spacer(),
           colorbutton('fill-color'),
         ],
         [
