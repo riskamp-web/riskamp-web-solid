@@ -10,7 +10,7 @@ import '~/components/tabs.css';
 import { toolbar_config as base_toolbar_config } from './toolbar-config';
 import html from 'solid-js/html';
 import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl, SteppedGroup } from './toolbar-utils';
-import { ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
+import { ListCommand, ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
 // import { sessionSignal, loggedInSignal } from '~/lib/auth';
 import { session, loggedIn } from '~/lib/auth';
 
@@ -35,7 +35,7 @@ import { CommandPalette } from '../command-palette/command-palette';
 ////////////
 
 interface Props {
-  oncommand: (command: ToolbarCommand & { key: ToolbarCommandKey}) => void|Promise<void>;
+  oncommand: (command: ToolbarCommand) => void|Promise<void>;
   sidebar: () => string|undefined;
   sheet: () => SpreadsheetType|undefined;
 };
@@ -122,7 +122,7 @@ export function Toolbar(props: ParentProps<Props>) {
     }
   });
 
-  function HandleCommand(event: Event, command: ToolbarCommand & { key: ToolbarCommandKey}) {
+  function HandleCommand(event: Event, command: ToolbarCommand) {
     if (event?.target instanceof HTMLElement) {
       CloseContainingPopover(event.target);
     }
@@ -141,14 +141,14 @@ export function Toolbar(props: ParentProps<Props>) {
     }
   }
 
-  function HandleMenuItem(event: Event, command: ToolbarCommand & { key: ToolbarCommandKey}) {
+  function HandleMenuItem(event: Event, command: ToolbarCommand) {
     if (event.target instanceof HTMLElement) {
       CloseContainingPopover(event.target);
     }
     props.oncommand?.(command);
   }
 
-  function UpdateNumberFormat(event: Event, command: ToolbarCommand & {key: ToolbarCommandKey}, item?: {value: string, label: string}) {
+  function UpdateNumberFormat(event: Event, command: ToolbarCommand, item?: {value: string, label: string}) {
 
     if (item) {
       command.text = item.label;
@@ -181,7 +181,7 @@ export function Toolbar(props: ParentProps<Props>) {
           </MenuButton.Static>
           <MenuButton.Menu>
             <menu classList={{ [style.text]: true, [style.overflow]: true }}>
-              <For each={props.control.values || []}>
+              <For each={(props.control.command as ListCommand).values || []}>
                 {item => <Switch>
                   <Match when={item === 'separator'}>
                     <hr />
@@ -311,7 +311,7 @@ export function Toolbar(props: ParentProps<Props>) {
   function GroupControls(local: { controls: Control[] }) {
     return <>
       <div class={style.group}>
-        <For each={local.controls}>{(item, index) =>
+        <For each={local.controls}>{(item) =>
           <Switch>
             <Match when={item.type === 'composite-menu'}>
               <CompositeMenu item={item as CompositeMenuControl} HandleCommand={HandleCommand}/>

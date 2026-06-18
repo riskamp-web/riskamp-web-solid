@@ -3,7 +3,12 @@
 import { bootstrap_icons, fa_light, fa_regular, fa_solid, fa_thin, lucide, phosphor_regular } from 's5-icon-lib';
 
 import type { I18N } from '~/i18n/i18n';
-import { ToolbarCommands, type ColorCommand, type ToolbarColorCommandKeys, type ToolbarCommand, type ToolbarCommandKey } from './toolbar-commands';
+import { ToolbarCommandMap, 
+          // ToolbarCommands, 
+          type ColorCommand, 
+          type ToolbarColorCommandKeys, 
+          type ToolbarCommand, 
+          type ToolbarCommandKey } from './toolbar-commands';
 
 export interface Separator {
   type: 'separator';
@@ -31,28 +36,28 @@ export interface Icon {
 
 export interface ButtonControl {
   type: 'button';
-  command: ToolbarCommand & { key: ToolbarCommandKey };
+  command: ToolbarCommand;
 }
 
 export interface ColorButtonControl {
   type: 'color-button';
-  command: ColorCommand & { key: ToolbarCommandKey };
+  command: ColorCommand;
 }
 
 export interface SplitButtonControl {
   type: 'split-button';
-  commands: [ToolbarCommand & { key: ToolbarCommandKey }, ToolbarCommand & { key: ToolbarCommandKey }];
+  commands: [ToolbarCommand, ToolbarCommand];
 }
 
 export interface TextButtonControl {
   type: 'text-button';
-  command: ToolbarCommand & { key: ToolbarCommandKey };
+  command: ToolbarCommand;
   override_text?: string;
 }
 
 export interface CompositeMenuControl {
   type: 'composite-menu';
-  commands: (ToolbarCommand & { key: ToolbarCommandKey })[];
+  commands: (ToolbarCommand)[];
   active: number;
   icons?: boolean;
   text?: boolean;
@@ -63,16 +68,15 @@ export interface CompositeMenuControl {
 /** more controls, hidden */
 export interface MoreControl {
   type: 'more',
-  // commands: (ToolbarCommand & { key: ToolbarCommandKey })[];
   controls: Exclude<Control, MoreControl>[];
 }
 
 export interface ComboBoxControl {
   type: 'combo-box';
-  command: ToolbarCommand & { key: ToolbarCommandKey },
+  command: ToolbarCommand,
   text?: string;
   placeholder?: string;
-  values?: ({value: string, label:string}|'separator')[];
+  // values?: ({value: string, label:string}|'separator')[];
   width?: 'narrow'|'wide';
 }
 
@@ -106,7 +110,7 @@ export type Tab = {
 
 export type ToolbarMenu = {
   label: keyof I18N;
-  items?: ((ToolbarCommand & { key: ToolbarCommandKey }) | 'separator')[];
+  items?: ((ToolbarCommand) | 'separator')[];
 };
 
 export type ToolbarConfig = { 
@@ -115,8 +119,9 @@ export type ToolbarConfig = {
   menus?: ToolbarMenu[];
 };
 
-export function WrapCommand(key: ToolbarCommandKey): ToolbarCommand & {key: ToolbarCommandKey} {
-  return {...ToolbarCommands[key], key};
+export function WrapCommand(key: ToolbarCommandKey): ToolbarCommand {
+  // return {...ToolbarCommands[key], key};
+  return ToolbarCommandMap[key];
 }
 
 export function button(command: ToolbarCommandKey): ButtonControl {
@@ -132,7 +137,8 @@ export function splitbutton(command1: ToolbarCommandKey, command2: ToolbarComman
 }
 
 export function colorbutton(command: ToolbarColorCommandKeys): ColorButtonControl {
-  return { type: 'color-button', command: {...ToolbarCommands[command], key: command } };
+  return { type: 'color-button', command: // {...ToolbarCommands[command], key: command } };
+    ToolbarCommandMap[command] as ColorCommand }
 }
 
 /*

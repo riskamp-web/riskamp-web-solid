@@ -1,32 +1,26 @@
 
+
 import { Title } from "@solidjs/meta";
+
 import { useParams } from "@solidjs/router";
 import { Spreadsheet } from '~/components/spreadsheet/spreadsheet';
-import { createEffect, createSignal, on, onMount, untrack } from 'solid-js';
+import { createEffect, createSignal, on } from 'solid-js';
 import { Splitter } from '~/components/splitter/splitter';
-import * as auth from '~/lib/auth';
-import { spinner } from '~/components/spinner/spinner-control';
 import { Toolbar } from '~/components/toolbar/toolbar';
 import { ToolbarCommand, ToolbarCommandKey } from '~/components/toolbar/toolbar-commands';
-// import { Dialog } from '~/components/dialog-base/dialog';
-// import { InteractiveDialog } from '~/components/interactive-dialog/interactive-dialog';
-import { TestDialog } from '~/components/dialogs/test-dialog/test-dialog';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { Sidebar } from '~/components/sidebar/sidebar-main';
 import { goto, OpenExternal } from '~/lib/navigate';
 
 import { RunSimulationDialog, type Options as RunSimulationOptions } from '~/components/dialogs/run-simulation-dialog/run-simulation-dialog';
-import { SparklineDialog, SparklineData } from '~/components/dialogs/sparkline-dialog/sparkline-dialog';
+import { SparklineDialog } from '~/components/dialogs/sparkline-dialog/sparkline-dialog';
 import { InsertFunctionDialog } from '~/components/dialogs/insert-function-dialog/insert-function-dilalog';
 import { Dialog as LasVegasDialog, props as las_vegas_props } from '~/components/dialogs/las-vegas-simulation/las-vegas-simulation';
 
 import { HijackDialog } from '~/lib/hijack-dialog';
 import { ApplyProperty, BooleanKeys } from '~/lib/typescript-magic';
 import { MCEmbeddedSheetEvent, type CellStyle, type Color } from 'riskamp-web';
-import { Heuristics } from '@trebco/treb/treb-data-model';
 import { AwaitSignal } from '~/lib/await-signal';
-import { createStore } from 'solid-js/store';
-import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline-dialog/sparkline';
 import { TrendForecastingDialog } from '~/components/dialogs/trend-forecasting/trend-forecasting-dialog';
 import { RunTrendForecast, trend_forecast_props } from '~/components/dialogs/trend-forecasting/trend-forecasting';
@@ -34,24 +28,23 @@ import { BorderConstants, EmbeddedSheetEvent } from '@trebco/treb';
 import { sessionData, setSessionData } from '~/lib/app-data';
 
 import * as cache from '~/docs/local-cache';
-import * as documents2 from '~/docs/documents2';
 import { IsValidPath, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
 import { CheckFunction, CheckFunctionData, RestoreEditor } from '~/components/dialogs/insert-function-dialog/check-function';
 
+/*
 function Spin() {
   spinner.show();
   setTimeout(() => {
     spinner.hide();
   }, 4000);
 }
+*/
 
 export default function Page() {
 
   const params = useParams() as { document_path: string|undefined };
 
   const [split, setSplit] = createSignal(100);
-  const OpenSignal = createSignal(false);
-  const [open, setOpen] = OpenSignal;
   const [getSheet, setSheet] = createSignal<SpreadsheetType|undefined>();
   const [sidebar, setSidebar] = createSignal<string|undefined>();
 
@@ -61,25 +54,18 @@ export default function Page() {
   const [insertFunctionData, setInsertFunctionData] = createSignal<(CheckFunctionData & { result?: string })|undefined>(undefined);
   const [functionResult, setFunctionResult] = createSignal<string|undefined>('');
 
+  const [pageTitle, setPageTitle] = createSignal('RiskAMP web');
+
   // const RunSimulationSignal = createSignal(false);
   // const [auto, setAuto] = createSignal(false);
   // const [additionalCells, setAdditionalCells] = createSignal<string[]>([]);
-
-  /**
-   * TEMP
-   */
-
-  onMount(() => {
-    (window as any).auth = auth;
-  });
-
 
   /**
    * listen for path changes, and (try to) load. we'll handle the 
    * intiial path when we create the spreadsheet, so this is deferred.
    */
   createEffect(on(() => params.document_path, value => {
-    TryLoadPath(getSheet(), params.document_path);
+    TryLoadPath(getSheet(), value);
   }, { defer: true }));
 
   function ToggleStyle(sheet: SpreadsheetType, name: BooleanKeys<CellStyle>) {
@@ -189,18 +175,6 @@ export default function Page() {
         sheet.Recalculate();
         break;
 
-      case 'insert-line-chart':
-      // case 'insert-area-chart':
-      case 'insert-column-chart':
-      case 'insert-donut-chart':
-      case 'insert-bar-chart':
-      case 'insert-scatter-plot':
-        sheet.HandleToolbarMessage({
-          command: command.key
-        });
-        break;
-
-
     case 'number-format':
       ApplyProperty(sheet, 'number_format', typeof command.value === 'string' ? command.value : undefined);
       break;
@@ -288,21 +262,6 @@ export default function Page() {
         sheet.Focus();
         break;
 
-      case 'text-color':
-      case 'fill-color':
-      case 'border-color':
-        {
-          let color: Color|undefined;
-          if (command.type === 'color') {
-            color = command.active_color;
-          }
-          sheet.HandleToolbarMessage({
-            command: command.key,
-            color,
-          });
-        }
-        break;
-
       case 'align-left':
         ApplyProperty(sheet, 'horizontal_align', 'left');
         sheet.Focus();
@@ -331,10 +290,6 @@ export default function Page() {
       case 'align-bottom':
         ApplyProperty(sheet, 'vertical_align', 'bottom');
         sheet.Focus();
-        break;
-
-      case 'function-docs':
-        window.open('https://docs.riskamp.com', '_blank');
         break;
 
       case 'ai':
@@ -411,8 +366,11 @@ export default function Page() {
           // case 'selection':
           // case 'annotation-selection':
           // case 'focus-view':
-          case 'reset':
           // case 'view-change':
+
+          // fall through
+
+          case 'reset':
           case 'document-change':
           case 'simulation-complete':
           case 'simulation-aborted':
@@ -483,7 +441,8 @@ export default function Page() {
 
   return (
     <main class="app">
-      
+      <Title>{pageTitle()}</Title>
+
       <div>
         <Toolbar oncommand={HandleCommand} sidebar={active_sidebar} sheet={getSheet}/>
       </div>

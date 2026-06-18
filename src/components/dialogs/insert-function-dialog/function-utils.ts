@@ -138,7 +138,16 @@ export function CalculateAndRender(sheet: EmbeddedSpreadsheet, argument: boolean
         return { text: '', type: ValueType.undefined, volatile: true };
       }
 
-      const calculated_result = calculator.Evaluate(text, (sheet as any).grid.active_sheet, {}, true);
+      let calculated_result: UnionValue = { type: ValueType.undefined };
+
+      try {
+        calculated_result = calculator.Evaluate(text, (sheet as any).grid.active_sheet, {}, true);
+      }
+      catch (err) {
+        console.info({text, parsed});
+        console.error(err);
+        calculated_result = { type: ValueType.error, value: 'UNK' };
+      }
 
       // return { text: RenderCellValue(sheet, Convert(calculated_result), format, formatter), type: calculated_result.type };
       return { text: RenderCellValue2(sheet, calculated_result, format, formatter), type: calculated_result.type };

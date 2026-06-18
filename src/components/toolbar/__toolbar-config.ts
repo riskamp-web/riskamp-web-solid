@@ -1,8 +1,8 @@
 
-import { bootstrap_icons } from 's5-icon-lib';
+import { bootstrap_icons, fa_regular, fa_sharp_light, lucide } from 's5-icon-lib';
 import type { ToolbarCommandKey } from './toolbar-commands';
 import type { ToolbarConfig, ToolbarMenu } from './toolbar-utils';
-import { iconmenu, button, more, textbutton, textmenu, colorbutton, splitbutton, WrapCommand } from './toolbar-utils';
+import { iconmenu, button, more, textbutton, textmenu, colorbutton, splitbutton, spacer, separator, WrapCommand } from './toolbar-utils';
 
 export function menuitems(...commands: (ToolbarCommandKey|'separator')[]): ToolbarMenu['items'] {
   return commands.map(command => {

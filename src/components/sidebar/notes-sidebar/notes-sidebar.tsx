@@ -16,14 +16,17 @@ import { sessionData, setSessionData } from '~/lib/app-data';
 
 import { Format } from 'treb-llm-support';
 
-let group = crypto.randomUUID();
+const group = crypto.randomUUID();
 
 export function NotesSidebar(props: SidebarProps) {
 
   const [notes, setNotes] = createSignal('');
   const formatted = createMemo(() => Format(notes()));
 
+  // eslint-disable-next-line no-unassigned-vars
   let markdown: HTMLDivElement|undefined;
+
+  // eslint-disable-next-line no-unassigned-vars
   let textarea: HTMLTextAreaElement|undefined;
 
   onMount(() => {
@@ -133,7 +136,7 @@ export function NotesSidebar(props: SidebarProps) {
                name={group} 
                onclick={e => { if (e.currentTarget.checked) { setSessionData('notes', 'tab', 0)} }}
                checked={sessionData.notes?.tab === 0} />
-        <div class={style.markdown} 
+        <div classList={{ [style.markdown]: true, markdown: true }} 
              ref={markdown}
              onclick={HandleClick}
              onscroll={e => SaveScrollPosition(e, 'view')}

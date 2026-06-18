@@ -8,6 +8,7 @@ import "./reset.css";
 import '~/style/riskamp-dialog.css';
 import '~/style/controls.css';
 import '~/style/utility.css';
+import '~/style/markdown.css';
 import '~/style/grid-table.css';
 
 import { Spinner } from '~/components/spinner/spinner';

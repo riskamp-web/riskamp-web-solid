@@ -7,7 +7,6 @@ import type { ToolbarMessage } from '@trebco/treb/treb-embed/src/toolbar-message
 import type { Color } from '@trebco/treb';
 import type { Localization } from '@trebco/treb/treb-base-types';
 import type { Calculator } from '@trebco/treb/treb-calculator';
-import { createSignal } from 'solid-js';
 import type { SelectionState } from '@trebco/treb/treb-embed/src/selection-state';
 
 /**

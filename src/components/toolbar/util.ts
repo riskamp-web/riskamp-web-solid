@@ -1,34 +1,84 @@
 
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 import { toolbar_config } from './toolbar-config';
-import { ButtonControl, ColorButtonControl, ComboBoxControl, TextButtonControl } from './toolbar-utils';
+import { ButtonControl, ColorButtonControl, ComboBoxControl, Control, TextButtonControl } from './toolbar-utils';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { t } from '~/i18n/i18n';
 import { BooleanKeys } from '~/lib/typescript-magic';
 import { CellStyle } from 'riskamp-web';
 import { ResolveThemeColor } from '@trebco/treb/treb-base-types';
+import { ToolbarCommands, type ToolbarCommand } from './toolbar-commands';
 
-let command_list: [string, ComboBoxControl|ButtonControl|TextButtonControl][]|undefined;
+// let command_list: [string, ComboBoxControl|ButtonControl|TextButtonControl][]|undefined;
+// let command_list: [string, ToolbarCommand][]|undefined;
+let command_list: (ToolbarCommand & {state_key: string})[]|undefined;
 
 function GenerateCommandList(config: typeof toolbar_config) {
 
-  const list: [string, ComboBoxControl|ButtonControl|TextButtonControl][] = [];
+  const list: (ToolbarCommand & {state_key: string})[] = [];
+
+  //const list: [string, ComboBoxControl|ButtonControl|TextButtonControl][] = [];
+  // const list: [string, ToolbarCommand][] = [];
+
+  function AddCommand(command: ToolbarCommand) {
+    if (command.state_key) {
+      const resolved = command as ToolbarCommand & { state_key: string };
+      if (!list.includes(resolved)) {
+        list.push(resolved);
+      }
+    }
+  }
+
+  function ListControls(group: Control[]) {
+    for (const entry of group) {
+      switch (entry.type) {
+        case 'button':
+        case 'combo-box':
+          AddCommand(entry.command);
+          break;
+
+        case 'composite-menu':
+          for (const command of entry.commands) {
+            AddCommand(command);
+          }
+          break;
+
+        case 'more':
+          ListControls(entry.controls);
+          break;
+
+
+      }
+    }
+  }
 
   for (const tab of config.tabs) {
+    for (const group of tab.groups || []) {
+      if (Array.isArray(group)) {
+        ListControls(group);
+      }
+      else {
+        for (const step of group.steps) {
+          ListControls(step.controls);
+        }
+      }
+    }
 
+    /*
     for (const group of tab.groups || []) {
       if (Array.isArray(group)) {
         for (const control of group) {
           if (control.type === 'combo-box' || control.type === 'button' || control.type === 'text-button') {
             if (control.command.state_key) {
-              list.push([control.command.state_key, control]);
+              // list.push([control.command.state_key, control.command]);
+              list.push(control.command as (ToolbarCommand & {state_key: string}));
             }
           }
           else if (control.type === 'more') {
             for (const subcontrol of control.controls) {
               if (subcontrol.type === 'combo-box' || subcontrol.type === 'button' || subcontrol.type === 'text-button') {
                 if (subcontrol.command.state_key) {
-                  list.push([subcontrol.command.state_key, subcontrol]);
+                  list.push(subcontrol.command as (ToolbarCommand & {state_key: string}));
                 }
               }
             }
@@ -36,8 +86,11 @@ function GenerateCommandList(config: typeof toolbar_config) {
         }
       }
     }
-  }
+    */
+
+  } 
   
+  // console.info("List len", list.length);
   return list;
 
 }
@@ -162,19 +215,22 @@ export function UpdateState(sheet: SpreadsheetType, config: typeof toolbar_confi
 
   const selection_state = sheet.selection_state;
 
-  for (const [key, control] of command_list) {
+  for (const command of command_list) {
+
+    const key = command.state_key;
+    // console.info(key);
 
     if (key.startsWith('horizontal_align')) {
-      control.command.value = (selection_state.style?.horizontal_align === key.substring(17)); // includes '-'
+      command.value = (selection_state.style?.horizontal_align === key.substring(17)); // includes '-'
     }
     else if (key.startsWith('vertical_align')) {
-      control.command.value = (selection_state.style?.vertical_align === key.substring(15)); // includes '-'
+      command.value = (selection_state.style?.vertical_align === key.substring(15)); // includes '-'
     }
     else {
       switch (key) {
         case 'font_scale':
-          if (sheet && control?.type === 'combo-box') {
-            control.values = [0.5, 0.75, 0.9, 1, 1.25, 1.5, 2].map(value => {
+          if (sheet && command?.type === 'list') {
+            command.values = [0.5, 0.75, 0.9, 1, 1.25, 1.5, 2].map(value => {
               return {
                 value: value.toString(), 
                 label: sheet.FormatNumber(value, '0%'),
@@ -194,38 +250,38 @@ export function UpdateState(sheet: SpreadsheetType, config: typeof toolbar_confi
                 }
               }
             }
-            control.command.value = control.command.text = text;
+            command.value = command.text = text;
 
           }
           break;
 
         case 'number_format':
-          if (control?.type === 'combo-box') {
-            control.values = ListNumberFormats(sheet);
-            let nf = selection_state.style?.number_format;
+          if (command?.type === 'list') {
+            command.values = ListNumberFormats(sheet);
+            const nf = selection_state.style?.number_format;
             if (nf) {
               const symbolic_name = NumberFormatCache.SymbolicName(nf);
               if (symbolic_name) {
-                control.command.value = symbolic_name;
-                control.command.text = symbolic_name; // FIXME: i18n
+                command.value = symbolic_name;
+                command.text = symbolic_name; // FIXME: i18n
               }
               else {
-                control.command.value = control.command.text = nf;
+                command.value = command.text = nf;
               }
             }
           }
           break;
 
         case 'merge':
-          control.command.value = !!selection_state.merge;
+          command.value = !!selection_state.merge;
           break;
 
         case 'fullscreen':
-          control.command.value = !!(document.fullscreenElement);
+          command.value = !!(document.fullscreenElement);
           break;
 
         default:
-          control.command.value = !!(selection_state.style as any)?.[key];
+          command.value = !!(selection_state.style as any)?.[key];
           break;
 
       }
