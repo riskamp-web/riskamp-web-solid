@@ -1,13 +1,11 @@
 
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 import { toolbar_config } from './toolbar-config';
-import { ButtonControl, ColorButtonControl, ComboBoxControl, Control, TextButtonControl } from './toolbar-utils';
+import { ColorButtonControl, Control } from './toolbar-utils';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { t } from '~/i18n/i18n';
-import { BooleanKeys } from '~/lib/typescript-magic';
-import { CellStyle } from 'riskamp-web';
 import { ResolveThemeColor } from '@trebco/treb/treb-base-types';
-import { ToolbarCommands, type ToolbarCommand } from './toolbar-commands';
+import { ToolbarCommand } from './toolbar-commands';
 
 // let command_list: [string, ComboBoxControl|ButtonControl|TextButtonControl][]|undefined;
 // let command_list: [string, ToolbarCommand][]|undefined;

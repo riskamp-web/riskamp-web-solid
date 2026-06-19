@@ -24,6 +24,14 @@
 
   }
 
+  menu hr {
+    border: none;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    opacity: 40%;
+  }
+
 }
 
 a {

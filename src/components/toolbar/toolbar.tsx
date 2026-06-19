@@ -446,11 +446,6 @@ export function Toolbar(props: ParentProps<Props>) {
 
         <div class={style['command-palette-container']}>
           <CommandPalette sheet={props.sheet} oncommand={props.oncommand}/>
-
-          <div>
-            {width()}
-          </div>
-
         </div>
 
         <div class={style.login}>
