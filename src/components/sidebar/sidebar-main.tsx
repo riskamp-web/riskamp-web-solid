@@ -9,7 +9,7 @@ import { Accessor, Signal, type Component } from 'solid-js';
 
 import { registry } from './registry';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { ToolbarCommand, ToolbarCommands, type ToolbarCommandKey } from '../toolbar/toolbar-commands';
+import { ToolbarCommand, ToolbarCommandMap, ToolbarCommands, type ToolbarCommandKey } from '../toolbar/toolbar-commands';
 
 import style from './sidebar.module.css';
 import { bootstrap_icons } from 's5-icon-lib';
@@ -44,7 +44,7 @@ export function Sidebar(main_props: SidebarProps) {
   return <nav>
     <header>
       <Show when={sidebar()}>
-        <span>{t(ToolbarCommands[sidebar() as ToolbarCommandKey].title)}</span>
+        <span>{t(ToolbarCommandMap[sidebar() as ToolbarCommandKey].title)}</span>
       </Show>
       <button class={style['close-sidebar']} 
               onclick={() => setSidebar()} 

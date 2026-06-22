@@ -5,7 +5,8 @@
     "dev": "vinxi dev --port 5173",
     "build": "vinxi build",
     "start": "vinxi start",
-    "deploy": "wrangler pages deploy dist"
+    "deploy": "wrangler pages deploy dist",
+    "deploy-as-main": "wrangler pages deploy dist --branch=main"
   },
   "dependencies": {
     "@solidjs/meta": "^0.29.4",
@@ -21,7 +22,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@trebco/treb": "file:../TREB",
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.0.0",
     "@vscode/markdown-it-katex": "^1.1.2",
     "dompurify": "^3.4.7",
     "eslint": "^10.5.0",
