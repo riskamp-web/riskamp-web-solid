@@ -1,15 +1,10 @@
 
-import { JSX } from 'solid-js/h/jsx-runtime';
-
-// import './ai-sidebar/ai-sidebar';
-// import './search-sidebar';
-
 import { Dynamic, Show } from 'solid-js/web';
 import { Accessor, Signal, type Component } from 'solid-js';
 
 import { registry } from './registry';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { ToolbarCommand, ToolbarCommandMap, ToolbarCommands, type ToolbarCommandKey } from '../toolbar/toolbar-commands';
+import { ToolbarCommand, ToolbarCommandMap, type ToolbarCommandKey } from '../toolbar/toolbar-commands';
 
 import style from './sidebar.module.css';
 import { bootstrap_icons } from 's5-icon-lib';

@@ -1,34 +1,30 @@
 
-import { ParentProps, Switch, Match, For, Show, onMount, onCleanup, createEffect, on, createSignal, createMemo } from 'solid-js';
+import { ParentProps, Switch, Match, For, Show, onCleanup, createEffect, on, createSignal, createMemo } from 'solid-js';
 import style from './toolbar.module.css';
 import { Logo } from '../logo';
 import { DropMenu } from '~/components/drop-menu/drop-menu';
-import { I18N, t, UpdateLanguage } from '~/i18n/i18n';
+import { t } from '~/i18n/i18n';
 
 import '~/components/tabs.css';
 
 import { toolbar_config as base_toolbar_config } from './toolbar-config';
-import html from 'solid-js/html';
-import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl, SteppedGroup } from './toolbar-utils';
-import { ListCommand, ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
-// import { sessionSignal, loggedInSignal } from '~/lib/auth';
+import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, 
+    CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl, SteppedGroup } from './toolbar-utils';
+import { ListCommand, ToolbarCommand } from './toolbar-commands';
 import { session, loggedIn } from '~/lib/auth';
 
-import { goto } from '~/lib/navigate';
-import { persistentData, sessionData, setSessionData } from '~/lib/app-data';
-import { createMutable, produce, unwrap } from 'solid-js/store';
+import { createMutable, produce } from 'solid-js/store';
 import { bootstrap_icons } from 's5-icon-lib';
 import { MenuButton } from '../menu-button/menu-button';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { ResolveColors, UpdateState } from './util';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
-import { Color, ThemeColor } from '@trebco/treb';
-import { Measurement } from '@trebco/treb/treb-utils';
 import { ColorButton } from './toolbar-color-picker';
 import { CompositeMenu } from './composite-menu';
 import { A } from '@solidjs/router';
 import { CommandPalette } from '../command-palette/command-palette';
+import { sessionData, setSessionData } from '~/lib/app-data';
 
 //////////////
 
@@ -42,6 +38,7 @@ interface Props {
 
 const tab_group_name = crypto.randomUUID();
 
+/*
 function Literal(text: string) {
   // const literalHtml = "<p>This is <strong>bold</strong> text.</p>";
 
@@ -65,6 +62,7 @@ function RenderTextButton(control: TextButtonControl) {
     </button>
   </>;
 }
+*/
 
 export function Toolbar(props: ParentProps<Props>) {
 
@@ -155,6 +153,9 @@ export function Toolbar(props: ParentProps<Props>) {
       command.value = item.value;
     }
     else if (event.target instanceof HTMLInputElement) {
+
+      // what's going on here?? //
+
       const value = 
         NumberFormatCache.SymbolicName(event.target.value || '');
 

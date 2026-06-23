@@ -190,8 +190,8 @@ export function CreateForecastSheet(sheet: SpreadsheetType, data: Partial<Foreca
 
         const last_row = values_count + (data.periods || 0);
         const chart_fn = data.chart_type === 'column' ? 
-          `=Column.Chart(Group(Series(B1,,B2:B${last_row}), Series(C1,,C2:C${last_row})),,"${t('forecast-sheet-forecast-header')}")` :
-          `=Line.Chart(Group(Series(B1,,B2:B${last_row}), Series(C1,,C2:C${last_row})),,"${t('forecast-sheet-forecast-header')}")` ;
+          `=Column.Chart(Group(Series(B1,,B2:B${last_row + 1}), Series(C1,,C2:C${last_row + 1})),,"${t('forecast-sheet-forecast-header')}")` :
+          `=Line.Chart(Group(Series(B1,,B2:B${last_row + 1}), Series(C1,,C2:C${last_row + 1})),,"${t('forecast-sheet-forecast-header')}")` ;
 
         sheet.InsertAnnotation(chart_fn, undefined, 'F2:J16', ',');
 
@@ -228,8 +228,8 @@ export function CreateForecastSheet(sheet: SpreadsheetType, data: Partial<Foreca
 
         const last_row = values_count + (data.periods || 0);
         const chart_fn = data.chart_type === 'column' ? 
-          `=Column.Chart(Group(Series(B1,,B2:B${last_row}), Series(C1,,C2:C${last_row})),,"${t('forecast-sheet-forecast-header')}")` :
-          `=Line.Chart(Group(Series(B1,,B2:B${last_row}), Series(C1,,C2:C${last_row})),,"${t('forecast-sheet-forecast-header')}")` ;
+          `=Column.Chart(Group(Series(B1,,B2:B${last_row + 1}), Series(C1,,C2:C${last_row + 1})),,"${t('forecast-sheet-forecast-header')}")` :
+          `=Line.Chart(Group(Series(B1,,B2:B${last_row + 1}), Series(C1,,C2:C${last_row + 1})),,"${t('forecast-sheet-forecast-header')}")` ;
 
         sheet.InsertAnnotation(chart_fn, undefined, 'F2:J16', ',');
 
@@ -308,16 +308,24 @@ export function CreateForecastSheet(sheet: SpreadsheetType, data: Partial<Foreca
           ]], { argument_separator: ',', recycle: true, r1c1: true });
 
         const last_row = values_count + (data.periods || 0);
-        const series = [
-          `Series(B1,,B2:B${last_row},,1)`,
+        let series = [
+          `Series(B1,,B2:B${last_row + 1},,1)`,
           // `Series(D1,,D2:D${last_row})`,
-          `Series(E1,,E2:E${last_row},,2)`,
-          `Series(F1,,F2:F${last_row},,3)`,
-          `Series(G1,,G2:G${last_row},,3)`,
+          `Series(E1,,E2:E${last_row + 1},,2)`,
+          // `Series(F1,,F2:F${last_row},,3)`,
+          // `Series(G1,,G2:G${last_row},,3)`,
         ];
-        const chart_fn =  
-          `=Line.Chart(Group(${series.join(',')}),,"${t('forecast-sheet-forecast-header')}")` ;
-        sheet.InsertAnnotation(chart_fn, undefined, 'F2:J16', ',');
+        let chart_fn =  
+          `=Line.Chart(Group(${series.join(',')}),,"${t('forecast-sheet-forecast-header')} / ${t('forecast-sheet-statistics.mean.header')}")` ;
+        sheet.InsertAnnotation(chart_fn, undefined, 'D3:G16', ',');
+
+        series = [
+          // `Series(B1,,B2:B${last_row},,1)`,
+          `Series(D1,,D${values_count + 1}:D${last_row + 1},,2)`,
+        ];
+        chart_fn =  
+          `=Line.Chart(Group(${series.join(',')}),,"${t('forecast-sheet-sample-header')}")` ;
+        sheet.InsertAnnotation(chart_fn, undefined, 'I3:L16', ',');
 
 
         sheet.SetRange('L2', [
