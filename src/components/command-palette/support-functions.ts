@@ -40,7 +40,13 @@ export interface NumberParameter {
   format?: string;
 }
 
-export type Parameter = (ColorParameter | TextParameter | NumberParameter | MultiLineTextParameter) & {
+export interface BooleanParameter {
+  type: 'boolean';
+  default?: boolean;
+  value?: boolean;
+}
+
+export type Parameter = (ColorParameter | TextParameter | NumberParameter | MultiLineTextParameter | BooleanParameter) & {
   name?: string;
   label?: string;
   choices?: (string | { label: string, value: string })[];

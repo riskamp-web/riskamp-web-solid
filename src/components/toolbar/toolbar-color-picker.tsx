@@ -1,26 +1,16 @@
 
-import { ParentProps, Switch, Match, For, Show, onMount, onCleanup, createEffect, on, createSignal } from 'solid-js';
+import { For, Show, createSignal } from 'solid-js';
 import style from './toolbar.module.css';
-import { Logo } from '../logo';
-import { DropMenu } from '~/components/drop-menu/drop-menu';
-import { I18N, t, UpdateLanguage } from '~/i18n/i18n';
+import { t } from '~/i18n/i18n';
 
 import '~/components/tabs.css';
 
-import { toolbar_config as base_toolbar_config } from './toolbar-config';
-import html from 'solid-js/html';
-import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl } from './toolbar-utils';
+import { ColorButtonControl } from './toolbar-utils';
 import { ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
 
-import { goto } from '~/lib/navigate';
-import { persistentData, sessionData, setSessionData } from '~/lib/app-data';
-import { createMutable, produce, unwrap } from 'solid-js/store';
 import { bootstrap_icons } from 's5-icon-lib';
 import { MenuButton } from '../menu-button/menu-button';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
-import { ResolveColors, UpdateState } from './util';
-import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { Color, ThemeColor } from '@trebco/treb';
 import { Measurement } from '@trebco/treb/treb-utils';
 

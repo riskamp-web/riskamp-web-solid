@@ -354,12 +354,21 @@ export const commands: PaletteCommand[] = [
       label: 'Select color for data bars',
       type: 'color',
       default: { theme: 4, tint: .5 },
+    }, {
+      label: 'Hide values?',
+      type: 'boolean',
+      default: true,
     }],
     fn: (ctx: Context) => {
+      const hide = !!(ctx.parameters?.[1]?.value || false);
+
+      console.info({hide, p1: ctx.parameters?.[1]});
+
       const parameter = ctx.parameters?.[0];
       if (parameter?.type === 'color') {
         ctx.sheet.ConditionalFormatDataBars(undefined, { 
-          fill: parameter.value || parameter.default || {}
+          fill: parameter.value || parameter.default || {},
+          hide_values: hide,
         });
       }
     }
