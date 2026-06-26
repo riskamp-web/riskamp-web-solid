@@ -358,6 +358,10 @@ export const commands: PaletteCommand[] = [
       label: 'Hide values?',
       type: 'boolean',
       default: true,
+      choices: [
+        { value: 'true', label: 'Yes, hide values' },
+        { value: 'false', label: 'No, show values' }
+      ],
     }],
     fn: (ctx: Context) => {
       const hide = !!(ctx.parameters?.[1]?.value || false);

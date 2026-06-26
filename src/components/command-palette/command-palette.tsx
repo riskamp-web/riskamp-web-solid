@@ -280,7 +280,7 @@ export function CommandPalette(props: Props) {
         const choice = parameter.choices?.[index];
         if (choice) {
           if (input) {
-            input.textContent = typeof choice === 'string' ? choice : choice.label;
+            input.textContent = typeof choice === 'string' ? choice : choice.value;
             requestAnimationFrame(SelectText);
           }
         }
@@ -471,16 +471,10 @@ export function CommandPalette(props: Props) {
                             label={item => typeof item === 'string' ? item : item.label} />
               </Match>
               <Match when={local.parameter.type === 'color'}>
-
-                ...I am a nightmare walking, psychopath talking, king of the jungle
-                just a ganster stalking living life like a firecracker quick is my
-                fuse -- 
-
+                ...
               </Match>
               <Match when={true}>
-
-                ...zip...
-                
+                ...
               </Match>
             </Switch>
           </>;
