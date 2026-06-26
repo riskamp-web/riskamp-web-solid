@@ -25,7 +25,7 @@ import * as ChartUtils from '@trebco/treb/treb-charts/src/chart-utils';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 
 import './quickview-charts.css';
-import { ToolbarCommands } from '~/components/toolbar/toolbar-commands';
+import { ToolbarCommandMap, ToolbarCommands } from '~/components/toolbar/toolbar-commands';
 import { MCEmbeddedSheetEvent } from 'riskamp-web';
 
 function Variance(data: number[], sample = false) {
@@ -352,8 +352,8 @@ function RedrawInternal() {
               onfocusin={FocusIn}
               onkeydown={KeyDown}
               data-placeholder={t('quick-view-dialog.select-cell')}
-              oninput={e => TollRedraw()}
-              onchange={e => TollRedraw()}
+              oninput={() => TollRedraw()}
+              onchange={() => TollRedraw()}
               ref={parameter_element}>{initial_value}</div>
       </div>
 
@@ -422,8 +422,8 @@ function RedrawInternal() {
               t('quick-view-dialog.no-data').split(/\n/g).map(para => `<p>${para}</p>`).join('\n')
             } />
             <button onclick={() => RunSimulation()}>
-              <span innerHTML={ToolbarCommands['run-simulation'].icon} />
-              <span>{t(ToolbarCommands['run-simulation'].title)}</span>
+              <span innerHTML={ToolbarCommandMap['run-simulation'].icon} />
+              <span>{t(ToolbarCommandMap['run-simulation'].title)}</span>
             </button>
           </div>
 
