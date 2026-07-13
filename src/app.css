@@ -54,6 +54,45 @@
 
   --icon-size: 16px;
 
+  /* ===== Dialogs =====================================================
+     Single source of truth for dialog colors. Definitions moved here from
+     src/style/riskamp-dialog.css. Dark values are first-pass placeholders. */
+
+  /* chrome */
+  --dialog-surface:      light-dark(#fff, #26282c);            /* .frame background */
+  --dialog-text-color:   light-dark(#1a1a1a, #e8eaed);         /* dialog body text */
+  --dialog-shadow-color: light-dark(rgba(0, 0, 0, 0.124), rgba(0, 0, 0, 0.55));
+
+  /* accent / header */
+  --dialog-border-color:    light-dark(#0477BE, #2a91d8);      /* header bg, selection, 4px border */
+  --dialog-title-color:     #fff;                              /* text on accent — same both themes */
+  --dialog-button-color:    #fff;
+  --dialog-close-box-color: #fff;
+  --dialog-border: 4px solid var(--dialog-border-color);
+  --dialog-initial-transform: translateY(.5em);
+  --dialog-resize-handle-size: 8px;
+  --dialog-resize-handle-color: color-mix(in srgb, var(--dialog-border-color) 50%, transparent);
+  --dialog-close-box-border: none;
+  --dialog-close-box-background: transparent;
+  --dialog-close-box-hover-background: color-mix(in srgb, var(--dialog-border-color) 80%, #fff);
+
+  /* lines / dividers */
+  --dialog-divider-color: light-dark(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.22));
+  --dialog-line-color:    light-dark(#ccc, #3a3d42);
+
+  /* progress bar (run-simulation) */
+  --dialog-progress-track-color: light-dark(rgb(223, 223, 223), #3a3d42);
+  --dialog-progress-bar-color:   light-dark(orange, orange);
+
+  /* chart data series (trend-forecasting) */
+  --chart-series-1-color: light-dark(rgb(70, 48, 129), #a78bfa);   /* purple: lightened for dark */
+  --chart-series-2-color: light-dark(orange, orange);
+
+  /* reference-editor syntax colors */
+  --dialog-syntax-string-color:     light-dark(green, #4ec9a0);
+  --dialog-syntax-call-color:       light-dark(blue, #569cd6);
+  --dialog-syntax-identifier-color: light-dark(purple, #c586c0);
+
 }
 
 /* ---- Dark mode (hybrid) --------------------------------------------------

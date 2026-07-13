@@ -7,19 +7,7 @@
     box-sizing: border-box;
   }
 
-  --dialog-border-color: #0477BE;
-  --dialog-title-color: #fff;
-  --dialog-button-color: #fff;
-  --dialog-border: 4px solid var(--dialog-border-color);
-  --dialog-initial-transform: translateY(.5em);
-
-  --dialog-resize-handle-size: 8px;
-  --dialog-resize-handle-color: color-mix(in srgb, var(--dialog-border-color) 50%, transparent);
-
-  --dialog-close-box-border: none;
-  --dialog-close-box-background: transparent;
-  --dialog-close-box-hover-background: color-mix(in srgb, var(--dialog-border-color) 80%, #fff);
-  --dialog-close-box-color: #fff;
+  /* --dialog-* tokens are defined in src/app.css (:root) — single source of truth. */
 
   h2 {
     margin: none;
@@ -231,15 +219,15 @@ div.reference-editor {
   */
 
   .string {
-    color: green;
+    color: var(--dialog-syntax-string-color);
   }
 
   .call {
-    color: blue;
+    color: var(--dialog-syntax-call-color);
   }
 
   .identifier {
-    color: purple;
+    color: var(--dialog-syntax-identifier-color);
   }
 
   [data-highlight-index="1"] { color: var(--text-reference-color-1); }
