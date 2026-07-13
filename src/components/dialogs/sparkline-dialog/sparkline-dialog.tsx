@@ -6,9 +6,9 @@ import { CreateParameters, InteractiveDialog,
          type Props as InteractiveDialogProps } from '~/components/dialogs/interactive-dialog/interactive-dialog';
 import style from './sparkline-dialog.module.css';
 import { t } from '~/i18n/i18n';
-import { createEffect, createSignal, Match, on, Show, Switch, type Signal } from 'solid-js';
-import { bootstrap_icons } from 's5-icon-lib';
-import { createStore, SetStoreFunction, StoreSetter } from 'solid-js/store';
+import { createEffect, createSignal, on } from 'solid-js';
+// import { bootstrap_icons } from 's5-icon-lib';
+import { SetStoreFunction } from 'solid-js/store';
 import { IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 
@@ -41,9 +41,20 @@ export function SparklineDialog(props: InteractiveDialogProps & SparklineProps) 
     return false;
   }
 
+  function AreaOrAddressOrFunction(value: string, sheet?: SpreadsheetType) {
+    if (AreaOrAddress(value, sheet)) {
+      return true;
+    }
+    const result = sheet?.parser.Parse(value);
+    if (result?.expression?.type === 'call') {
+      return true;
+    }
+    return false;
+  }
+
   const parameters: ParameterType[] = CreateParameters([{
     key: 'source',
-    validate: (value: string) => AreaOrAddress(value, props.sheet()),
+    validate: (value: string) => AreaOrAddressOrFunction(value, props.sheet()),
   }, {
     key: 'target',
     validate: (value: string) => AreaOrAddress(value, props.sheet()),

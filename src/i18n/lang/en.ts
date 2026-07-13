@@ -396,6 +396,7 @@ export default {
   'sign-in.page.title': 'Sign in',
   'sign-in.form.username.placeholder': 'Username or email',
   'sign-in.form.password.placeholder': 'Password',
+  'sign-in.form.remember-me': 'Remember me on this device',
   
 
 };

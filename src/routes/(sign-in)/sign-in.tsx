@@ -47,7 +47,18 @@ export default function SignIn() {
                   autocomplete='current-password' 
                   type="password" 
                   placeholder={t('sign-in.form.password.placeholder')} />
+
             <button class="control-button" type="submit">Sign in</button>
+
+            {/*
+            <div>
+              <label>
+                <input type="checkbox" name="remember"/>
+                <span>{t('sign-in.form.remember-me')}</span>
+              </label>
+            </div>
+            */}
+
           </form>
 
           <hr/>

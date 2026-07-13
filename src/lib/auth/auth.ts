@@ -309,7 +309,7 @@ export const AccessResource = async (
     Authorization: `Bearer ${auth_token}`,
   } : undefined;
 
-  let pending = delay ? Delay(delay) : Promise.resolve();
+  const pending = delay ? Delay(delay) : Promise.resolve();
   
   // console.info("fetching", uri, headers);
 
@@ -507,7 +507,7 @@ export const UpdateAuth = (response: Response) => {
   return false;
 };
 
-export const Login = async (username: string, password: string): Promise<boolean> => {
+export const Login = async (username: string, password: string, remember = false): Promise<boolean> => {
 
   ClearTokens();
 

@@ -25,11 +25,12 @@ import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline
 import { TrendForecastingDialog } from '~/components/dialogs/trend-forecasting/trend-forecasting-dialog';
 import { RunTrendForecast, trend_forecast_props } from '~/components/dialogs/trend-forecasting/trend-forecasting';
 import { BorderConstants, EmbeddedSheetEvent } from '@trebco/treb';
-import { sessionData, setSessionData } from '~/lib/app-data';
+import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
 
 import * as cache from '~/docs/local-cache';
 import { IsValidPath, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
 import { CheckFunction, CheckFunctionData, RestoreEditor } from '~/components/dialogs/insert-function-dialog/check-function';
+import { produce } from 'solid-js/store';
 
 /*
 function Spin() {
@@ -363,6 +364,17 @@ export default function Page() {
               setSidebar('notes');
             }
 
+            // on load, check the workbook for a trials count
+            // and use that if set
+
+            {
+              const user_data = sheet.user_data || {};
+              if (user_data.simulation?.trials) {
+                const trials = user_data.simulation.trials;
+                setPersistentData(produce(s => { s.trials = trials; }));
+              }
+            }
+
           // case 'selection':
           // case 'annotation-selection':
           // case 'focus-view':
@@ -371,6 +383,16 @@ export default function Page() {
           // fall through
 
           case 'reset':
+
+            // on reset, we want to clear any saved seed
+
+
+
+            // MAYBE: reset trials as well? or we can just use
+            // the last setting
+
+            // fall through
+
           case 'document-change':
           case 'simulation-complete':
           case 'simulation-aborted':

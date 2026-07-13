@@ -8,6 +8,7 @@ import { NumberFormat, NumberFormatCache } from '@trebco/treb/treb-format';
 import type { FunctionLibrary } from '@trebco/treb/treb-calculator/src/function-library';
 import type { Calculator } from '@trebco/treb/treb-calculator';
 import { MCCompositeFunctionDescriptor } from '../../../../../RAW/treb-mc/src/descriptors';
+import { SpreadsheetType } from '~/lib/spreadsheet-type';
 
 export interface FunctionArg {
   name: string;
@@ -88,7 +89,7 @@ export function FormatValue2(sheet: EmbeddedSpreadsheet, cell_format: string, va
   
 }
 
-export function CalculateAndRender(sheet: EmbeddedSpreadsheet, argument: boolean, text: string, format = 'General', formatter?: NumberFormat): {
+export function CalculateAndRender(sheet: SpreadsheetType, argument: boolean, text: string, format = 'General', formatter?: NumberFormat): {
   text: string;
   type: ValueType;
   volatile?: boolean;
@@ -138,10 +139,10 @@ export function CalculateAndRender(sheet: EmbeddedSpreadsheet, argument: boolean
         return { text: '', type: ValueType.undefined, volatile: true };
       }
 
-      let calculated_result: UnionValue = { type: ValueType.undefined };
+      let calculated_result: UnionValue; // = { type: ValueType.undefined };
 
       try {
-        calculated_result = calculator.Evaluate(text, (sheet as any).grid.active_sheet, {}, true);
+        calculated_result = calculator.Evaluate(text, sheet.grid.active_sheet, {}, true);
       }
       catch (err) {
         console.info({text, parsed});
@@ -157,7 +158,7 @@ export function CalculateAndRender(sheet: EmbeddedSpreadsheet, argument: boolean
 
 }
 
-export function RenderCellValue2(sheet: EmbeddedSpreadsheet, value: UnionValue|UnionValue[]|UnionValue[][], format = 'General', formatter?: NumberFormat): string {
+export function RenderCellValue2(sheet: SpreadsheetType, value: UnionValue|UnionValue[]|UnionValue[][], format = 'General', formatter?: NumberFormat): string {
 
   if (!formatter) {
     formatter = NumberFormatCache.Get('format');
@@ -182,7 +183,11 @@ export function RenderCellValue2(sheet: EmbeddedSpreadsheet, value: UnionValue|U
     case ValueType.error:
       return '#' + value.value;
     case ValueType.boolean:
-      return value.value.toString();
+      if (sheet.model.language_model) {
+        return value.value ? sheet.model.language_model.boolean_true || 'TRUE' :
+          sheet.model.language_model.boolean_false || 'FALSE';
+      }
+      return value.value.toString().toUpperCase();
       
   }
 

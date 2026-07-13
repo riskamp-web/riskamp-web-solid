@@ -1,12 +1,12 @@
 
 import { Dialog, type Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { Accessor, createEffect, createSignal, on, splitProps } from 'solid-js';
+import { Accessor, createEffect, createSignal, on } from 'solid-js';
 import { t } from '~/i18n/i18n';
 import style from './run-simulation-dialog.module.css';
 import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
-import { sessionData, persistentData, setPersistentData } from '~/lib/app-data';
+import { persistentData, setPersistentData } from '~/lib/app-data';
 import { produce } from 'solid-js/store';
 import { ICellAddress } from '@trebco/treb';
 import { IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
@@ -58,7 +58,7 @@ export function RunSimulationDialog(props: Props) {
       const options = props.options();
 
       if (options?.additional_cells) {
-        for (const cell of options?.additional_cells) {
+        for (const cell of options?.additional_cells || []) {
           const resolved = sheet.Resolve(cell);
           if (IsCellAddress(resolved)) {
             additional_cells.push(resolved);
@@ -159,6 +159,9 @@ export function RunSimulationDialog(props: Props) {
         let value = sheet.ParseNumber(event.target.value || '');
         if (typeof value === 'number' && value > 0 && !isNaN(value)) {
           const num = value;
+
+          console.info("SPD trials", num);
+
           setPersistentData(produce(s => { s.trials = num; }));
           const user_data = sheet.user_data || {};
           user_data.simulation = user_data.simulation || {};

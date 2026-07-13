@@ -328,7 +328,7 @@ function RedrawInternal() {
     
     // props.sheet?.RunSimulation(1000);
     props.oncommand({ 
-      ...ToolbarCommands['run-simulation-again'], 
+      ...ToolbarCommandMap['run-simulation-again'], 
       key: 'run-simulation-again',
       additional_data: [
         parameter_element?.textContent || '',

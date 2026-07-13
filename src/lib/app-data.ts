@@ -79,7 +79,7 @@ export const [sessionData, setSessionData] = createStore<SessionData>({
 export const [persistentData, setPersistentData] = createStore<PersistentData>({
   lhs: true,
   stepped: false,
-  trials: 6781,
+  trials: 5000,
   
   llm_model: undefined,
   llm_api_keys: {},

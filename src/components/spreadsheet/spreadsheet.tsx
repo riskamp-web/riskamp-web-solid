@@ -1,5 +1,5 @@
 
-import { onMount, createSignal, Signal, Accessor, Setter } from "solid-js";
+import { onMount, Setter } from "solid-js";
 import { type EmbeddedSpreadsheet, type MCEmbeddedSpreadsheetOptions, RiskAMPWeb } from 'riskamp-web';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 
@@ -16,6 +16,7 @@ interface Props {
 
 export function Spreadsheet(props: Props) {
 
+  // eslint-disable-next-line no-unassigned-vars
   let container: HTMLDivElement|undefined;
   let sheet: EmbeddedSpreadsheet;
 

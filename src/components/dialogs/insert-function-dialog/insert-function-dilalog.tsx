@@ -1,7 +1,7 @@
 
 import { t } from '~/i18n/i18n';
 import { CreateParameters, InteractiveDialog, Parameter, type ParameterType, type Props as DialogProps, InteractiveDialogRef } from '../interactive-dialog/interactive-dialog';
-import { Accessor, createEffect, createRoot, createSignal, For, Match, on, onMount, Setter, Show, Switch } from 'solid-js';
+import { Accessor, createEffect, createSignal, For, Match, on, onMount, Setter, Show, Switch } from 'solid-js';
 import { CheckFunctionData } from './check-function';
 import SearchWorker from 'raw-tools/src/insert-function/function-search-worker.ts?worker';
 import { type FunctionData, CreateFunctionLib, type MessageType, type SearchResults } from 'raw-tools';
@@ -10,7 +10,7 @@ import { createMutable } from 'solid-js/store';
 import style from './insert-function-dialog.module.css';
 import { Size } from '../dialog-base/dialog';
 import { ApplyArgs, CalculateAndRender, FunctionArg, TranslateDescriptor } from './function-utils';
-import { ExtendedFunctionDescriptor } from '@trebco/treb/treb-calculator';
+import { Calculator, ExtendedFunctionDescriptor } from '@trebco/treb/treb-calculator';
 import { FunctionLibrary } from '@trebco/treb/treb-calculator/src/function-library';
 import { bootstrap_icons } from 's5-icon-lib';
 import { CellValue } from '@trebco/treb';
@@ -36,8 +36,10 @@ export function InsertFunctionDialog(props: Props) {
 
   const [state, setState] = createSignal<'arguments'|'functions'>('functions');
   let worker: Worker|undefined;
+  
+  // eslint-disable-next-line no-unassigned-vars
   let query_input: HTMLInputElement|undefined;
-  // const [numberFormat, setNumberFormat] = createSignal('General');
+
   const [functionData, setFunctionData] = createSignal<CompositeData|undefined>();
   const bindsize = createSignal<Size|undefined>({width: 400, height: 500});
   const [backButton, setBackButton] = createSignal(false);
@@ -125,7 +127,7 @@ export function InsertFunctionDialog(props: Props) {
       if (data) {
         setState(data.target ? 'arguments' : 'functions');
         if (data.target && sheet) {
-          const lib = (sheet.calculator as any).library as FunctionLibrary;
+          const lib = (sheet.calculator as Calculator & {library: FunctionLibrary}).library;
           const fd = TranslateDescriptor(lib.Get(data.target.name || ''), sheet.model.language_model);
           setFunctionData({
             data: fd,
@@ -160,7 +162,7 @@ export function InsertFunctionDialog(props: Props) {
 
   function SelectFunction(event?: Event, result?: FunctionData, index = -1) {
     const sheet = props.sheet();
-    let canonical_name = '';
+    // let canonical_name = '';
 
     if (!result) {
       if (index < 0) {
@@ -175,7 +177,7 @@ export function InsertFunctionDialog(props: Props) {
     if (result && sheet) {
       console.info(result);
 
-      const lib = (sheet.calculator as any).library as FunctionLibrary;
+      const lib = (sheet.calculator as Calculator & {library: FunctionLibrary}).library;
       const fd = TranslateDescriptor(lib.Get(result.canonical_name));
       setFunctionData({
         data: fd,
@@ -188,6 +190,7 @@ export function InsertFunctionDialog(props: Props) {
     }
   }
 
+  /*
   function FormatCompositeResult(result: CellValue|CellValue[][]): string {
     if (Array.isArray(result)) {
       return result.flat().map(FormatCompositeResult).join(', ');
@@ -205,6 +208,7 @@ export function InsertFunctionDialog(props: Props) {
         return '??';
     }
   }
+  */
 
   function UpdateResult() {
 
@@ -261,7 +265,10 @@ export function InsertFunctionDialog(props: Props) {
 
   function FindFunction() {
 
+    // eslint-disable-next-line no-unassigned-vars
     let query: HTMLInputElement|undefined;
+
+    // eslint-disable-next-line no-unassigned-vars
     let results_list: HTMLUListElement|undefined;
 
     onMount(() => {
@@ -315,7 +322,7 @@ export function InsertFunctionDialog(props: Props) {
       event.preventDefault();
 
       if (delta) {
-        let target = Math.min(Math.max(0, search_state.selected_index + delta), search_state.results.length - 1);
+        const target = Math.min(Math.max(0, search_state.selected_index + delta), search_state.results.length - 1);
         if (target !== search_state.selected_index) {
           search_state.selected_index = target;
           search_state.selected_entry = search_state.results[target].canonical_name;
@@ -398,7 +405,7 @@ export function InsertFunctionDialog(props: Props) {
 
       repeat = !!(composite_args_length && composite.args[composite_args_length - 1].repeat);
 
-      let count = Math.max(composite_args_length, data_target_args_length);
+      const count = Math.max(composite_args_length, data_target_args_length);
 
       const initial_parameters = CreateParameters(
         (new Array(count).fill(0)).map(_ => ({})));
@@ -436,7 +443,7 @@ export function InsertFunctionDialog(props: Props) {
       }
     }
     
-    function FocusOut(event?: Event) {
+    function FocusOut() {
       const selection = window.getSelection();
       selection?.removeAllRanges();
       setInfo('');
@@ -478,7 +485,7 @@ export function InsertFunctionDialog(props: Props) {
               <div>{ArgumentName(index())}</div>
               <div >
                 <Parameter focusin={e => FocusIn(e, index())}
-                           focusout={e => FocusOut(e)}
+                           focusout={() => FocusOut()}
                            parameter={parameters()[index()]} />
               </div>
               <div>
@@ -536,7 +543,7 @@ export function InsertFunctionDialog(props: Props) {
         <div class={style.buttons}>
           <Show when={backButton() && state() === 'arguments'}>
             <button class="button"
-                    onclick={e => setState('functions')}>{t('standard-buttons.back.title')}</button>
+                    onclick={() => setState('functions')}>{t('standard-buttons.back.title')}</button>
           </Show>
           <div class="flex-grow"></div>
           <button class="button"
