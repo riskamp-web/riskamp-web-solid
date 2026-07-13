@@ -1,7 +1,8 @@
-import { createStore, reconcile } from 'solid-js/store';
+import { createStore } from 'solid-js/store';
 import { createEffect, on } from 'solid-js';
 import { type Model } from 'treb-llm-support';
 import type { DocumentsRow } from '~/docs/documents';
+import { isServer } from "solid-js/web";
 
 /**
  * FIXME: we should change how this works, make it deeper 
@@ -50,6 +51,9 @@ export interface PersistentData {
   documents_sort?: keyof DocumentsRow;
   documents_asc?: boolean;
   documents_filter?: string;
+
+  /** explicit light/dark theme. leave undefined to use system theme. */
+  explicit_theme?: 'light'|'dark';
 
 }
 
@@ -117,5 +121,12 @@ export function InitAppData() {
     const json = JSON.stringify(persistentData);
     localStorage.setItem('app-data', json);
   });
+
+  createEffect(() => {
+    const theme = persistentData.explicit_theme || 'system';
+    console.info("set theme:", theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  });
+
 
 }

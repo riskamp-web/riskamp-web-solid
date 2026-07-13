@@ -7,7 +7,7 @@ import { Spreadsheet } from '~/components/spreadsheet/spreadsheet';
 import { createEffect, createSignal, on } from 'solid-js';
 import { Splitter } from '~/components/splitter/splitter';
 import { Toolbar } from '~/components/toolbar/toolbar';
-import { ToolbarCommand, ToolbarCommandKey } from '~/components/toolbar/toolbar-commands';
+import { ToolbarCommand } from '~/components/toolbar/toolbar-commands';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { Sidebar } from '~/components/sidebar/sidebar-main';
 import { goto, OpenExternal } from '~/lib/navigate';
@@ -25,7 +25,7 @@ import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline
 import { TrendForecastingDialog } from '~/components/dialogs/trend-forecasting/trend-forecasting-dialog';
 import { RunTrendForecast, trend_forecast_props } from '~/components/dialogs/trend-forecasting/trend-forecasting';
 import { BorderConstants, EmbeddedSheetEvent } from '@trebco/treb';
-import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
+import { sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
 
 import * as cache from '~/docs/local-cache';
 import { IsValidPath, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
@@ -55,7 +55,7 @@ export default function Page() {
   const [insertFunctionData, setInsertFunctionData] = createSignal<(CheckFunctionData & { result?: string })|undefined>(undefined);
   const [functionResult, setFunctionResult] = createSignal<string|undefined>('');
 
-  const [pageTitle, setPageTitle] = createSignal('RiskAMP web');
+  const [pageTitle ] = createSignal('RiskAMP web');
 
   // const RunSimulationSignal = createSignal(false);
   // const [auto, setAuto] = createSignal(false);
@@ -99,7 +99,7 @@ export default function Page() {
   }
 
   // FIXME: move this to a lib file, it doesn't need to clog up this file
-  function HandleCommand(command: ToolbarCommand & { key: ToolbarCommandKey}) {
+  function HandleCommand(command: ToolbarCommand) {
 
     const sheet = getSheet();
     if (!sheet) {

@@ -24,7 +24,7 @@ import { ColorButton } from './toolbar-color-picker';
 import { CompositeMenu } from './composite-menu';
 import { A } from '@solidjs/router';
 import { CommandPalette } from '../command-palette/command-palette';
-import { sessionData, setSessionData } from '~/lib/app-data';
+import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
 
 //////////////
 
@@ -368,6 +368,34 @@ export function Toolbar(props: ParentProps<Props>) {
     return <GroupControls controls={group()} />;
   }
 
+  function CycleTheme() {
+    switch (persistentData.explicit_theme) {
+      case 'dark':
+        setPersistentData(produce(s => { s.explicit_theme = undefined }));
+        break;
+      case 'light':
+        setPersistentData(produce(s => { s.explicit_theme = 'dark' }));
+        break;
+      default:
+        setPersistentData(produce(s => { s.explicit_theme = 'light' }));
+        break;
+    }
+
+    requestAnimationFrame(() => props.sheet()?.UpdateTheme());
+    
+  }
+
+  const theme_icon = createMemo(() => {
+    switch (persistentData.explicit_theme) {
+      case 'dark':
+        return bootstrap_icons.moon;
+      case 'light':
+        return bootstrap_icons.sun;
+      default:
+        return bootstrap_icons.circle_half;
+    }
+  });
+
   return <>
     <div classList={{
       [style.toolbar]: true,
@@ -476,6 +504,12 @@ export function Toolbar(props: ParentProps<Props>) {
               <a href='/sign-in'>Sign in</a>
             </Match>
           </Switch>
+        </div>
+
+        <div class={style.separator}></div>
+
+        <div class={style['theme-toggle']}>
+          <button class={style['toolbar-button']} innerHTML={theme_icon()} onclick={CycleTheme}></button>
         </div>
 
         <div class={style.separator}></div>

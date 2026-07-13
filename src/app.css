@@ -4,22 +4,29 @@
   --inteface-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --llm-chat-font-size: 16px;
 
-  --toolbar-accent-color: #0d9488;
-  --toolbar-accent-color: #08756c;
-  --toolbar-accent-color: #000;
+  /* Each toolbar color is defined once as light-dark(light, dark). Which side is
+     used is decided by `color-scheme` (set below): `light dark` auto-follows the
+     OS; the [data-theme] overrides force one side. Dark values are first-pass
+     placeholders — tweak the second argument. */
+  color-scheme: light dark;
 
-  --toolbar-background-color: #fff;
-  
-  --toolbar-border-color: #e5e7eb;
+  --toolbar-accent-color: light-dark(#000, #2dd4bf);
 
-  --toolbar-tab-background-color: #f8f9fb;
-  --toolbar-tab-background-color: #f4f5f6;
+  --toolbar-border-color: light-dark(#e5e7eb, #3a3d42);
 
-  --toolbar-tab-text-color: #9ca3af;
-  --toolbar-tab-text-color: #62666d;
-  --toolbar-tab-text-color: #000;
+  --toolbar-tab-text-color: light-dark(#000, #e5e7eb);
 
-  --toolbar-tab-hover-color: #6b7280;
+  /* toolbar surface / chrome colors (moved out of toolbar.module.css) */
+  --toolbar-bar-background: light-dark(#f4f5f6, #1e1f22);   /* toolbar chrome background */
+  --toolbar-surface-color: light-dark(#fff, #26282c);      /* white surfaces: active tab, content pane */
+  --toolbar-swatch-shadow-color: light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
+
+  /* older, less-specifically-named aliases — follow the canonical tokens
+     above so there is a single source of truth (incl. dark mode) */
+  --toolbar-background-color: var(--toolbar-surface-color);       /* was #fff   */
+  --toolbar-tab-background-color: var(--toolbar-bar-background);  /* was #f4f5f6 */
+
+  --toolbar-tab-hover-color: light-dark(#6b7280, #9ca3af);
   --toolbar-container-border-radius: 8px;
   --toolbar-tab-padding: 12px 18px;
   --toolbar-tab-font-size: 13px;
@@ -33,23 +40,33 @@
   --toolbar-dropdown-caret-size: 16px;
   --toolbar-control-border-radius: 4px;
 
-  --toolbar-control-text-color: #112;
-  --toolbar-control-text-color: #002;
+  --toolbar-control-text-color: light-dark(#002, #e8eaed);
 
-  --toolbar-control-icon-color: #6b7280;
-  --toolbar-control-icon-color: #012;
+  --toolbar-control-icon-color: light-dark(#012, #b8bcc4);
 
-  --toolbar-control-color: #6b7280;
-  --toolbar-control-hover-color: #374151;
+  --toolbar-control-color: light-dark(#6b7280, #9ca3af);
+  --toolbar-control-hover-color: light-dark(#374151, #f3f4f6);
 
-  --toolbar-control-hover-background: #f3f4f6;
+  --toolbar-control-hover-background: light-dark(#f3f4f6, #34373c);
 
-  --toolbar-control-active-background: rgba(13, 148, 136, 0.1);
+  --toolbar-control-active-background: light-dark(rgba(13, 148, 136, 0.1), rgba(45, 212, 191, 0.16));
   --toolbar-divider-margin: 0 10px;
 
   --icon-size: 16px;
 
 }
+
+/* ---- Dark mode (hybrid) --------------------------------------------------
+   Colors themselves are defined once via light-dark() above; theming is just a
+   matter of which `color-scheme` is in effect:
+     - default `color-scheme: light dark` (on :root) auto-follows the OS
+       (prefers-color-scheme).
+     - the overrides below force one side and win over the OS — this is the hook
+       for a future user toggle / for Playwright testing.
+   `color-scheme` is inherited, so light-dark() resolves consistently everywhere.
+*/
+:root[data-theme='light'] { color-scheme: light; }
+:root[data-theme='dark']  { color-scheme: dark; }
 
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;

@@ -68,6 +68,16 @@ export function Spreadsheet(props: Props) {
         }
       }
 
+      // listener for system changes. here, we're not setting or
+      // removing styles. we're just forcing a repaint if the _system_
+      // style changes. we'll still need to handle explicit settings 
+      // elsewhere.
+
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      mq.addEventListener('change', () => {
+        requestAnimationFrame(() => sheet.UpdateTheme());
+      });
+
     }
   });
 
