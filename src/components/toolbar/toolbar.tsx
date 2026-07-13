@@ -3,7 +3,7 @@ import { ParentProps, Switch, Match, For, Show, onCleanup, createEffect, on, cre
 import style from './toolbar.module.css';
 import { Logo } from '../logo';
 import { DropMenu } from '~/components/drop-menu/drop-menu';
-import { t } from '~/i18n/i18n';
+import { i18n_instance, t } from '~/i18n/i18n';
 
 import '~/components/tabs.css';
 
@@ -396,6 +396,17 @@ export function Toolbar(props: ParentProps<Props>) {
     }
   });
 
+  const theme_title = createMemo(() => {
+    switch (persistentData.explicit_theme) {
+      case 'dark':
+        return 'theme-toggle.dark-theme';
+      case 'light':
+        return 'theme-toggle.light-theme';
+      default:
+        return 'theme-toggle.system-theme';
+    }
+  });
+
   return <>
     <div classList={{
       [style.toolbar]: true,
@@ -509,7 +520,9 @@ export function Toolbar(props: ParentProps<Props>) {
         <div class={style.separator}></div>
 
         <div class={style['theme-toggle']}>
-          <button class={style['toolbar-button']} innerHTML={theme_icon()} onclick={CycleTheme}></button>
+          <button class={style['toolbar-button']} 
+                  title={t(theme_title())}
+                  innerHTML={theme_icon()} onclick={CycleTheme}></button>
         </div>
 
         <div class={style.separator}></div>

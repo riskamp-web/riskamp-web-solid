@@ -398,6 +398,9 @@ export default {
   'sign-in.form.password.placeholder': 'Password',
   'sign-in.form.remember-me': 'Remember me on this device',
   
+  'theme-toggle.light-theme': 'Light theme',
+  'theme-toggle.dark-theme': 'Dark theme',
+  'theme-toggle.system-theme': 'System theme',
 
 };
 
