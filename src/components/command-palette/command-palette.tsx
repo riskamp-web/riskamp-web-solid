@@ -491,6 +491,7 @@ export function CommandPalette(props: Props) {
           id={container_id} >
 
         <div contenteditable
+             class={style['palette-editor']}
              ref={input}
              onkeydown={HandleKeyDown}
              oninput={HandleInput}

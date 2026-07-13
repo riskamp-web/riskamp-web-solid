@@ -108,6 +108,15 @@
   --sidebar-fit-data-color:              light-dark(blue, #6cb6ff);               /* fit chart: empirical line */
   --sidebar-fit-theoretical-color:       light-dark(orange, orange);             /* fit chart: theoretical line */
 
+  /* ===== Command palette =============================================
+     Single source of truth for command-palette colors. Dark values are
+     first-pass placeholders. */
+  --palette-input-background:    light-dark(#fff, #26282c);              /* editor input surface; matches --dialog-surface */
+  --palette-menu-shadow:         light-dark(
+                                   1px 10px 18px 1px rgba(0, 0, 0, 0.124),
+                                   1px 10px 18px 1px rgba(0, 0, 0, 0.55)); /* mirrors --dialog-shadow-color intensities */
+  --palette-selected-background: light-dark(lightgoldenrodyellow, #3a3d42); /* selected list row */
+
 }
 
 /* ---- Dark mode (hybrid) --------------------------------------------------
