@@ -10,7 +10,7 @@
       border-bottom: 3px solid transparent;
 
       &:has(input:checked) {
-        border-bottom-color: orange;
+        border-bottom-color: var(--sidebar-tab-active-color);
       }
 
     }

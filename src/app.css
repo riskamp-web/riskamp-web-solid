@@ -93,6 +93,20 @@
   --dialog-syntax-call-color:       light-dark(blue, #569cd6);
   --dialog-syntax-identifier-color: light-dark(purple, #c586c0);
 
+  /* ===== Sidebar =====================================================
+     Single source of truth for sidebar colors. Dark values are first-pass
+     placeholders. Quickview chart's .series-1 reuses --chart-series-1-color. */
+  --sidebar-header-background:           light-dark(rgb(255, 238, 221), #3a352d);  /* header bar (peach) */
+  --sidebar-notes-tab-active-background: light-dark(rgb(211, 240, 250), #2a3a44);  /* notes selected tab */
+  --sidebar-input-border-color:          light-dark(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.22));
+  --sidebar-link-color:                  light-dark(blue, #6cb6ff);               /* markdown links */
+  --sidebar-row-hover-background:        light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.09));
+  --sidebar-row-hover-background-subtle: light-dark(rgba(0, 0, 0, 0.025), rgba(255, 255, 255, 0.035));
+  --sidebar-tab-active-color:            light-dark(orange, orange);              /* active-tab underline */
+  --sidebar-message-user-background:     light-dark(#f8f8ff, #2f3540);            /* AI user message bubble */
+  --sidebar-fit-data-color:              light-dark(blue, #6cb6ff);               /* fit chart: empirical line */
+  --sidebar-fit-theoretical-color:       light-dark(orange, orange);             /* fit chart: theoretical line */
+
 }
 
 /* ---- Dark mode (hybrid) --------------------------------------------------
