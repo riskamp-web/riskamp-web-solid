@@ -114,7 +114,7 @@
     padding: 1em .5em 1em 1em;
 
     &:hover {
-      background-color: color-mix(in srgb, var(--dialog-border-color) 7%, transparent);
+      background-color: rgb(from var(--dialog-border-color) r g b / .07);
     }
 
   }

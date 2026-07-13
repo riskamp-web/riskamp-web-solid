@@ -114,7 +114,7 @@ label.tab {
 
 .group + .group {
   border-left: 1px solid var(--toolbar-border-color);
-  border-left: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-left: 1px solid var(--border-subtle);
   padding-left: 1em;
   margin-left: 1em;
 }
@@ -221,7 +221,7 @@ a.menu-item.disabled {
 .separator {
   grid-row: 1/2;
   width: 1px;
-  border-left: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-left: 1px solid var(--border-subtle);
   height: 100%;
 }
 

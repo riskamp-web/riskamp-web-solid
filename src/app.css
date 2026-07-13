@@ -15,6 +15,14 @@
   /* change backgroudn on logo in dark mode */
   --logo-background-color: light-dark(transparent, #fff);
 
+  /* ===== Shared primitives (cross-area) =============================
+     Neutral translucent values that replace color-mix(currentColor …),
+     which doesn't render reliably in Safari. Black in light, white in
+     dark; dark alphas are first-pass and tunable. */
+  --border-subtle:    light-dark(rgba(0, 0, 0, .3),  rgba(255, 255, 255, .3));   /* hairline borders (was currentColor 30%) */
+  --overlay-faint:    light-dark(rgba(0, 0, 0, .05), rgba(255, 255, 255, .06));  /* faint fill (was currentColor 5%) */
+  --overlay-faintest: light-dark(rgba(0, 0, 0, .03), rgba(255, 255, 255, .04));  /* fainter fill (was currentColor 3%) */
+
   --toolbar-accent-color: light-dark(#000, #2dd4bf);
   --toolbar-border-color: light-dark(#e5e7eb, #3a3d42);
   --toolbar-tab-text-color: light-dark(#000, #e5e7eb);
@@ -74,10 +82,10 @@
   --dialog-border: 4px solid var(--dialog-border-color);
   --dialog-initial-transform: translateY(.5em);
   --dialog-resize-handle-size: 8px;
-  --dialog-resize-handle-color: color-mix(in srgb, var(--dialog-border-color) 50%, transparent);
+  --dialog-resize-handle-color: rgb(from var(--dialog-border-color) r g b / .5);
   --dialog-close-box-border: none;
   --dialog-close-box-background: transparent;
-  --dialog-close-box-hover-background: color-mix(in srgb, var(--dialog-border-color) 80%, #fff);
+  --dialog-close-box-hover-background: rgb(from var(--dialog-border-color) calc(r + (255 - r) * .2) calc(g + (255 - g) * .2) calc(b + (255 - b) * .2));
 
   /* lines / dividers */
   --dialog-divider-color: light-dark(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.22));

@@ -120,7 +120,7 @@
 
     button, select {
       margin: 0;
-      border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+      border: 1px solid var(--border-subtle);
       padding: 8px 10px;
       border-radius: 3px;
       background: transparent;

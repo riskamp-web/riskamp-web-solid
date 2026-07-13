@@ -64,7 +64,7 @@
     font-size: var(--llm-chat-font-size);
     resize: none;
     flex-grow: 1;
-    border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    border: 1px solid var(--border-subtle);
     border-radius: 3px;
   }
 
@@ -103,8 +103,8 @@
 }
 
 .messages {
-  border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
   font-size: var(--llm-chat-font-size);
   display: flex;
   flex-direction: column;
@@ -135,7 +135,7 @@
   }
 
   .thinking {
-    background: color-mix(in srgb, currentColor 5%, transparent);
+    background: var(--overlay-faint);
     &[open] summary {
       margin-bottom: 1em;
     }

@@ -1,7 +1,7 @@
 
 .palette-editor {
 
-  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -43,7 +43,7 @@
 .menu {
   margin: 0;
   transform-origin: top left;
-  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border: 1px solid var(--border-subtle);
   margin-top: 3px;
   min-height: 13em;
   max-height: 25%;

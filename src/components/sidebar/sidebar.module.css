@@ -215,7 +215,7 @@ header {
   }
 
   .boxed {
-    border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    border: 1px solid var(--border-subtle);
     display: grid;
     grid-template-columns: auto auto 1fr;
     column-gap: 0;
@@ -242,7 +242,7 @@ header {
   }
 
   .graph-container {
-    border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    border: 1px solid var(--border-subtle);
     overflow: hidden;
 
     line-height: 0;
@@ -321,7 +321,7 @@ header {
   }
 
   & > div + div {
-    border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    border-top: 1px solid var(--border-subtle);
     padding-top: 1em;
   }
 
@@ -398,7 +398,7 @@ header {
 
     .separator {
       grid-column: 1/-1;
-      border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+      border-top: 1px solid var(--border-subtle);
       margin-top: .5em;
       padding-top: .5em;
       display: block;

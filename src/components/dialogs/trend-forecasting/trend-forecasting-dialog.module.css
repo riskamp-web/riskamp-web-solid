@@ -22,7 +22,7 @@
 }
 
 .chart {
-  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border: 1px solid var(--border-subtle);
   flex-grow: 1;
   min-width: 350px;
   height: 100%;

@@ -60,7 +60,7 @@
   transition: background-color .125s ease;
 
   &:hover {
-    background: color-mix(in srgb, currentColor 3%, transparent);
+    background: var(--overlay-faintest);
   }
 }
 
