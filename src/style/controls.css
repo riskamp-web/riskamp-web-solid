@@ -22,6 +22,14 @@ input[type=text].input, input[type=password].input, select.select, button.contro
 
 }
 
+/* Placeholder color is left to the UA default in light mode; --input-placeholder-color
+   is only defined in dark (see app.css). The `revert` fallback rolls back to the UA
+   default when the var is undefined, rather than inheriting the input's text color. */
+input[type=text].input::placeholder,
+input[type=password].input::placeholder {
+  color: var(--input-placeholder-color, revert);
+}
+
 button.control-button[disabled] {
   opacity: .5;
 }
