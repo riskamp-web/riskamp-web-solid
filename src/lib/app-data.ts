@@ -124,7 +124,7 @@ export function InitAppData() {
 
   createEffect(() => {
     const theme = persistentData.explicit_theme || 'system';
-    console.info("set theme:", theme);
+    // console.info("set theme:", theme);
     document.documentElement.setAttribute('data-theme', theme);
   });
 
