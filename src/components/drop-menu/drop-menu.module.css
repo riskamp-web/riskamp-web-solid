@@ -20,7 +20,7 @@ button.label {
   border: 1px solid var(--border-subtle);
   margin-top: 3px;
 
-  box-shadow: var(--dialog-box-shadow, 1px 10px 18px 1px rgba(0,0,0,0.124));
+  box-shadow: var(--menu-shadow);
 
   ul, menu {
     list-style-type: none;

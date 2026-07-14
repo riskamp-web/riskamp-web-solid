@@ -27,7 +27,7 @@
 }
 
 .document-link {
-  color: blue;
+  color: var(--document-link-color);
 }
 
 .table {
@@ -46,7 +46,7 @@
       padding: .85em 1em;
       border-bottom-width: 1px;
       border-bottom-style: solid;
-      border-bottom-color: rgba(0, 0, 0, .2);
+      border-bottom-color: var(--border-subtle);
 
       overflow: hidden;
       text-overflow: ellipsis;
@@ -107,7 +107,7 @@
   .row {
 
     &:hover > * {
-      background: rgba(0, 0, 0, .025);
+      background: var(--overlay-faintest);
     }
   }
 
