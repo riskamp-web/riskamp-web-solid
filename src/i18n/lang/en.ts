@@ -7,7 +7,8 @@ export default {
   'toolbar.menus.file': 'File',
   'toolbar.menus.help': 'Help',
   'toolbar.menus.monte-carlo': 'Monte Carlo',
-  'toolbar.menus.tools-and-analysis': 'Data & Analysis',
+  'toolbar.menus.data-and-analysis': 'Data & Analysis',
+  'toolbar.menus.tools': 'Tools',
   'toolbar.menus.account': 'Account',
 
   'toolbar.menu-commands.documents': 'Documents',
@@ -20,7 +21,7 @@ export default {
   'toolbar.tabs.format': 'Format',
   'toolbar.tabs.insert': 'Insert',
   'toolbar.tabs.mc': 'Monte Carlo',
-  'toolbar.tabs.tools-and-analysis': 'Data & Analysis',
+  'toolbar.tabs.data-and-analysis': 'Data & Analysis',
 
   'toolbar.menu.about-riskamp': 'About RiskAMP Web',
   'toolbar.menu.function-documentation': 'RiskAMP function documentation',

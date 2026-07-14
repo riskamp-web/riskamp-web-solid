@@ -41,7 +41,7 @@ export const toolbar_config: ToolbarConfig = {
       ),
     },
     {
-      label: 'toolbar.menus.tools-and-analysis',
+      label: 'toolbar.menus.tools',
       items: menuitems(
         'notes',
         'find',
