@@ -10,7 +10,7 @@
      placeholders — tweak the second argument. */
   color-scheme: light dark;
 
-  --spinner-color: red;
+  --spinner-color: currentColor;
 
   /* change backgroudn on logo in dark mode */
   --logo-background-color: light-dark(transparent, #fff);
