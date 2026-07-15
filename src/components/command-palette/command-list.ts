@@ -58,7 +58,7 @@ export const commands: PaletteCommand[] = [
     alt: t('command-palette.insert-hyperlink.alt'),
     parameters: [{
       type: 'text',
-      label: 'Enter link address (URL)',
+      label: t('command-palette.insert-hyperlink.parameter.url.label'),
     }],
     fn: (ctx: Context) => {
       const text = (ctx.parameters?.[0]?.type === 'text') ? ctx.parameters[0].value : '';
@@ -95,9 +95,9 @@ export const commands: PaletteCommand[] = [
     alt: t('command-palette.add-edit-comment.alt'),
     parameters: [{
       type: 'multi-line-text',
-      label: UA.is_mac ? 
-        'Enter a comment. Press Cmd + Enter to save.' :
-        'Enter a comment. Press Ctrl + Enter to save.' ,
+      label: UA.is_mac ?
+        t('command-palette.add-edit-comment.parameter.comment.label-mac') :
+        t('command-palette.add-edit-comment.parameter.comment.label'),
     }],
     fn: (ctx: Context) => {
       ctx.sheet.SetNote(undefined, ctx.parameters?.[0].value?.toString() || '');
@@ -325,7 +325,7 @@ export const commands: PaletteCommand[] = [
   {
     label: t('command-palette.cf-unique-values.label'),
     parameters: [{
-      label: 'Select color for unique values',
+      label: t('command-palette.cf-unique-values.parameter.color.label'),
       type: 'color',
       default: { theme: 9, tint: .66 },
     }],
@@ -346,16 +346,16 @@ export const commands: PaletteCommand[] = [
     label: t('command-palette.cf-data-bars.label'),
     alt: t('command-palette.cf-data-bars.alt'),
     parameters: [{
-      label: 'Select color for data bars',
+      label: t('command-palette.cf-data-bars.parameter.color.label'),
       type: 'color',
       default: { theme: 4, tint: .5 },
     }, {
-      label: 'Hide values?',
+      label: t('command-palette.cf-data-bars.parameter.hide-values.label'),
       type: 'boolean',
       default: true,
       choices: [
-        { value: 'true', label: 'Yes, hide values' },
-        { value: 'false', label: 'No, show values' }
+        { value: 'true', label: t('command-palette.cf-data-bars.parameter.hide-values.choice.true') },
+        { value: 'false', label: t('command-palette.cf-data-bars.parameter.hide-values.choice.false') }
       ],
     }],
     fn: (ctx: Context) => {
@@ -376,7 +376,7 @@ export const commands: PaletteCommand[] = [
   {
     label: t('command-palette.cf-duplicate-values.label'),
     parameters: [{
-      label: 'Select color for duplicate values',
+      label: t('command-palette.cf-duplicate-values.parameter.color.label'),
       type: 'color',
       default: { theme: 7, tint: .66 },
     }],
@@ -719,7 +719,7 @@ export const commands: PaletteCommand[] = [
     parameters: [{
       type: 'number',
       style: 'percent',
-      label: 'Enter the view scale'
+      label: t('command-palette.set-view-scale.parameter.scale.label')
     }],
     fn: (ctx: Context) => {
       const parameter = ctx.parameters?.[0];
@@ -742,7 +742,7 @@ export const commands: PaletteCommand[] = [
     alt: t('command-palette.rename-tab.alt'),
     parameters: [{
       type: 'text',
-      label: 'Enter a name for this tab'
+      label: t('command-palette.rename-tab.parameter.name.label')
     }],
     fn: (ctx: Context) => {
       const parameter = ctx.parameters?.[0];
@@ -756,7 +756,7 @@ export const commands: PaletteCommand[] = [
     label: t('command-palette.add-tab.label'),
     alt: t('command-palette.add-tab.alt'),
     parameters: [{
-      label: 'Enter a name for the new tab',
+      label: t('command-palette.add-tab.parameter.name.label'),
       type: 'text',
     }],
     init: (ctx: Context) => {
@@ -842,7 +842,7 @@ export const commands: PaletteCommand[] = [
     parameters: [{ 
       name: 'Format', 
       type: 'text', 
-      label: 'Enter number format or a symbolic name',
+      label: t('command-palette.number-format.parameter.format.label'),
       choices: [],
     }],
     fn: StyleParameters(['number_format']),

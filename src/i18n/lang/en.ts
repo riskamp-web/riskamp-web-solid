@@ -608,5 +608,29 @@ export default {
   'command-palette.reset-text-formatting.label': 'Format selection: reset text formatting',
   'command-palette.reset-text-formatting.alt': 'clear',
 
+  // command palette parameter prompts and choice labels
+
+  'command-palette.insert-hyperlink.parameter.url.label': 'Enter link address (URL)',
+
+  'command-palette.add-edit-comment.parameter.comment.label': 'Enter a comment. Press Ctrl + Enter to save.',
+  'command-palette.add-edit-comment.parameter.comment.label-mac': 'Enter a comment. Press Cmd + Enter to save.',
+
+  'command-palette.cf-unique-values.parameter.color.label': 'Select color for unique values',
+
+  'command-palette.cf-data-bars.parameter.color.label': 'Select color for data bars',
+  'command-palette.cf-data-bars.parameter.hide-values.label': 'Hide values?',
+  'command-palette.cf-data-bars.parameter.hide-values.choice.true': 'Yes, hide values',
+  'command-palette.cf-data-bars.parameter.hide-values.choice.false': 'No, show values',
+
+  'command-palette.cf-duplicate-values.parameter.color.label': 'Select color for duplicate values',
+
+  'command-palette.set-view-scale.parameter.scale.label': 'Enter the view scale',
+
+  'command-palette.rename-tab.parameter.name.label': 'Enter a name for this tab',
+
+  'command-palette.add-tab.parameter.name.label': 'Enter a name for the new tab',
+
+  'command-palette.number-format.parameter.format.label': 'Enter number format or a symbolic name',
+
 };
 
