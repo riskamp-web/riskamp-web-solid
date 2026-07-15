@@ -403,5 +403,210 @@ export default {
   'theme-toggle.dark-theme': 'Dark theme',
   'theme-toggle.system-theme': 'System theme',
 
+  // adding command palette commands labels/alt text
+
+  'command-palette.remove-hyperlink.label': 'Remove hyperlink',
+  'command-palette.remove-hyperlink.alt': 'delete clear link',
+
+  'command-palette.insert-hyperlink.label': 'Insert hyperlink',
+  'command-palette.insert-hyperlink.alt': 'add set link',
+
+  'command-palette.add-edit-comment.label': 'Add or edit cell comment',
+  'command-palette.add-edit-comment.alt': 'note comment',
+
+  'command-palette.remove-comment.label': 'Remove cell comment',
+  'command-palette.remove-comment.alt': 'note',
+
+  'command-palette.reset-background-color.label': 'Reset background color in selection',
+  'command-palette.reset-background-color.alt': 'clear fill',
+
+  'command-palette.set-background-color.label': 'Set background color for selection',
+  'command-palette.set-background-color.alt': 'fill',
+
+  'command-palette.reset-text-color.label': 'Reset text color in selection',
+  'command-palette.reset-text-color.alt': 'clear foreground',
+
+  'command-palette.set-text-color.label': 'Set text color for selection',
+  'command-palette.set-text-color.alt': 'foreground',
+
+  'command-palette.reset-border-color.label': 'Reset border color in selection',
+  'command-palette.reset-border-color.alt': 'clear',
+
+  'command-palette.set-border-color.label': 'Set border color for selection',
+
+  'command-palette.borders-clear.label': 'Borders: clear borders',
+  'command-palette.border-top.label': 'Borders: set top border on selection',
+  'command-palette.border-bottom.label': 'Borders: set bottom border on selection',
+  'command-palette.border-double-bottom.label': 'Borders: set double bottom border on selection',
+  'command-palette.border-left.label': 'Borders: set left border on selection',
+  'command-palette.border-right.label': 'Borders: set right border on selection',
+
+  'command-palette.border-outside.label': 'Borders: set outside border on selection',
+  'command-palette.border-outside.alt': 'outer',
+
+  'command-palette.border-all.label': 'Borders: set all borders on selection',
+
+  'command-palette.reset-font-scale.label': 'Reset font scale',
+  'command-palette.reset-font-scale.alt': 'text font size',
+
+  'command-palette.font-scale-increase.label': 'Font scale: increase 10%',
+  'command-palette.font-scale-increase.alt': 'text font size',
+
+  'command-palette.font-scale-decrease.label': 'Font scale: decrease 10%',
+  'command-palette.font-scale-decrease.alt': 'text font size',
+
+  'command-palette.insert-donut-chart.label': 'Insert donut chart',
+  'command-palette.insert-donut-chart.alt': 'chart graph',
+
+  'command-palette.insert-column-chart.label': 'Insert column chart',
+  'command-palette.insert-column-chart.alt': 'chart graph',
+
+  'command-palette.insert-bar-chart.label': 'Insert bar chart',
+  'command-palette.insert-bar-chart.alt': 'chart graph',
+
+  'command-palette.insert-line-chart.label': 'Insert line chart',
+  'command-palette.insert-line-chart.alt': 'chart graph',
+
+  'command-palette.insert-scatter-plot.label': 'Insert scatter plot',
+  'command-palette.insert-scatter-plot.alt': 'chart graph',
+
+  'command-palette.insert-box-plot.label': 'Insert box plot',
+  'command-palette.insert-box-plot.alt': 'chart graph whiskers',
+
+  'command-palette.insert-image.label': 'Insert image',
+
+  'command-palette.cf-gradient-red-green.label': 'Conditional format gradient: red-green',
+  'command-palette.cf-gradient-green-red.label': 'Conditional format gradient: green-red',
+  'command-palette.cf-unique-values.label': 'Conditional format: unique values',
+
+  'command-palette.cf-data-bars.label': 'Conditional format: data bars',
+  'command-palette.cf-data-bars.alt': 'databar',
+
+  'command-palette.cf-duplicate-values.label': 'Conditional format: duplicate values',
+
+  'command-palette.cf-clear.label': 'Clear conditional formatting from selection',
+  'command-palette.cf-clear.alt': 'remove',
+
+  'command-palette.fit-column-widths.label': 'Fit selected column widths (auto-size)',
+
+  'command-palette.fit-data.label': 'Fit data',
+  'command-palette.fit-data.alt': 'fit',
+
+  'command-palette.named-ranges.label': 'Named ranges and expressions',
+  'command-palette.named-ranges.alt': 'name manager define name delete name clear',
+
+  'command-palette.set-tab-color.label': 'Set tab color',
+
+  'command-palette.reset-tab-color.label': 'Reset tab color',
+  'command-palette.reset-tab-color.alt': 'clear remove',
+
+  'command-palette.fit-row-heights.label': 'Fit selected row heights (auto-size)',
+
+  'command-palette.correlation-matrix.label': 'Check correlation matrix',
+
+  'command-palette.hide-sheet.label': 'Hide sheet',
+  'command-palette.hide-sheet.alt': 'visible',
+
+  'command-palette.unhide-all-sheets.label': 'Unhide all sheets',
+  'command-palette.unhide-all-sheets.alt': 'visible',
+
+  'command-palette.unhide-columns.label': 'Unhide sheet columns',
+  'command-palette.unhide-rows.label': 'Unhide sheet rows',
+  'command-palette.hide-rows.label': 'Hide selected rows',
+  'command-palette.hide-columns.label': 'Hide selected columns',
+
+  'command-palette.las-vegas-simulation.label': 'Las Vegas simulation...',
+  'command-palette.simulation-settings.label': 'Simulation settings...',
+  'command-palette.language-settings.label': 'Language settings...',
+
+  'command-palette.load-desktop-file.label': 'Load desktop file...',
+  'command-palette.load-desktop-file.alt': 'excel csv import',
+
+  'command-palette.save-xlsx.label': 'Save as XLSX',
+  'command-palette.save-xlsx.alt': 'download excel',
+
+  'command-palette.save-csv.label': 'Save current sheet as CSV',
+  'command-palette.save-csv.alt': 'download export',
+
+  'command-palette.save-to-cloud.label': 'Save to cloud',
+
+  'command-palette.load-document.label': 'Load document...',
+  'command-palette.load-document.alt': 'open',
+
+  'command-palette.download-json.label': 'Download to desktop (JSON)',
+  'command-palette.download-json.alt': 'save',
+
+  'command-palette.insert-function.label': 'Insert function...',
+  'command-palette.find.label': 'Find in values/formulas...',
+  'command-palette.insert-distribution.label': 'Insert random distribution...',
+  'command-palette.run-simulation.label': 'Run simulation...',
+  'command-palette.quick-view.label': 'Quick view...',
+  'command-palette.new-model.label': 'New model',
+  'command-palette.revert-file.label': 'Revert file',
+  'command-palette.recalculate.label': 'Recalculate',
+  'command-palette.undo.label': 'Undo',
+  'command-palette.delete-columns.label': 'Delete selected columns',
+  'command-palette.delete-rows.label': 'Delete selected rows',
+  'command-palette.insert-column.label': 'Insert column',
+  'command-palette.insert-row.label': 'Insert row',
+  'command-palette.set-view-scale.label': 'Set view scale (zoom)',
+  'command-palette.reset-view-scale.label': 'Reset view scale (zoom)',
+
+  'command-palette.rename-tab.label': 'Rename tab',
+  'command-palette.rename-tab.alt': 'sheet page',
+
+  'command-palette.add-tab.label': 'Add tab',
+  'command-palette.add-tab.alt': 'sheet page',
+
+  'command-palette.delete-tab.label': 'Delete tab',
+  'command-palette.delete-tab.alt': 'sheet page',
+
+  'command-palette.increase-indent.label': 'Increase indent',
+  'command-palette.increase-indent.alt': 'more',
+
+  'command-palette.decrease-indent.label': 'Decrease indent',
+  'command-palette.decrease-indent.alt': 'less',
+
+  'command-palette.number-format-increase-precision.label': 'Number format: increase precision',
+  'command-palette.number-format-increase-precision.alt': 'more decimal places',
+
+  'command-palette.number-format-decrease-precision.label': 'Number format: decrease precision',
+  'command-palette.number-format-decrease-precision.alt': 'less fewer decimal places',
+
+  'command-palette.number-format.label': 'Number format',
+  'command-palette.number-format.alt': 'custom number format',
+
+  'command-palette.merge-cells.label': 'Merge selected cells',
+  'command-palette.unmerge-cells.label': 'Unmerge selected cells',
+  'command-palette.lock-cells.label': 'Lock selected cells',
+  'command-palette.unlock-cells.label': 'Unlock selected cells',
+
+  'command-palette.valign-top.label': 'Format selection: vertical align top',
+  'command-palette.valign-bottom.label': 'Format selection: vertical align bottom',
+  'command-palette.valign-middle.label': 'Format selection: vertical align middle',
+
+  'command-palette.align-left.label': 'Format selection: left justify text',
+  'command-palette.align-left.alt': 'horizontal align',
+
+  'command-palette.align-right.label': 'Format selection: right justify text',
+  'command-palette.align-right.alt': 'horizontal align',
+
+  'command-palette.align-center.label': 'Format selection: center text',
+  'command-palette.align-center.alt': 'horizontal align justify',
+
+  'command-palette.toggle-word-wrap.label': 'Format selection: toggle word wrap',
+
+  'command-palette.toggle-gridlines.label': 'Toggle gridlines in active sheet',
+  'command-palette.show-gridlines.label': 'Show gridlines in active sheet',
+  'command-palette.hide-gridlines.label': 'Hide gridlines in active sheet',
+
+  'command-palette.toggle-bold.label': 'Format selection: toggle bold',
+  'command-palette.toggle-italic.label': 'Format selection: toggle italic',
+  'command-palette.toggle-underline.label': 'Format selection: toggle underline',
+  'command-palette.toggle-strikethrough.label': 'Format selection: toggle strikethrough',
+
+  'command-palette.reset-text-formatting.label': 'Format selection: reset text formatting',
+  'command-palette.reset-text-formatting.alt': 'clear',
+
 };
 
