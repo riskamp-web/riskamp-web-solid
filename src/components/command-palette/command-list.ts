@@ -6,7 +6,6 @@ import { type Parameter, type Context, ApplyStyle, SheetToolbarCommand, ToolbarC
 import type { CellStyle, EmbeddedSpreadsheet } from 'riskamp-web';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { Sheet } from '@trebco/treb/treb-data-model';
-// import { goto } from '$app/navigation';
 
 export interface PaletteCommand {
 
@@ -99,7 +98,6 @@ export const commands: PaletteCommand[] = [
     fn: (ctx: Context) => {
       ctx.sheet.SetNote(undefined, ctx.parameters?.[0].value?.toString() || '');
       (ctx.sheet.grid as any).layout.HideNote();
-
     },
     init: (ctx: Context) => {
       if (ctx.parameters?.[0].type === 'multi-line-text') {
@@ -319,13 +317,6 @@ export const commands: PaletteCommand[] = [
       ctx.sheet.ConditionalFormatGradient(undefined, 'green-red');
     }
   },
-
-  /*
-  {
-    label: 'Conditional formats',
-    fn: () => alert('ENOTIMPL'),
-  },
-  */
 
   {
     label: 'Conditional format: unique values',
@@ -611,32 +602,6 @@ export const commands: PaletteCommand[] = [
     },
   },
 
-  /*
-  {
-    label: 'View: toggle notes pane',
-    fn: (ctx: Context) => {
-      // ctx.options.document_panel = !ctx.options.document_panel;
-      // ctx.dispatcher('command', { command: 'update-view' });
-    },
-  },
-
-  {
-    label: 'View: toggle info panel',
-    fn: (ctx: Context) => {
-      // ctx.options.document_information = !ctx.options.document_information;
-      // ctx.dispatcher('command', { command: 'update-view' });
-    },
-  },
-
-  {
-    label: 'View: toggle spreadsheet toolbar',
-    fn: (ctx: Context) => {
-      // ctx.options.spreadsheet_toolbar = !ctx.options.spreadsheet_toolbar;
-      // ctx.dispatcher('command', { command: 'update-view' });
-    },
-  },
-  */
-
   {
     label: 'Las Vegas simulation...',
     fn: ToolbarCommand('run-lv-simulation'),
@@ -910,41 +875,6 @@ export const commands: PaletteCommand[] = [
     },
   },
 
-  /*
-  {
-    label: 'Number format: custom number format',
-    alt: 'number format number format',
-    parameters: [{ 
-      name: 'Format', 
-      type: 'text', 
-      label: 'Enter number format or a symbolic name',
-    }],
-    fn: StyleParameters(['number_format']),
-  },
-
-  {
-    label: 'Number format: general',
-    fn: ApplyStyle({ number_format: 'General' }),
-  },
-  {
-    label: 'Number format: percent',
-    fn: ApplyStyle({ number_format: 'Percent' }),
-  },
-  {
-    label: 'Number format: accounting',
-    fn: ApplyStyle({ number_format: 'Accounting' }),
-  },
-  {
-    label: 'Number format: integer',
-    fn: ApplyStyle({ number_format: 'Integer' }),
-  },
-  {
-    label: 'Number format: number',
-    fn: ApplyStyle({ number_format: 'Number' }),
-  },
-  */
-
-
   {
     label: 'Merge selected cells',
     fn: (ctx: Context) => ctx.sheet.MergeCells(),
@@ -1007,10 +937,33 @@ export const commands: PaletteCommand[] = [
     label: 'Format selection: toggle word wrap',
     fn: ToggleStyle('wrap'),
   },
+  
+  {
+    label: 'Toggle gridlines in active sheet',
+    fn: (ctx: Context) => {
+      ctx.sheet.ShowGridlines();
+    }
+  },
+
+  {
+    label: 'Show gridlines in active sheet',
+    fn: (ctx: Context) => {
+      ctx.sheet.ShowGridlines(undefined, true);
+    }
+  },
+
+  {
+    label: 'Hide gridlines in active sheet',
+    fn: (ctx: Context) => {
+      ctx.sheet.ShowGridlines(undefined, false);
+    }
+  },
+
   { 
     label: 'Format selection: toggle bold',
     fn: ToggleStyle('bold'),
   },
+
   { 
     label: 'Format selection: toggle italic',
     fn: ToggleStyle('italic'),
@@ -1023,47 +976,6 @@ export const commands: PaletteCommand[] = [
     label: 'Format selection: toggle strikethrough',
     fn: ToggleStyle('strike'),
   },
-
-  /*
-  {
-    label: 'Format selection: wrap text',
-    fn: (ctx: Context) => ctx.sheet.ApplyStyle(undefined, {
-      wrap: true
-    }),
-  },
-  {
-    label: 'Format selection: unwrap text',
-    fn: (ctx: Context) => ctx.sheet.ApplyStyle(undefined, {
-      wrap: false
-    }),
-  },
-
-  {
-    label: 'Format selection: bold',
-    fn: (ctx: Context) => ctx.sheet.ApplyStyle(undefined, {
-      bold: true
-    }),
-
-  },
-  {
-    label: 'Format selection: italic',
-    fn: (ctx: Context) => ctx.sheet.ApplyStyle(undefined, {
-      italic: true
-    }),
-  },
-  {
-    label: 'Format selection: underline',
-    fn: (ctx: Context) => ctx.sheet.ApplyStyle(undefined, {
-      underline: true
-    }),
-  },
-  {
-    label: 'Format selection: strikethrough',
-    fn: (ctx: Context) => ctx.sheet.ApplyStyle(undefined, {
-      strike: true
-    }),
-  },
-  */
 
   {
     label: 'Format selection: reset text formatting',
