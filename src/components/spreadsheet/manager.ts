@@ -73,7 +73,7 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '') {
       return false;
     }
 
-    const [_, user, file] = match;
+    // const [_, user, file] = match;
     // console.info({user, file});
 
     spinner.show();

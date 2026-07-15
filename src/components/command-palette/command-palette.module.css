@@ -8,7 +8,9 @@
   background: var(--palette-input-background);
   border-radius: 3px;
   padding: 7px 4px;
-  width: 25em;
+  max-width: 25em;
+  width: calc(100% - 1em);
+
   position: relative;
   font-size: 13px;
   height: 32px;
@@ -30,12 +32,26 @@
 
 }
 
+.container {
+  margin: 0 .5em;
+  position: relative;
+  width: 100%;
+  max-width: 25em;
+}
+
 .container:not(:has(:focus, :popover-open)) {
-  [contenteditable] {
-    &:after {
-      content: attr(data-placeholder);
-      opacity: .5;
-    }
+  .palette-editor {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .palette-editor:after {
+    content: attr(data-placeholder);
+    opacity: .5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
   }
 }
 
@@ -86,7 +102,3 @@
   
 }
 
-.container {
-  margin: 0 .5em;
-  position: relative;
-}

@@ -51,7 +51,7 @@ export function Spreadsheet(props: Props) {
         props.setSheet(sheet as SpreadsheetType);
       });
 
-      (self as any).sheet = sheet; // DEV
+      (self as ( Window & typeof globalThis & {sheet: SpreadsheetType})).sheet = sheet as SpreadsheetType; // DEV
 
       // hide sidebar button
 

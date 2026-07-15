@@ -485,7 +485,15 @@ export function Toolbar(props: ParentProps<Props>) {
         <div class={style.separator}></div>
 
         <div class={style['command-palette-container']}>
-          <CommandPalette sheet={props.sheet} oncommand={props.oncommand}/>
+          <Switch>
+            <Match when={width() > 1200}>
+              <CommandPalette sheet={props.sheet} oncommand={props.oncommand}/>
+            </Match>
+            <Match when={true}>
+              {/* TODO: dialog-based command palette */}
+              <></>
+            </Match>
+          </Switch>
         </div>
 
         <div class={style.login}>

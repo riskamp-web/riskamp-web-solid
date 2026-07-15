@@ -24,6 +24,10 @@ interface UserData {
     terminate?: string,
     fail?: string,
   }
+
+  /** imported from another file, this is the filename */
+  imported_from?: string;
+
 }
 
 /**

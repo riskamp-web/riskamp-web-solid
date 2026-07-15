@@ -31,6 +31,7 @@ import * as cache from '~/docs/local-cache';
 import { IsValidPath, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
 import { CheckFunction, CheckFunctionData, RestoreEditor } from '~/components/dialogs/insert-function-dialog/check-function';
 import { produce } from 'solid-js/store';
+import { GenerateFilename } from '~/lib/filename-util';
 
 /*
 function Spin() {
@@ -126,12 +127,6 @@ export default function Page() {
         NewDocument();
         break;
 
-      case 'save-to-desktop':
-
-        // options? what are the defaults?
-        sheet.SaveToDesktop();
-        break;
-
       case 'import':
         sheet.LoadLocalFile().then(() => {
           sheet.Focus();
@@ -139,13 +134,22 @@ export default function Page() {
         return;
         break;
 
+      case 'save-to-desktop':
+
+        // options? what are the defaults?
+        sheet.SaveToDesktop(GenerateFilename(sheet, params.document_path) + '.json');
+        break;
+
       case 'export-csv':
-        sheet.SaveToDesktop('csv');
+        sheet.SaveToDesktop(GenerateFilename(sheet, params.document_path) + '.csv');
+        // sheet.SaveToDesktop('csv');
         break;
 
       case 'export-xlsx':
-        sheet.Export();
+        sheet.Export(GenerateFilename(sheet, params.document_path));
         break;
+
+
 
       case 'forecast':
         RunTrendForecast(getSheet());
@@ -373,6 +377,12 @@ export default function Page() {
                 const trials = user_data.simulation.trials;
                 setPersistentData(produce(s => { s.trials = trials; }));
               }
+
+              if (event.path && (event.source === 'drag-and-drop' || event.source === 'local-file')) {
+                user_data.imported_from = event.path;
+                sheet.user_data = user_data;
+              }
+
             }
 
           // case 'selection':

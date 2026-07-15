@@ -200,6 +200,7 @@ a.menu-item.disabled {
 
 .command-palette-container {
   grid-row: 1/2;
+  overflow: hidden;
 }
 
 .login {
