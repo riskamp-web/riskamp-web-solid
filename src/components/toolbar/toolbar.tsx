@@ -106,6 +106,13 @@ export function Toolbar(props: ParentProps<Props>) {
 
   const [width, setWidth] = createSignal(GetInitialWidth());
 
+  /**
+   * this signal (memo) indicates we're dropping the command 
+   * palette from the toolbar, use a dialog instead. 
+   * FIXME: tune the threshold...
+   */
+  const useDialogCommandPalette = createMemo(() => width() < 1200);
+
   function ResizeHandler() {  
     setWidth(window.innerWidth);
   }
@@ -486,12 +493,12 @@ export function Toolbar(props: ParentProps<Props>) {
 
         <div class={style['command-palette-container']}>
           <Switch>
-            <Match when={width() > 1200}>
-              <CommandPalette sheet={props.sheet} oncommand={props.oncommand}/>
-            </Match>
-            <Match when={true}>
+            <Match when={useDialogCommandPalette()}>
               {/* TODO: dialog-based command palette */}
               <></>
+            </Match>
+            <Match when={true}>
+              <CommandPalette sheet={props.sheet} oncommand={props.oncommand}/>
             </Match>
           </Switch>
         </div>
