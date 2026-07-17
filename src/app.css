@@ -135,6 +135,12 @@
      first-pass placeholders. */
   --document-link-color: light-dark(blue, #6cb6ff);   /* document-list links; matches sidebar link shade */
 
+  /** 
+   * this color is managed by javascript. it will get updated with 
+   * the system default link color, and updated on theme changes. 
+   */
+   --link-color: red;
+
 }
 
 /* ---- Dark mode (hybrid) --------------------------------------------------

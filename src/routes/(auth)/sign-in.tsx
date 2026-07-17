@@ -1,4 +1,4 @@
-import { Link, Title } from "@solidjs/meta";
+import { Title } from "@solidjs/meta";
 import * as auth from '~/lib/auth';
 
 import style from './auth.module.css';
@@ -6,7 +6,6 @@ import { goto } from '~/lib/navigate';
 import { onCleanup, Show } from 'solid-js';
 import { A, Navigate } from '@solidjs/router';
 
-import { Toolbar } from '~/components/toolbar/account-toolbar';
 import { t } from '~/i18n/i18n';
 
 import { useLayoutContext } from '~/components/layout-context';

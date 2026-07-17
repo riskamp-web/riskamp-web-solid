@@ -27,7 +27,8 @@
 }
 
 .document-link {
-  color: var(--document-link-color);
+  color: var(--link-color);
+  text-decoration: none;
 }
 
 .table {

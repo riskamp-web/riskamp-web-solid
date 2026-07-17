@@ -102,6 +102,34 @@ export const [persistentData, setPersistentData] = createStore<PersistentData>({
 
 });
 
+/** calls update link color and sets a listener */
+export function InitLinkColor() {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  mq.addEventListener('change', () => {
+    requestAnimationFrame(() => UpdateLinkColor());
+  });
+  UpdateLinkColor();
+}
+
+/** 
+ * read the system link color and set our local style. the intent is 
+ * to use system link color for internal links, but prevent the visited
+ * color from being applied.
+ * 
+ * FIXME: is this a waste of time? we can use our own colors.
+ */
+export function UpdateLinkColor() {
+  const temp = document.createElement('a');
+  temp.href = `/unvisited-${Date.now()}`;
+  temp.style.position = 'absolute';
+  temp.style.top = '-1000px';
+  document.body.appendChild(temp);
+ 
+  const color = getComputedStyle(temp).color;
+  document.documentElement.style.setProperty('--link-color', color);
+  temp.remove();
+}
+
 export function InitAppData() {
 
   if (localStorage) {
@@ -126,6 +154,7 @@ export function InitAppData() {
     const theme = persistentData.explicit_theme || 'system';
     // console.info("set theme:", theme);
     document.documentElement.setAttribute('data-theme', theme);
+    UpdateLinkColor();
   });
 
 

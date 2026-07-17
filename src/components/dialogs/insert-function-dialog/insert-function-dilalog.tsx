@@ -470,7 +470,8 @@ export function InsertFunctionDialog(props: Props) {
         <h1>
           <span>{local.composite().data.name}</span>
           <Show when={local.composite().data.extension}>
-            <a href={link()} 
+            <a data-external
+               href={link()} 
                target='_blank'
                class={style.help} 
                innerHTML={bootstrap_icons.question_circle} />

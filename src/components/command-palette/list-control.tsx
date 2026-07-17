@@ -61,19 +61,21 @@ export function ListControl<T extends { toString: () => string }>(props: Props<T
   }
 
   createEffect(on(selectedIndex, value => {
-    requestAnimationFrame(() => {
-      const element = node_list[value];
-      if (element) {
-        element.scrollIntoView({
-          inline: 'nearest',
-          block: 'nearest',
-          // behavior: 'smooth',
-        });
-      }
-      else {
-        console.info(`missing element`);
-      }
-    });
+    if (value >= 0) {
+      requestAnimationFrame(() => {
+        const element = node_list[value];
+        if (element) {
+          element.scrollIntoView({
+            inline: 'nearest',
+            block: 'nearest',
+            // behavior: 'smooth',
+          });
+        }
+        else {
+          console.info(`missing element`, value);
+        }
+      });
+    }
   }));
 
   onCleanup(() => {

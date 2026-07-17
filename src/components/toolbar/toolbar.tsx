@@ -26,6 +26,7 @@ import { A } from '@solidjs/router';
 import { CommandPalette } from '../command-palette/command-palette';
 import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
 import { CommandPaletteDialog } from '../dialogs/command-palette-dialog/command-palette-dialog';
+import { ThemeSelector } from './theme-selector';
 
 //////////////
 
@@ -378,45 +379,6 @@ export function Toolbar(props: ParentProps<Props>) {
     return <GroupControls controls={group()} />;
   }
 
-  function CycleTheme() {
-    switch (persistentData.explicit_theme) {
-      case 'dark':
-        setPersistentData(produce(s => { s.explicit_theme = undefined }));
-        break;
-      case 'light':
-        setPersistentData(produce(s => { s.explicit_theme = 'dark' }));
-        break;
-      default:
-        setPersistentData(produce(s => { s.explicit_theme = 'light' }));
-        break;
-    }
-
-    requestAnimationFrame(() => props.sheet()?.UpdateTheme());
-    
-  }
-
-  const theme_icon = createMemo(() => {
-    switch (persistentData.explicit_theme) {
-      case 'dark':
-        return bootstrap_icons.moon;
-      case 'light':
-        return bootstrap_icons.sun;
-      default:
-        return bootstrap_icons.circle_half;
-    }
-  });
-
-  const theme_title = createMemo(() => {
-    switch (persistentData.explicit_theme) {
-      case 'dark':
-        return 'theme-toggle.dark-theme';
-      case 'light':
-        return 'theme-toggle.light-theme';
-      default:
-        return 'theme-toggle.system-theme';
-    }
-  });
-
   return <>
     <div classList={{
       [style.toolbar]: true,
@@ -529,7 +491,7 @@ export function Toolbar(props: ParentProps<Props>) {
 
             </Match>
             <Match when={true}>
-              <a href='/sign-in'>Sign in</a>
+              <A href='/sign-in'>Sign in</A>
             </Match>
           </Switch>
         </div>
@@ -537,10 +499,15 @@ export function Toolbar(props: ParentProps<Props>) {
         <div class={style.separator}></div>
 
         <div class={style['theme-toggle']}>
+          <ThemeSelector sheet={props.sheet} />
+        </div>
+
+        {/* 
           <button class={style['toolbar-button']} 
                   title={t(theme_title())}
                   innerHTML={theme_icon()} onclick={CycleTheme}></button>
         </div>
+        */}
 
         <div class={style.separator}></div>
 
