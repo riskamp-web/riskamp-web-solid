@@ -25,6 +25,7 @@ import { CompositeMenu } from './composite-menu';
 import { A } from '@solidjs/router';
 import { CommandPalette } from '../command-palette/command-palette';
 import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
+import { CommandPaletteDialog } from '../dialogs/command-palette-dialog/command-palette-dialog';
 
 //////////////
 
@@ -112,6 +113,8 @@ export function Toolbar(props: ParentProps<Props>) {
    * FIXME: tune the threshold...
    */
   const useDialogCommandPalette = createMemo(() => width() < 1200);
+
+  // const [commandPaletteDialogOpen, setCommandPaletteDialogOpen] = createSignal(false);
 
   function ResizeHandler() {  
     setWidth(window.innerWidth);
@@ -494,8 +497,7 @@ export function Toolbar(props: ParentProps<Props>) {
         <div class={style['command-palette-container']}>
           <Switch>
             <Match when={useDialogCommandPalette()}>
-              {/* TODO: dialog-based command palette */}
-              <></>
+              <CommandPaletteDialog sheet={props.sheet} />
             </Match>
             <Match when={true}>
               <CommandPalette sheet={props.sheet} oncommand={props.oncommand}/>

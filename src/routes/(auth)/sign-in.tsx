@@ -1,13 +1,15 @@
-import { Title } from "@solidjs/meta";
+import { Link, Title } from "@solidjs/meta";
 import * as auth from '~/lib/auth';
 
-import style from './sign-in.module.css';
+import style from './auth.module.css';
 import { goto } from '~/lib/navigate';
-import { Show } from 'solid-js';
-import { Navigate } from '@solidjs/router';
+import { onCleanup, Show } from 'solid-js';
+import { A, Navigate } from '@solidjs/router';
 
 import { Toolbar } from '~/components/toolbar/account-toolbar';
 import { t } from '~/i18n/i18n';
+
+import { useLayoutContext } from '~/components/layout-context';
 
 export default function SignIn() {
 
@@ -28,13 +30,21 @@ export default function SignIn() {
 
   };
 
+  const { setTitle } = useLayoutContext();
+
+  setTitle('sign-in.page.title');
+  onCleanup(() => setTitle(undefined)); // optional reset
+
+
   return (
     <Show when={!auth.loggedIn()} fallback={<Navigate href="/" />}>
-      <main class="fixed">
-        <Toolbar title='sign-in.page.title' />
         <Title>{t('sign-in.page.title')}</Title>
 
         <div class={style.layout}>
+
+          <div class={style.instructions}>
+            {t('sign-in.form.instructions')}
+          </div>
 
           <form class={style.form} onsubmit={HandleSubmit}>
             <input class="input" 
@@ -48,7 +58,9 @@ export default function SignIn() {
                   type="password" 
                   placeholder={t('sign-in.form.password.placeholder')} />
 
-            <button class="control-button" type="submit">Sign in</button>
+            <button class="control-button" type="submit">
+              {t('sign-in.form.sign-in-button.label')}
+            </button>
 
             {/*
             <div>
@@ -65,14 +77,21 @@ export default function SignIn() {
 
           <div>
             <ul>
-              <li>Forgot password</li>
-              <li>Create account</li>
+              <li>
+                <A href="/forgot-password">
+                  {t('auth.link.forgot-password.text')}
+                </A>
+              </li>
+              <li>
+                <A href="/create-account">
+                  {t('auth.link.create-account.text')}
+                </A>
+              </li>
             </ul>
           </div>
 
         </div>
 
-      </main>
     </Show>
   );
 }

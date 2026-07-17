@@ -397,8 +397,21 @@ export default {
   'sign-in.page.title': 'Sign in',
   'sign-in.form.username.placeholder': 'Username or email',
   'sign-in.form.password.placeholder': 'Password',
+  'sign-in.form.sign-in-button.label': 'Sign in',
   'sign-in.form.remember-me': 'Remember me on this device',
+  'sign-in.form.instructions': 'Enter your username and password to sign in',
   
+  'auth.link.forgot-password.text': 'Forgot password',
+  'auth.link.create-account.text': 'Create account',
+  'auth.link.sign-in.text': 'Sign in',
+
+  'forgot-password.page.title': 'Forgot password',
+  'forgot-password.form.instructions': 'Enter your email address to reset your password',
+  'forgot-password.form.email.placeholder': 'Email address',
+  'forgot-password.form.reset-password-button.label': 'Reset password',
+
+  'create-account.page.title': 'Create account',
+
   'theme-toggle.light-theme': 'Light theme',
   'theme-toggle.dark-theme': 'Dark theme',
   'theme-toggle.system-theme': 'System theme',

@@ -31,7 +31,7 @@ import { useInternalReferrer } from '../history-context';
 import { A, useNavigate } from '@solidjs/router';
 
 export interface Props {
-  title: keyof I18N;
+  title?: keyof I18N;
   'account-info'?: boolean;
 }
 
@@ -53,7 +53,9 @@ export function Toolbar(props: Props) {
         <div class={style.separator} />
 
         <div class={style['page-title']}>
-          {t(props.title)}
+          <Show when={props.title}>
+            {t(props.title)}
+          </Show>
         </div>
 
         <div class={style.login}>

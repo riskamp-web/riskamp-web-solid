@@ -1,5 +1,5 @@
 
-import { Accessor, createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, Show, Switch } from 'solid-js';
+import { Accessor, createEffect, createSignal, Match, on, onCleanup, onMount, Show, Switch } from 'solid-js';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { type ToolbarCommand, type ToolbarCommandKey } from '../toolbar/toolbar-commands';
 import style from './command-palette.module.css';
@@ -7,24 +7,36 @@ import { t } from '~/i18n/i18n';
 import { UA } from '~/lib/UA';
 import fuzzysort from 'fuzzysort';
 import { commands, type PaletteCommand } from './command-list';
-import type { Parameter, TextParameter } from './support-functions';
-import { ResolveThemeColor, IsHTMLColor, IsThemeColor, ThemeColorIndex } from '@trebco/treb/treb-base-types';
+import type { Parameter } from './support-functions';
+import { IsHTMLColor, IsThemeColor } from '@trebco/treb/treb-base-types';
 
 import { ListControl, type ListRef } from './list-control';
 
 export interface Props {
   sheet: Accessor<SpreadsheetType|undefined>;
   oncommand: (command: ToolbarCommand & { key: ToolbarCommandKey}) => void|Promise<void>;
+
+  /** 
+   * flag indicates we're in a dialog. don't handle control + dot, 
+   * and any other nevessary behavior changes
+   */
+  dialog?: boolean;
 }
 
 function CreateContext(command: PaletteCommand, sheet: SpreadsheetType) {
 
   // handle split, use active (focused) pane
 
-  let target = sheet;
-  if ((target as any).focus_target !== target) {
-    target = (target as any).focus_target;
+  let target: SpreadsheetType & { focus_target?: SpreadsheetType } = sheet;
+  if (target.focus_target && target.focus_target !== target) {
+    target = target.focus_target;
   }
+
+  /*
+  if ((target as SpreadsheetType & { focus_target?: SpreadsheetType }).focus_target !== target) {
+    target = (target as SpreadsheetType & { focus_target?: SpreadsheetType }).focus_target;
+  }
+  */
 
   return { 
     sheet: target, 
@@ -260,11 +272,15 @@ export function CommandPalette(props: Props) {
   ].join(' ');
 
   onMount(() => {
-    window.addEventListener('keydown', Focus);
+    if (!props.dialog) {
+      window.addEventListener('keydown', Focus);
+    }
   });
 
   onCleanup(() => {
-    window.removeEventListener('keydown', Focus);
+    if (!props.dialog) {
+      window.removeEventListener('keydown', Focus);
+    }
   });
 
   function ListDelta(delta: number) {
@@ -429,13 +445,13 @@ export function CommandPalette(props: Props) {
 
   const command_or_control = ua.is_mac ? 'Cmd' : 'Ctrl';
 
-  const [placeholder, setPlaceholder] = createSignal(
+  const [placeholder, _setPlaceholder] = createSignal(
     t('command-palette-ui.command-palette.label') + ` - ${command_or_control} +  .`
   );
 
   const [selectedIndex, setSelectedIndex] = createSignal(0);
 
-  function ClickParameter(event: Event, choice: string | { label: string, value: string }, index: number) {
+  function ClickParameter(event: Event, choice: string | { label: string, value: string }, _index: number) {
     const sheet = props.sheet();
     const active_parameter = activeParameter();
     if (sheet && active_parameter && active_command) {
