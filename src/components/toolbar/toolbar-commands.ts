@@ -1,12 +1,9 @@
 
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { bootstrap_icons as bs, fa_light, fa_regular, fa_solid, fa_sharp_regular, fa_sharp_light, bootstrap_icons } from 's5-icon-lib';
 import type { I18N } from '~/i18n/i18n';
 import type { Color } from 'riskamp-web';
 
-import { phosphor_light as phosphor } from 's5-icon-lib';
-import { lucide } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 
 export interface BaseToolbarCommand {
   key: string;
@@ -53,7 +50,7 @@ export const ToolbarCommands = [
 {
 		key: 'sign-out',
     title: 'toolbar.menu-commands.sign-out',
-    icon: bootstrap_icons.box_arrow_right,
+    icon: icons.sign_out,
     menuicon: true,
   },
 {
@@ -68,7 +65,7 @@ export const ToolbarCommands = [
 {
 		key: 'fullscreen',
     title: 'toolbar.button.toggle-fullscreen',
-    icon: phosphor.corners_out,
+    icon: icons.fullscreen,
     // state_key: 'fullscreen',
 
   },
@@ -81,16 +78,14 @@ export const ToolbarCommands = [
 {
 		key: 'new',
     title: 'toolbar.button.new-spreadsheet',
-    icon: bs.file_earmark,
-    // icon: phosphor.file,
-    // icon: fa_sharp_regular.file,
+    icon: icons.new_spreadsheet,
     menuicon: true,
   },
 
 {
 		key: 'import',
     title: 'toolbar.button.import-file',
-    icon: bs.upload,
+    icon: icons.import_file,
   },
 
 {
@@ -102,8 +97,7 @@ export const ToolbarCommands = [
 		key: 'revert',
     title: 'toolbar.button.revert-file',
     menuicon: true,
-    // icon: phosphor.clock_counter_clockwise,
-    icon: fa_light.clock_rotate_left,
+    icon: icons.revert_file,
   },
 
 {
@@ -114,14 +108,13 @@ export const ToolbarCommands = [
 {
 		key: 'save-to-desktop',
     title: 'toolbar.button.save-to-desktop',
-    icon: bs.download,
+    icon: icons.save_to_desktop,
   },
 
 {
 		key: 'export-xlsx',
     title: 'toolbar.button.export-xlsx',
-    // icon: bs.file_earmark_excel,
-    icon: phosphor.file_xls,
+    icon: icons.export_xlsx,
 
   },
 
@@ -133,16 +126,13 @@ export const ToolbarCommands = [
 {
 		key: 'ai',
     title: 'llm-chat.panel.title',
-    // icon: bs.chat_dots,
-    // icon: phosphor.chat_circle_dots,
-    icon: lucide.message_circle_more,
+    icon: icons.ai_chat,
   },
 
 {
 		key: 'developer',
     title: 'developer-panel.title',
-    // icon: bs.braces,
-    icon: phosphor.brackets_curly,
+    icon: icons.developer,
   },
 
 {
@@ -153,10 +143,7 @@ export const ToolbarCommands = [
 {
 		key: 'notes',
     title: 'toolbar.button.notes.label',
-    // icon: bs.journal_text,
-    // icon: phosphor.notebook,
-    // icon: lucide.notebook_text,
-    icon: fa_sharp_regular.note,
+    icon: icons.notes,
   },
 
 {
@@ -164,9 +151,7 @@ export const ToolbarCommands = [
     type: 'color',
     title: 'toolbar.button.text-color.label',
     default_color_text: 'color-picker.default_text_color',
-    // icon: fa_regular.a,
-    // icon: phosphor.text_aa,
-    icon: bs.type,
+    icon: icons.text_color,
     default_color: { type: 'theme', theme: 1 },
     active_color: { type: 'theme', theme: 4 },
   },
@@ -175,10 +160,7 @@ export const ToolbarCommands = [
 		key: 'fill-color',
     type: 'color',
     title: 'toolbar.button.background-color.label',
-    //icon: bs.paint_bucket,
-    // icon: phosphor.paint_bucket,
-    // icon: fa_sharp_regular.fill_drip,
-    icon: bs.paint_bucket,
+    icon: icons.fill_color,
     default_color_text: 'color-picker.no_fill',
     default_color: { type: 'theme', theme: 0 },
     active_color: { type: 'theme', theme: 7 },
@@ -187,42 +169,42 @@ export const ToolbarCommands = [
 {
 		key: 'border-top',
     title: 'toolbar.button.border-top.title',
-    icon: bs.border_top,
+    icon: icons.border_top,
   },
 {
 		key: 'border-bottom',
     title: 'toolbar.button.border-bottom.title',
-    icon: bs.border_bottom,
+    icon: icons.border_bottom,
   },
 {
 		key: 'border-left',
     title: 'toolbar.button.border-left.title',
-    icon: bs.border_left,
+    icon: icons.border_left,
   },
 {
 		key: 'border-right',
     title: 'toolbar.button.border-right.title',
-    icon: bs.border_right,
+    icon: icons.border_right,
   },
 {
 		key: 'border-all',
     title: 'toolbar.button.border-all.title',
-    icon: bs.border_all,
+    icon: icons.border_all,
   },
 {
 		key: 'border-none',
     title: 'toolbar.button.border-none.title',
-    icon: bs.border,
+    icon: icons.border_none,
   },
 {
 		key: 'border-outside',
     title: 'toolbar.button.border-outside.title',
-    icon: bs.border_outer,
+    icon: icons.border_outside,
   },
 {
 		key: 'border-double-bottom',
     title: 'toolbar.button.border-double-bottom.title',
-    icon: bs.border_bottom,
+    icon: icons.border_double_bottom,
   },
 
 
@@ -231,8 +213,7 @@ export const ToolbarCommands = [
     type: 'color',
     default_color_text: 'color-picker.default_border_color',
     title: 'toolbar.button.border-color.label',
-    icon: bs.palette2,
-    // icon: phosphor.palette,
+    icon: icons.border_color,
     default_color: { type: 'theme', theme: 1 },
     active_color: { type: 'theme', theme: 1 },
   },
@@ -242,7 +223,7 @@ export const ToolbarCommands = [
     
     type: 'list',
     title: 'toolbar.combobox.font-size.label',
-    icon: fa_regular.text_size,
+    icon: icons.font_scale,
     state_key: 'font_scale',
   },
 
@@ -251,8 +232,7 @@ export const ToolbarCommands = [
 
     type: 'list',
     title: 'toolbar.combobox.number-format.label',
-    //icon: bs.hash,
-    icon: phosphor.hash,
+    icon: icons.number_format,
     state_key: 'number_format',
 
   },
@@ -274,83 +254,59 @@ export const ToolbarCommands = [
 {
 		key: 'toggle-grouping',
     
-    icon: fa_regular.comma,
+    icon: icons.toggle_grouping,
     title: 'toolbar.button.toggle-integer-grouping.label',
   },
 
 {
 		key: 'insert-table',
     title: 'toolbar.button.insert.table',
-    // icon: phosphor.grid_nine,
-    // icon: lucide.grid_3x3,
-    icon: fa_sharp_regular.table_cells_header,
+    icon: icons.insert_table,
   },
 
 {
 		key: 'insert-comment',
     title: 'toolbar.button.insert.comment',
-    //icon: // fa_regular.comment
-    //  bs.chat_left
-    // icon: phosphor.chat,
-    // icon: lucide.message_square,
-    icon: fa_sharp_regular.comment,
+    icon: icons.insert_comment,
   },
 
 {
 		key: 'insert-bar-chart',
     title: 'toolbar.button.insert.bar-chart',
-    // icon: fa_light.chart_bar,
-    // icon: phosphor.chart_bar_horizontal,
-    // icon: lucide.chart_bar_big,
-    icon: fa_sharp_regular.chart_bar,
+    icon: icons.insert_bar_chart,
   },
 {
 		key: 'insert-column-chart',
     title: 'toolbar.button.insert.column-chart',
-    // icon: fa.chart_column,
-    // icon: phosphor.chart_bar,
-    // icon: lucide.chart_column_big,
-    icon: fa_sharp_regular.chart_column,
+    icon: icons.insert_column_chart,
   },
 {
 		key: 'insert-donut-chart',
     title: 'toolbar.button.insert.donut-chart',
-    // icon: fa.chart_pie,
-    // icon: phosphor.chart_donut,
-    icon: fa_sharp_regular.chart_pie,
+    icon: icons.insert_donut_chart,
   },
 {
 		key: 'insert-area-chart',
     title: 'toolbar.button.insert.area-chart',
-    // icon: fa.chart_area,
-    icon: fa_sharp_regular.chart_area,
+    icon: icons.insert_area_chart,
 
   },
 {
 		key: 'insert-scatter-plot',
     title: 'toolbar.button.insert.scatter-plot',
-    // icon: fa.chart_scatter,
-    // icon: phosphor.chart_scatter,
-    // icon: lucide.chart_scatter,
-    icon: fa_sharp_regular.chart_scatter,
+    icon: icons.insert_scatter_plot,
 
   },
 {
 		key: 'insert-line-chart',
     title: 'toolbar.button.insert.line-chart',
-    // icon: fa.chart_line,
-    // icon: phosphor.chart_line,
-    // icon: lucide.chart_line,
-    icon: fa_sharp_regular.chart_line,
+    icon: icons.insert_line_chart,
 
   },
 {
 		key: 'insert-image',
     title: 'toolbar.button.insert.image',
-    // icon: fa.image,
-    // icon: phosphor.image,
-    // icon: lucide.image,
-    icon: fa_sharp_regular.image,
+    icon: icons.insert_image,
   },
 
 {
@@ -377,7 +333,7 @@ export const ToolbarCommands = [
 		key: 'wrap',
     
     title: 'toolbar.button.wrap-text.label',
-    icon: bs.text_wrap,
+    icon: icons.wrap,
     state_key: 'wrap',
   },
 
@@ -385,30 +341,28 @@ export const ToolbarCommands = [
 		key: 'bold',
     
     title: 'toolbar.button.bold.label',
-    icon: bs.type_bold,
-    // icon: phosphor.text_b,
+    icon: icons.bold,
     state_key: 'bold',
-    // icon: fa_sharp_regular.bold,
-    
+
   },
 {
 		key: 'italic',
     title: 'toolbar.button.italic.label',
     state_key: 'italic',
-    icon: bs.type_italic,
+    icon: icons.italic,
   },
 {
 		key: 'underline',
     
     title: 'toolbar.button.underline.label',
-    icon: bs.type_underline,
+    icon: icons.underline,
     state_key: 'underline',
   },
 
 {
 		key: 'strike',
     title: 'toolbar.button.strikethrough.label',
-    icon: bs.type_strikethrough,
+    icon: icons.strike,
     state_key: 'strike',
   },
 
@@ -439,7 +393,7 @@ export const ToolbarCommands = [
 {
 		key: 'sparkline',
     title: 'toolbar.button.sparkline',
-    icon: fa_sharp_light.square_poll_vertical,
+    icon: icons.sparkline,
   },
 
 {
@@ -450,31 +404,31 @@ export const ToolbarCommands = [
 {
 		key: 'merge-cells',
     type: 'toggle',
-    icon: bs.fullscreen_exit,
+    icon: icons.merge_cells,
     title: 'toolbar.button.merge-cells.label',
     state_key: 'merge',
     active: {
       title: 'toolbar.button.unmerge-cells.label',
-      icon: bs.fullscreen,
+      icon: icons.unmerge_cells,
     }
   },
 
 {
 		key: 'lock-cells',
     type: 'toggle',
-    icon: bs.lock,
+    icon: icons.lock_cells,
     title: 'toolbar.button.lock-cells.label',
     state_key: 'locked',
     active: {
       title: 'toolbar.button.unlock-cells.label',
-      icon: bs.unlock,
+      icon: icons.unlock_cells,
     }
   },
 
 {
 		key: 'align-left',
    
-    icon: bs.text_left,
+    icon: icons.align_left,
     title: 'toolbar.button.align-left.label',
     state_key: 'horizontal_align-left',
   },
@@ -482,7 +436,7 @@ export const ToolbarCommands = [
 {
 		key: 'align-center',
     
-    icon: bs.text_center,
+    icon: icons.align_center,
     title: 'toolbar.button.align-center.label',
     state_key: 'horizontal_align-center',
  },
@@ -490,7 +444,7 @@ export const ToolbarCommands = [
 {
 		key: 'align-right',
     
-    icon: bs.text_right,
+    icon: icons.align_right,
     title: 'toolbar.button.align-right.label',
     state_key: 'horizontal_align-right',
 
@@ -499,21 +453,21 @@ export const ToolbarCommands = [
 {
 		key: 'align-top',
     
-    icon: fa_light.arrow_up_to_line,
+    icon: icons.align_top,
     title: 'toolbar.button.align-top.label',
     state_key: 'vertical_align-top',
   },
 {
 		key: 'align-middle',
     
-    icon: fa_light.arrows_to_line,
+    icon: icons.align_middle,
     title: 'toolbar.button.align-middle.label',
     state_key: 'vertical_align-middle',
   },
 {
 		key: 'align-bottom',
     
-    icon: fa_light.arrow_down_to_line,
+    icon: icons.align_bottom,
     title: 'toolbar.button.align-bottom.label',
     state_key: 'vertical_align-bottom',
   },
@@ -522,104 +476,90 @@ export const ToolbarCommands = [
 		key: 'indent',
     
     title: 'toolbar.button.increase-indent.label',
-    icon: bs.text_indent_left,
+    icon: icons.indent,
 
   },
 {
 		key: 'outdent',
     
     title: 'toolbar.button.decrease-indent.label',
-    icon: bs.text_indent_right,
+    icon: icons.outdent,
   },
 
 {
 		key: 'fit-data',
     
     title: 'toolbar.button.fit-data.label',
-    // icon: bs.graph_up_arrow,
-    // icon: phosphor.chart_line_up,
-    icon: lucide.chart_no_axes_combined,
+    icon: icons.fit_data,
   },
 
 {
 		key: 'names',
     
     title: 'toolbar.button.defined-names.label',
-    //icon: // bs.tag,
-    //  fa.label
-    // icon: phosphor.tag,
-    icon: lucide.tag,
+    icon: icons.defined_names,
   },
 
 {
 		key: 'find',
     
     title: 'toolbar.button.search-cells.label',
-    // icon: bs.search,
-    // icon: phosphor.magnifying_glass,
-    icon: lucide.search
+    icon: icons.find
   },
 
 {
 		key: 'run-simulation',
     title: 'toolbar.button.run-simulation.label',
-    icon: bs.play_circle,
+    icon: icons.run_simulation,
     menuicon: true,
   },
 
 {
 		key: 'run-simulation-again',
     title: 'toolbar.button.run-simulation-again.label',
-    icon: bs.fast_forward,
+    icon: icons.run_simulation_again,
     menuicon: true,
   },
 
 {
 		key: 'las-vegas-simulation',
-    // icon: bs.suit_spade_fill,    
-    // icon: phosphor.spade,
     title: 'toolbar.button.las-vegas-simulation.label',
-    icon: lucide.spade,
+    icon: icons.las_vegas_simulation,
     // menuicon: true,
   },
 
 {
 		key: 'riskamp-documentation',
-    // icon: phosphor.question,
     title: 'toolbar-button.riskamp-documentation.label',
-    icon: lucide.circle_question_mark,
+    icon: icons.riskamp_documentation,
   },
 
 {
 		key: 'quick-view',
     
     title: 'toolbar.button.quick-view.label',
-    icon: fa_sharp_regular.square_poll_vertical,
+    icon: icons.quick_view,
   },
 
 {
 		key: 'quick-view-correlation',
     
     title: 'toolbar.button.quick-view-correlation.label',
-    icon: fa_sharp_regular.square_poll_vertical,
+    icon: icons.quick_view_correlation,
   },
 
 {
 		key: 'simulation-settings',
     
     title: 'toolbar.button.simulation-settings.label',
-    // icon: bs.gear,
-    // icon: phosphor.gear,
-    icon: lucide.settings_2,
+    icon: icons.simulation_settings,
   },
 
 {
 		key: 'recalculate',
     
     title: 'toolbar.button.recalculate.label',
-    // icon: phosphor.arrows_clockwise,
-    // icon: lucide.refresh_cw,
-    icon: fa_sharp_regular.arrows_rotate,
+    icon: icons.recalculate,
   },
 
  ] as const ; // satisfies ToolbarCommand[]; 
