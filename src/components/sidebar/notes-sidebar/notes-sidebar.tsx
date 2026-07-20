@@ -9,7 +9,6 @@ import FindWorker from './find-worker?worker';
 import { type SidebarProps } from '../sidebar-main';
 import { EmbeddedSheetEvent } from '@trebco/treb';
 import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
-import { bootstrap_icons } from 's5-icon-lib';
 import { sessionData, setSessionData } from '~/lib/app-data';
 
 // TEMP

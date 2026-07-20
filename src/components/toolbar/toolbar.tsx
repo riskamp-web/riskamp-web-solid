@@ -14,7 +14,7 @@ import { ListCommand, ToolbarCommand } from './toolbar-commands';
 import { session, loggedIn } from '~/lib/auth';
 
 import { createMutable, produce } from 'solid-js/store';
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import { MenuButton } from '../menu-button/menu-button';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
@@ -220,7 +220,7 @@ export function Toolbar(props: ParentProps<Props>) {
         <MenuButton.Static class={style['toolbar-button']}>
           <div class=""
             title={t('toolbar.more-commands-button.label')}
-            innerHTML={bootstrap_icons.three_dots} />
+            innerHTML={icons.overflow} />
         </MenuButton.Static>
         <MenuButton.Menu>
           <menu class={style.horizontal}>
@@ -403,7 +403,7 @@ export function Toolbar(props: ParentProps<Props>) {
                               <div class='display-contents' innerHTML={item.icon || ''} />
                             </Match>
                             <Match when={props.sidebar?.() === item.key}>
-                              <div class='display-contents' innerHTML={bootstrap_icons.check2 || ''} />
+                              <div class='display-contents' innerHTML={icons.menu_checked || ''} />
                             </Match>
                             <Match when={true}>
                               <div class={style['svg-placeholder']}></div>
@@ -483,7 +483,7 @@ export function Toolbar(props: ParentProps<Props>) {
 
                 <hr />
                 <A class={style['menu-item']} href='/sign-out'>
-                  <div class='display-contents' innerHTML={bootstrap_icons.box_arrow_right}></div>
+                  <div class='display-contents' innerHTML={icons.sign_out}></div>
                   <span>{t('toolbar.menu-commands.sign-out')}</span>
                 </A>
               </menu>

@@ -1,5 +1,5 @@
 
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import type { ToolbarCommandKey } from './toolbar-commands';
 import type { ToolbarConfig, ToolbarMenu } from './toolbar-utils';
 import { iconmenu, button, more, textbutton, textmenu, colorbutton, splitbutton, WrapCommand } from './toolbar-utils';
@@ -234,10 +234,7 @@ export const toolbar_config: ToolbarConfig = {
               /*
               {
                 type: 'icon',
-                // icon: lucide.pencil_ruler,
-                icon: bootstrap_icons.rulers,
-                // icon: bootstrap_icons.columns,
-                // icon: fa_regular.ruler_triangle,
+                icon: icons.row_column_ops,
               },
               */
 
@@ -246,7 +243,7 @@ export const toolbar_config: ToolbarConfig = {
                 'insert-column',
                 'delete-row',
                 'delete-column',
-              ]), group_icon: bootstrap_icons.rulers },
+              ]), group_icon: icons.row_column_ops },
             ],
       ],
 

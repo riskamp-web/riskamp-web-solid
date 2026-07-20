@@ -8,7 +8,7 @@ import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMo
 import { type SidebarProps } from '../sidebar-main';
 import { EmbeddedSheetEvent } from '@trebco/treb';
 import { Area } from '@trebco/treb/treb-base-types';
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import { persistentData, setPersistentData } from '~/lib/app-data';
 
 export function Sidebar(props: SidebarProps) {
@@ -94,13 +94,13 @@ export function Sidebar(props: SidebarProps) {
                 </div>
                 <div class={style.links}>
                   <button class="control-button flex-row gap-1" onclick={e => UpdateSeedValue(e, new Date().getTime())}>
-                    <span innerHTML={bootstrap_icons.clock} />
+                    <span innerHTML={icons.seed_time_based} />
                     <span>
                       {t('sidebar.simulation_settings.random-seed.time-based-seed')}
                     </span>
                   </button>
                   <button class="control-button flex-row gap-1" onclick={e => UpdateSeedValue(e, 0)}>
-                    <span innerHTML={bootstrap_icons.lightning} />
+                    <span innerHTML={icons.seed_reset} />
                     <span>
                       {t('sidebar.simulation_settings.random-seed.reset-seed-value')}
                     </span>

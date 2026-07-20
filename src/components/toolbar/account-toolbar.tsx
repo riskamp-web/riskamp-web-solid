@@ -9,7 +9,7 @@ import '~/components/tabs.css';
 import { session, loggedIn } from '~/lib/auth';
 
 import { goto } from '~/lib/navigate';
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import { A } from '@solidjs/router';
 import { ThemeSelector } from './theme-selector';
 
@@ -58,7 +58,7 @@ export function Toolbar(props: Props) {
 
                   <hr />
                   <button class={style['menu-item']} onclick={() => goto('/sign-out')}>
-                    <div class='display-contents' innerHTML={bootstrap_icons.box_arrow_right}></div>
+                    <div class='display-contents' innerHTML={icons.sign_out}></div>
                     <span>{t('toolbar.menu-commands.sign-out')}</span>
                   </button>
                 </menu>

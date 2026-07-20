@@ -2,7 +2,7 @@
 import { Accessor, createMemo } from 'solid-js';
 import style from './toolbar.module.css';
 import { persistentData, setPersistentData } from '~/lib/app-data';
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import { produce } from 'solid-js/store';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { t } from '~/i18n/i18n';
@@ -33,11 +33,11 @@ export function ThemeSelector(props: Props) {
   const theme_icon = createMemo(() => {
     switch (persistentData.explicit_theme) {
       case 'dark':
-        return bootstrap_icons.moon;
+        return icons.theme_dark;
       case 'light':
-        return bootstrap_icons.sun;
+        return icons.theme_light;
       default:
-        return bootstrap_icons.circle_half;
+        return icons.theme_system;
     }
   });
 

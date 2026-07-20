@@ -12,7 +12,7 @@ import { Size } from '../dialog-base/dialog';
 import { ApplyArgs, CalculateAndRender, FunctionArg, TranslateDescriptor } from './function-utils';
 import { Calculator, ExtendedFunctionDescriptor } from '@trebco/treb/treb-calculator';
 import { FunctionLibrary } from '@trebco/treb/treb-calculator/src/function-library';
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import { CellValue } from '@trebco/treb';
 
 export interface SearchState {
@@ -474,7 +474,7 @@ export function InsertFunctionDialog(props: Props) {
                href={link()} 
                target='_blank'
                class={style.help} 
-               innerHTML={bootstrap_icons.question_circle} />
+               innerHTML={icons.help} />
           </Show>
         </h1>
         <div>{local.composite().data.description}</div>

@@ -1,7 +1,7 @@
 
 import { createEffect, onMount, type Setter, ParentProps, children, JSX, Signal, Show, createSignal, type Accessor } from 'solid-js';
 import style from './dialog.module.css';
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import { OpenExternal } from '~/lib/navigate';
 
 export interface Position {
@@ -227,11 +227,11 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
             }}>
             <Show when={props.help}>
               <button class={style['help-button']} onclick={() => OpenExternal(props.help as string)}
-                      ref={(el) => (el.innerHTML = bootstrap_icons.question_circle || '')}/>
+                      ref={(el) => (el.innerHTML = icons.help || '')}/>
             </Show>
             <Show when={props.closebox}>
               <button class={style['close-box']} onclick={() => props.setOpen(false)} 
-                      ref={(el) => (el.innerHTML = bootstrap_icons.x_lg || '')}/>
+                      ref={(el) => (el.innerHTML = icons.close || '')}/>
             </Show>
           </div>
 

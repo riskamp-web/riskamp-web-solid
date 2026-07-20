@@ -9,7 +9,7 @@ import FindWorker from './find-worker?worker';
 import { type SidebarProps } from '../sidebar-main';
 import { EmbeddedSheetEvent } from '@trebco/treb';
 import { IsCellAddress, Area } from '@trebco/treb/treb-base-types';
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import { createSign } from 'node:crypto';
 import { InteractiveSidebar } from '../interactive-sidebar';
 import { Heuristics } from '@trebco/treb/treb-data-model';
@@ -399,8 +399,8 @@ export function Sidebar(props: SidebarProps) {
               onclick={() => CopyData(props.data)}
               innerHTML={
                 copiedData() === props.data ?
-                bootstrap_icons.check :
-                bootstrap_icons.copy} />
+                icons.copy_confirmed :
+                icons.copy} />
     </h1>
   }
 

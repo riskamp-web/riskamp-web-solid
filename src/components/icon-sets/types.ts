@@ -96,6 +96,29 @@ export type IconName =
 
   // --- help ---
   | 'riskamp_documentation'
+
+  // --- ui primitives ---
+  // Generic chrome, reused across unrelated components. Named for what they
+  // do, not for the component they sit in -- there is one `close`, not a
+  // dialog_close and a sidebar_close.
+  | 'close'
+  | 'confirm'
+  | 'menu_checked'
+  | 'help'
+  | 'overflow'
+  | 'caret_down'
+
+  // --- component-specific ---
+  | 'copy'
+  | 'copy_confirmed'
+  | 'name_expression'
+  | 'name_range'
+  | 'seed_time_based'
+  | 'seed_reset'
+  | 'theme_light'
+  | 'theme_dark'
+  | 'theme_system'
+  | 'row_column_ops'
   ;
 
 /** A complete icon mapping: every name -> an inline SVG string. */

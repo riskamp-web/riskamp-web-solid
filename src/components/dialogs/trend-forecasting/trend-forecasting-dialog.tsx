@@ -6,7 +6,6 @@ import { CreateParameters, InteractiveDialog,
 import style from './trend-forecasting-dialog.module.css';
 import { t } from '~/i18n/i18n';
 import { createEffect, createSignal, Match, on, onMount, Show, Switch, type Signal } from 'solid-js';
-import { bootstrap_icons } from 's5-icon-lib';
 import { createStore, SetStoreFunction, StoreSetter } from 'solid-js/store';
 import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';

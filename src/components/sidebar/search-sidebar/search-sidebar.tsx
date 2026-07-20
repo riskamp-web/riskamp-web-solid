@@ -10,7 +10,6 @@ import type { FindResult, FindMessageType, FindType, QueryMessage } from './find
 import { type SidebarProps } from '../sidebar-main';
 import { EmbeddedSheetEvent } from '@trebco/treb';
 import { Area } from '@trebco/treb/treb-base-types';
-import { bootstrap_icons } from 's5-icon-lib';
 
 interface Params {
   type: 'values'|'formulas';

@@ -9,7 +9,7 @@ import FindWorker from './find-worker?worker';
 import { type SidebarProps } from '../sidebar-main';
 import { EmbeddedSheetEvent, EmbeddedSpreadsheet } from '@trebco/treb';
 import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import { sessionData, setSessionData } from '~/lib/app-data';
 import { ExpressionUnit } from '@trebco/treb/treb-parser';
 import { MCEmbeddedSheetEvent } from 'riskamp-web';
@@ -156,7 +156,7 @@ export function Sidebar(props: SidebarProps) {
 
         <For each={names()}>{named => 
           <div class="grid-table-row" onclick={e => Click(e, named)}>
-            <div innerHTML={named.type === 'expression' ? bootstrap_icons.braces : bootstrap_icons.grid_3x3} />
+            <div innerHTML={named.type === 'expression' ? icons.name_expression : icons.name_range} />
             <div>
               <button class="text-button" onclick={e => Click(e, named)}>
                 {named.name}

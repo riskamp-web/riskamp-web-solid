@@ -7,7 +7,7 @@ import type { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { ToolbarCommand, ToolbarCommandMap, type ToolbarCommandKey } from '../toolbar/toolbar-commands';
 
 import style from './sidebar.module.css';
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import { t } from '~/i18n/i18n';
 
 export interface SidebarProps {
@@ -43,7 +43,7 @@ export function Sidebar(main_props: SidebarProps) {
       </Show>
       <button class={style['close-sidebar']} 
               onclick={() => setSidebar()} 
-              innerHTML={bootstrap_icons.x_lg} />
+              innerHTML={icons.close} />
     </header>
     <div class={style.container}>
       <RenderForKey key={sidebar()} />

@@ -8,7 +8,7 @@ import '~/components/tabs.css';
 import { ColorButtonControl } from './toolbar-utils';
 import { ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
 
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import { MenuButton } from '../menu-button/menu-button';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { Color, ThemeColor } from '@trebco/treb';
@@ -180,7 +180,7 @@ export function ColorButton(props: {
                               props.control.command.active_color = undefined;
                               props.HandleCommand(e, props.control.command);
                             }}
-                            innerHTML={bootstrap_icons.x_lg} />
+                            innerHTML={icons.close} />
                     <button onclick={e => {
                               props.control.command.active_color = undefined;
                               props.HandleCommand(e, props.control.command);
@@ -225,7 +225,7 @@ export function ColorButton(props: {
                             }}
                             class={style.swatch} 
                             title={t('color-picker.use_selected_color')}
-                            innerHTML={bootstrap_icons.check_lg} />
+                            innerHTML={icons.confirm} />
                   </div>
                 </div>
 

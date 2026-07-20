@@ -4,7 +4,6 @@ import { CreateParameters, InteractiveDialog, Parameter, type Props } from '../i
 import { I18N, t } from '~/i18n/i18n';
 import { EmbeddedSheetEvent, ICellAddress, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { Size } from '../dialog-base/dialog';
-import { bootstrap_icons } from 's5-icon-lib';
 import style from './las-vegas-simulation.module.css';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { IsCellAddress } from '@trebco/treb/treb-base-types';

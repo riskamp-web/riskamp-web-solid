@@ -5,7 +5,7 @@ import { createContext, createEffect, on, ParentProps, type Signal, splitProps, 
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import type { DependencyList } from 'riskamp-web';
 
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import style from './interactive-dialog.module.css';
 
 export interface InteractiveDialogRef {
@@ -101,7 +101,7 @@ export function Parameter(props: ParameterProps) {
         [style['validation-icon']]: true,
         [style.valid]: props.valid,
       }}
-      innerHTML={props.valid ? bootstrap_icons.check_lg : bootstrap_icons.x_lg} />
+      innerHTML={props.valid ? icons.confirm : icons.close} />
   }
 
   const initial_value = props.parameter.initialValue() || '';

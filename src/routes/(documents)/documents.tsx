@@ -5,7 +5,7 @@ import style from './documents.module.css';
 import { createEffect, createMemo, createSignal, For, Match, on, onMount, Switch } from 'solid-js';
 import { documentsList, type DocumentsRow, ListDocuments } from '~/docs/documents';
 import { Show } from 'solid-js';
-import { bootstrap_icons } from 's5-icon-lib';
+import { icons } from '~/components/icon-sets';
 import { I18N, t } from '~/i18n/i18n';
 import { A, useNavigate } from '@solidjs/router';
 import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
@@ -86,7 +86,7 @@ export default function Page() {
               [style['icon-placeholder']]: true,
               [style.active]: sort(),
               [style.rotate]: sort() && !!persistentData.documents_asc }} 
-              innerHTML={bootstrap_icons.caret_down_fill}
+              innerHTML={icons.caret_down}
               ></span>
           </button>
  
@@ -280,7 +280,7 @@ export default function Page() {
                      placeholder={t('documents-table.filter-documents.label')}/>
               <button class={style.clear} 
                       onclick={() => SetFilter()}
-                      innerHTML={bootstrap_icons.x_lg}/>
+                      innerHTML={icons.close}/>
 
               <div class="flex-grow" />
 

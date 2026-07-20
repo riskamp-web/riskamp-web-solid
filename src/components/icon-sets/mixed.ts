@@ -110,4 +110,30 @@ export const icons: IconSet = {
 
   riskamp_documentation:  lucide.circle_question_mark,  // alt: phosphor.question
 
+  // --- ui primitives -------------------------------------------------
+
+  close:                  bs.x_lg,
+
+  // NOTE: these three are three _different_ bootstrap check glyphs, carried
+  // over as-is from the call sites. If the variation isn't deliberate they
+  // can be unified by pointing all three at one glyph, here.
+  confirm:                bs.check_lg,
+  menu_checked:           bs.check2,
+  help:                   bs.question_circle,
+  overflow:               bs.three_dots,
+  caret_down:             bs.caret_down_fill,
+
+  // --- component-specific --------------------------------------------
+
+  copy:                   bs.copy,
+  copy_confirmed:         bs.check,
+  name_expression:        bs.braces,
+  name_range:             bs.grid_3x3,
+  seed_time_based:        bs.clock,
+  seed_reset:             bs.lightning,
+  theme_light:            bs.sun,
+  theme_dark:             bs.moon,
+  theme_system:           bs.circle_half,
+  row_column_ops:         bs.rulers,                    // alt: lucide.pencil_ruler, bs.columns, fa_regular.ruler_triangle
+
 };

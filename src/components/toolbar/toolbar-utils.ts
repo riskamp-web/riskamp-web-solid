@@ -1,6 +1,4 @@
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { bootstrap_icons, fa_light, fa_regular, fa_solid, fa_thin, lucide, phosphor_regular } from 's5-icon-lib';
 
 import type { I18N } from '~/i18n/i18n';
 import { ToolbarCommandMap, 
