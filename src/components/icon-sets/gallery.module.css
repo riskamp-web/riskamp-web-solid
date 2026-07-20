@@ -1,0 +1,132 @@
+
+/* Dev-only icon gallery. Colors come from the app.css :root variables, which
+   are already light-dark() + color-scheme, so this page follows the app theme
+   without any extra work. */
+
+.gallery {
+  font-family: var(--inteface-font);
+  padding: 0 24px 48px;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 16px 0;
+  background: var(--toolbar-surface-color);
+  border-bottom: 1px solid var(--toolbar-border-color);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.field > span {
+  color: var(--toolbar-control-color);
+}
+
+.field select,
+.field input {
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 8px;
+  color: var(--toolbar-control-text-color);
+  background: var(--toolbar-surface-color);
+  border: 1px solid var(--toolbar-border-color);
+  border-radius: var(--toolbar-control-border-radius);
+}
+
+.field input {
+  min-width: 16em;
+}
+
+.count {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--toolbar-control-color);
+}
+
+.group {
+  margin-top: 32px;
+}
+
+.group h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--toolbar-control-color);
+}
+
+.groupcount {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--overlay-faint);
+}
+
+.grid {
+  display: grid;
+  /* wide enough that the longest name (quick_view_correlation) sits on one line */
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 8px;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--overlay-faintest);
+}
+
+.cell:hover {
+  background: var(--toolbar-control-hover-background);
+}
+
+/* glyphs are width/height 1em + fill currentColor, so size and color are
+   inherited from here */
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  color: var(--toolbar-control-icon-color);
+}
+
+.name {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+  color: var(--toolbar-control-text-color);
+}
+
+.empty {
+  margin-top: 32px;
+  color: var(--toolbar-control-color);
+}
