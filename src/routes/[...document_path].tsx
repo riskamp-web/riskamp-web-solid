@@ -268,32 +268,32 @@ export default function Page() {
         break;
 
       case 'align-left':
-        ApplyProperty(sheet, 'horizontal_align', 'left');
+        ApplyProperty(sheet, 'horizontal_align', command.value ? undefined : 'left');
         sheet.Focus();
         break;
 
       case 'align-right':
-        ApplyProperty(sheet, 'horizontal_align', 'right');
+        ApplyProperty(sheet, 'horizontal_align', command.value ? undefined : 'right');
         sheet.Focus();
         break;
 
       case 'align-center':
-        ApplyProperty(sheet, 'horizontal_align', 'center');
+        ApplyProperty(sheet, 'horizontal_align', command.value ? undefined : 'center');
         sheet.Focus();
         break;
 
       case 'align-top':
-        ApplyProperty(sheet, 'vertical_align', 'top');
+        ApplyProperty(sheet, 'vertical_align', command.value ? undefined : 'top');
         sheet.Focus();
         break;
 
       case 'align-middle':
-        ApplyProperty(sheet, 'vertical_align', 'middle');
+        ApplyProperty(sheet, 'vertical_align', command.value ? undefined : 'middle');
         sheet.Focus();
         break;
 
       case 'align-bottom':
-        ApplyProperty(sheet, 'vertical_align', 'bottom');
+        ApplyProperty(sheet, 'vertical_align', command.value ? undefined : 'bottom');
         sheet.Focus();
         break;
 
