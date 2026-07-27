@@ -43,7 +43,7 @@ export const icons: IconSet = {
   border_none:            rai['border-none'],
   border_outside:         rai['border-outside'],
   border_double_bottom:   rai['border-double-bottom'],
-  border_color:           rai['border-color-2'],
+  border_color:           rai['border-color'],
 
   // --- number format -------------------------------------------------
 
@@ -92,7 +92,7 @@ export const icons: IconSet = {
 
   // --- data tools ----------------------------------------------------
 
-  fit_data:               rai['fit-data'],
+  fit_data:               rai['fit-data-2'],
   defined_names:          rai['defined-names-2'],
   find:                   rai.find,
 

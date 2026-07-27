@@ -267,6 +267,9 @@ export function Toolbar(props: ParentProps<Props>) {
       return icon;
     }
 
+    // what is this, one match always set? makes no sense. written by
+    // a human, no doubt
+
     return  <Switch>
               <Match when={true}>
                 <button classList={{ 
@@ -402,14 +405,18 @@ export function Toolbar(props: ParentProps<Props>) {
                             <Match when={item.menuicon && item.icon}>
                               <div class='display-contents' innerHTML={item.icon || ''} />
                             </Match>
+                            {/* 
                             <Match when={props.sidebar?.() === item.key}>
                               <div class='display-contents' innerHTML={icons.menu_checked || ''} />
-                            </Match>
+                            </Match> */}
                             <Match when={true}>
                               <div class={style['svg-placeholder']}></div>
                             </Match>
                           </Switch>
                           <span>{t(item.title)}</span>
+                            <div class={style['right-align']}>
+                              <div classList={{[style.dot]: true, [style['dot-visible']]: props.sidebar?.() === item.key}}></div>
+                            </div>
                         </button>}
                     </li>}
                   </For>

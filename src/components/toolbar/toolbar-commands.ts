@@ -127,6 +127,7 @@ export const ToolbarCommands: ToolbarCommand[] = [
 		key: 'ai',
     title: 'llm-chat.panel.title',
     icon: icons.ai_chat,
+    menuicon: true,
   },
 
 {
@@ -144,6 +145,7 @@ export const ToolbarCommands: ToolbarCommand[] = [
 		key: 'notes',
     title: 'toolbar.button.notes.label',
     icon: icons.notes,
+    menuicon: true,
   },
 
 {
@@ -495,6 +497,8 @@ export const ToolbarCommands: ToolbarCommand[] = [
     
     title: 'toolbar.button.fit-data.label',
     icon: icons.fit_data,
+    menuicon: true,
+    
   },
 
 {
@@ -502,13 +506,15 @@ export const ToolbarCommands: ToolbarCommand[] = [
     
     title: 'toolbar.button.defined-names.label',
     icon: icons.defined_names,
+    menuicon: true,
   },
 
 {
 		key: 'find',
     
     title: 'toolbar.button.search-cells.label',
-    icon: icons.find
+    icon: icons.find,
+    menuicon: true,
   },
 
 {
@@ -544,6 +550,7 @@ export const ToolbarCommands: ToolbarCommand[] = [
     
     title: 'toolbar.button.quick-view.label',
     icon: icons.quick_view,
+    menuicon: true,
   },
 
 {
@@ -558,7 +565,7 @@ export const ToolbarCommands: ToolbarCommand[] = [
     
     title: 'toolbar.button.simulation-settings.label',
     icon: icons.simulation_settings,
-    // menuicon: true,
+    menuicon: true,
 
   },
 

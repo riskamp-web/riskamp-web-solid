@@ -37,6 +37,26 @@
     color: inherit;
   }
 
+  .right-align {
+    display: flex;
+    justify-content: flex-end;
+    flex-grow: 1;
+  }
+
+  /** replacement for icon, temp */
+  .dot {
+    background: currentColor;
+    width: 1em;
+    height: 1em;
+    border-radius: 1em;
+    font-size: 6px;
+    opacity: 0;
+  }
+
+  .dot-visible {
+    opacity: 1;
+  }
+
 }
 
 label.tab {
@@ -95,6 +115,7 @@ label.tab {
   &.text-button {
     width: auto;
   }
+
 
 }
 
