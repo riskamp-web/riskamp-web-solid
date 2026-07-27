@@ -77,7 +77,7 @@ export const ICON_GROUPS = {
   ],
 
   component: [
-    'copy', 'copy_confirmed', 'name_expression', 'name_range',
+    'copy', 'copy_confirmed', 'named_expression', 'named_range',
     'seed_time_based', 'seed_reset',
     'theme_light', 'theme_dark', 'theme_system',
     'row_column_ops',

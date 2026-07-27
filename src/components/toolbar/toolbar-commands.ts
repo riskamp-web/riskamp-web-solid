@@ -45,7 +45,7 @@ export interface ColorCommand extends BaseToolbarCommand {
 
 export type ToolbarCommand = Command | ColorCommand | ToggleCommand | ListCommand;
 
-export const ToolbarCommands = [
+export const ToolbarCommands: ToolbarCommand[] = [
 
 {
 		key: 'sign-out',
@@ -369,6 +369,8 @@ export const ToolbarCommands = [
 {
 		key: 'about-riskamp',
     title: 'toolbar.menu.about-riskamp',
+    icon: icons.help,
+    menuicon: true,
   },
 {
 		key: 'walkthrough',
@@ -377,6 +379,8 @@ export const ToolbarCommands = [
 {
 		key: 'function-docs',
     title: 'toolbar.menu.function-documentation',
+    icon: icons.riskamp_documentation,
+    menuicon: true,
   },
 
   /*
@@ -532,6 +536,7 @@ export const ToolbarCommands = [
 		key: 'riskamp-documentation',
     title: 'toolbar-button.riskamp-documentation.label',
     icon: icons.riskamp_documentation,
+    menuicon: true,
   },
 
 {
@@ -553,6 +558,8 @@ export const ToolbarCommands = [
     
     title: 'toolbar.button.simulation-settings.label',
     icon: icons.simulation_settings,
+    // menuicon: true,
+
   },
 
 {

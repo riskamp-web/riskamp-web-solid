@@ -1,5 +1,6 @@
 
 import { icons as mixed } from './mixed';
+import { icons as tabler } from './tabler';
 import type { IconSet } from './types';
 
 /**
@@ -9,6 +10,6 @@ import type { IconSet } from './types';
  * the whole app; if it pulled in this registry, every set would land in the
  * main bundle. Only the gallery (lazily loaded, dev-only) imports this.
  */
-export const icon_sets = { mixed } satisfies Record<string, IconSet>;
+export const icon_sets = { mixed, tabler } satisfies Record<string, IconSet>;
 
 export type IconSetName = keyof typeof icon_sets;

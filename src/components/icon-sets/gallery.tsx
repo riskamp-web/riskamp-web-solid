@@ -1,5 +1,5 @@
 
-import { createMemo, createSignal, For, Show } from 'solid-js';
+import { createEffect, createMemo, createSignal, For, Show } from 'solid-js';
 
 import style from './gallery.module.css';
 import { icon_sets, type IconSetName } from './registry';
@@ -7,6 +7,42 @@ import { ICON_GROUPS, ICON_GROUP_LABELS, type IconGroup, type IconName } from '.
 
 const set_names = Object.keys(icon_sets) as IconSetName[];
 const groups = Object.keys(ICON_GROUPS) as IconGroup[];
+
+/**
+ * The controls persist. Drawing an icon means edit, save, reload, look -- and
+ * losing the set and the filter on every reload means re-finding the one glyph
+ * you're working on, every time.
+ */
+const STORAGE_KEY = 'icon-gallery';
+
+function load(): { set_name: IconSetName, filter: string } {
+
+  const fallback = { set_name: set_names[0], filter: '' };
+
+  try {
+    const text = localStorage.getItem(STORAGE_KEY);
+    if (text) {
+      const json = JSON.parse(text);
+
+      // a set can be renamed or dropped from the registry while a stale name
+      // sits in storage; that would paint an empty grid, so check it.
+      return {
+        set_name: set_names.includes(json.set_name) ? json.set_name : fallback.set_name,
+        filter: typeof json.filter === 'string' ? json.filter : fallback.filter,
+      };
+    }
+  }
+  catch {
+    console.error('parse failed');
+  }
+
+  return fallback;
+
+}
+
+function save(set_name: IconSetName, filter: string) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ set_name, filter }));
+}
 
 /**
  * Dev page: paints every icon in a set, grouped and labeled.
@@ -17,8 +53,12 @@ const groups = Object.keys(ICON_GROUPS) as IconGroup[];
  */
 export default function IconGallery() {
 
-  const [set_name, setSetName] = createSignal<IconSetName>(set_names[0]);
-  const [filter, setFilter] = createSignal('');
+  const stored = load();
+
+  const [set_name, setSetName] = createSignal<IconSetName>(stored.set_name);
+  const [filter, setFilter] = createSignal(stored.filter);
+
+  createEffect(() => save(set_name(), filter()));
 
   const icons = createMemo(() => icon_sets[set_name()] as Record<IconName, string>);
 
