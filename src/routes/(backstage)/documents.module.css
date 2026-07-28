@@ -1,0 +1,498 @@
+/**
+ * documents page -- the table and the version list.
+ *
+ * everything shared with future backstage pages lives in backstage.module.css;
+ * this file is just the list.
+ *
+ * the table is a grid with a subgrid header/body, so column widths are declared
+ * once and the body scrolls under a fixed header. (same technique as
+ * src/style/grid-table.css, restated locally so the redesign can move freely.)
+ */
+
+.table {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: [header] auto [body] 1fr;
+  grid-template-columns:
+    [check] 34px
+    [star] 34px
+    [name] minmax(150px, 1.6fr)
+    [path] minmax(110px, 1fr)
+    [access] 92px
+    [modified] 134px
+    [menu] 36px;
+
+  /* the inset lives here, not on the header/body: those are subgrids, and their
+     tracks come from this element -- padding on them overflows the inherited
+     track widths and produces a horizontal scrollbar */
+  padding: 0 calc(var(--bs-inset) - 8px);
+}
+
+.table-header {
+  grid-row: header;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  height: 34px;
+  border-bottom: 1px solid var(--bs-border);
+  color: var(--bs-text-muted);
+  font-size: var(--bs-label-size);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.table-body {
+  grid-row: body;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-content: start;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.table-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  min-height: var(--bs-row-height);
+  cursor: default;
+  transition: background-color .125s ease;
+
+  /* a hairline under each row: with seven columns, tracking one record across
+     the table is otherwise hard work */
+  border-bottom: 1px solid var(--bs-border);
+
+  &:last-child {
+    border-bottom-color: transparent;
+  }
+
+  &:hover {
+    background: var(--bs-hover);
+  }
+
+  &.selected {
+    background: var(--bs-selected);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* cells                                                               */
+/* ------------------------------------------------------------------ */
+
+.cell {
+  min-width: 0;
+  padding: 0 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cell-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.cell-name {
+  color: var(--bs-text);
+
+  & a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+}
+
+.cell-path {
+  color: var(--bs-text-muted);
+}
+
+.cell-modified {
+  color: var(--bs-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ */
+/* access                                                              */
+/* ------------------------------------------------------------------ */
+
+.cell-access {
+  display: flex;
+  align-items: center;
+  overflow: visible;
+}
+
+/* public is the default state, so it reads as the quiet one; private is the
+   exception and carries the weight. no icons -- the words carry it. */
+.access-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.access-public {
+  background: var(--bs-hover);
+  color: var(--bs-text-muted);
+}
+
+.access-private {
+  border-color: var(--bs-border-strong);
+  color: var(--bs-text);
+}
+
+/* ------------------------------------------------------------------ */
+/* row affordances                                                     */
+/* ------------------------------------------------------------------ */
+
+/* row checkboxes stay out of the way until you hover, focus, or start selecting.
+   the check itself is left at the system accent colour. */
+.check {
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+  transition: opacity .125s ease;
+
+  &:checked,
+  &:focus-visible {
+    opacity: 1;
+  }
+}
+
+.table-row:hover .check,
+.selecting .check {
+  opacity: 1;
+}
+
+/* the select-all checkbox is never hovered into view by accident -- there's no
+   row under the cursor to reveal it -- so it stays visible, just quiet */
+.check-all {
+  opacity: .55;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.table-header:hover .check-all {
+  opacity: 1;
+}
+
+.star {
+  color: var(--bs-text-muted);
+
+  &.starred {
+    color: var(--bs-star);
+  }
+}
+
+/* the row menu button follows the same hover-reveal rule as the checkbox */
+.row-menu-button {
+  opacity: 0;
+  transition: opacity .125s ease;
+}
+
+.table-row:hover .row-menu-button,
+.table-row.selected .row-menu-button,
+.row-menu-button:focus-visible,
+.row-menu-button[aria-expanded='true'] {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* sortable headers                                                    */
+/* ------------------------------------------------------------------ */
+
+.sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  transition: color .125s ease;
+
+  &:hover {
+    color: var(--bs-text);
+  }
+
+  & > svg {
+    flex: 0 0 auto;
+    opacity: 0;
+    transition: opacity .125s ease, transform .125s ease;
+  }
+
+  &.sorted {
+    color: var(--bs-text);
+
+    & > svg {
+      opacity: 1;
+    }
+  }
+
+  &.ascending > svg {
+    transform: rotate(180deg);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* full-width rows inside the body (states)                            */
+/* ------------------------------------------------------------------ */
+
+.body-full {
+  grid-column: 1 / -1;
+}
+
+/* skeleton rows reuse the real column layout so the loading state has the
+   same rhythm as the loaded one */
+.skeleton-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  min-height: var(--bs-row-height);
+}
+
+.skeleton-bar {
+  height: 10px;
+  margin: 0 8px;
+}
+
+/* ------------------------------------------------------------------ */
+/* selection bar (replaces the header controls while selecting)        */
+/* ------------------------------------------------------------------ */
+
+.selection-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.selection-count {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.selection-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--bs-border-strong);
+}
+
+/* ------------------------------------------------------------------ */
+/* detail panel: header + versions                                     */
+/* ------------------------------------------------------------------ */
+
+.panel-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.panel-name {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+/* the title doubles as the rename affordance: it looks like text until you
+   hover it, then reads as editable */
+.rename-target {
+  min-width: 0;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border: 1px solid transparent;
+  border-radius: var(--bs-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: text;
+
+  &:hover {
+    border-color: var(--bs-border-strong);
+  }
+}
+
+.rename-input {
+  width: 100%;
+  padding: 2px 5px;
+  margin: -3px -6px;
+  border: 1px solid var(--bs-border-strong);
+  border-radius: var(--bs-radius-sm);
+  background: transparent;
+  color: var(--bs-text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+
+  &[aria-invalid='true'] {
+    border-color: var(--bs-danger);
+  }
+}
+
+/* where the rename will land: the address is derived, so it moves with the name */
+.rename-preview {
+  display: flex;
+  min-width: 0;
+  color: var(--bs-text-muted);
+}
+
+.rename-error {
+  color: var(--bs-danger);
+}
+
+.panel-path {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  color: var(--bs-text-muted);
+}
+
+.panel-uri {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.copy-link {
+  flex: 0 0 auto;
+}
+
+.copy-confirmed {
+  color: var(--bs-accent);
+}
+
+.panel-section {
+  margin-top: 34px;
+}
+
+.version-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+}
+
+.version-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 6px;
+  margin: 0 -6px;
+  border-radius: var(--bs-radius-sm);
+  transition: background-color .125s ease;
+
+  &:hover {
+    background: var(--bs-hover);
+  }
+
+  & > .version-tag {
+    flex: 0 0 auto;
+    width: 26px;
+    color: var(--bs-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  & > .version-date {
+    flex: 1;
+    min-width: 0;
+    color: var(--bs-text-muted);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  & > .version-current {
+    flex: 0 0 auto;
+    color: var(--bs-accent);
+  }
+
+  & > .version-action {
+    opacity: 0;
+    transition: opacity .125s ease;
+  }
+
+  &:hover > .version-action {
+    opacity: 1;
+  }
+}
+
+.version-note {
+  margin-top: 10px;
+  color: var(--bs-text-muted);
+  line-height: 1.45;
+}
+
+/* ------------------------------------------------------------------ */
+/* narrow layouts                                                      */
+/* ------------------------------------------------------------------ */
+
+/* thresholds sit just above the point where the full set of tracks stops
+   fitting: 7 columns need ~598px, 6 need ~470px */
+
+@container bs-content (width < 640px) {
+  .table {
+    grid-template-columns:
+      [check] 34px
+      [star] 34px
+      [name] minmax(140px, 1fr)
+      [access] 92px
+      [modified] 130px
+      [menu] 36px;
+  }
+
+  .cell-path {
+    display: none;
+  }
+}
+
+@container bs-content (width < 490px) {
+  .table {
+    grid-template-columns:
+      [check] 34px
+      [star] 34px
+      [name] minmax(110px, 1fr)
+      [modified] 124px
+      [menu] 36px;
+  }
+
+  .cell-path,
+  .cell-access {
+    display: none;
+  }
+}

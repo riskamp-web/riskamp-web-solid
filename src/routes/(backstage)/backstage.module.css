@@ -1,0 +1,630 @@
+/**
+ * shared shell + primitives for the backstage pages.
+ *
+ * this is the consolidation point for the redesign: tokens and anything a second
+ * backstage page (account, billing, auth) would want live here; page-specific
+ * styling lives next to the page.
+ *
+ * tokens are scoped to .page rather than :root so they stay inside the redesign's
+ * containment boundary. colors go through light-dark(), matching src/app.css --
+ * where a global token is already right, we alias it instead of restating a value.
+ *
+ * two rules this file follows deliberately:
+ *   - the accent is the logo blue (#0477BE), the same pair app.css already uses
+ *     for --dialog-border-color. no second brand color.
+ *   - focus is drawn by the browser. nothing here sets an outline color.
+ */
+
+.page {
+
+  /* ---- surfaces ---- */
+  --bs-surface: light-dark(#ffffff, #26282c);
+  --bs-rail-background: light-dark(#f7f7f8, #222427);
+  --bs-raised: light-dark(#ffffff, #2e3136);
+
+  /* ---- text ----
+     secondary text is only one step down from primary, not three. anything
+     that would need to be fainter than --bs-text-faint should probably just
+     be --bs-text-muted instead. */
+  --bs-text: light-dark(#17181b, #f0f1f4);
+  --bs-text-muted: light-dark(#3d424a, #ccd1d8);
+  --bs-text-faint: light-dark(#5c626b, #a9afb8);
+
+  /* ---- lines + washes ---- */
+  --bs-border: light-dark(#dcdee2, #3b3f45);
+  --bs-border-strong: light-dark(#b6bac1, #545961);
+  --bs-hover: light-dark(rgba(0, 0, 0, .045), rgba(255, 255, 255, .06));
+  --bs-hover-strong: light-dark(rgba(0, 0, 0, .075), rgba(255, 255, 255, .1));
+  --bs-selected: light-dark(rgba(4, 119, 190, .1), rgba(42, 145, 216, .2));
+  --bs-shadow: var(--menu-shadow);
+
+  /* ---- accent: the logo blue, matching --dialog-border-color in app.css ---- */
+  --bs-accent: light-dark(#0477be, #2a91d8);
+  --bs-on-accent: #ffffff;
+  --bs-star: light-dark(#c27803, #fbbf24);
+  --bs-danger: light-dark(#b3261e, #f4796f);
+
+  /* ---- metrics ---- */
+  --bs-radius: 6px;
+  --bs-radius-sm: 4px;
+  --bs-row-height: 38px;
+  --bs-control-height: 30px;
+  --bs-rail-width: 208px;
+  --bs-panel-width: 348px;
+  --bs-inset: 16px;
+
+  /* nothing in the backstage pages goes below 13px; the one exception is the
+     all-caps column/section labels, which sit at 12px */
+  --bs-label-size: 12px;
+
+  /* the page is a flex child of main.fixed, which is overflow:hidden --
+     everything that scrolls does so inside here */
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+
+  color: var(--bs-text);
+  background: var(--bs-surface);
+  font-size: 13px;
+
+  container: bs-page / inline-size;
+
+}
+
+/* ------------------------------------------------------------------ */
+/* rail                                                                */
+/* ------------------------------------------------------------------ */
+
+.rail {
+  flex: 0 0 auto;
+  width: var(--bs-rail-width);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 14px 8px;
+  overflow-y: auto;
+  border-right: 1px solid var(--bs-border);
+  background: var(--bs-rail-background);
+}
+
+.rail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.rail-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--bs-radius-sm);
+  background: transparent;
+  color: var(--bs-text-muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color .125s ease, color .125s ease;
+
+  & > svg {
+    flex: 0 0 auto;
+    color: var(--bs-text-muted);
+  }
+
+  & > .rail-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  & > .rail-count {
+    flex: 0 0 auto;
+    color: var(--bs-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &:hover {
+    background: var(--bs-hover);
+    color: var(--bs-text);
+  }
+
+  &.active {
+    background: var(--bs-selected);
+    color: var(--bs-text);
+    font-weight: 500;
+
+    & > svg {
+      color: var(--bs-accent);
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* content column                                                      */
+/* ------------------------------------------------------------------ */
+
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative; /* anchors the slide-over */
+  container: bs-content / inline-size;
+}
+
+.content-header {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  height: 54px;
+  padding: 0 var(--bs-inset);
+  border-bottom: 1px solid var(--bs-border);
+}
+
+.content-footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 var(--bs-inset);
+  border-top: 1px solid var(--bs-border);
+  color: var(--bs-text-muted);
+}
+
+/* ------------------------------------------------------------------ */
+/* primitives                                                          */
+/* ------------------------------------------------------------------ */
+
+.section-label {
+  padding: 0 8px;
+  margin-bottom: 4px;
+  color: var(--bs-text-muted);
+  font-size: var(--bs-label-size);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.muted {
+  color: var(--bs-text-muted);
+}
+
+.spacer {
+  flex: 1;
+  min-width: 0;
+}
+
+/* the input IS the control: it carries the border, the radius and the padding,
+   so the browser's own focus ring wraps the whole visible box. the wrapper is
+   layout only -- no border, no background -- and the icon and clear button are
+   positioned over the input's padding rather than sitting beside it. */
+.search-field {
+  position: relative;
+  display: flex;
+  flex: 1 1 300px;
+  min-width: 90px;
+  max-width: 300px;
+}
+
+.search-input {
+  width: 100%;
+  height: var(--bs-control-height);
+  padding: 0 34px 0 34px;
+  border: 1px solid var(--bs-border-strong);
+  border-radius: var(--bs-radius-sm);
+  background: transparent;
+  color: var(--bs-text);
+  font: inherit;
+
+  /* UA clear button; we draw our own so it matches the icon set */
+  &::-webkit-search-cancel-button {
+    display: none;
+  }
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 7px;
+  translate: 0 -50%;
+  color: var(--bs-text-faint);
+  pointer-events: none;
+}
+
+.search-clear {
+  position: absolute;
+  top: 50%;
+  right: 1px;
+  translate: 0 -50%;
+  width: 28px;
+  height: 28px;
+}
+
+.button {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  height: var(--bs-control-height);
+  padding: 0 12px;
+  border: 1px solid var(--bs-border-strong);
+  border-radius: var(--bs-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: none; /* .button is also used on <A> */
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .125s ease, border-color .125s ease, color .125s ease;
+
+  &:hover {
+    background: var(--bs-hover-strong);
+  }
+
+  &:disabled {
+    opacity: .45;
+    cursor: default;
+  }
+}
+
+.button-primary {
+  border-color: transparent;
+  background: var(--bs-accent);
+  color: var(--bs-on-accent);
+  font-weight: 500;
+
+  &:hover {
+    background: var(--bs-accent);
+    filter: brightness(1.1);
+  }
+}
+
+.button-quiet {
+  border-color: transparent;
+  color: var(--bs-text-muted);
+
+  &:hover {
+    color: var(--bs-text);
+  }
+}
+
+.button-danger {
+  border-color: transparent;
+  color: var(--bs-danger);
+
+  &:hover {
+    background: light-dark(rgba(179, 38, 30, .09), rgba(244, 121, 111, .15));
+  }
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--bs-radius-sm);
+  background: transparent;
+  color: var(--bs-text-muted);
+  cursor: pointer;
+  transition: background-color .125s ease, color .125s ease;
+
+  &:hover {
+    background: var(--bs-hover-strong);
+    color: var(--bs-text);
+  }
+}
+
+/* segmented control -- used for private/public */
+
+.segmented {
+  display: inline-flex;
+  flex-direction: row;
+  justify-self: start;
+  width: fit-content;
+  border: 1px solid var(--bs-border-strong);
+  border-radius: var(--bs-radius-sm);
+  overflow: hidden;
+
+  & button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 30px;
+    padding: 0 10px;
+    border: none;
+    background: transparent;
+    color: var(--bs-text-muted);
+    font: inherit;
+    cursor: pointer;
+    transition: background-color .125s ease, color .125s ease;
+
+    &:hover {
+      background: var(--bs-hover-strong);
+    }
+
+    &.active {
+      background: var(--bs-accent);
+      color: var(--bs-on-accent);
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* slide-over detail panel                                             */
+/* ------------------------------------------------------------------ */
+
+/* covers the list rather than pushing it: when you're reading the panel the list
+   behind it is the less important thing, and pushing re-lays-out every row */
+.slide-over {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: var(--bs-panel-width);
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bs-surface);
+  border-left: 1px solid var(--bs-border);
+  box-shadow: var(--bs-shadow);
+  transform: translateX(101%);
+  visibility: hidden;
+  transition: transform .16s ease, visibility .16s;
+
+  &.open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+}
+
+.panel-header {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px var(--bs-inset) 12px;
+  border-bottom: 1px solid var(--bs-border);
+}
+
+.panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px var(--bs-inset) 20px;
+}
+
+.panel-footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 10px var(--bs-inset);
+  border-top: 1px solid var(--bs-border);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+
+  & > .field-label {
+    color: var(--bs-text-muted);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* empty + loading states                                              */
+/* ------------------------------------------------------------------ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 100%;
+  min-height: 200px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--bs-text-muted);
+
+  & > svg {
+    color: var(--bs-text-muted);
+    margin-bottom: 6px;
+  }
+
+  & > .empty-title {
+    color: var(--bs-text);
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  & > .empty-detail {
+    max-width: 36ch;
+    line-height: 1.5;
+  }
+
+  & > .empty-action {
+    margin-top: 12px;
+  }
+}
+
+.skeleton {
+  border-radius: 3px;
+  background: var(--bs-hover-strong);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .45; }
+}
+
+/* ------------------------------------------------------------------ */
+/* menus -- popover + css anchor positioning, same approach as drop-menu */
+/* ------------------------------------------------------------------ */
+
+.menu {
+  margin: 0;
+  padding: 4px;
+  width: max-content;
+  min-width: 176px;
+  border: 1px solid var(--bs-border);
+  border-radius: var(--bs-radius);
+  background: var(--bs-raised);
+  color: var(--bs-text);
+  box-shadow: var(--bs-shadow);
+  font-size: 13px;
+
+  & menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  & hr {
+    height: 0;
+    margin: 4px 2px;
+    border: none;
+    border-top: 1px solid var(--bs-border);
+  }
+}
+
+.menu-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--bs-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+
+  & > svg {
+    color: var(--bs-text-muted);
+  }
+
+  /* keeps labels aligned when an item has no icon */
+  & > .menu-icon-placeholder {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: var(--bs-hover-strong);
+  }
+
+  &.danger {
+    color: var(--bs-danger);
+
+    & > svg {
+      color: var(--bs-danger);
+    }
+  }
+}
+
+/* popover open/close transition; display + overlay must be in the transition */
+.menu[popover] {
+  opacity: 0;
+  transform: scale(.97);
+  transition: transform .05s ease, opacity .05s ease, display .05s allow-discrete, overlay .05s allow-discrete;
+}
+
+.menu[popover]:popover-open {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@starting-style {
+  .menu[popover]:popover-open {
+    opacity: 0;
+    transform: scale(.97);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* narrow layouts -- container queries, per house style (no @media)    */
+/* ------------------------------------------------------------------ */
+
+.scope-select {
+  display: none;
+  flex: 0 1 auto;
+  min-width: 0;
+  height: var(--bs-control-height);
+  border: 1px solid var(--bs-border-strong);
+  border-radius: var(--bs-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 0 6px;
+}
+
+/* note: a container query never matches the container element itself, so these
+   set the tokens on descendants (.rail / .content) rather than on .page */
+@container bs-page (width < 940px) {
+  .rail {
+    --bs-rail-width: 176px;
+  }
+
+  .content {
+    --bs-panel-width: 320px;
+  }
+}
+
+@container bs-page (width < 700px) {
+  .rail {
+    display: none;
+  }
+
+  .scope-select {
+    display: block;
+  }
+}
+
+/* below this the header runs out of room, so labelled buttons become icons */
+@container bs-content (width < 580px) {
+  .button-collapse {
+    padding: 0 8px;
+  }
+
+  .button-collapse > .button-label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide-over {
+    transition: none;
+  }
+
+  .skeleton {
+    animation: none;
+  }
+}
