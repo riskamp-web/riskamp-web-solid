@@ -4,6 +4,10 @@ import { LayoutProvider, useLayoutContext } from '~/components/layout-context';
 
 import { Toolbar } from '~/components/toolbar/account-toolbar';
 
+/*
+ * layout for backstage pages
+ */
+
 function Layout(props: ParentProps) {
   const { title } = useLayoutContext();
   return <>
