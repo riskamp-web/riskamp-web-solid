@@ -208,7 +208,7 @@ function ScheduleSessionUpdate(data: Partial<Claims>) {
       console.info("session update failed, logging out");
 
       ClearTokens();
-      goto('/');
+      goto('/sign-out');
 
     });
   }, Math.ceil(delta));

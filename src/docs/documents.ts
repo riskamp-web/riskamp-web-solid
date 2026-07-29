@@ -13,6 +13,7 @@ export interface DocumentsRow {
   created: number;
   modified: number;
   version: number;
+  starred?: boolean;
 }
 
 export interface HistoryEntry {

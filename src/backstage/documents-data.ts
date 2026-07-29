@@ -10,10 +10,14 @@
  * where the choice between it and live data gets made.
  */
 
-import { createSignal } from 'solid-js';
-import { createStore } from 'solid-js/store';
+import { type BackstageDocument, 
+  flushDocuments,
+  loaded, setLoaded, 
+  documents, setDocuments, 
+  failed, setFailed } from './documents-store';
 
 import { devBypass, devFailLoads } from './dev-access';
+import * as auth from '~/lib/auth';
 
 export const ACCESS_PRIVATE = 0;
 export const ACCESS_PUBLIC = 1;
@@ -21,38 +25,6 @@ export const ACCESS_PUBLIC = 1;
 export const STATUS_ACTIVE = 0;
 export const STATUS_DELETED = 1;
 
-export interface DocumentVersion {
-  version: number;
-  modified: number;
-}
-
-export interface BackstageDocument {
-
-  // ---- fields that mirror DocumentsRow ----
-  id: number;
-  userid: number;
-
-  /**
-   * the document name, with its own casing. optional in practice: the old UI
-   * asked for a name and a slug separately, and almost nobody filled in the
-   * name, so most existing documents have none and the slug carries.
-   */
-  name: string;
-
-  /** the full slug path, e.g. /finance/portfolio-var. this is the identity. */
-  path: string;
-
-  status: number;
-  access: number;
-  created: number;
-  modified: number;
-  version: number;
-
-  // ---- redesign additions ----
-  starred: boolean;
-  versions: DocumentVersion[];
-
-}
 
 export const MINUTE = 60 * 1000;
 export const HOUR = 60 * MINUTE;
@@ -70,34 +42,7 @@ export const RECENT_WINDOW = 14 * DAY;
 /** documents keep at most this many versions (soft cap, matches the service) */
 export const VERSION_CAP = 7;
 
-/* ------------------------------------------------------------------ */
-/* the store                                                           */
-/* ------------------------------------------------------------------ */
 
-/**
- * the documents, module-level so they're loaded once rather than once per visit
- * to the page. the page reads them directly and writes through setDocuments --
- * star, access, rename and delete all land here.
- */
-const [documents, setDocuments] = createStore<BackstageDocument[]>([]);
-
-/**
- * whether the store has been filled. a flag rather than a length check, because
- * an account with no documents is a real state: [] means loaded and empty, not
- * "not loaded yet", and treating the two alike would refetch forever.
- */
-const [loaded, setLoaded] = createSignal(false);
-
-/**
- * whether the last attempt to fill the store failed.
- *
- * an empty list and a failed fetch both leave the store empty, and they mean
- * opposite things -- "you have no documents" versus "we couldn't ask" -- so the
- * page has to be able to tell them apart. deliberately a flag and not the error
- * itself: nothing downstream is ready to say anything specific about the cause,
- * and half-reporting one is worse than reporting none.
- */
-const [failed, setFailed] = createSignal(false);
 
 export { documents, setDocuments, loaded, failed };
 
@@ -135,13 +80,6 @@ export function loadDocuments(): Promise<void> {
 
 }
 
-/** empty the store and mark it unloaded; the next load fetches again */
-export function flushDocuments(): void {
-  setDocuments([]);
-  setLoaded(false);
-  setFailed(false);
-}
-
 /** throw the rows away and fetch them again */
 export function refreshDocuments(): Promise<void> {
   flushDocuments();
@@ -166,12 +104,18 @@ async function source(): Promise<BackstageDocument[]> {
 
   if (import.meta.env.DEV && devBypass()) { return sample(); }
 
-  // TODO: live data. ListDocuments() in ~/docs/documents returns DocumentsRow[],
-  // which carries neither `starred` nor a version list -- both need somewhere to
-  // come from before this branch can be written. until then the canned set
-  // stands in, so the signed-in page still has something to draw.
-  return sample();
+  const result = await auth.AccessResource('/api/list-documents');
+  if (result.ok) {
+    const json = await result.json();
+    // dev
+    console.info({list: json.list});
 
+    return (json.list || []);
+  }
+  else {
+    throw new Error('loading documents failed');
+  }
+  
 }
 
 /**

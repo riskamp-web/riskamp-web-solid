@@ -7,9 +7,16 @@ nothing there touches the document service. **Sign in is wired**: it posts to
 
 ## Containment
 
-**Every change stays inside `src/routes/(backstage)/`.** Several design passes are
-expected, and containment keeps the blast radius small and the redesign reversible.
-That means, on purpose:
+**The pages live in `src/routes/(backstage)/`; the code and data they run on live in
+`src/backstage/`.** Several design passes are expected, and keeping the redesign to those
+two directories keeps the blast radius small and the whole thing reversible.
+
+The split exists because the data outlives the page. The document store is module-level, so
+it survives leaving `/documents` — which means signing out has to be *able* to empty it, and
+`sign-out.tsx` can't sensibly reach into another route's folder for that. Anything that
+isn't markup, styling or route-shaped belongs in `src/backstage/`.
+
+Within that, on purpose:
 
 - theme tokens are declared locally (scoped to `.page` in `backstage.module.css`)
   rather than added to `src/app.css`
@@ -29,20 +36,28 @@ be shared by every backstage page can't live inside any one of them. See below.
 
 ## Files
 
+The pages, in `src/routes/(backstage)/`:
+
 | file | what it holds |
 | --- | --- |
 | `documents.tsx` | the documents page |
 | `documents.module.css` | the table, the version list, the rename field |
 | `sign-in.tsx` | the sign-in page |
 | `sign-in.module.css` | the page tint, title block, password reveal, links row |
+| `sign-out.tsx` | logs out and leaves |
 | `backstage.module.css` | shared shell: theme tokens, rail/content/panel, control and form primitives. The consolidation point for the next backstage page |
 | `backstage-icons.tsx` | the few glyphs the app icon set has no name for |
+
+What they run on, in `src/backstage/`:
+
+| file | what it holds |
+| --- | --- |
 | `documents-data.ts` | the row shape, the document store and its loader, and the path/folder/format/sort helpers |
 | `documents-sample.ts` | the canned document set, and nothing else |
 | `dev-access.ts` | `requireAuth()` — the guard declaration plus its dev-only bypass |
 
-`(backstage)` is a pathless route group, so the files serve `/documents` and `/sign-in` —
-the latter is the path the toolbar's signed-out link already points at.
+`(backstage)` is a pathless route group, so the pages serve `/documents`, `/sign-in` and
+`/sign-out` — the second is the path the toolbar's signed-out link already points at.
 
 ## The route guard
 
@@ -191,9 +206,14 @@ Settled with the user across several passes. The reasoning matters more than the
 
 ## The document store
 
-The rows live in a module-level Solid store in `documents-data.ts`, not in the page, so
-they're fetched once rather than once per visit — leave `/documents` and come back and the
-list (including anything you starred or renamed) is still there.
+The rows live in a module-level Solid store in `~/backstage/documents-data`, not in the
+page, so they're fetched once rather than once per visit — leave `/documents` and come back
+and the list (including anything you starred or renamed) is still there.
+
+That lifetime is why the store sits outside the route folder: signing out needs to be able
+to call `flushDocuments()`, since otherwise the next person to sign in on this browser would
+see the last one's documents until something refetched. **`sign-out.tsx` doesn't call it
+yet** — the store is only reachable from there, not yet wired.
 
 ```ts
 documents            // the store: read it, and write through setDocuments

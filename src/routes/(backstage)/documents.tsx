@@ -16,7 +16,7 @@ import { A } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
 
-import { requireAuth } from './dev-access';
+import { requireAuth } from '~/backstage/dev-access';
 
 import { IconName, icons } from '~/components/icon-sets';
 
@@ -33,7 +33,7 @@ import {
   displayName, documentUrl, documents, failed, findPathCollision, flattenFolders, folderOf,
   folderTree, formatAbsolute, formatRelative, formatStamp, isUnnamed, loadDocuments, loaded,
   pathFor, refreshDocuments, setDocuments, sortDocuments,
-} from './documents-data';
+} from '~/backstage/documents-data';
 
 type Scope = 'all' | 'starred' | 'recent' | 'private';
 
