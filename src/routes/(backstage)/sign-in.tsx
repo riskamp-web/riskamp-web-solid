@@ -1,13 +1,14 @@
 /**
  * sign in -- backstage redesign.
  *
- * UI/UX only: nothing here touches ~/lib/auth. submitting runs against a canned
- * credential (below) after a fake delay, so the pending, failed and successful
- * states are all reachable; success just routes to /documents.
+ * this one is wired: it posts to /api/login through ~/lib/auth. Login stores the
+ * token and populates the session as a side effect of the request, so all this
+ * page does with a success is route onward.
  *
  * the methods on the page are the ones the backend actually has -- username or
  * email plus password. no SSO buttons, because there are no SSO providers to
- * wire them to.
+ * wire them to, and remember me is hidden because Login accepts the flag but
+ * doesn't send it yet (see .remember-row).
  *
  * i18n: strings are hardcoded english for now, per the containment rule in
  * README.md. ('sign-in.page.title' is an existing key, so the toolbar title is
@@ -18,21 +19,15 @@ import { Show, createSignal, onCleanup, onMount } from 'solid-js';
 import { A, useNavigate } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
+import * as auth from '~/lib/auth';
 
 import bs from './backstage.module.css';
 import style from './sign-in.module.css';
 
 import { Eye, EyeOff } from './backstage-icons';
 
-/* the one account this page accepts. printed under the form on purpose: a demo
-   you have to guess the password for isn't a demo. it takes either identifier
-   so the "username or email" field is more than a label. */
-const DEMO_USERNAME = 'duncan';
-const DEMO_EMAIL = 'duncan@riskamp.com';
-const DEMO_PASSWORD = 'riskamp';
-
-/** long enough that the pending state reads as a state, short enough to sit through */
-const FAKE_REQUEST_MS = 700;
+/** where a successful sign-in lands */
+const DESTINATION = '/';
 
 export default function SignIn() {
 
@@ -56,10 +51,13 @@ export default function SignIn() {
 
   let username_input: HTMLInputElement | undefined;
   let password_input: HTMLInputElement | undefined;
-  let timer: number | undefined;
+
+  /* the request outlives the page if you navigate away mid-flight; nothing
+     should write state back into a disposed component */
+  let live = true;
 
   onMount(() => queueMicrotask(() => username_input?.focus()));
-  onCleanup(() => { if (timer) { window.clearTimeout(timer); } });
+  onCleanup(() => { live = false; });
 
   /** editing anything invalidates the last verdict, field-level or form-level */
   const clearErrors = () => {
@@ -68,7 +66,7 @@ export default function SignIn() {
     setPasswordError(undefined);
   };
 
-  const submit = () => {
+  const submit = async () => {
 
     const name = username().trim();
     const secret = password();
@@ -86,27 +84,41 @@ export default function SignIn() {
 
     setPending(true);
 
-    timer = window.setTimeout(() => {
+    /* Login resolves false for a rejected credential and throws if the request
+       never completed -- those are different problems and shouldn't read the
+       same. the flag is passed through even though Login doesn't send it yet,
+       so this doesn't need revisiting when it does. */
+    let accepted = false;
+    let reached = true;
 
-      timer = undefined;
-      setPending(false);
+    try {
+      accepted = await auth.Login(name, secret, remember());
+    }
+    catch {
+      reached = false;
+    }
 
-      const identified = name.toLowerCase() === DEMO_USERNAME || name.toLowerCase() === DEMO_EMAIL;
+    if (!live) { return; }
 
-      if (identified && secret === DEMO_PASSWORD) {
-        // routing only -- no session is established, since nothing is wired yet
-        navigate('/documents');
-        return;
-      }
+    setPending(false);
 
-      // which half was wrong isn't disclosed; keep the identifier, since
-      // retyping it is friction and it's the half you're least likely to
-      // have got wrong
-      setFormError('Incorrect username or password.');
-      setPassword('');
-      password_input?.focus();
+    // the token arrives as a response header and is stored on the way through,
+    // so a session that didn't materialise means the sign-in didn't finish
+    if (accepted && auth.loggedIn()) {
+      navigate(DESTINATION);
+      return;
+    }
 
-    }, FAKE_REQUEST_MS);
+    setFormError(
+      !reached ? 'Can’t reach the server. Check your connection and try again.'
+        : accepted ? 'Sign-in didn’t complete. Try again.'
+          // which half was wrong isn't disclosed
+          : 'Incorrect username or password.');
+
+    // keep the identifier -- retyping it is friction, and it's the half you're
+    // least likely to have got wrong
+    setPassword('');
+    password_input?.focus();
 
   };
 
@@ -134,7 +146,7 @@ export default function SignIn() {
           <div class={style.subtitle}>Enter your username and password to sign in.</div>
         </div>
 
-        <form class={style.form} novalidate onsubmit={(event) => { event.preventDefault(); submit(); }}>
+        <form class={style.form} novalidate onsubmit={(event) => { event.preventDefault(); void submit(); }}>
 
           <Show when={formError()}>
             <div class={bs['form-error']} role='alert'>{formError()}</div>
@@ -227,12 +239,6 @@ export default function SignIn() {
           <A class={bs.link} href='/forgot-password'>Forgot password</A>
           <span class={style['links-separator']}>·</span>
           <A class={bs.link} href='/create-account'>Create account</A>
-        </div>
-
-        <div class={style['demo-note']}>
-          Design pass — nothing is wired up. Sign in with <code>{DEMO_USERNAME}</code> or
-          {' '}<code>{DEMO_EMAIL}</code> and the password <code>{DEMO_PASSWORD}</code>;
-          anything else fails.
         </div>
 
       </div>

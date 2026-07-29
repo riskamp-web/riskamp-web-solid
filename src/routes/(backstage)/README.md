@@ -1,8 +1,9 @@
 # backstage redesign
 
 A from-scratch redesign of the backstage pages (documents, account, auth), starting
-with **documents** and then **sign in**. Everything here is UI/UX against canned data —
-nothing is wired to auth or the document service yet.
+with **documents** and then **sign in**. Documents is still UI/UX against canned data —
+nothing there touches the document service. **Sign in is wired**: it posts to
+`/api/login` through `~/lib/auth`.
 
 ## Containment
 
@@ -93,15 +94,24 @@ Settled with the user across several passes. The reasoning matters more than the
 - **Validation runs on submit, not by disabling the button.** A disabled submit doesn't
   say which field it's waiting on. Field messages carry `aria-invalid` and focus moves to
   the first offender; the form-level failure is a `role='alert'` banner above the fields.
+- **`auth.Login` does the work.** It posts to `/api/login`, and the token comes back as
+  an `Authorization` response header that `UpdateAuth` → `StoreToken` stores on the way
+  through — so the session is a side effect of the request and the page only has to route
+  onward. Success is `Login` resolving true *and* `loggedIn()` being set; true without a
+  session means the response carried no token, which is a different failure from a
+  rejected credential.
+- **A rejected credential and an unreachable server read differently.** `Login` resolves
+  false for the first and throws for the second, so the banner says "Incorrect username or
+  password" or "Can't reach the server" accordingly. Verified against the live API: a bad
+  credential returns 403 and lands on the first message.
 - **Failure keeps the identifier and clears the password**, and doesn't disclose which
   half was wrong.
 - **The pending state is a label swap** ("Signing in…") plus `aria-busy` and disabled
   controls. No spinner: it would be a new glyph and a new animation for something the
   label already says.
-- **The canned credential is printed under the form.** A demo you have to guess the
-  password for isn't a demo. `duncan` or `duncan@riskamp.com` with `riskamp` succeeds and
-  routes to `/documents` — routing only, no session is established. The note goes away
-  when this is wired up.
+- **Success lands on `/`** (`DESTINATION` in `sign-in.tsx`). There's no post-sign-in
+  redirect target yet — nothing links here with one — so it's a constant rather than a
+  `?redirect=` parameter that nothing sets.
 - The "Forgot password" and "Create account" links point at `/forgot-password` and
   `/create-account`, which **don't exist yet** — those pages are still in `archive/`
   awaiting their own pass, so the links 404 until then. Left as real links rather than
@@ -169,9 +179,16 @@ deliberate collision, and widths around 1400 / 760 / 500px for the container-que
 breakpoints. Star, access, rename and delete mutate the local store; duplicate and move
 are placeholders.
 
-Then `/sign-in`: submit empty (two field messages, focus on the first), a wrong password
-(pending label, then the banner, password cleared and focused), and the canned credential
-by both username and email (lands on `/documents`). Also the reveal toggle, the Caps Lock
-hint, keyboard-only tab order, and ~380px for the edge-to-edge card. Note that a synthetic
-`CapsLock` keypress doesn't set the modifier state in an automated browser — the hint has
-to be checked by hand, or by dispatching a `KeyboardEvent` with `modifierCapsLock: true`.
+Then `/sign-in`, which talks to the real `auth.riskamp.com`: submit empty (two field
+messages, focus on the first), a bad credential (pending label, then the banner, password
+cleared and focused), and a real one (lands on `/`, with the token in `localStorage.auth`). Also the reveal toggle, the Caps Lock hint, keyboard-only tab order,
+and ~380px for the edge-to-edge card.
+
+Two states are awkward to reach by hand, and both can be driven by swapping `window.fetch`
+in the console: rejecting the promise exercises the unreachable-server banner, and
+resolving a `Response` with an `Authorization: Bearer <jwt>` header exercises the success
+path without a credential — `decodeJwt` doesn't verify, so a hand-built token with a
+future `exp` and a `username` is enough. Clear `localStorage.auth` afterwards. Likewise a
+synthetic `CapsLock` keypress doesn't set the modifier state in an automated browser; the
+hint has to be checked by hand or by dispatching a `KeyboardEvent` with
+`modifierCapsLock: true`.

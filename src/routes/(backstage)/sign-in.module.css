@@ -2,7 +2,7 @@
  * sign in -- backstage redesign.
  *
  * only what's specific to this page lives here: the page tint, the title block,
- * the password reveal, the links row and the demo note. the card, the fields,
+ * the password reveal and the links row. the card, the fields,
  * the inputs and the buttons are shared primitives in backstage.module.css,
  * because create-account / forgot-password / account all want the same ones.
  *
@@ -93,19 +93,4 @@
 
 .links-separator {
   color: var(--bs-text-faint);
-}
-
-/* the canned credential is printed rather than hidden: a demo you have to
-   guess the password for isn't a demo. goes away when this is wired up. */
-.demo-note {
-  margin-top: 20px;
-  padding-top: 14px;
-  border-top: 1px solid var(--bs-border);
-  color: var(--bs-text-muted);
-  line-height: 1.5;
-
-  & code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    color: var(--bs-text);
-  }
 }
