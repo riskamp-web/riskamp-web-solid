@@ -22,20 +22,60 @@ That means, on purpose:
 Promoting any of those out of here is deliberate later work, not cleanup to do in
 passing.
 
+The one deliberate exception so far is the **route guard**, which by request lives in
+`src/routes/(backstage).tsx` and `src/components/layout-context.tsx` — a check that has to
+be shared by every backstage page can't live inside any one of them. See below.
+
 ## Files
 
 | file | what it holds |
 | --- | --- |
 | `documents.tsx` | the documents page |
 | `documents.module.css` | the table, the version list, the rename field |
-| `sign-in.tsx` | the sign-in page, including the canned credential |
-| `sign-in.module.css` | the page tint, title block, password reveal, links row, demo note |
+| `sign-in.tsx` | the sign-in page |
+| `sign-in.module.css` | the page tint, title block, password reveal, links row |
 | `backstage.module.css` | shared shell: theme tokens, rail/content/panel, control and form primitives. The consolidation point for the next backstage page |
 | `backstage-icons.tsx` | local inline SVG icons |
 | `documents-data.ts` | canned documents plus the path/folder/format/sort helpers |
 
 `(backstage)` is a pathless route group, so the files serve `/documents` and `/sign-in` —
 the latter is the path the toolbar's signed-out link already points at.
+
+## The route guard
+
+Backstage pages come in two kinds: some need a session (documents), some only make sense
+without one (sign in, and later forgot password / create account). A page says which it is
+during render, next to its title:
+
+```tsx
+const { setTitle, setRequires } = useLayoutContext();
+setTitle('documents-page.title');
+setRequires('signed-in');        // or 'signed-out'
+```
+
+`src/routes/(backstage).tsx` turns that plus `loggedIn()` into a redirect — `/sign-in` for
+a page that needs a session, `/` for one that needs none — and gates `props.children`
+behind it, so a blocked page never renders. A page that declares nothing renders either
+way. `<Navigate>` replaces rather than pushes, so Back doesn't return to the blocked page
+and bounce again.
+
+Three things worth knowing before touching it:
+
+- **The declaration is keyed by the path that made it**, in `layout-context.tsx`, and
+  pages deliberately don't clear it on cleanup the way they clear the title. A route
+  component can't pass props up to its layout, so the page pushes during render — but if
+  it also reset on unmount, the guard would disown the page, the cleanup would clear the
+  requirement, the guard would allow it again, and it would remount and re-declare,
+  forever. Keying to the path makes a stale declaration stop counting the moment the
+  location changes.
+- **The guard is live**, because `loggedIn()` is a signal. Losing the session while on
+  `/documents` bounces you out mid-visit, and signing in on `/sign-in` would land you on
+  `/` even if the page didn't navigate there itself. Both agree on `/`, so a successful
+  sign-in produces one history entry, not two.
+- **An expired-but-refreshable token reads as signed out**, on purpose. `GetInitialSession`
+  reports empty and kicks off a background re-auth; a `/documents` visit in that window
+  goes to `/sign-in` and then, once re-auth lands, to `/`. Refresh is a two-day path that
+  normally happens on `/`, so this is left to sort itself out.
 
 ## Design decisions
 
@@ -178,6 +218,13 @@ the canned store), zero-results search, multi-select, the slide-over, rename inc
 deliberate collision, and widths around 1400 / 760 / 500px for the container-query
 breakpoints. Star, access, rename and delete mutate the local store; duplicate and move
 are placeholders.
+
+The guard is worth exercising in all four combinations: signed out, `/documents` should
+land on `/sign-in` and `/sign-in` should render; signed in, `/sign-in` should land on `/`
+and `/documents` should render. `localStorage.removeItem('auth')` plus a reload is the
+signed-out state. Dropping the session mid-visit can be driven from the console — in dev,
+`import('/@fs/<repo>/src/lib/auth/index.ts')` resolves to the same module instance the app
+is using, so `ClearTokens()` from there bounces a live `/documents` to `/sign-in`.
 
 Then `/sign-in`, which talks to the real `auth.riskamp.com`: submit empty (two field
 messages, focus on the first), a bad credential (pending label, then the banner, password

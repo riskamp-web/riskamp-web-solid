@@ -119,9 +119,12 @@ function MenuItem(props: ParentProps<{ icon?: JSX.Element, danger?: boolean, onc
 
 export default function Documents() {
 
-  const { setTitle } = useLayoutContext();
+  const { setTitle, setRequires } = useLayoutContext();
   setTitle('documents-page.title');
   onCleanup(() => setTitle(undefined));
+
+  // the layout redirects to /sign-in without a session; see (backstage).tsx
+  setRequires('signed-in');
 
   // canned data, copied so the demo can mutate it
   const [docs, setDocs] = createStore<BackstageDocument[]>(DOCUMENTS.map(doc => ({ ...doc })));

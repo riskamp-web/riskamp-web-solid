@@ -31,9 +31,13 @@ const DESTINATION = '/';
 
 export default function SignIn() {
 
-  const { setTitle } = useLayoutContext();
+  const { setTitle, setRequires } = useLayoutContext();
   setTitle('sign-in.page.title');
   onCleanup(() => setTitle(undefined));
+
+  // no point signing in twice: the layout redirects to / with a session in hand,
+  // which is also what a successful sign-in here does. see (backstage).tsx
+  setRequires('signed-out');
 
   const navigate = useNavigate();
 
