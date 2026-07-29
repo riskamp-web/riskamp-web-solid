@@ -124,7 +124,7 @@ export default function Documents() {
   onCleanup(() => setTitle(undefined));
 
   // the layout redirects to /sign-in without a session; see (backstage).tsx
-  setRequires('signed-in');
+  // disabled temp // setRequires('signed-in');
 
   // canned data, copied so the demo can mutate it
   const [docs, setDocs] = createStore<BackstageDocument[]>(DOCUMENTS.map(doc => ({ ...doc })));
