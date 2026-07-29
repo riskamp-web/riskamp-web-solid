@@ -1,0 +1,103 @@
+/**
+ * sign in -- backstage redesign.
+ *
+ * only what's specific to this page lives here: the page tint, the title block,
+ * the password reveal, the links row and the demo note. the card, the fields,
+ * the inputs and the buttons are shared primitives in backstage.module.css,
+ * because create-account / forgot-password / account all want the same ones.
+ *
+ * two modules are in play in sign-in.tsx (`bs` and `style`) -- a class read from
+ * the wrong one resolves to undefined and renders nothing, silently.
+ */
+
+/* the card is the figure; tinting the page gives it a ground to sit on.
+   both values are existing tokens -- no new surface color.
+
+   the toolbar draws no bottom edge of its own, it relies on its background
+   being darker than the page. in light that tint and the toolbar are within a
+   few percent of each other and the boundary disappears, so the page carries
+   the hairline itself -- same border token the rail and the content header use. */
+.page-centered {
+  background: var(--bs-rail-background);
+  border-top: 1px solid var(--bs-border);
+}
+
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: var(--bs-text-muted);
+  line-height: 1.45;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* the reveal button sits over the input's right padding, so the input keeps
+   carrying its own border and the focus ring still wraps the whole box */
+.password-field {
+  position: relative;
+  display: flex;
+}
+
+.password-input {
+  padding-right: 34px;
+}
+
+.password-reveal {
+  position: absolute;
+  top: 50%;
+  right: 1px;
+  translate: 0 -50%;
+  width: 28px;
+  height: 28px;
+}
+
+.caps-hint {
+  color: var(--bs-text-muted);
+}
+
+.submit-row {
+  margin-top: 2px;
+}
+
+.links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.links-separator {
+  color: var(--bs-text-faint);
+}
+
+/* the canned credential is printed rather than hidden: a demo you have to
+   guess the password for isn't a demo. goes away when this is wired up. */
+.demo-note {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--bs-border);
+  color: var(--bs-text-muted);
+  line-height: 1.5;
+
+  & code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--bs-text);
+  }
+}

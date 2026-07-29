@@ -1,8 +1,8 @@
 # backstage redesign
 
 A from-scratch redesign of the backstage pages (documents, account, auth), starting
-with **documents**. Everything here is UI/UX against canned data — nothing is wired to
-auth or the document service yet.
+with **documents** and then **sign in**. Everything here is UI/UX against canned data —
+nothing is wired to auth or the document service yet.
 
 ## Containment
 
@@ -13,8 +13,8 @@ That means, on purpose:
 - theme tokens are declared locally (scoped to `.page` in `backstage.module.css`)
   rather than added to `src/app.css`
 - strings are hardcoded English; extracting them into `~/i18n` waits until the design
-  settles. `'documents-page.title'` is an existing key, so the toolbar title is already
-  localized
+  settles. `'documents-page.title'` and `'sign-in.page.title'` are existing keys, so the
+  toolbar titles are already localized
 - glyphs the app icon set lacks (star, folder, search, trash…) live in
   `backstage-icons.tsx` rather than being added to `~/components/icon-sets`
 
@@ -25,11 +25,16 @@ passing.
 
 | file | what it holds |
 | --- | --- |
-| `documents.tsx` | the page |
+| `documents.tsx` | the documents page |
 | `documents.module.css` | the table, the version list, the rename field |
-| `backstage.module.css` | shared shell: theme tokens, rail/content/panel, control primitives. The consolidation point for the next backstage page |
+| `sign-in.tsx` | the sign-in page, including the canned credential |
+| `sign-in.module.css` | the page tint, title block, password reveal, links row, demo note |
+| `backstage.module.css` | shared shell: theme tokens, rail/content/panel, control and form primitives. The consolidation point for the next backstage page |
 | `backstage-icons.tsx` | local inline SVG icons |
 | `documents-data.ts` | canned documents plus the path/folder/format/sort helpers |
+
+`(backstage)` is a pathless route group, so the files serve `/documents` and `/sign-in` —
+the latter is the path the toolbar's signed-out link already points at.
 
 ## Design decisions
 
@@ -55,6 +60,40 @@ Settled with the user across several passes. The reasoning matters more than the
 - **Rows have a hairline separator.** With seven columns, tracking one record across the
   table is otherwise hard work.
 - Minimal and subtle over loud and busy, generally.
+
+## Sign in
+
+- **The methods on the page are the ones the backend has.** `~/lib/auth` offers
+  username-or-email + password (`/api/login`), plus email-based account creation and
+  recovery. There are no SSO providers, so no "continue with…" buttons are drawn — a
+  button that can't be wired to anything is a promise the page can't keep.
+- **Centred card, no rail.** The page tints itself with `--bs-rail-background` so the
+  card has a ground to sit on; both values are existing tokens. Below 420px the card
+  drops its border and goes edge-to-edge — a card with a 20px gutter either side stops
+  being a card and starts being a frame.
+- **The page draws its own top hairline.** The toolbar has no bottom edge of its own — it
+  relies on being darker than the page, which works against white but not against the
+  light tint, where the two are within a few percent and the boundary vanishes. Since the
+  toolbar is outside the containment boundary, the fix is a `border-top` on the page, in
+  the same `--bs-border` the rail and content header use.
+- **Visible labels, not placeholder labels.** The i18n keys from the old page used
+  placeholders; a label that vanishes when you type isn't a label.
+- **Validation runs on submit, not by disabling the button.** A disabled submit doesn't
+  say which field it's waiting on. Field messages carry `aria-invalid` and focus moves to
+  the first offender; the form-level failure is a `role='alert'` banner above the fields.
+- **Failure keeps the identifier and clears the password**, and doesn't disclose which
+  half was wrong.
+- **The pending state is a label swap** ("Signing in…") plus `aria-busy` and disabled
+  controls. No spinner: it would be a new glyph and a new animation for something the
+  label already says.
+- **The canned credential is printed under the form.** A demo you have to guess the
+  password for isn't a demo. `duncan` or `duncan@riskamp.com` with `riskamp` succeeds and
+  routes to `/documents` — routing only, no session is established. The note goes away
+  when this is wired up.
+- The "Forgot password" and "Create account" links point at `/forgot-password` and
+  `/create-account`, which **don't exist yet** — those pages are still in `archive/`
+  awaiting their own pass, so the links 404 until then. Left as real links rather than
+  inert text so the page doesn't have to change when they land.
 
 ## Data model
 
@@ -117,3 +156,10 @@ the canned store), zero-results search, multi-select, the slide-over, rename inc
 deliberate collision, and widths around 1400 / 760 / 500px for the container-query
 breakpoints. Star, access, rename and delete mutate the local store; duplicate and move
 are placeholders.
+
+Then `/sign-in`: submit empty (two field messages, focus on the first), a wrong password
+(pending label, then the banner, password cleared and focused), and the canned credential
+by both username and email (lands on `/documents`). Also the reveal toggle, the Caps Lock
+hint, keyboard-only tab order, and ~380px for the edge-to-edge card. Note that a synthetic
+`CapsLock` keypress doesn't set the modifier state in an automated browser — the hint has
+to be checked by hand, or by dispatching a `KeyboardEvent` with `modifierCapsLock: true`.

@@ -130,3 +130,22 @@ export function Sheet(props: IconProps) {
 export function Check(props: IconProps) {
   return svg(props, <path d='M5.5 12.5l4 4 9-9' />);
 }
+
+/* eye / eye-off are a pair: the password reveal toggle draws one in each state,
+   so neither can be text-only without the other reading as inconsistent */
+
+export function Eye(props: IconProps) {
+  return svg(props, <>
+    <path d='M3 12s3.4-5.5 9-5.5S21 12 21 12s-3.4 5.5-9 5.5S3 12 3 12z' />
+    <circle cx='12' cy='12' r='2.6' />
+  </>);
+}
+
+export function EyeOff(props: IconProps) {
+  return svg(props, <>
+    <path d='M9.9 6.7A9.7 9.7 0 0112 6.5c5.6 0 9 5.5 9 5.5a16 16 0 01-3.2 3.8' />
+    <path d='M6.3 8.2A15.9 15.9 0 003 12s3.4 5.5 9 5.5a9.9 9.9 0 004-.8' />
+    <path d='M10.2 10.2a2.6 2.6 0 003.6 3.6' />
+    <path d='M4.5 4.5l15 15' />
+  </>);
+}
