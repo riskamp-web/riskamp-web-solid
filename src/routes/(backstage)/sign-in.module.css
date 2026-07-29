@@ -1,50 +1,17 @@
 /**
  * sign in -- backstage redesign.
  *
- * only what's specific to this page lives here: the page tint, the title block,
- * the password reveal and the links row. the card, the fields,
- * the inputs and the buttons are shared primitives in backstage.module.css,
- * because create-account / forgot-password / account all want the same ones.
+ * what's left here is only what no other page wants: the password reveal, the
+ * caps lock hint and the hidden remember row.
+ *
+ * the page tint, the card, the title block, the form stack, the fields, the
+ * inputs, the buttons and the links row are all shared primitives in
+ * backstage.module.css -- create account uses every one of them, which is what
+ * moved them there.
  *
  * two modules are in play in sign-in.tsx (`bs` and `style`) -- a class read from
  * the wrong one resolves to undefined and renders nothing, silently.
  */
-
-/* the card is the figure; tinting the page gives it a ground to sit on.
-   both values are existing tokens -- no new surface color.
-
-   the toolbar draws no bottom edge of its own, it relies on its background
-   being darker than the page. in light that tint and the toolbar are within a
-   few percent of each other and the boundary disappears, so the page carries
-   the hairline itself -- same border token the rail and the content header use. */
-.page-centered {
-  background: var(--bs-rail-background);
-  border-top: 1px solid var(--bs-border);
-}
-
-.title-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 20px;
-}
-
-.title {
-  margin: 0;
-  font-size: 17px;
-  font-weight: 600;
-}
-
-.subtitle {
-  color: var(--bs-text-muted);
-  line-height: 1.45;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
 
 /* the reveal button sits over the input's right padding, so the input keeps
    carrying its own border and the focus ring still wraps the whole box */
@@ -80,17 +47,4 @@
 
 .submit-row {
   margin-top: 2px;
-}
-
-.links {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 18px;
-}
-
-.links-separator {
-  color: var(--bs-text-faint);
 }

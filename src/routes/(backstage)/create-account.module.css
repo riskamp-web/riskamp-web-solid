@@ -1,0 +1,85 @@
+/**
+ * create account -- backstage redesign.
+ *
+ * small, because almost everything this page draws is already a shared
+ * primitive in backstage.module.css: the page tint, the card, the title block,
+ * the form stack, the fields, the inputs, the button and the links row. what's
+ * left here is the handle preview, the two notes under the button, and the
+ * confirmation the card swaps to.
+ *
+ * two modules are in play in create-account.tsx (`bs` and `style`) -- a class
+ * read from the wrong one resolves to undefined and renders nothing, silently.
+ */
+
+/* the live @handle preview under the username field.
+ *
+ * monospace because the documents page already uses it to mark "this is an
+ * address, not a name", which is exactly what this is -- an existing convention
+ * rather than a new one. 13px, not the 12px documents uses for its unnamed
+ * slugs: that's an undocumented exception to the 13px floor and a second one
+ * would be worse than obeying the rule.
+ *
+ * it shares its slot with the field's error message rather than sitting beside
+ * it -- see the <Show> in the page. */
+.handle-preview {
+  color: var(--bs-text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* what happens next, and the terms line. under the button, because "and then
+   what?" is asked at the point of pressing it -- and the first of these is what
+   explains the absent password field. */
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--bs-text-muted);
+  line-height: 1.45;
+}
+
+/* the card swaps to this on success. */
+.sent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 4px;
+  text-align: center;
+
+  & > .sent-detail {
+    max-width: 34ch;
+    color: var(--bs-text-muted);
+    line-height: 1.5;
+  }
+
+  & > .sent-restart {
+    margin-top: 8px;
+  }
+}
+
+/* the mark the confirmation leads with, at 34px -- the same size and role as
+   the one an empty state leads with. in the accent, since the alternatives are
+   inventing a green or drawing it in body text.
+ *
+ * it carries its own local class rather than being reached as `.sent > .icon`:
+ * .icon is declared in backstage.module.css, so writing it here compiles to a
+ * class no element has and matches nothing, silently. same reason the sort
+ * caret in documents.module.css has a local class. */
+.sent-icon {
+  width: 34px;
+  height: 34px;
+  color: var(--bs-accent);
+  margin-bottom: 4px;
+}
+
+/* the address the link went to, inside the sentence. not bold -- emphasising it
+   inline would mean splitting the string around its placeholder into three
+   pieces of jsx, which is the concatenation format() exists to avoid. */
+.sent-email {
+  color: var(--bs-text);
+  font-weight: 500;
+}

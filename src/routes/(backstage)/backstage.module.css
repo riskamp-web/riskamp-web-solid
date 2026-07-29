@@ -389,9 +389,21 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* forms -- single-column card pages (sign in, and later create account,  */
-/* forgot password, the account form)                                     */
+/* forms -- single-column card pages (sign in, create account, and later  */
+/* forgot password and the account form)                                  */
 /* ------------------------------------------------------------------ */
+
+/* the card is the figure; tinting the page gives it a ground to sit on.
+   both values are existing tokens -- no new surface color.
+
+   the toolbar draws no bottom edge of its own, it relies on its background
+   being darker than the page. in light that tint and the toolbar are within a
+   few percent of each other and the boundary disappears, so the page carries
+   the hairline itself -- same border token the rail and the content header use. */
+.page-centered {
+  background: var(--bs-rail-background);
+  border-top: 1px solid var(--bs-border);
+}
 
 /* the whole content area is one scrolling column.
  *
@@ -455,6 +467,32 @@
   .card {
     translate: 0 -16.667%;
   }
+}
+
+/* heading + one line of explanation, at the top of a card */
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: var(--bs-text-muted);
+  line-height: 1.45;
+}
+
+/* the stack of .field blocks inside a card */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 /* stacked label + control + message. distinct from .field-row, which is the
@@ -535,6 +573,20 @@
   &:hover {
     text-decoration: underline;
   }
+}
+
+/* the row of links under a card -- the other places you might have meant to go */
+.links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.links-separator {
+  color: var(--bs-text-faint);
 }
 
 /* ------------------------------------------------------------------ */

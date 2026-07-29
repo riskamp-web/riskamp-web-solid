@@ -147,17 +147,17 @@ export default function SignIn() {
     }
   };
 
-  return <div class={`${bs.page} ${style['page-centered']}`}>
+  return <div class={`${bs.page} ${bs['page-centered']}`}>
 
     <div class={bs.centered}>
       <div class={bs.card}>
 
-        <div class={style['title-block']}>
-          <h1 class={style.title}>{t('sign-in-page.heading')}</h1>
-          <div class={style.subtitle}>{t('sign-in-page.subtitle')}</div>
+        <div class={bs['title-block']}>
+          <h1 class={bs.title}>{t('sign-in-page.heading')}</h1>
+          <div class={bs.subtitle}>{t('sign-in-page.subtitle')}</div>
         </div>
 
-        <form class={style.form} novalidate onsubmit={(event) => { event.preventDefault(); void submit(); }}>
+        <form class={bs.form} novalidate onsubmit={(event) => { event.preventDefault(); void submit(); }}>
 
           <Show when={formError()}>
             <div class={bs['form-error']} role='alert'>{t(formError())}</div>
@@ -246,10 +246,10 @@ export default function SignIn() {
 
         </form>
 
-        <div class={style.links}>
+        <div class={bs.links}>
           <A class={bs.link} href='/forgot-password'>{t('sign-in-page.link.forgot-password')}</A>
           {/* the dot is a separator, not a word -- it stays out of the strings */}
-          <span class={style['links-separator']}>·</span>
+          <span class={bs['links-separator']}>·</span>
           <A class={bs.link} href='/create-account'>{t('sign-in-page.link.create-account')}</A>
         </div>
 

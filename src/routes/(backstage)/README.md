@@ -1,9 +1,9 @@
 # backstage redesign
 
 A from-scratch redesign of the backstage pages (documents, account, auth), starting
-with **documents** and then **sign in**. Documents is still UI/UX against canned data —
-nothing there touches the document service. **Sign in is wired**: it posts to
-`/api/login` through `~/lib/auth`.
+with **documents**, then **sign in**, then **create account**. Documents and create account
+are still UI/UX against canned data — nothing in either touches a service. **Sign in is
+wired**: it posts to `/api/login` through `~/lib/auth`.
 
 ## Containment
 
@@ -44,9 +44,11 @@ The pages, in `src/routes/(backstage)/`:
 | `documents.tsx` | the documents page |
 | `documents.module.css` | the table and the version list |
 | `sign-in.tsx` | the sign-in page |
-| `sign-in.module.css` | the page tint, title block, password reveal, links row |
+| `sign-in.module.css` | the password reveal, the caps lock hint, the hidden remember row |
+| `create-account.tsx` | the create-account page |
+| `create-account.module.css` | the handle preview, the notes under the button, the confirmation |
 | `sign-out.tsx` | logs out and leaves |
-| `backstage.module.css` | shared shell: theme tokens, rail/content/panel, control and form primitives. The consolidation point for the next backstage page |
+| `backstage.module.css` | shared shell: theme tokens, rail/content/panel, control and form primitives, and the whole single-column card page. The consolidation point for the next backstage page |
 | `backstage-icons.tsx` | the few glyphs the app icon set has no name for |
 
 What they run on, in `src/backstage/`:
@@ -57,6 +59,7 @@ What they run on, in `src/backstage/`:
 | `documents-data.ts` | the loaders, the path/folder/name/format/sort helpers, and the saved view |
 | `documents-sample.ts` | the canned document set and its canned history |
 | `documents-sample2.ts` | a dump of **real** rows from the live account, for reference — not wired to anything |
+| `create-account-mock.ts` | the sign-up validators, the `Message` type, and a stand-in for the server |
 | `dev-access.ts` | `requireAuth()` — the guard declaration plus its dev-only bypasses |
 
 `documents-store.ts` holds the state and `documents-data.ts` holds the behaviour, so the
@@ -227,10 +230,94 @@ Settled with the user across several passes. The reasoning matters more than the
 - **Success lands on `/`** (`DESTINATION` in `sign-in.tsx`). There's no post-sign-in
   redirect target yet — nothing links here with one — so it's a constant rather than a
   `?redirect=` parameter that nothing sets.
-- The "Forgot password" and "Create account" links point at `/forgot-password` and
-  `/create-account`, which **don't exist yet** — those pages are still in `archive/`
-  awaiting their own pass, so the links 404 until then. Left as real links rather than
-  inert text so the page doesn't have to change when they land.
+- "Create account" now resolves; "Forgot password" points at `/forgot-password`, which
+  **doesn't exist yet** — that page is still in `archive/` awaiting its own pass, so the
+  link 404s until then. Left as a real link rather than inert text so the page doesn't
+  have to change when it lands.
+
+## Create account
+
+**This page is a mock.** It talks to `~/backstage/create-account-mock`, not to the backend —
+documents was built the same way round and for the same reason: the UI/UX is the deliverable
+and the wiring lands once the design has settled.
+
+- **It collects an email address and a username, and no password.** The account is created,
+  a confirmation link is mailed, and the password is chosen from that link. That's the flow
+  the backend already has — `auth.CreateAccount({username, email})` takes exactly these two
+  fields — and it's why the last thing above the button is the sentence saying where the
+  password went. A page that silently omits a password field looks broken.
+- **The subtitle is the explanation, not a restatement of the labels.** Asking for a
+  username *as well as* an email address is the unusual thing here, and the reason is that
+  the username isn't only a login: it's the first segment of every document address the
+  account owns. The old page explained this and it was worth keeping.
+- **The client rules are a courtesy; the server is the authority.** The page validates on
+  submit to save a round trip, but the mock server runs its own checks and is allowed to
+  reject something the page accepted. `RESERVED` in the mock exists specifically to produce
+  a verdict the client could not have predicted — otherwise that state would be discovered
+  only once the real endpoint was wired up.
+- **The username rule is `^[a-z][a-z0-9_-]*$`, 5–30 characters.** The floor is the one rule
+  that already existed in the codebase: `CheckAvailability` in `~/lib/auth` refuses to even
+  ask the server below five. The character class and the lowercasing are because the name
+  becomes the owner segment of a document path — `@dwerner/gort/horn` — which `documentUrl()`
+  drops into a URL with no encoding step anywhere, so it has to be URL-safe without escaping
+  and case-stable, or `@Duncan` and `@duncan` are two addresses for one account. **The
+  30-character ceiling is invented** — no backend number is known for it.
+- **Length and characters get separate messages.** Length is the rule people hit by
+  accident, and "usernames are at least 5 characters" is actionable without reading a clause
+  about character classes. The bounds are spliced in from the constants with `format()`, so
+  the message can't drift from the code enforcing it.
+- **The email rule is deliberately loose** — one `@`, a dotted domain, no whitespace. A false
+  rejection here is unrecoverable (there's no "no, really, send it"), where a false accept
+  costs one bounced email that a confirm-by-link flow already absorbs. An RFC-shaped regex
+  reliably rejects plus-tags, apostrophes and new TLDs, which is the worse trade.
+- **Errors are `Message`s, not keys.** Sign-in holds a bare `keyof I18N` so nothing is
+  translated until it's drawn; this page needs the same *plus* the values some messages
+  quote, and it captures them when the verdict is reached rather than reading them back at
+  the render site — the field they came from may have been edited since, and "@foo is already
+  taken" should keep saying foo. `messageText()` resolves one, and returns `''` for
+  `undefined`, so the `<Show>` guards read the same as sign-in's.
+- **A field's format error and its collision error share one slot.** They're alternatives,
+  not additions — a field can only be wrong one way at a time, and the collision check is
+  only reached once the format check passed.
+- **Editing a field clears only that field's message**, plus the banner. This diverges from
+  sign-in on purpose: there the two messages are one verdict about one credential pair, but
+  here the fields fail independently and **failing both at once is a designed state**, so
+  wiping the untouched field's message while you fix the other would hide something still
+  true and you'd rediscover it on the next submit.
+- **The banner is only for failures that aren't about either field** — the unreachable
+  server, and a rejection the server didn't attribute. All four of the error conditions this
+  page was built for attach to a field; a banner repeating "check the fields below" is noise
+  that pushes the fields down.
+- **The canned collisions** are `dwerner`, `duncan`, `riskamp`, `testuser`;
+  `dwerner@riskamp.com` and `taken@example.com`; and the reserved set is `admin`, `root`,
+  `system`, `support`, `help`, `about`, `documents`, `sign-in`. Usernames and emails are two
+  independent sets rather than account records — that's what makes the both-at-once state
+  reachable at all, and `dwerner` + `dwerner@riskamp.com` gets you there in one submission.
+- **Success swaps the card, not the page.** The links row stays rendered in both states —
+  both are still exactly the right onward moves once the mail has been sent, and keeping them
+  means the card doesn't lose its footing when it changes. The confirmation names the address
+  and takes focus (`tabindex='-1'` plus a `queueMicrotask`): the form it was submitted from
+  has just left the DOM, so focus would otherwise fall to `<body>` and a screen reader would
+  announce nothing at all.
+- **"Use a different address" keeps both fields.** The signals outlive the swap, so a typo in
+  the address isn't a dead end. It's a bordered button rather than a quiet one — borderless,
+  it sits directly above the links row and reads as a third link.
+- **The `@username/example` preview shares the username field's message slot.** They answer
+  the same question — what your handle will be, or why it can't be — the message is the more
+  urgent, and one slot means the card doesn't jump as errors come and go. Empty, it shows the
+  old page's literal `@username/example`; the moment you type, it's yours. It's monospace
+  because the documents page already uses monospace to mark "this is an address, not a name",
+  which is exactly what this is.
+- **`splice()` in the page puts an element into a translated string** at its `{placeholder}`.
+  `format()` splices values, which is enough when the value is words; it isn't for the terms
+  link or the emphasised address, and the alternative is breaking the sentence into two keys
+  and concatenating around the element — which is exactly what a translation can't reorder.
+- The terms link points at `/terms-of-service`, which **doesn't exist yet**, the same call
+  sign-in made for its two links.
+- **Nothing here is wired.** `createAccountMock()` never throws, so the unreachable banner is
+  reached by throwing from it for a moment — no dev flag was added to `dev-access.ts` for a
+  mock page. Swapping in the real call means replacing that one function body, but see the
+  open question below: the endpoints as they stand can't report *which* field collided.
 
 ## The document store
 
@@ -283,18 +370,23 @@ calls `refreshDocuments()`.
 
 ## Strings
 
-Both pages are extracted, one block each at the end of `src/i18n/lang/en.ts` behind a
-comment carrying the conventions: `documents-page.*` and `sign-in-page.*`. That includes
-the `aria-label`s and the `sr-only` text — these pages are the only place in the app that
-has any, and they're read aloud, so they're as user-facing as the visible copy.
-`documents-data.ts`'s date words come from the documents block.
+All three pages are extracted, one block each at the end of `src/i18n/lang/en.ts` behind a
+comment carrying the conventions: `documents-page.*`, `sign-in-page.*` and
+`create-account-page.*`. That includes the `aria-label`s and the `sr-only` text — these pages
+are the only place in the app that has any, and they're read aloud, so they're as user-facing
+as the visible copy. `documents-data.ts`'s date words come from the documents block, and
+`create-account-mock.ts`'s verdicts are keys from the create-account one.
 
 **The old pages' keys are still in `en.ts` and are not what these use.**
 `documents-table.*`, `sign-in.form.*` and `auth.link.*` belong to the pages in `archive/`
-and go when those do. Two of the old keys are live and stay: `documents-page.title` and
-`sign-in.page.title`, both toolbar titles set through `setTitle`. The sign-in *page* has
-its own heading key — same words, different job, and the toolbar's version is the one that
-would be shortened first.
+and go when those do. Three of the old keys are live and stay: `documents-page.title`,
+`sign-in.page.title` and `create-account.page.title`, all toolbar titles set through
+`setTitle`. Both card pages have their own heading key — same words, different job, and the
+toolbar's version is the one that would be shortened first.
+
+Create account duplicates sign-in's footer link strings and its unreachable-server sentence
+rather than sharing them: one self-contained block per page means a translator can shorten
+one page's footer without touching the other's, and deleting a page deletes its block.
 
 The library is 30 lines and does one thing: `t(key)` returns a string. It has no
 interpolation and no plurals, so this pass added the two smallest things that close that
@@ -589,7 +681,14 @@ None of these block the current page.
    to what their heading plus the caret needs, and `.sort-button { max-width: 100% }` with
    `.cell`'s `text-overflow: ellipsis` means a longer translated heading truncates rather
    than overflows. `minmax()` tracks, or simply more slack, would be the durable fix.
-6. **TODO: `UpdateLanguage()` in `~/i18n/i18n.ts` is rough at the edges.** Left open
+6. **The create-account endpoints can't say which field collided.** `CreateAccount` reports
+   nothing but `result.ok`, and `CheckAvailability` answers with a single value for the
+   username and the email *together* — so neither can distinguish "that name is taken" from
+   "that address is already registered", and neither can report both at once. The mock's
+   two-field result is a shape the backend has to be asked for; until it is, a wired page
+   could only say "one of these is taken", which is a worse page than the mock. Also open:
+   `/terms-of-service` has no page and no external URL, so that link 404s.
+7. **TODO: `UpdateLanguage()` in `~/i18n/i18n.ts` is rough at the edges.** Left open
    deliberately — it's the library's call, not this directory's, and nothing here is
    blocked by it. Four things noticed while wiring the locale up, in rough order of how
    likely they are to bite:
@@ -714,3 +813,24 @@ future `exp` and a `username` is enough. Clear `localStorage.auth` afterwards. L
 synthetic `CapsLock` keypress doesn't set the modifier state in an automated browser; the
 hint has to be checked by hand or by dispatching a `KeyboardEvent` with
 `modifierCapsLock: true`.
+
+Then `/create-account`, which talks to nothing. Walk all four error conditions: an empty
+submit (both fields flagged, focus on email), `duncan@nope` (invalid address), `Dun` (too
+short — note length is checked before characters, so a short capitalised name reports the
+length), `Duncan` (the character rule), `admin` (**reserved** — the verdict the client
+couldn't have predicted), `taken@example.com` with a free name (address in use), and
+`dwerner` + `dwerner@riskamp.com`, which must produce **two messages from one submit**. Then
+fix one field and check the *other* message survives — that's the deliberate divergence from
+sign-in's clear-everything. A clean pair gives the pending label, then the confirmation
+naming the address, with focus on it; "Use a different address" comes back with both fields
+still filled. Watch the handle preview track the username field, and confirm it and the error
+message never appear together. Signed in, `/create-account` must bounce to `/`, and `?dev`
+must **not** open it — the bypass only covers `'signed-in'`.
+
+**Sign in has to be looked at again after any change to the shared card rules**, since the
+page tint, title block, form stack and links row moved into `backstage.module.css` when
+create account landed. A class read from the wrong module renders nothing and reports
+nothing — that's the third gotcha below, and it bit again during this pass: the
+confirmation's icon silently drew at 20px in body colour because `.sent > .icon` in
+`create-account.module.css` compiles to a class no element has. It carries a local
+`.sent-icon` now.

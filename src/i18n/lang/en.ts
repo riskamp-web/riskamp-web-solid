@@ -796,5 +796,62 @@ export default {
   'sign-in-page.link.forgot-password': 'Forgot password',
   'sign-in-page.link.create-account': 'Create account',
 
+  //
+  // create account page (the redesigned one). 'create-account.page.title'
+  // above is still live -- it's the toolbar's title, the same arrangement
+  // sign-in has.
+  //
+  // this page collects an email address and a username and nothing else: the
+  // password is chosen later, from the link the confirmation mail carries.
+  //
+
+  'create-account-page.heading': 'Create account',
+
+  // the subtitle is the *explanation*, not a restatement of the two labels:
+  // asking for a username as well as an email address is the unusual thing
+  // about this page, and the reason is that the username isn't only a login --
+  // it's the first segment of every document address the account owns. the
+  // shape that describes is drawn live under the username field.
+  'create-account-page.subtitle': 'We ask for both because your documents are stored under your username, which makes it part of every document’s address.',
+
+  // {link} is the terms of service link, spliced in so a translation can put it
+  // where its own grammar needs it
+  'create-account-page.terms': 'Please review our {link}.',
+  'create-account-page.terms.link': 'terms of service',
+
+  'create-account-page.email.label': 'Email address',
+  'create-account-page.email.required': 'Enter your email address.',
+  'create-account-page.email.invalid': 'That doesn’t look like an email address.',
+  'create-account-page.email.taken': 'There’s already an account with that email address.',
+
+  'create-account-page.username.label': 'Username',
+  'create-account-page.username.required': 'Choose a username.',
+  'create-account-page.username.too-short': 'Usernames are at least {min} characters.',
+  'create-account-page.username.too-long': 'Usernames are at most {max} characters.',
+  'create-account-page.username.invalid': 'Use lowercase letters, numbers, hyphens and underscores, starting with a letter.',
+  'create-account-page.username.taken': '@{username} is already taken.',
+  'create-account-page.username.reserved': '@{username} isn’t available.',
+
+  // the live preview under the username field -- an address, drawn in
+  // monospace, so it takes the username as a value rather than as words
+  'create-account-page.handle.example': '@{username}/example',
+  'create-account-page.handle.placeholder': 'username',
+
+  'create-account-page.after': 'We’ll email you a link to confirm your address. Follow it to choose a password and finish setting up your account.',
+
+  'create-account-page.submit.label': 'Create account',
+  'create-account-page.submit.pending': 'Creating account…',
+
+  'create-account-page.error.unreachable': 'Can’t reach the server. Check your connection and try again.',
+  'create-account-page.error.rejected': 'That account couldn’t be created. Check your details and try again.',
+
+  'create-account-page.done.heading': 'Check your email',
+  'create-account-page.done.body': 'We sent a link to {email}. Open it to confirm your address and choose a password.',
+  'create-account-page.done.spam': 'Nothing there? Give it a minute, then check your spam folder.',
+  'create-account-page.done.restart': 'Use a different address',
+
+  'create-account-page.link.forgot-password': 'Forgot password',
+  'create-account-page.link.sign-in': 'Sign in',
+
 };
 
