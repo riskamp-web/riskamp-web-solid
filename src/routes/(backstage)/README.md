@@ -16,8 +16,9 @@ That means, on purpose:
 - strings are hardcoded English; extracting them into `~/i18n` waits until the design
   settles. `'documents-page.title'` and `'sign-in.page.title'` are existing keys, so the
   toolbar titles are already localized
-- glyphs the app icon set lacks (star, folder, search, trash…) live in
-  `backstage-icons.tsx` rather than being added to `~/components/icon-sets`
+- glyphs the app icon set lacks live in `backstage-icons.tsx` rather than being added to
+  `~/components/icon-sets` (see "Icons" below — documents now draws from the app set, and
+  what's left local is only what that set has no name for)
 
 Promoting any of those out of here is deliberate later work, not cleanup to do in
 passing.
@@ -35,7 +36,7 @@ be shared by every backstage page can't live inside any one of them. See below.
 | `sign-in.tsx` | the sign-in page |
 | `sign-in.module.css` | the page tint, title block, password reveal, links row |
 | `backstage.module.css` | shared shell: theme tokens, rail/content/panel, control and form primitives. The consolidation point for the next backstage page |
-| `backstage-icons.tsx` | local inline SVG icons |
+| `backstage-icons.tsx` | the few glyphs the app icon set has no name for |
 | `documents-data.ts` | the row shape, the document store and its loader, and the path/folder/format/sort helpers |
 | `documents-sample.ts` | the canned document set, and nothing else |
 | `dev-access.ts` | `requireAuth()` — the guard declaration plus its dev-only bypass |
@@ -231,6 +232,32 @@ calls `refreshDocuments()`.
 - **`?fail` forces one**, on the dev server, the same way `?dev` skips the guard —
   `/documents?dev&fail`. An error state nobody can reach is an error state nobody has
   checked. It's dropped from production builds along with the rest of `dev-access.ts`.
+
+## Icons
+
+The documents page draws from the app icon set, `~/components/icon-sets`. That set ships
+SVG markup as **strings**, so an icon is an element with the markup inside it rather than a
+component:
+
+```tsx
+<span class={bs.icon} innerHTML={icons.star} />   // via the local <Icon name='star' />
+```
+
+- **`.icon` fixes the box at 20px** and sizes the SVG to fill it, so a glyph that arrives at
+  another size can't shift a row. The empty states override it to 34px in CSS — there's no
+  `size` prop to pass any more.
+- **Selectors have to match the wrapper, not the SVG.** Rules that were `& > svg` are now
+  `& > :is(svg, .icon)`, which covers both the wrapper and the local components. Watch the
+  module boundary here: `.icon` is declared in `backstage.module.css`, so writing `.icon` in
+  `documents.module.css` silently matches nothing — that's why the sort caret carries its own
+  local `.sort-caret` class.
+- **The star's filled state is CSS**, not a prop: the set's star is an outline, and
+  `.starred svg path { fill: currentColor }` beats the `fill="none"` attribute on the path.
+- **What's still local**, in `backstage-icons.tsx`: `Globe` and `Sheet` (plus `Eye`/`EyeOff`
+  for sign-in). The set has no public/private pair — private uses `lock_cells` for now — and
+  its only document glyph is `new_spreadsheet`, whose plus is right for the New document
+  button and wrong for the "All documents" scope and the Open actions. Each is a stand-in: as
+  the set grows a name, the page should switch and the local component should go.
 
 ## Data model
 

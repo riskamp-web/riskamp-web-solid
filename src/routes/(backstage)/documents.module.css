@@ -191,11 +191,26 @@
   opacity: 1;
 }
 
+/* the set's star is an outline, and starred has to read at a glance across a
+   long list -- so the filled state fills the glyph rather than only recoloring
+   it. the path carries fill="none" as an attribute, which a rule beats. */
 .star {
   color: var(--bs-text-muted);
+  transition: color .125s ease, opacity .125s ease;
+
+  /* the set's outline star is heavier than the row text it sits beside, and
+     there's one on every row -- unstarred is the resting state, so it steps
+     back rather than reading as a column of marks */
+  &:not(.starred) {
+    opacity: .5;
+  }
 
   &.starred {
     color: var(--bs-star);
+
+    & svg path {
+      fill: currentColor;
+    }
   }
 }
 
@@ -235,7 +250,7 @@
     color: var(--bs-text);
   }
 
-  & > svg {
+  & > .sort-caret {
     flex: 0 0 auto;
     opacity: 0;
     transition: opacity .125s ease, transform .125s ease;
@@ -244,12 +259,12 @@
   &.sorted {
     color: var(--bs-text);
 
-    & > svg {
+    & > .sort-caret {
       opacity: 1;
     }
   }
 
-  &.ascending > svg {
+  &.ascending > .sort-caret {
     transform: rotate(180deg);
   }
 }

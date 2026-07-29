@@ -73,6 +73,27 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* icons                                                               */
+/* ------------------------------------------------------------------ */
+
+/* the app icon set (~/components/icon-sets) ships svg markup as strings, so an
+   icon on this page is a span with the markup inside it. the box is fixed at
+   the set's 20px and the svg is sized to fill it, so a glyph that arrives at
+   another size can't shift a row -- and the local components in
+   backstage-icons.tsx, which draw at 20px directly, line up with these. */
+.icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+
+  & > svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* rail                                                                */
 /* ------------------------------------------------------------------ */
 
@@ -111,7 +132,7 @@
   cursor: pointer;
   transition: background-color .125s ease, color .125s ease;
 
-  & > svg {
+  & > :is(svg, .icon) {
     flex: 0 0 auto;
     color: var(--bs-text-muted);
   }
@@ -140,7 +161,7 @@
     color: var(--bs-text);
     font-weight: 500;
 
-    & > svg {
+    & > :is(svg, .icon) {
       color: var(--bs-accent);
     }
   }
@@ -597,7 +618,11 @@
   text-align: center;
   color: var(--bs-text-muted);
 
-  & > svg {
+  /* the mark an empty state leads with is drawn larger than an inline icon; the
+     set draws at 20px, so the size lives here rather than in the markup */
+  & > :is(svg, .icon) {
+    width: 34px;
+    height: 34px;
     color: var(--bs-text-muted);
     margin-bottom: 6px;
   }
@@ -676,7 +701,7 @@
   white-space: nowrap;
   cursor: pointer;
 
-  & > svg {
+  & > :is(svg, .icon) {
     color: var(--bs-text-muted);
   }
 
@@ -693,7 +718,7 @@
   &.danger {
     color: var(--bs-danger);
 
-    & > svg {
+    & > :is(svg, .icon) {
       color: var(--bs-danger);
     }
   }

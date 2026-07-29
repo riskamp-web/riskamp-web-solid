@@ -18,10 +18,15 @@ import { useLayoutContext } from '~/components/layout-context';
 
 import { requireAuth } from './dev-access';
 
+import { IconName, icons } from '~/components/icon-sets';
+
 import bs from './backstage.module.css';
 import style from './documents.module.css';
 
-import { Alert, CaretDown, Check, Clock, Close, Copy, Folder, Globe, Lock, Overflow, Plus, Search, Sheet, Star, Trash } from './backstage-icons';
+/* the app set has no public/private pair and no plain document glyph, so those
+   two stay local for now; everything else on this page comes from ~/components/
+   icon-sets. see backstage-icons.tsx */
+import { Globe, Sheet } from './backstage-icons';
 
 import {
   ACCESS_PRIVATE, ACCESS_PUBLIC, BackstageDocument, NOW, RECENT_WINDOW, SortDirection, SortKey,
@@ -32,13 +37,23 @@ import {
 
 type Scope = 'all' | 'starred' | 'recent' | 'private';
 
+/**
+ * the app icon set ships svg markup as strings, so an icon is an element with
+ * the markup inside it rather than a component. the svg is sized in css, in
+ * .icon -- the set draws at 20px and the box is fixed there, so a glyph that
+ * arrives at another size can't shift a row.
+ */
+function Icon(props: { name: IconName, class?: string }) {
+  return <span class={`${bs.icon} ${props.class || ''}`} innerHTML={icons[props.name]} />;
+}
+
 /* public is the default access level, so the useful scope is the exception: the
    handful of documents that aren't shared */
-const SCOPES: { key: Scope, label: string, icon: (props: { size?: number }) => JSX.Element }[] = [
-  { key: 'all', label: 'All documents', icon: Sheet },
-  { key: 'starred', label: 'Starred', icon: (props) => <Star {...props} /> },
-  { key: 'recent', label: 'Recent', icon: Clock },
-  { key: 'private', label: 'Private', icon: Lock },
+const SCOPES: { key: Scope, label: string, icon: () => JSX.Element }[] = [
+  { key: 'all', label: 'All documents', icon: () => <Sheet /> },
+  { key: 'starred', label: 'Starred', icon: () => <Icon name='star' /> },
+  { key: 'recent', label: 'Recent', icon: () => <Icon name='recent' /> },
+  { key: 'private', label: 'Private', icon: () => <Icon name='lock_cells' /> },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -79,7 +94,7 @@ function ActionMenu(props: ParentProps<{ label: string, class?: string, trigger?
         aria-label={props.label}
         aria-expanded={open()}
         onclick={(event) => event.stopPropagation()}>
-      {props.trigger ?? <Overflow />}
+      {props.trigger ?? <Icon name='overflow' />}
     </button>
 
     <div
@@ -378,25 +393,25 @@ export default function Documents() {
           }}
           onclick={() => sortBy(props.column)}>
         <span>{props.label}</span>
-        <CaretDown />
+        <Icon name='caret_down' class={style['sort-caret']} />
       </button>
     </div>;
 
   const RowMenu = (props: { doc: BackstageDocument }) =>
     <ActionMenu label={`Actions for ${displayName(props.doc)}`} class={style['row-menu-button']}>
       <MenuItem icon={<Sheet />}>Open</MenuItem>
-      <MenuItem icon={<Copy />}>Duplicate</MenuItem>
+      <MenuItem icon={<Icon name='copy' />}>Duplicate</MenuItem>
       <MenuItem onclick={() => startRename(props.doc)}>Rename…</MenuItem>
-      <MenuItem icon={<Folder />}>Move to…</MenuItem>
+      <MenuItem icon={<Icon name='folder' />}>Move to…</MenuItem>
       <hr />
       <MenuItem
-          icon={props.doc.access === ACCESS_PUBLIC ? <Lock /> : <Globe />}
+          icon={props.doc.access === ACCESS_PUBLIC ? <Icon name='lock_cells' /> : <Globe />}
           onclick={() => setAccess([props.doc.id], props.doc.access === ACCESS_PUBLIC ? ACCESS_PRIVATE : ACCESS_PUBLIC)}>
         {props.doc.access === ACCESS_PUBLIC ? 'Make private' : 'Make public'}
       </MenuItem>
-      <MenuItem icon={<Clock />} onclick={() => openDetail(props.doc)}>Version history</MenuItem>
+      <MenuItem icon={<Icon name='recent' />} onclick={() => openDetail(props.doc)}>Version history</MenuItem>
       <hr />
-      <MenuItem icon={<Trash />} danger onclick={() => remove([props.doc.id])}>Delete</MenuItem>
+      <MenuItem icon={<Icon name='trash' />} danger onclick={() => remove([props.doc.id])}>Delete</MenuItem>
     </ActionMenu>;
 
   /* ---- render ---- */
@@ -412,7 +427,7 @@ export default function Documents() {
               classList={{ [bs['rail-item']]: true, [bs.active]: scope() === item.key && !folder() }}
               aria-current={scope() === item.key && !folder() ? 'true' : undefined}
               onclick={() => selectScope(item.key)}>
-            {item.icon({})}
+            {item.icon()}
             <span class={bs['rail-label']}>{item.label}</span>
             <span class={bs['rail-count']}>{counts()[item.key]}</span>
           </button>
@@ -433,7 +448,7 @@ export default function Documents() {
                 aria-current={folder() === node.path ? 'true' : undefined}
                 style={`padding-left: ${8 + node.depth * 13}px`}
                 onclick={() => selectFolder(node.path)}>
-              <Folder />
+              <Icon name='folder' />
               <span class={bs['rail-label']}>{node.name}</span>
               <span class={bs['rail-count']}>{node.count}</span>
             </button>
@@ -458,12 +473,12 @@ export default function Documents() {
             <button type='button' class={`${bs.button} ${bs['button-quiet']} ${bs['button-collapse']}`}
                 aria-label='Make selected documents private'
                 onclick={() => setAccess([...checked()], ACCESS_PRIVATE)}>
-              <Lock /> <span class={bs['button-label']}>Make private</span>
+              <Icon name='lock_cells' /> <span class={bs['button-label']}>Make private</span>
             </button>
             <button type='button' class={`${bs.button} ${bs['button-danger']} ${bs['button-collapse']}`}
                 aria-label='Delete selected documents'
                 onclick={() => remove([...checked()])}>
-              <Trash /> <span class={bs['button-label']}>Delete</span>
+              <Icon name='trash' /> <span class={bs['button-label']}>Delete</span>
             </button>
             <div class={bs.spacer} />
             <button type='button' class={`${bs.button} ${bs['button-quiet']}`} onclick={() => setChecked(new Set<number>())}>
@@ -472,7 +487,7 @@ export default function Documents() {
           </div>
         }>
           <div class={bs['search-field']}>
-            <Search class={bs['search-icon']} />
+            <Icon name='find' class={bs['search-icon']} />
             <input
                 ref={search_input}
                 type='search'
@@ -487,7 +502,7 @@ export default function Documents() {
                   class={`${bs['icon-button']} ${bs['search-clear']}`}
                   aria-label='Clear search'
                   onclick={() => { setSearch(''); search_input?.focus(); }}>
-                <Close />
+                <Icon name='close' />
               </button>
             </Show>
           </div>
@@ -509,7 +524,7 @@ export default function Documents() {
           <div class={bs.spacer} />
 
           <button type='button' class={`${bs.button} ${bs['button-primary']} ${bs['button-collapse']}`} aria-label='New document'>
-            <Plus /> <span class={bs['button-label']}>New document</span>
+            <Icon name='new_spreadsheet' /> <span class={bs['button-label']}>New document</span>
           </button>
         </Show>
       </header>
@@ -540,7 +555,7 @@ export default function Documents() {
                 the skeleton would otherwise run forever */}
             <Match when={failed()}>
               <div class={`${style['body-full']} ${bs['empty-state']}`} role='alert'>
-                <Alert size={34} />
+                <Icon name='warning' />
                 <div class={bs['empty-title']}>Couldn’t load your documents</div>
                 <div class={bs['empty-detail']}>
                   The list didn’t come back from the server. Nothing has been lost — your
@@ -571,20 +586,20 @@ export default function Documents() {
 
             <Match when={!documents.length}>
               <div class={`${style['body-full']} ${bs['empty-state']}`}>
-                <Sheet size={34} />
+                <Sheet />
                 <div class={bs['empty-title']}>No documents yet</div>
                 <div class={bs['empty-detail']}>
                   Spreadsheets you create or import will show up here, along with their version history.
                 </div>
                 <button type='button' class={`${bs.button} ${bs['button-primary']} ${bs['empty-action']}`}>
-                  <Plus /> New document
+                  <Icon name='new_spreadsheet' /> New document
                 </button>
               </div>
             </Match>
 
             <Match when={!visible().length && search()}>
               <div class={`${style['body-full']} ${bs['empty-state']}`}>
-                <Search size={34} />
+                <Icon name='find' />
                 <div class={bs['empty-title']}>No documents match “{search()}”</div>
                 <div class={bs['empty-detail']}>Search covers every folder. Try a shorter term.</div>
                 <button type='button' class={`${bs.button} ${bs['empty-action']}`} onclick={() => setSearch('')}>
@@ -595,7 +610,7 @@ export default function Documents() {
 
             <Match when={!visible().length}>
               <div class={`${style['body-full']} ${bs['empty-state']}`}>
-                <Folder size={34} />
+                <Icon name='folder' />
                 <div class={bs['empty-title']}>Nothing here</div>
                 <div class={bs['empty-detail']}>
                   {folder()
@@ -632,7 +647,7 @@ export default function Documents() {
                         aria-label={doc.starred ? `Unstar ${displayName(doc)}` : `Star ${displayName(doc)}`}
                         aria-pressed={doc.starred}
                         onclick={(event) => { event.stopPropagation(); toggleStar(doc.id); }}>
-                      <Star filled={doc.starred} />
+                      <Icon name='star' />
                     </button>
                   </div>
 
@@ -703,7 +718,7 @@ export default function Documents() {
                   fallback={
                     <div class={style['panel-name']}>
                       <Show when={doc().starred}>
-                        <Star filled class={`${style.star} ${style.starred}`} />
+                        <Icon name='star' class={`${style.star} ${style.starred}`} />
                       </Show>
                       <button
                           type='button'
@@ -745,8 +760,8 @@ export default function Documents() {
                           aria-label={copied() ? 'Link copied' : 'Copy link'}
                           title={copied() ? 'Copied' : 'Copy link'}
                           onclick={copyLink}>
-                        <Show when={copied()} fallback={<Copy />}>
-                          <Check class={style['copy-confirmed']} />
+                        <Show when={copied()} fallback={<Icon name='copy' />}>
+                          <Icon name='copy_confirmed' class={style['copy-confirmed']} />
                         </Show>
                       </button>
                     </div>
@@ -773,7 +788,7 @@ export default function Documents() {
 
             </div>
             <button type='button' class={bs['icon-button']} aria-label='Close details' onclick={closeDetail}>
-              <Close />
+              <Icon name='close' />
             </button>
           </div>
 
@@ -792,7 +807,7 @@ export default function Documents() {
                     type='button'
                     classList={{ [bs.active]: doc().access === ACCESS_PRIVATE }}
                     onclick={() => setAccess([doc().id], ACCESS_PRIVATE)}>
-                  <Lock /> Private
+                  <Icon name='lock_cells' /> Private
                 </button>
               </div>
             </div>
@@ -806,7 +821,7 @@ export default function Documents() {
                     aria-pressed={doc().starred}
                     aria-label={doc().starred ? 'Unstar this document' : 'Star this document'}
                     onclick={() => toggleStar(doc().id)}>
-                  <Star filled={doc().starred} />
+                  <Icon name='star' />
                 </button>
               </div>
             </div>
@@ -834,8 +849,8 @@ export default function Documents() {
                     <Show when={index() === 0} fallback={
                       <ActionMenu label={`Actions for version ${version.version}`} class={style['version-action']}>
                         <MenuItem icon={<Sheet />}>Open this version</MenuItem>
-                        <MenuItem icon={<Copy />}>Duplicate as new document</MenuItem>
-                        <MenuItem icon={<Check />}>Restore</MenuItem>
+                        <MenuItem icon={<Icon name='copy' />}>Duplicate as new document</MenuItem>
+                        <MenuItem icon={<Icon name='confirm' />}>Restore</MenuItem>
                       </ActionMenu>
                     }>
                       <span class={style['version-current']}>current</span>
@@ -855,10 +870,10 @@ export default function Documents() {
 
           <div class={bs['panel-footer']}>
             <A href={documentUrl(doc())} class={`${bs.button} ${bs['button-primary']}`}>Open</A>
-            <button type='button' class={bs.button}><Copy /> Duplicate</button>
+            <button type='button' class={bs.button}><Icon name='copy' /> Duplicate</button>
             <div class={bs.spacer} />
             <button type='button' class={`${bs.button} ${bs['button-danger']}`} onclick={() => remove([doc().id])}>
-              <Trash /> Delete
+              <Icon name='trash' /> Delete
             </button>
           </div>
 
