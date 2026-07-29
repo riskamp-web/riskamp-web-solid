@@ -191,7 +191,6 @@ async function historySource(path: string): Promise<DocumentVersion[]> {
   const result = await auth.AccessResource('/api/document-history', { path });
   if (result.ok) {
     const json = await result.json();
-    console.info({path, json})
     return json || [];
   }
 
@@ -220,9 +219,6 @@ async function source(): Promise<BackstageDocument[]> {
   const result = await auth.AccessResource('/api/list-documents');
   if (result.ok) {
     const json = await result.json();
-    // dev
-    console.info({list: json.list});
-
     return (json.list || []);
   }
   else {
