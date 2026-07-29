@@ -645,5 +645,126 @@ export default {
 
   'command-palette.number-format.parameter.format.label': 'Enter number format or a symbolic name',
 
+  //
+  // documents page (the redesigned one -- the documents-table.* keys above
+  // belong to the old page). two conventions in this block:
+  //
+  // {braces} are placeholders for values the page splices in. keep the name
+  // spelled as it is, and put it wherever the translated sentence needs it --
+  // it doesn't have to stay in the same place as the english.
+  //
+  // keys ending .one and .other are the singular and plural of the count in
+  // them. english only needs the two; a language needing more forms needs a
+  // change in the code that picks between them, not just here.
+  //
+
+  'documents-page.scope.all': 'All documents',
+  'documents-page.scope.starred': 'Starred',
+  'documents-page.scope.recent': 'Recent',
+  'documents-page.scope.private': 'Private',
+
+  'documents-page.rail.label': 'Document filters',
+  'documents-page.rail.folders': 'Folders',
+  'documents-page.rail.no-folders': 'No folders',
+
+  'documents-page.search.placeholder': 'Search documents',
+  'documents-page.search.label': 'Search documents',
+  'documents-page.search.clear.label': 'Clear search',
+  'documents-page.filter.label': 'Filter',
+
+  'documents-page.action.new-document': 'New document',
+  'documents-page.action.open': 'Open',
+  'documents-page.action.duplicate': 'Duplicate',
+  'documents-page.action.rename': 'Rename…',
+  'documents-page.action.move': 'Move to…',
+  'documents-page.action.delete': 'Delete',
+  'documents-page.action.cancel': 'Cancel',
+  'documents-page.action.make-public': 'Make public',
+  'documents-page.action.make-private': 'Make private',
+  'documents-page.action.version-history': 'Version history',
+
+  'documents-page.access.public': 'Public',
+  'documents-page.access.private': 'Private',
+
+  'documents-page.selection.count': '{count} selected',
+  'documents-page.selection.make-public.label': 'Make selected documents public',
+  'documents-page.selection.make-private.label': 'Make selected documents private',
+  'documents-page.selection.delete.label': 'Delete selected documents',
+
+  'documents-page.table.label': 'Documents',
+  'documents-page.table.select-all.label': 'Select all documents',
+  'documents-page.column.starred': 'Starred',
+  'documents-page.column.name': 'Name',
+  'documents-page.column.folder': 'Folder',
+  'documents-page.column.access': 'Access',
+  'documents-page.column.version': 'Version',
+  'documents-page.column.modified': 'Modified',
+  'documents-page.column.actions': 'Actions',
+
+  'documents-page.row.select.label': 'Select {name}',
+  'documents-page.row.star.label': 'Star {name}',
+  'documents-page.row.unstar.label': 'Unstar {name}',
+  'documents-page.row.menu.label': 'Actions for {name}',
+  'documents-page.row.unnamed.title': 'This document has no name yet',
+
+  'documents-page.version.short': 'v{version}',
+
+  'documents-page.error.title': 'Couldn’t load your documents',
+  'documents-page.error.detail': 'Loading failed because of an error. Please try again later.',
+  'documents-page.error.retry': 'Try again',
+
+  'documents-page.empty.title': 'No documents yet',
+  'documents-page.empty.detail': 'Spreadsheets you create or import will show up here, along with their version history.',
+
+  'documents-page.no-match.title': 'No documents match “{query}”',
+  'documents-page.no-match.detail': 'Search covers every folder. Try a shorter term.',
+  'documents-page.no-match.action': 'Clear search',
+
+  'documents-page.empty-filter.title': 'Nothing here',
+  'documents-page.empty-filter.detail': 'No documents match this filter.',
+  'documents-page.empty-filter.detail-folder': 'No documents in {folder}.',
+  'documents-page.empty-filter.action': 'Show all documents',
+
+  'documents-page.footer.count.one': '{count} document',
+  'documents-page.footer.count.other': '{count} documents',
+  'documents-page.footer.filtered': '{count} of {total} documents',
+  'documents-page.footer.searching-all': 'searching all folders',
+
+  'documents-page.panel.label': 'Document details',
+  'documents-page.panel.close.label': 'Close details',
+  'documents-page.panel.copy-link.label': 'Copy link',
+  'documents-page.panel.copy-link.copied.label': 'Link copied',
+  'documents-page.panel.copy-link.copied.title': 'Copied',
+  'documents-page.panel.unnamed-hint': 'No name yet — this is the address. Renaming sets one.',
+  'documents-page.panel.star.label': 'Star this document',
+  'documents-page.panel.unstar.label': 'Unstar this document',
+  'documents-page.panel.field.access': 'Access',
+  'documents-page.panel.field.starred': 'Starred',
+  'documents-page.panel.field.created': 'Created',
+  'documents-page.panel.field.modified': 'Modified',
+  'documents-page.panel.field.version': 'Version',
+
+  'documents-page.history.title': 'Older versions',
+  'documents-page.history.loading': 'Loading version history',
+  'documents-page.history.error': 'Couldn’t load version history.',
+  'documents-page.history.retry': 'Try again',
+  'documents-page.history.menu.label': 'Actions for version {version}',
+  'documents-page.history.open': 'Open this version',
+  'documents-page.history.duplicate': 'Duplicate as new document',
+  'documents-page.history.restore': 'Restore',
+  'documents-page.history.none': 'No older versions yet. They appear here as you save.',
+  'documents-page.history.kept.one': 'Keeping one older version.',
+  'documents-page.history.kept.other': 'Keeping the last {count} older versions.',
+
+  'documents-page.time.just-now': 'just now',
+  'documents-page.time.minutes.one': '{count} minute ago',
+  'documents-page.time.minutes.other': '{count} minutes ago',
+  'documents-page.time.hours.one': '{count} hour ago',
+  'documents-page.time.hours.other': '{count} hours ago',
+  'documents-page.time.days.one': '{count} day ago',
+  'documents-page.time.days.other': '{count} days ago',
+  'documents-page.time.today': 'today, {time}',
+  'documents-page.time.yesterday': 'yesterday, {time}',
+
 };
 

@@ -10,9 +10,10 @@
  * wire them to, and remember me is hidden because Login accepts the flag but
  * doesn't send it yet (see .remember-row).
  *
- * i18n: strings are hardcoded english for now, per the containment rule in
- * README.md. ('sign-in.page.title' is an existing key, so the toolbar title is
- * already localized.)
+ * i18n: strings are hardcoded english for now -- documents is extracted, this
+ * page waits until its design settles. see "Strings" in this directory's
+ * README.md for the conventions it will follow. ('sign-in.page.title' is an
+ * existing key, so the toolbar title is already localized.)
  */
 
 import { Show, createSignal, onCleanup, onMount } from 'solid-js';

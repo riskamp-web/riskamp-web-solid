@@ -5,16 +5,18 @@
  * and delete write to the store in documents-data.ts so the states are
  * demonstrable; rename / move / duplicate are inert placeholders.
  *
- * i18n: strings are hardcoded english for now. the redesign is contained to
- * src/routes/(backstage), so extracting them into ~/i18n waits until the design
- * settles. ('documents-page.title' is an existing key, so the toolbar title is
- * already localized.)
+ * i18n: extracted. every string on this page is a 'documents-page.*' key in
+ * ~/i18n/lang/en.ts, including the aria-labels and the sr-only text. values are
+ * spliced in with format(), never concatenated, so a translation can move them
+ * -- see the comment on that block in en.ts. dates are still formatted en-US;
+ * ~/i18n has no locale yet (see documents-data.ts).
  */
 
 import { For, JSX, Match, ParentProps, Show, Switch, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
 import { A } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
+import { format, t, type I18N } from '~/i18n/i18n';
 
 import { requireAuth } from '~/backstage/dev-access';
 
@@ -54,12 +56,17 @@ function Icon(props: { name: IconName, class?: string }) {
 const isStarred = (doc: BackstageDocument) => !!doc.starred;
 
 /* public is the default access level, so the useful scope is the exception: the
-   handful of documents that aren't shared */
-const SCOPES: { key: Scope, label: string, icon: () => JSX.Element }[] = [
-  { key: 'all', label: 'All documents', icon: () => <Sheet /> },
-  { key: 'starred', label: 'Starred', icon: () => <Icon name='star' /> },
-  { key: 'recent', label: 'Recent', icon: () => <Icon name='recent' /> },
-  { key: 'private', label: 'Private', icon: () => <Icon name='lock_cells' /> },
+   handful of documents that aren't shared.
+
+   the labels are *keys*, resolved at each render site rather than here: t()
+   reads a store, and calling it out here -- at module scope, outside any
+   tracking scope -- would snapshot english into the array for the life of the
+   page. this is the trap command-list.ts fell into. */
+const SCOPES: { key: Scope, label: keyof I18N, icon: () => JSX.Element }[] = [
+  { key: 'all', label: 'documents-page.scope.all', icon: () => <Sheet /> },
+  { key: 'starred', label: 'documents-page.scope.starred', icon: () => <Icon name='star' /> },
+  { key: 'recent', label: 'documents-page.scope.recent', icon: () => <Icon name='recent' /> },
+  { key: 'private', label: 'documents-page.scope.private', icon: () => <Icon name='lock_cells' /> },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -383,27 +390,35 @@ export default function Documents() {
     </div>;
 
   const RowMenu = (props: { doc: BackstageDocument }) =>
-    <ActionMenu label={`Actions for ${displayName(props.doc)}`} class={style['row-menu-button']}>
-      <MenuItem icon={<Sheet />}>Open</MenuItem>
-      <MenuItem icon={<Icon name='copy' />}>Duplicate</MenuItem>
-      <MenuItem>Rename…</MenuItem>
-      <MenuItem icon={<Icon name='folder' />}>Move to…</MenuItem>
+    <ActionMenu
+        label={format(t('documents-page.row.menu.label'), { name: displayName(props.doc) })}
+        class={style['row-menu-button']}>
+      <MenuItem icon={<Sheet />}>{t('documents-page.action.open')}</MenuItem>
+      <MenuItem icon={<Icon name='copy' />}>{t('documents-page.action.duplicate')}</MenuItem>
+      <MenuItem>{t('documents-page.action.rename')}</MenuItem>
+      <MenuItem icon={<Icon name='folder' />}>{t('documents-page.action.move')}</MenuItem>
       <hr />
       <MenuItem
           icon={props.doc.access === ACCESS_PUBLIC ? <Icon name='lock_cells' /> : <Globe />}
           onclick={() => setAccess([props.doc.id], props.doc.access === ACCESS_PUBLIC ? ACCESS_PRIVATE : ACCESS_PUBLIC)}>
-        {props.doc.access === ACCESS_PUBLIC ? 'Make private' : 'Make public'}
+        {props.doc.access === ACCESS_PUBLIC
+          ? t('documents-page.action.make-private')
+          : t('documents-page.action.make-public')}
       </MenuItem>
-      <MenuItem icon={<Icon name='recent' />} onclick={() => openDetail(props.doc)}>Version history</MenuItem>
+      <MenuItem icon={<Icon name='recent' />} onclick={() => openDetail(props.doc)}>
+        {t('documents-page.action.version-history')}
+      </MenuItem>
       <hr />
-      <MenuItem icon={<Icon name='trash' />} danger onclick={() => remove([props.doc.id])}>Delete</MenuItem>
+      <MenuItem icon={<Icon name='trash' />} danger onclick={() => remove([props.doc.id])}>
+        {t('documents-page.action.delete')}
+      </MenuItem>
     </ActionMenu>;
 
   /* ---- render ---- */
 
   return <div class={bs.page}>
 
-    <nav class={bs.rail} aria-label='Document filters'>
+    <nav class={bs.rail} aria-label={t('documents-page.rail.label')}>
 
       <div class={bs['rail-section']}>
         <For each={SCOPES}>{(item) =>
@@ -413,17 +428,17 @@ export default function Documents() {
               aria-current={scope() === item.key && !folder() ? 'true' : undefined}
               onclick={() => selectScope(item.key)}>
             {item.icon()}
-            <span class={bs['rail-label']}>{item.label}</span>
+            <span class={bs['rail-label']}>{t(item.label)}</span>
             <span class={bs['rail-count']}>{counts()[item.key]}</span>
           </button>
         }</For>
       </div>
 
       <div class={bs['rail-section']}>
-        <div class={bs['section-label']}>Folders</div>
+        <div class={bs['section-label']}>{t('documents-page.rail.folders')}</div>
         <Show when={folders().length} fallback={
           <div class={bs['rail-item']} style='cursor: default'>
-            <span class={bs['rail-label']}>No folders</span>
+            <span class={bs['rail-label']}>{t('documents-page.rail.no-folders')}</span>
           </div>
         }>
           <For each={folders()}>{(node) =>
@@ -448,26 +463,28 @@ export default function Documents() {
       <header class={bs['content-header']}>
         <Show when={!checkedCount()} fallback={
           <div class={style['selection-bar']}>
-            <span class={style['selection-count']}>{checkedCount()} selected</span>
+            <span class={style['selection-count']}>
+              {format(t('documents-page.selection.count'), { count: checkedCount() })}
+            </span>
             <div class={style['selection-divider']} />
             <button type='button' class={`${bs.button} ${bs['button-quiet']} ${bs['button-collapse']}`}
-                aria-label='Make selected documents public'
+                aria-label={t('documents-page.selection.make-public.label')}
                 onclick={() => setAccess([...checked()], ACCESS_PUBLIC)}>
-              <Globe /> <span class={bs['button-label']}>Make public</span>
+              <Globe /> <span class={bs['button-label']}>{t('documents-page.action.make-public')}</span>
             </button>
             <button type='button' class={`${bs.button} ${bs['button-quiet']} ${bs['button-collapse']}`}
-                aria-label='Make selected documents private'
+                aria-label={t('documents-page.selection.make-private.label')}
                 onclick={() => setAccess([...checked()], ACCESS_PRIVATE)}>
-              <Icon name='lock_cells' /> <span class={bs['button-label']}>Make private</span>
+              <Icon name='lock_cells' /> <span class={bs['button-label']}>{t('documents-page.action.make-private')}</span>
             </button>
             <button type='button' class={`${bs.button} ${bs['button-danger']} ${bs['button-collapse']}`}
-                aria-label='Delete selected documents'
+                aria-label={t('documents-page.selection.delete.label')}
                 onclick={() => remove([...checked()])}>
-              <Icon name='trash' /> <span class={bs['button-label']}>Delete</span>
+              <Icon name='trash' /> <span class={bs['button-label']}>{t('documents-page.action.delete')}</span>
             </button>
             <div class={bs.spacer} />
             <button type='button' class={`${bs.button} ${bs['button-quiet']}`} onclick={() => setChecked(new Set<number>())}>
-              Cancel
+              {t('documents-page.action.cancel')}
             </button>
           </div>
         }>
@@ -477,15 +494,15 @@ export default function Documents() {
                 ref={search_input}
                 type='search'
                 class={bs['search-input']}
-                placeholder='Search documents'
-                aria-label='Search documents'
+                placeholder={t('documents-page.search.placeholder')}
+                aria-label={t('documents-page.search.label')}
                 value={search()}
                 oninput={(event) => setSearch(event.currentTarget.value)} />
             <Show when={search()}>
               <button
                   type='button'
                   class={`${bs['icon-button']} ${bs['search-clear']}`}
-                  aria-label='Clear search'
+                  aria-label={t('documents-page.search.clear.label')}
                   onclick={() => { setSearch(''); search_input?.focus(); }}>
                 <Icon name='close' />
               </button>
@@ -494,13 +511,13 @@ export default function Documents() {
 
           <select
               class={bs['scope-select']}
-              aria-label='Filter'
+              aria-label={t('documents-page.filter.label')}
               value={folder() ?? scope()}
               onchange={(event) => {
                 const value = event.currentTarget.value;
                 value.startsWith('/') ? selectFolder(value) : selectScope(value as Scope);
               }}>
-            <For each={SCOPES}>{(item) => <option value={item.key}>{item.label}</option>}</For>
+            <For each={SCOPES}>{(item) => <option value={item.key}>{t(item.label)}</option>}</For>
             <For each={folders()}>{(node) =>
               <option value={node.path}>{' '.repeat(node.depth * 2)}{node.name}</option>
             }</For>
@@ -508,30 +525,34 @@ export default function Documents() {
 
           <div class={bs.spacer} />
 
-          <button type='button' class={`${bs.button} ${bs['button-primary']} ${bs['button-collapse']}`} aria-label='New document'>
-            <Icon name='new_spreadsheet' /> <span class={bs['button-label']}>New document</span>
+          <button type='button' class={`${bs.button} ${bs['button-primary']} ${bs['button-collapse']}`}
+              aria-label={t('documents-page.action.new-document')}>
+            <Icon name='new_spreadsheet' /> <span class={bs['button-label']}>{t('documents-page.action.new-document')}</span>
           </button>
         </Show>
       </header>
 
-      <div classList={{ [style.table]: true, [style.selecting]: !!checkedCount() }} role='table' aria-label='Documents'>
+      <div classList={{ [style.table]: true, [style.selecting]: !!checkedCount() }} role='table'
+          aria-label={t('documents-page.table.label')}>
 
         <div class={style['table-header']} role='row'>
           <div class={`${style.cell} ${style['cell-center']}`} role='columnheader'>
             <input
                 type='checkbox'
                 class={`${style.check} ${style['check-all']}`}
-                aria-label='Select all documents'
+                aria-label={t('documents-page.table.select-all.label')}
                 checked={!!visible().length && checkedCount() >= visible().length}
                 onchange={toggleAll} />
           </div>
-          <div class={`${style.cell} ${style['cell-center']}`} role='columnheader'><span class='sr-only'>Starred</span></div>
-          <SortHeader column='name' label='Name' class={style['cell-name']} />
-          <SortHeader column='path' label='Folder' class={style['cell-path']} />
-          <SortHeader column='access' label='Access' class={style['cell-access']} />
-          <SortHeader column='version' label='Version' class={style['cell-version']} />
-          <SortHeader column='modified' label='Modified' class={style['cell-modified']} />
-          <div class={style.cell} role='columnheader'><span class='sr-only'>Actions</span></div>
+          <div class={`${style.cell} ${style['cell-center']}`} role='columnheader'>
+            <span class='sr-only'>{t('documents-page.column.starred')}</span>
+          </div>
+          <SortHeader column='name' label={t('documents-page.column.name')} class={style['cell-name']} />
+          <SortHeader column='path' label={t('documents-page.column.folder')} class={style['cell-path']} />
+          <SortHeader column='access' label={t('documents-page.column.access')} class={style['cell-access']} />
+          <SortHeader column='version' label={t('documents-page.column.version')} class={style['cell-version']} />
+          <SortHeader column='modified' label={t('documents-page.column.modified')} class={style['cell-modified']} />
+          <div class={style.cell} role='columnheader'><span class='sr-only'>{t('documents-page.column.actions')}</span></div>
         </div>
 
         <div class={style['table-body']} role='rowgroup'>
@@ -542,15 +563,15 @@ export default function Documents() {
             <Match when={failed()}>
               <div class={`${style['body-full']} ${bs['empty-state']}`} role='alert'>
                 <Icon name='warning' />
-                <div class={bs['empty-title']}>Couldn’t load your documents</div>
+                <div class={bs['empty-title']}>{t('documents-page.error.title')}</div>
                 <div class={bs['empty-detail']}>
-                  Loading failed because of an error. Please try again later.
+                  {t('documents-page.error.detail')}
                 </div>
                 <button
                     type='button'
                     class={`${bs.button} ${bs['empty-action']}`}
                     onclick={() => refreshDocuments()}>
-                  Try again
+                  {t('documents-page.error.retry')}
                 </button>
               </div>
             </Match>
@@ -573,12 +594,12 @@ export default function Documents() {
             <Match when={!documents.length}>
               <div class={`${style['body-full']} ${bs['empty-state']}`}>
                 <Sheet />
-                <div class={bs['empty-title']}>No documents yet</div>
+                <div class={bs['empty-title']}>{t('documents-page.empty.title')}</div>
                 <div class={bs['empty-detail']}>
-                  Spreadsheets you create or import will show up here, along with their version history.
+                  {t('documents-page.empty.detail')}
                 </div>
                 <button type='button' class={`${bs.button} ${bs['button-primary']} ${bs['empty-action']}`}>
-                  <Icon name='new_spreadsheet' /> New document
+                  <Icon name='new_spreadsheet' /> {t('documents-page.action.new-document')}
                 </button>
               </div>
             </Match>
@@ -586,10 +607,12 @@ export default function Documents() {
             <Match when={!visible().length && search()}>
               <div class={`${style['body-full']} ${bs['empty-state']}`}>
                 <Icon name='find' />
-                <div class={bs['empty-title']}>No documents match “{search()}”</div>
-                <div class={bs['empty-detail']}>Search covers every folder. Try a shorter term.</div>
+                <div class={bs['empty-title']}>
+                  {format(t('documents-page.no-match.title'), { query: search() })}
+                </div>
+                <div class={bs['empty-detail']}>{t('documents-page.no-match.detail')}</div>
                 <button type='button' class={`${bs.button} ${bs['empty-action']}`} onclick={() => setSearch('')}>
-                  Clear search
+                  {t('documents-page.no-match.action')}
                 </button>
               </div>
             </Match>
@@ -597,14 +620,14 @@ export default function Documents() {
             <Match when={!visible().length}>
               <div class={`${style['body-full']} ${bs['empty-state']}`}>
                 <Icon name='folder' />
-                <div class={bs['empty-title']}>Nothing here</div>
+                <div class={bs['empty-title']}>{t('documents-page.empty-filter.title')}</div>
                 <div class={bs['empty-detail']}>
                   {folder()
-                    ? `No documents in ${folder()}.`
-                    : 'No documents match this filter.'}
+                    ? format(t('documents-page.empty-filter.detail-folder'), { folder: folder()! })
+                    : t('documents-page.empty-filter.detail')}
                 </div>
                 <button type='button' class={`${bs.button} ${bs['empty-action']}`} onclick={() => selectScope('all')}>
-                  Show all documents
+                  {t('documents-page.empty-filter.action')}
                 </button>
               </div>
             </Match>
@@ -620,7 +643,7 @@ export default function Documents() {
                     <input
                         type='checkbox'
                         class={style.check}
-                        aria-label={`Select ${displayName(doc)}`}
+                        aria-label={format(t('documents-page.row.select.label'), { name: displayName(doc) })}
                         checked={checked().has(doc.id)}
                         onclick={(event) => event.stopPropagation()}
                         onchange={() => toggleChecked(doc.id)} />
@@ -630,7 +653,9 @@ export default function Documents() {
                     <button
                         type='button'
                         classList={{ [bs['icon-button']]: true, [style.star]: true, [style.starred]: isStarred(doc) }}
-                        aria-label={isStarred(doc) ? `Unstar ${displayName(doc)}` : `Star ${displayName(doc)}`}
+                        aria-label={format(
+                          t(isStarred(doc) ? 'documents-page.row.unstar.label' : 'documents-page.row.star.label'),
+                          { name: displayName(doc) })}
                         aria-pressed={isStarred(doc)}
                         onclick={(event) => { event.stopPropagation(); toggleStar(doc.id); }}>
                       <Icon name='star' />
@@ -641,7 +666,7 @@ export default function Documents() {
                     <A
                         href={documentUrl(doc)}
                         classList={{ [style.unnamed]: isUnnamed(doc) }}
-                        title={isUnnamed(doc) ? 'This document has no name yet' : undefined}
+                        title={isUnnamed(doc) ? t('documents-page.row.unnamed.title') : undefined}
                         onclick={(event) => event.stopPropagation()}>
                       {displayName(doc)}
                     </A>
@@ -658,15 +683,19 @@ export default function Documents() {
                   <div class={`${style.cell} ${style['cell-access']}`} role='cell'>
                     <Show
                         when={doc.access === ACCESS_PUBLIC}
-                        fallback={<span class={`${style['access-pill']} ${style['access-private']}`}>Private</span>}>
-                      <span class={`${style['access-pill']} ${style['access-public']}`}>Public</span>
+                        fallback={<span class={`${style['access-pill']} ${style['access-private']}`}>
+                          {t('documents-page.access.private')}
+                        </span>}>
+                      <span class={`${style['access-pill']} ${style['access-public']}`}>
+                        {t('documents-page.access.public')}
+                      </span>
                     </Show>
                   </div>
 
                   {/* the version *number*, which the list query returns -- not a
                       count of the history, which would need a fetch per row */}
                   <div class={`${style.cell} ${style['cell-version']}`} role='cell'>
-                    v{doc.version}
+                    {format(t('documents-page.version.short'), { version: doc.version })}
                   </div>
 
                   <div class={`${style.cell} ${style['cell-modified']}`} role='cell' title={formatAbsolute(doc.modified)}>
@@ -690,11 +719,15 @@ export default function Documents() {
         <Show when={loaded()}>
           <span>
             {visible().length === documents.length
-              ? `${documents.length} document${documents.length === 1 ? '' : 's'}`
-              : `${visible().length} of ${documents.length} documents`}
+              ? format(
+                t(documents.length === 1 ? 'documents-page.footer.count.one' : 'documents-page.footer.count.other'),
+                { count: documents.length })
+              : format(t('documents-page.footer.filtered'),
+                { count: visible().length, total: documents.length })}
           </span>
           <Show when={search() && folder()}>
-            <span>· searching all folders</span>
+            {/* the dot is a separator, not a word -- it stays out of the string */}
+            <span>· {t('documents-page.footer.searching-all')}</span>
           </Show>
         </Show>
       </footer>
@@ -702,7 +735,7 @@ export default function Documents() {
       {/* detail panel; stays mounted so it can slide out with its content intact */}
       <aside
           classList={{ [bs['slide-over']]: true, [bs.open]: selected() !== undefined }}
-          aria-label='Document details'
+          aria-label={t('documents-page.panel.label')}
           aria-hidden={selected() === undefined}>
         <Show when={detail()}>{(doc) => <>
 
@@ -723,8 +756,12 @@ export default function Documents() {
                 <button
                     type='button'
                     class={`${bs['icon-button']} ${style['copy-link']}`}
-                    aria-label={copied() ? 'Link copied' : 'Copy link'}
-                    title={copied() ? 'Copied' : 'Copy link'}
+                    aria-label={copied()
+                      ? t('documents-page.panel.copy-link.copied.label')
+                      : t('documents-page.panel.copy-link.label')}
+                    title={copied()
+                      ? t('documents-page.panel.copy-link.copied.title')
+                      : t('documents-page.panel.copy-link.label')}
                     onclick={copyLink}>
                   <Show when={copied()} fallback={<Icon name='copy' />}>
                     <Icon name='copy_confirmed' class={style['copy-confirmed']} />
@@ -737,12 +774,13 @@ export default function Documents() {
                   badly-cased name */}
               <Show when={isUnnamed(doc())}>
                 <div class={style['unnamed-hint']}>
-                  No name yet — this is the address. Renaming sets one.
+                  {t('documents-page.panel.unnamed-hint')}
                 </div>
               </Show>
 
             </div>
-            <button type='button' class={bs['icon-button']} aria-label='Close details' onclick={closeDetail}>
+            <button type='button' class={bs['icon-button']}
+                aria-label={t('documents-page.panel.close.label')} onclick={closeDetail}>
               <Icon name='close' />
             </button>
           </div>
@@ -750,31 +788,33 @@ export default function Documents() {
           <div class={bs['panel-body']}>
 
             <div class={bs['field-row']}>
-              <span class={bs['field-label']}>Access</span>
+              <span class={bs['field-label']}>{t('documents-page.panel.field.access')}</span>
               <div class={bs.segmented}>
                 <button
                     type='button'
                     classList={{ [bs.active]: doc().access === ACCESS_PUBLIC }}
                     onclick={() => setAccess([doc().id], ACCESS_PUBLIC)}>
-                  <Globe /> Public
+                  <Globe /> {t('documents-page.access.public')}
                 </button>
                 <button
                     type='button'
                     classList={{ [bs.active]: doc().access === ACCESS_PRIVATE }}
                     onclick={() => setAccess([doc().id], ACCESS_PRIVATE)}>
-                  <Icon name='lock_cells' /> Private
+                  <Icon name='lock_cells' /> {t('documents-page.access.private')}
                 </button>
               </div>
             </div>
 
             <div class={bs['field-row']}>
-              <span class={bs['field-label']}>Starred</span>
+              <span class={bs['field-label']}>{t('documents-page.panel.field.starred')}</span>
               <div>
                 <button
                     type='button'
                     classList={{ [bs['icon-button']]: true, [style.star]: true, [style.starred]: isStarred(doc()) }}
                     aria-pressed={isStarred(doc())}
-                    aria-label={isStarred(doc()) ? 'Unstar this document' : 'Star this document'}
+                    aria-label={t(isStarred(doc())
+                      ? 'documents-page.panel.unstar.label'
+                      : 'documents-page.panel.star.label')}
                     onclick={() => toggleStar(doc().id)}>
                   <Icon name='star' />
                 </button>
@@ -782,12 +822,12 @@ export default function Documents() {
             </div>
 
             <div class={bs['field-row']}>
-              <span class={bs['field-label']}>Created</span>
+              <span class={bs['field-label']}>{t('documents-page.panel.field.created')}</span>
               <span>{formatAbsolute(doc().created)}</span>
             </div>
 
             <div class={bs['field-row']}>
-              <span class={bs['field-label']}>Modified</span>
+              <span class={bs['field-label']}>{t('documents-page.panel.field.modified')}</span>
               <span>{formatRelative(doc().modified)}</span>
             </div>
 
@@ -795,15 +835,15 @@ export default function Documents() {
                 carry -- and the Version column is the first thing to drop as the
                 table narrows, so the panel is the only place left showing it */}
             <div class={bs['field-row']}>
-              <span class={bs['field-label']}>Version</span>
-              <span>v{doc().version}</span>
+              <span class={bs['field-label']}>{t('documents-page.panel.field.version')}</span>
+              <span>{format(t('documents-page.version.short'), { version: doc().version })}</span>
             </div>
 
             <div class={style['panel-section']}>
               {/* history is what the current version superseded -- the active
                   one isn't in the list, so the heading says so */}
               <div class={bs['section-label']} style='padding: 0'>
-                Older versions
+                {t('documents-page.history.title')}
               </div>
 
               {/* history arrives separately from the row, so this section has
@@ -814,18 +854,18 @@ export default function Documents() {
                     <div class={`${bs.skeleton} ${style['version-skeleton']}`}
                         style={`width: ${76 - (index * 12)}%`} aria-hidden='true' />
                   }</For>
-                  <span class='sr-only'>Loading version history</span>
+                  <span class='sr-only'>{t('documents-page.history.loading')}</span>
                 </div>
               }>
 
                 <Match when={detailHistory()?.status === 'failed'}>
                   <div class={style['version-note']} role='alert'>
-                    Couldn’t load version history.
+                    {t('documents-page.history.error')}
                     <button
                         type='button'
                         class={style['version-retry']}
                         onclick={() => retryHistory(doc().path)}>
-                      Try again
+                      {t('documents-page.history.retry')}
                     </button>
                   </div>
                 </Match>
@@ -834,23 +874,29 @@ export default function Documents() {
                   <div class={style['version-list']}>
                     <For each={versions()}>{(version) =>
                       <div class={style['version-row']}>
-                        <span class={style['version-tag']}>v{version.version}</span>
+                        <span class={style['version-tag']}>
+                          {format(t('documents-page.version.short'), { version: version.version })}
+                        </span>
                         <span class={style['version-date']}>{formatStamp(version.modified)}</span>
-                        <ActionMenu label={`Actions for version ${version.version}`} class={style['version-action']}>
-                          <MenuItem icon={<Sheet />}>Open this version</MenuItem>
-                          <MenuItem icon={<Icon name='copy' />}>Duplicate as new document</MenuItem>
-                          <MenuItem icon={<Icon name='confirm' />}>Restore</MenuItem>
+                        <ActionMenu
+                            label={format(t('documents-page.history.menu.label'), { version: version.version })}
+                            class={style['version-action']}>
+                          <MenuItem icon={<Sheet />}>{t('documents-page.history.open')}</MenuItem>
+                          <MenuItem icon={<Icon name='copy' />}>{t('documents-page.history.duplicate')}</MenuItem>
+                          <MenuItem icon={<Icon name='confirm' />}>{t('documents-page.history.restore')}</MenuItem>
                         </ActionMenu>
                       </div>
                     }</For>
                   </div>
 
                   <div class={style['version-note']}>
-                    <Switch fallback={`Keeping the last ${versions().length} older versions.`}>
+                    <Switch fallback={
+                      format(t('documents-page.history.kept.other'), { count: versions().length })
+                    }>
                       <Match when={!versions().length}>
-                        No older versions yet. They appear here as you save.
+                        {t('documents-page.history.none')}
                       </Match>
-                      <Match when={versions().length === 1}>Keeping one older version.</Match>
+                      <Match when={versions().length === 1}>{t('documents-page.history.kept.one')}</Match>
                     </Switch>
                   </div>
                 </>}</Match>
@@ -861,11 +907,15 @@ export default function Documents() {
           </div>
 
           <div class={bs['panel-footer']}>
-            <A href={documentUrl(doc())} class={`${bs.button} ${bs['button-primary']}`}>Open</A>
-            <button type='button' class={bs.button}><Icon name='copy' /> Duplicate</button>
+            <A href={documentUrl(doc())} class={`${bs.button} ${bs['button-primary']}`}>
+              {t('documents-page.action.open')}
+            </A>
+            <button type='button' class={bs.button}>
+              <Icon name='copy' /> {t('documents-page.action.duplicate')}
+            </button>
             <div class={bs.spacer} />
             <button type='button' class={`${bs.button} ${bs['button-danger']}`} onclick={() => remove([doc().id])}>
-              <Icon name='trash' /> Delete
+              <Icon name='trash' /> {t('documents-page.action.delete')}
             </button>
           </div>
 

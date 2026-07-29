@@ -20,9 +20,10 @@ Within that, on purpose:
 
 - theme tokens are declared locally (scoped to `.page` in `backstage.module.css`)
   rather than added to `src/app.css`
-- strings are hardcoded English; extracting them into `~/i18n` waits until the design
-  settles. `'documents-page.title'` and `'sign-in.page.title'` are existing keys, so the
-  toolbar titles are already localized
+- **sign-in's** strings are still hardcoded English; extracting them waits until that
+  page's design settles. **Documents is extracted** — see "Strings" below.
+  `'documents-page.title'` and `'sign-in.page.title'` are existing keys, so both toolbar
+  titles were already localized regardless
 - glyphs the app icon set lacks live in `backstage-icons.tsx` rather than being added to
   `~/components/icon-sets` (see "Icons" below — documents now draws from the app set, and
   what's left local is only what that set has no name for)
@@ -280,6 +281,53 @@ calls `refreshDocuments()`.
   `/documents?dev&fail`. An error state nobody can reach is an error state nobody has
   checked. It's dropped from production builds along with the rest of `dev-access.ts`.
 
+## Strings
+
+The documents page is extracted: every string it shows is a `documents-page.*` key in
+`src/i18n/lang/en.ts`, in one block at the end of the file behind a comment that carries
+the conventions. That includes the `aria-label`s and the `sr-only` text — this page is
+the only place in the app that has any, and they're read aloud, so they're as user-facing
+as the visible copy. `documents-data.ts`'s date words come from the same block.
+
+The library is 30 lines and does one thing: `t(key)` returns a string. It has no
+interpolation and no plurals, so this pass added the two smallest things that close that
+gap, both in `src/i18n/i18n.ts`:
+
+- **`format(text, values)`** splices values into `{braces}`. Values are **named, not
+  positional**, so a translation can put them where its own grammar needs them — which is
+  the whole reason they're inside the string instead of concatenated around it. An unknown
+  name is left as `{name}` rather than blanked, so a typo is visible instead of silent.
+- **Plurals are `.one` / `.other` key pairs**, picked in code. English needs two and the
+  language file can't branch. It's the shape `search-panel.search-results.information
+  .result` / `.results` already used elsewhere. A language with more forms needs
+  `Intl.PluralRules` at the picking site — `plural()` in `documents-data.ts` is the one
+  place for the count-based strings, which is why it exists.
+
+Three things to know before adding a string here:
+
+- **`t()` at module scope snapshots English.** It's reactive only because it reads a Solid
+  store, and that only counts inside a tracking scope. So `SCOPES` holds `keyof I18N` and
+  the render sites call `t(item.label)` — a `label: t(…)` in that array would freeze the
+  language for the life of the page. `command-list.ts` has exactly that problem, which is
+  what the `update-language` event in `i18n.ts` exists to work around.
+- **A missing key renders as nothing**, not as the key name. `tsc` catches a *typo*
+  (`t()` takes `keyof I18N`, and `I18N` is `typeof en`, so adding a key to `en.ts` is all
+  the typing there is) but nothing catches a string that was never extracted. A blank
+  label in the UI means a missing key.
+- **`es.ts` / `fr.ts` are deliberately untouched.** They're partial deltas merged over
+  English (`{ ...en, ...data }`), so anything they lack falls back — same as both
+  command-palette extractions did.
+
+Two things are knowingly left English, both waiting on the same missing piece — `~/i18n`
+has no locale to hand to `Intl`:
+
+- the three `Intl.DateTimeFormat('en-US', …)` in `documents-data.ts`, so a translated page
+  would read "hoy," next to an American date
+- the `localeCompare()` calls the sort helpers use, which order names by the *runtime's*
+  locale rather than the chosen one
+
+Both carry a TODO naming the locale work.
+
 ## The saved view
 
 Narrow the list, sort it, open a document, come back — and it's the same list. The page's
@@ -532,6 +580,24 @@ the canned store), zero-results search, multi-select, the slide-over, and widths
 scroll horizontally, and version should drop before folder. Star, access and delete mutate
 the local store; rename, duplicate and move are placeholders.
 
+Nothing on the page should ever render blank — a blank label is a missing key. The
+reactivity trap is worth checking directly, from the console, since it fails silently and
+only when the language changes:
+
+```js
+const i18n = await import('/_build/src/i18n/i18n.ts');
+const en = (await import('/_build/src/i18n/lang/en.ts')).default;
+i18n.setI18nInstance('strings', { ...en, 'documents-page.scope.all': 'XXX' });
+```
+
+The rail's first item and the first option in the narrow-mode `<select>` must both change
+without a reload. If either doesn't, that `t()` is outside a tracking scope.
+
+**`/_build/src/…` is the path that works** — the dev server serves the app's modules from
+there, and importing the same file through `/@fs/<repo>/src/…` gets you a *second copy* of
+the module with its own store, so the page ignores everything you do to it. That's worth
+knowing for any console poking at module state, including the `ClearTokens()` recipe below.
+
 The saved view is worth exercising both ways round: narrow the list (a folder or a scope,
 some search text, a sort other than Modified), leave for `/` and come back with the Back
 button — the same list should be there — and then reload the page, which goes through
@@ -559,8 +625,9 @@ failure state; Try again re-runs the load (skeleton, then the same failure), and
 read fresh each time.
 
 Dropping the session mid-visit can be driven from the console — in dev,
-`import('/@fs/<repo>/src/lib/auth/index.ts')` resolves to the same module instance the app
-is using, so `ClearTokens()` from there bounces a live `/documents` to `/sign-in`.
+`import('/_build/src/lib/auth/index.ts')` resolves to the same module instance the app is
+using, so `ClearTokens()` from there bounces a live `/documents` to `/sign-in`. (This said
+`/@fs/<repo>/…` before; that path loads a second copy of the module, so it does nothing.)
 
 Then `/sign-in`, which talks to the real `auth.riskamp.com`: submit empty (two field
 messages, focus on the first), a bad credential (pending label, then the banner, password

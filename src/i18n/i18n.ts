@@ -12,6 +12,20 @@ export function t(key?: keyof I18N) {
   return key ? i18n_instance.strings[key] : '';
 }
 
+/**
+ * splice values into a translated string: format(t('key'), { count: 3 }).
+ *
+ * placeholders are named -- {count} -- rather than numbered, so a translation
+ * can put them wherever its own grammar needs them, which is the whole point of
+ * having them in the string rather than concatenating around it.
+ *
+ * a name with no value is left as-is rather than blanked, so a typo shows up in
+ * the ui as {whatever} instead of silently swallowing the value.
+ */
+export function format(text: string, values: Record<string, string | number>): string {
+  return text.replace(/\{(\w+)\}/g, (all, key) => key in values ? String(values[key]) : all);
+}
+
 export async function UpdateLanguage(locale?: string) {
   // FIXME: we need to update the sheet language as well...
   if (locale && locale !== 'en') {

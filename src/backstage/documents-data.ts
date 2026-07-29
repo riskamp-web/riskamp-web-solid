@@ -20,6 +20,11 @@ import { type BackstageDocument, type DocumentHistory, type DocumentVersion,
 import { devBypass, devFailHistory, devFailLoads } from './dev-access';
 import * as auth from '~/lib/auth';
 
+/* the date helpers below render text, so they translate like the page does.
+   t() reads a store, so it's only reactive where it's called inside one --
+   these are called from the page's jsx, which is a tracking scope */
+import { format, t, type I18N } from '~/i18n/i18n';
+
 /* the page's view state (scope / folder / search / sort) outlives the page, so
    it's kept in the app's persistent store rather than here -- see savedView() */
 import { persistentData, setPersistentData, type DocumentsView } from '~/lib/app-data';
@@ -435,6 +440,11 @@ export function flattenFolders(nodes: FolderNode[]): FolderNode[] {
 /* formatting                                                          */
 /* ------------------------------------------------------------------ */
 
+/* TODO: locale. the words around these come from ~/i18n, but the dates
+   themselves are still formatted en-US, so a translated page would read
+   "hoy, 3:15 PM" with an american date beside it. ~/i18n has no locale to hand
+   Intl yet -- when it does, these three (and the localeCompare() calls in the
+   sort helpers below) should take it. */
 const SHORT_DATE = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
 const LONG_DATE = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 const TIME = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -447,23 +457,32 @@ export function formatAbsolute(timestamp: number): string {
     : LONG_DATE.format(date);
 }
 
+/**
+ * "{count} minutes ago" and friends, in the singular or the plural.
+ *
+ * the count is chosen here rather than in the string because a language file
+ * can't branch: english wants two forms, and picking between them is code. two
+ * is also an assumption -- languages with more (polish, russian) need
+ * Intl.PluralRules here, which wants the locale ~/i18n doesn't carry yet.
+ */
+function plural(count: number, one: keyof I18N, other: keyof I18N): string {
+  return format(t(count === 1 ? one : other), { count });
+}
+
 /** relative under a week, absolute after -- so the column stays scannable */
 export function formatRelative(timestamp: number): string {
 
   const delta = NOW - timestamp;
 
-  if (delta < 2 * MINUTE) { return 'just now'; }
+  if (delta < 2 * MINUTE) { return t('documents-page.time.just-now'); }
   if (delta < HOUR) {
-    const minutes = Math.floor(delta / MINUTE);
-    return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+    return plural(Math.floor(delta / MINUTE), 'documents-page.time.minutes.one', 'documents-page.time.minutes.other');
   }
   if (delta < DAY) {
-    const hours = Math.floor(delta / HOUR);
-    return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    return plural(Math.floor(delta / HOUR), 'documents-page.time.hours.one', 'documents-page.time.hours.other');
   }
   if (delta < 7 * DAY) {
-    const days = Math.floor(delta / DAY);
-    return `${days} day${days === 1 ? '' : 's'} ago`;
+    return plural(Math.floor(delta / DAY), 'documents-page.time.days.one', 'documents-page.time.days.other');
   }
 
   return formatAbsolute(timestamp);
@@ -474,8 +493,8 @@ export function formatRelative(timestamp: number): string {
 export function formatStamp(timestamp: number): string {
   const delta = NOW - timestamp;
   const date = new Date(timestamp);
-  if (delta < DAY) { return `today, ${TIME.format(date)}`; }
-  if (delta < 2 * DAY) { return `yesterday, ${TIME.format(date)}`; }
+  if (delta < DAY) { return format(t('documents-page.time.today'), { time: TIME.format(date) }); }
+  if (delta < 2 * DAY) { return format(t('documents-page.time.yesterday'), { time: TIME.format(date) }); }
   return formatAbsolute(timestamp);
 }
 
