@@ -466,11 +466,6 @@
     text-overflow: ellipsis;
   }
 
-  & > .version-current {
-    flex: 0 0 auto;
-    color: var(--bs-accent);
-  }
-
   & > .version-action {
     opacity: 0;
     transition: opacity .125s ease;

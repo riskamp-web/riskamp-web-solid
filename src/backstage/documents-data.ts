@@ -20,6 +20,10 @@ import { type BackstageDocument, type DocumentHistory, type DocumentVersion,
 import { devBypass, devFailHistory, devFailLoads } from './dev-access';
 import * as auth from '~/lib/auth';
 
+/* the page's view state (scope / folder / search / sort) outlives the page, so
+   it's kept in the app's persistent store rather than here -- see savedView() */
+import { persistentData, setPersistentData, type DocumentsView } from '~/lib/app-data';
+
 export const ACCESS_PRIVATE = 0;
 export const ACCESS_PUBLIC = 1;
 
@@ -131,12 +135,23 @@ export function loadHistory(path: string): void {
   setHistories(key, { status: 'loading', versions: [] });
 
   historySource(path)
-    .then(versions => setHistories(key, { status: 'ready', versions }))
+    .then(versions => setHistories(key, { status: 'ready', versions: newestFirst(versions) }))
     .catch(error => {
       console.error('loading document history failed', path, error);
       setHistories(key, { status: 'failed', versions: [] });
     });
 
+}
+
+/**
+ * newest version first, which is the order the panel renders. sorted here, on
+ * the way into the store, rather than trusted from the source: the service
+ * returns oldest first, and the panel shouldn't have to care which end of the
+ * list it was handed. version numbers are the key, not timestamps -- they're
+ * the thing guaranteed to increase.
+ */
+function newestFirst(versions: DocumentVersion[]): DocumentVersion[] {
+  return [...versions].sort((a, b) => b.version - a.version);
 }
 
 /** drop a failed (or stale) entry so the next loadHistory() fetches again */
@@ -160,14 +175,27 @@ async function historySource(path: string): Promise<DocumentVersion[]> {
     throw new Error('loading document history failed (?fail-history)');
   }
 
-  const { sampleHistory } = await import('./documents-sample');
+  if (import.meta.env.DEV && devBypass()) {
 
-  // slower than the list on purpose: this is the state the panel has to render
-  // well, and it's unreachable if the data is there before the panel opens
-  await new Promise(resolve => setTimeout(resolve, 700));
+    const { sampleHistory } = await import('./documents-sample');
 
-  const doc = documents.find(row => historyKey(row.path) === historyKey(path));
-  return doc ? sampleHistory(doc) : [];
+    // slower than the list on purpose: this is the state the panel has to render
+    // well, and it's unreachable if the data is there before the panel opens
+    await new Promise(resolve => setTimeout(resolve, 700));
+
+    const doc = documents.find(row => historyKey(row.path) === historyKey(path));
+    return doc ? sampleHistory(doc) : [];
+
+  }
+
+  const result = await auth.AccessResource('/api/document-history', { path });
+  if (result.ok) {
+    const json = await result.json();
+    console.info({path, json})
+    return json || [];
+  }
+
+  throw new Error('loading document history failed');
 
 }
 
@@ -462,6 +490,11 @@ export function formatStamp(timestamp: number): string {
 export type SortKey = 'name' | 'path' | 'access' | 'version' | 'modified';
 export type SortDirection = 'asc' | 'desc';
 
+/* the runtime lists exist for savedView(): a persisted value is untrusted input,
+   and a union type can't check one at runtime */
+const SORT_KEYS: SortKey[] = ['name', 'path', 'access', 'version', 'modified'];
+const SORT_DIRECTIONS: SortDirection[] = ['asc', 'desc'];
+
 export function sortDocuments(list: BackstageDocument[], key: SortKey, direction: SortDirection): BackstageDocument[] {
 
   const sign = direction === 'asc' ? 1 : -1;
@@ -489,6 +522,66 @@ export function sortDocuments(list: BackstageDocument[], key: SortKey, direction
     return result * sign;
   });
 
+}
+
+/* ------------------------------------------------------------------ */
+/* the saved view                                                      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * the rail's top-level filters. lives here rather than in the page because the
+ * saved view stores one, and ~/lib/app-data types the stored value against this.
+ */
+export type DocumentScope = 'all' | 'starred' | 'recent' | 'private';
+
+const SCOPE_KEYS: DocumentScope[] = ['all', 'starred', 'recent', 'private'];
+
+/** what a fresh visit looks like: everything, newest first, nothing typed */
+export const DEFAULT_VIEW: Required<Omit<DocumentsView, 'folder'>> & { folder: string | undefined } = {
+  scope: 'all',
+  folder: undefined,
+  search: '',
+  sort: 'modified',
+  direction: 'desc',
+};
+
+/**
+ * the view the page was left in -- scope, folder, search and sort. that lives in
+ * persistentData rather than in the page because a route component's state dies
+ * with it: opening a document unmounts the page, so restoring the list on the
+ * way back needs somewhere outside it to have kept the answer. the document
+ * store next door can't be it, since this is about the page's view of the rows,
+ * not the rows.
+ *
+ * persisted rather than session-scoped, so it survives a reload as well as a
+ * navigation -- there's nothing here worth losing, and nothing private.
+ *
+ * every field is validated: this is JSON from localStorage, potentially written
+ * by an older build, so a value that isn't one of ours reverts to its default
+ * rather than putting the page in a state it can't draw.
+ */
+export function savedView(): typeof DEFAULT_VIEW {
+
+  const saved = persistentData.documents_view || {};
+
+  return {
+    scope: SCOPE_KEYS.includes(saved.scope!) ? saved.scope! : DEFAULT_VIEW.scope,
+    folder: typeof saved.folder === 'string' && saved.folder ? saved.folder : undefined,
+    search: typeof saved.search === 'string' ? saved.search : DEFAULT_VIEW.search,
+    sort: SORT_KEYS.includes(saved.sort!) ? saved.sort! : DEFAULT_VIEW.sort,
+    direction: SORT_DIRECTIONS.includes(saved.direction!) ? saved.direction! : DEFAULT_VIEW.direction,
+  };
+
+}
+
+/**
+ * write the view back. the whole object every time rather than a field at a
+ * time: the page saves from one effect that reads all five, so there's no
+ * partial state to merge, and replacing the object keeps a removed field from
+ * lingering in localStorage.
+ */
+export function saveView(view: DocumentsView): void {
+  setPersistentData('documents_view', { ...view });
 }
 
 /**

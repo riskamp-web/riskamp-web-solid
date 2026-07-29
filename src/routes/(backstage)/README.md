@@ -30,9 +30,11 @@ Within that, on purpose:
 Promoting any of those out of here is deliberate later work, not cleanup to do in
 passing.
 
-The one deliberate exception so far is the **route guard**, which by request lives in
+Two deliberate exceptions so far, both by request. The **route guard** lives in
 `src/routes/(backstage).tsx` and `src/components/layout-context.tsx` — a check that has to
-be shared by every backstage page can't live inside any one of them. See below.
+be shared by every backstage page can't live inside any one of them. And the documents
+page's **saved view** lives in `persistentData` in `src/lib/app-data.ts`, which is where
+this app already keeps things that outlive a component. Both are described below.
 
 ## Files
 
@@ -53,7 +55,7 @@ What they run on, in `src/backstage/`:
 | file | what it holds |
 | --- | --- |
 | `documents-store.ts` | the row and history shapes, and the two stores themselves |
-| `documents-data.ts` | the loaders, and the path/folder/name/format/sort helpers |
+| `documents-data.ts` | the loaders, the path/folder/name/format/sort helpers, and the saved view |
 | `documents-sample.ts` | the canned document set and its canned history |
 | `documents-sample2.ts` | a dump of **real** rows from the live account, for reference — not wired to anything |
 | `dev-access.ts` | `requireAuth()` — the guard declaration plus its dev-only bypasses |
@@ -278,6 +280,49 @@ calls `refreshDocuments()`.
   `/documents?dev&fail`. An error state nobody can reach is an error state nobody has
   checked. It's dropped from production builds along with the rest of `dev-access.ts`.
 
+## The saved view
+
+Narrow the list, sort it, open a document, come back — and it's the same list. The page's
+view state (scope, folder, search text, sort column and direction) is stored **outside the
+page**, because a route component's state dies with it and opening a document unmounts the
+whole thing.
+
+It lives in `persistentData.documents_view` in `~/lib/app-data` — the app's existing
+persistence, rather than a new mechanism next to it. `savedView()` and `saveView()` in
+`documents-data.ts` are the only things that touch it; the page reads once during render to
+seed its signals and writes from one effect.
+
+- **The second deliberate exception to containment**, after the route guard, and by request.
+  `DocumentsView` is declared in `app-data.ts` and typed against `DocumentScope` / `SortKey`
+  / `SortDirection`, imported `import type` from `~/backstage/documents-data` so nothing is
+  pulled in at runtime and there's no import cycle. `app-data.ts` also carries
+  `documents_sort` / `documents_asc` / `documents_filter` from the **old** skeleton page —
+  those are dead and due to be removed; don't extend them.
+- **Persistent, not session.** It survives a reload as well as a navigation. There's nothing
+  in it worth losing and nothing private in it.
+- **Everything read back is validated.** It's JSON from `localStorage`, possibly written by
+  an older build, so an unrecognised scope or sort key falls back to its default rather than
+  putting the page in a state it can't draw. That's what `SORT_KEYS` / `SCOPE_KEYS` /
+  `DEFAULT_VIEW` exist for — a union type checks nothing at runtime. Adding a field means
+  adding its guard.
+- **Saving is one effect reading all five**, so no handler has to remember to save, and the
+  whole object is replaced rather than patched a field at a time.
+- **A saved folder is dropped if it no longer exists.** Folders are derived from paths, so
+  the last document leaving one deletes it, and a rail selection matching nothing draws an
+  empty list with no visible cause. The check waits for `loaded()` — before that, *every*
+  folder is missing.
+- **What's open and what's ticked are not saved.** The detail panel and the checkbox
+  selection are about what you're doing, not what you're looking at; restoring them would
+  read as the page having acted on its own.
+- **The restore has to beat the page's first render**, and does: `InitAppData()` runs in the
+  root's `onMount` in `app.tsx`, while `/documents` is a lazily-loaded route chunk that
+  hasn't rendered yet — verified by reloading straight onto `/documents`, which comes back
+  with the saved view rather than the defaults. Worth knowing, because if that order ever
+  changed the page would seed from the defaults and then save them over what was stored. The
+  fix would be to move the `localStorage` read in `app-data.ts` from `InitAppData()` to
+  module scope; the app is `ssr: false`, so there's no hydration mismatch to worry about.
+  Not done now because nothing needs it.
+
 ## Version history
 
 History is a **second store**, keyed by path, not a field on the row — because it arrives
@@ -292,6 +337,15 @@ retryHistory(path)       // drop the entry and fetch again
 flushHistories()         // drop them all
 ```
 
+- **History is what the current version superseded — the active version isn't in it.** The
+  service returns the *older* versions; the current number comes with the row. So the
+  section is headed **Older versions**, nothing in the list is tagged "current", every entry
+  gets the same actions, and a document on v1 has an empty history rather than a
+  one-row one. The canned `sampleHistory()` matches: it starts at `version - 1`.
+- **Newest first, sorted on the way into the store.** The service returns oldest first, and
+  `newestFirst()` in `loadHistory()` reverses it, so the panel renders whatever it's handed
+  in one order and the canned and real sources can't disagree. It sorts on the version
+  *number*, not the timestamp — that's the field guaranteed to increase.
 - **The entry is a tagged record, not a bare array.** `'loading' | 'ready' | 'failed'` are
   three states that render differently, and *absent* is a fourth — nobody has asked yet.
   That's what makes `loadHistory()` idempotent: an entry in any state means return early,
@@ -478,7 +532,12 @@ the canned store), zero-results search, multi-select, the slide-over, and widths
 scroll horizontally, and version should drop before folder. Star, access and delete mutate
 the local store; rename, duplicate and move are placeholders.
 
-The detail panel's Versions section has three states worth seeing: the skeleton bars (open
+The saved view is worth exercising both ways round: narrow the list (a folder or a scope,
+some search text, a sort other than Modified), leave for `/` and come back with the Back
+button — the same list should be there — and then reload the page, which goes through
+`localStorage` rather than memory. `localStorage.getItem('app-data')` shows what was stored.
+
+The detail panel's Older versions section has three states worth seeing: the skeleton bars (open
 a document you haven't opened before — the entry is cached after that, so reload to get it
 back), the loaded list, and `/documents?dev&fail-history` for the failure plus its **Try
 again**.

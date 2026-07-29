@@ -2,6 +2,7 @@ import { createStore } from 'solid-js/store';
 import { createEffect, on } from 'solid-js';
 import { type Model } from 'treb-llm-support';
 import type { DocumentsRow } from '~/docs/documents';
+import type { DocumentScope, SortDirection, SortKey } from '~/backstage/documents-data';
 import { isServer } from "solid-js/web";
 
 /**
@@ -33,6 +34,30 @@ interface SessionData {
 
 }
 
+/**
+ * what the documents page was looking at: the list it had narrowed to, the order
+ * it was in, and what was typed in the search box. persisted so that opening a
+ * document and coming back lands on the same view rather than resetting to
+ * everything, newest first.
+ *
+ * every field is optional and every reader supplies its own default -- this is
+ * read back from localStorage, so a version that predates a field, or one that
+ * wrote a value since removed, has to be a non-event. the page validates what it
+ * reads (see savedView() in ~/backstage/documents-data).
+ */
+export interface DocumentsView {
+  /** which of the rail's top-level filters is active */
+  scope?: DocumentScope;
+  /** owner-relative folder path, or undefined for none */
+  folder?: string;
+  /** the search box's contents */
+  search?: string;
+  /** the sorted column */
+  sort?: SortKey;
+  /** and its direction */
+  direction?: SortDirection;
+}
+
 export interface PersistentData {
   lhs: boolean;
   stepped: boolean; 
@@ -48,9 +73,14 @@ export interface PersistentData {
   fit_ignore_strings: boolean;
   fit_ignore_boolean: boolean;
 
+  /* superseded by documents_view below, which the redesigned documents page
+     uses -- these are the old skeleton page's and are due to be removed */
   documents_sort?: keyof DocumentsRow;
   documents_asc?: boolean;
   documents_filter?: string;
+
+  /** the documents page's view state -- see DocumentsView above */
+  documents_view?: DocumentsView;
 
   /** explicit light/dark theme. leave undefined to use system theme. */
   explicit_theme?: 'light'|'dark';
@@ -99,6 +129,8 @@ export const [persistentData, setPersistentData] = createStore<PersistentData>({
   documents_asc: false,
   documents_sort: 'modified',
   documents_filter: '',
+
+  documents_view: {},
 
 });
 

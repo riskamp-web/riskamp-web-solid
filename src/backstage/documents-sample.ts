@@ -11,9 +11,12 @@ import {
 } from './documents-data';
 
 /**
- * the canned version history for a document: a list ending at `modified` and
- * walking backwards toward `created`, newest first, which is the order the
- * detail panel renders.
+ * the canned version history for a document: the versions *before* the current
+ * one, walking backwards from `modified` toward `created`.
+ *
+ * history doesn't include the active version -- the service returns what was
+ * superseded, and the row already carries the current number -- so this starts
+ * at `version - 1` and a brand new document has an empty history.
  *
  * derived from the row rather than stored beside it, because history isn't part
  * of the list query -- loadHistory() fetches it per document, and this stands in
@@ -26,7 +29,7 @@ export function sampleHistory(doc: BackstageDocument): DocumentVersion[] {
   const gap = Math.max(span / (count + 1), 45 * MINUTE);
 
   const list: DocumentVersion[] = [];
-  for (let i = 0; i < count; i++) {
+  for (let i = 1; i < count; i++) {
     list.push({
       version: count - i,
       modified: Math.round(doc.modified - (i * gap)),

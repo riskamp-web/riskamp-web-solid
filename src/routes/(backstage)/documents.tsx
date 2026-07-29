@@ -29,13 +29,16 @@ import style from './documents.module.css';
 import { Globe, Sheet } from './backstage-icons';
 
 import {
-  ACCESS_PRIVATE, ACCESS_PUBLIC, BackstageDocument, NOW, RECENT_WINDOW, SortDirection, SortKey,
+  ACCESS_PRIVATE, ACCESS_PUBLIC, BackstageDocument, DocumentScope, NOW, RECENT_WINDOW, SortDirection, SortKey,
   displayName, documentUrl, documents, failed, flattenFolders, folderOf,
   folderTree, formatAbsolute, formatRelative, formatStamp, historyOf, isUnnamed, loadDocuments,
-  loadHistory, loaded, ownerOf, refreshDocuments, retryHistory, setDocuments, sortDocuments,
+  loadHistory, loaded, ownerOf, refreshDocuments, retryHistory, savedView, saveView, setDocuments,
+  sortDocuments,
 } from '~/backstage/documents-data';
 
-type Scope = 'all' | 'starred' | 'recent' | 'private';
+/* the union lives next to the data: the saved view stores a scope, so
+   ~/lib/app-data has to be able to type one */
+type Scope = DocumentScope;
 
 /**
  * the app icon set ships svg markup as strings, so an icon is an element with
@@ -147,11 +150,20 @@ export default function Documents() {
   // in dev, /documents?dev opens the page without one -- see dev-access.ts
   requireAuth('signed-in');
 
-  const [scope, setScope] = createSignal<Scope>('all');
-  const [folder, setFolder] = createSignal<string | undefined>();
-  const [search, setSearch] = createSignal('');
-  const [sortKey, setSortKey] = createSignal<SortKey>('modified');
-  const [sortDirection, setSortDirection] = createSignal<SortDirection>('desc');
+  /* the list you narrowed to is the list you should come back to, so these four
+     start from the saved view rather than from nothing -- read once, here, so
+     the signals are the page's own state from then on. see savedView() */
+  const saved = savedView();
+
+  const [scope, setScope] = createSignal<Scope>(saved.scope);
+  const [folder, setFolder] = createSignal<string | undefined>(saved.folder);
+  const [search, setSearch] = createSignal(saved.search);
+  const [sortKey, setSortKey] = createSignal<SortKey>(saved.sort);
+  const [sortDirection, setSortDirection] = createSignal<SortDirection>(saved.direction);
+
+  /* what's open and what's ticked are deliberately *not* saved: they're about
+     the thing you're doing, not the list you're looking at, and coming back to a
+     stale selection reads as the page having done something on its own */
   const [selected, setSelected] = createSignal<number | undefined>();
   const [checked, setChecked] = createSignal<Set<number>>(new Set());
   const [copied, setCopied] = createSignal(false);
@@ -162,9 +174,29 @@ export default function Documents() {
   // no-op if another visit already filled the store; loaded() drives the skeleton
   onMount(() => { loadDocuments(); });
 
+  /* one effect for all five, so saving is a single write and no handler has to
+     remember to do it. it also runs on mount, writing back what it just read */
+  createEffect(() => saveView({
+    scope: scope(),
+    folder: folder(),
+    search: search(),
+    sort: sortKey(),
+    direction: sortDirection(),
+  }));
+
   /* ---- derived ---- */
 
   const folders = createMemo(() => flattenFolders(folderTree(documents as BackstageDocument[])));
+
+  /* a saved folder can outlive the folder itself -- folders are derived from
+     paths, so the last document leaving one deletes it. a rail selection that
+     matches nothing draws an empty list with no visible cause, so drop it once
+     the rows are in and it turns out not to be there */
+  createEffect(() => {
+    const path = folder();
+    if (!loaded() || !path) { return; }
+    if (!folders().some(node => node.path === path)) { setFolder(undefined); }
+  });
 
   const counts = createMemo(() => ({
     all: documents.length,
@@ -759,9 +791,19 @@ export default function Documents() {
               <span>{formatRelative(doc().modified)}</span>
             </div>
 
+            {/* the current version, which the list below deliberately doesn't
+                carry -- and the Version column is the first thing to drop as the
+                table narrows, so the panel is the only place left showing it */}
+            <div class={bs['field-row']}>
+              <span class={bs['field-label']}>Version</span>
+              <span>v{doc().version}</span>
+            </div>
+
             <div class={style['panel-section']}>
+              {/* history is what the current version superseded -- the active
+                  one isn't in the list, so the heading says so */}
               <div class={bs['section-label']} style='padding: 0'>
-                Versions
+                Older versions
               </div>
 
               {/* history arrives separately from the row, so this section has
@@ -790,29 +832,25 @@ export default function Documents() {
 
                 <Match when={detailHistory()?.status === 'ready' && detailHistory()!.versions}>{(versions) => <>
                   <div class={style['version-list']}>
-                    <For each={versions()}>{(version, index) =>
+                    <For each={versions()}>{(version) =>
                       <div class={style['version-row']}>
                         <span class={style['version-tag']}>v{version.version}</span>
                         <span class={style['version-date']}>{formatStamp(version.modified)}</span>
-                        <Show when={index() === 0} fallback={
-                          <ActionMenu label={`Actions for version ${version.version}`} class={style['version-action']}>
-                            <MenuItem icon={<Sheet />}>Open this version</MenuItem>
-                            <MenuItem icon={<Icon name='copy' />}>Duplicate as new document</MenuItem>
-                            <MenuItem icon={<Icon name='confirm' />}>Restore</MenuItem>
-                          </ActionMenu>
-                        }>
-                          <span class={style['version-current']}>current</span>
-                        </Show>
+                        <ActionMenu label={`Actions for version ${version.version}`} class={style['version-action']}>
+                          <MenuItem icon={<Sheet />}>Open this version</MenuItem>
+                          <MenuItem icon={<Icon name='copy' />}>Duplicate as new document</MenuItem>
+                          <MenuItem icon={<Icon name='confirm' />}>Restore</MenuItem>
+                        </ActionMenu>
                       </div>
                     }</For>
                   </div>
 
                   <div class={style['version-note']}>
-                    <Switch fallback={`Keeping the last ${versions().length} versions.`}>
-                      <Match when={!versions().length}>No version history for this document.</Match>
-                      <Match when={versions().length === 1}>
-                        Only one version so far. Older versions appear here as you save.
+                    <Switch fallback={`Keeping the last ${versions().length} older versions.`}>
+                      <Match when={!versions().length}>
+                        No older versions yet. They appear here as you save.
                       </Match>
+                      <Match when={versions().length === 1}>Keeping one older version.</Match>
                     </Switch>
                   </div>
                 </>}</Match>
