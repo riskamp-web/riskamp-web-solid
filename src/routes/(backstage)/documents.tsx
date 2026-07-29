@@ -11,7 +11,7 @@
  * already localized.)
  */
 
-import { For, JSX, Match, ParentProps, Show, Switch, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
+import { For, JSX, Match, ParentProps, Show, Switch, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
 import { A } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
@@ -30,9 +30,9 @@ import { Globe, Sheet } from './backstage-icons';
 
 import {
   ACCESS_PRIVATE, ACCESS_PUBLIC, BackstageDocument, NOW, RECENT_WINDOW, SortDirection, SortKey,
-  displayName, documentUrl, documents, failed, findPathCollision, flattenFolders, folderOf,
-  folderTree, formatAbsolute, formatRelative, formatStamp, isUnnamed, loadDocuments, loaded,
-  pathFor, refreshDocuments, setDocuments, sortDocuments,
+  displayName, documentUrl, documents, failed, flattenFolders, folderOf,
+  folderTree, formatAbsolute, formatRelative, formatStamp, historyOf, isUnnamed, loadDocuments,
+  loadHistory, loaded, ownerOf, refreshDocuments, retryHistory, setDocuments, sortDocuments,
 } from '~/backstage/documents-data';
 
 type Scope = 'all' | 'starred' | 'recent' | 'private';
@@ -46,6 +46,9 @@ type Scope = 'all' | 'starred' | 'recent' | 'private';
 function Icon(props: { name: IconName, class?: string }) {
   return <span class={`${bs.icon} ${props.class || ''}`} innerHTML={icons[props.name]} />;
 }
+
+/** starred is optional on the row -- absent means not starred */
+const isStarred = (doc: BackstageDocument) => !!doc.starred;
 
 /* public is the default access level, so the useful scope is the exception: the
    handful of documents that aren't shared */
@@ -151,8 +154,6 @@ export default function Documents() {
   const [sortDirection, setSortDirection] = createSignal<SortDirection>('desc');
   const [selected, setSelected] = createSignal<number | undefined>();
   const [checked, setChecked] = createSignal<Set<number>>(new Set());
-  const [renaming, setRenaming] = createSignal(false);
-  const [renameDraft, setRenameDraft] = createSignal('');
   const [copied, setCopied] = createSignal(false);
 
   let last_trigger: HTMLElement | undefined;
@@ -216,6 +217,20 @@ export default function Documents() {
     return documents.find(doc => doc.id === id);
   });
 
+  /* history isn't part of the list query, so opening the panel is what asks for
+     it. loadHistory() is idempotent, so reopening the same document costs
+     nothing and the effect can stay this blunt. */
+  createEffect(() => {
+    const doc = detail();
+    if (doc && selected() !== undefined) { loadHistory(doc.path); }
+  });
+
+  /** the open document's history, or undefined before anything has asked */
+  const detailHistory = createMemo(() => {
+    const doc = detail();
+    return doc ? historyOf(doc.path) : undefined;
+  });
+
   const checkedCount = () => checked().size;
 
   /* ---- actions ---- */
@@ -226,71 +241,12 @@ export default function Documents() {
   };
 
   const closeDetail = () => {
-    setRenaming(false);
     setSelected(undefined);
     last_trigger?.focus();
     last_trigger = undefined;
   };
 
   const toggleStar = (id: number) => setDocuments(doc => doc.id === id, 'starred', starred => !starred);
-
-  /* rename is driven from the detail panel; the row menu just opens the panel
-     with the field already in edit mode */
-  const startRename = (doc: BackstageDocument) => {
-    setSelected(doc.id);
-    setRenameDraft(displayName(doc));
-    setRenaming(true);
-  };
-
-  /** where the current draft would put the document */
-  const renameTarget = () => {
-    const doc = detail();
-    return doc ? pathFor(folderOf(doc.path), renameDraft().trim()) : '';
-  };
-
-  /* the slug is the document's identity, so a rename that would collide inside
-     the folder is blocked rather than silently disambiguated */
-  const renameProblem = createMemo(() => {
-
-    const doc = detail();
-    if (!renaming() || !doc) { return undefined; }
-
-    const name = renameDraft().trim();
-    if (!name) { return 'Enter a name.'; }
-
-    const target = renameTarget();
-    if (target.endsWith('/')) { return 'Name needs at least one letter or number.'; }
-
-    const clash = findPathCollision(documents as BackstageDocument[], target, doc.id);
-    return clash
-      ? `“${displayName(clash)}” already uses this address.`
-      : undefined;
-
-  });
-
-  const commitRename = () => {
-
-    const doc = detail();
-    if (renameProblem()) { return; } // stay in edit mode until it resolves
-
-    const name = renameDraft().trim();
-    const target = renameTarget();
-
-    // the path is derived, so a rename is also a move -- both fields change,
-    // and naming a legacy document is how it stops being unnamed
-    if (doc && name && (name !== doc.name || target !== doc.path)) {
-      setDocuments(row => row.id === doc.id, row => ({ ...row, name, path: target }));
-    }
-
-    setRenaming(false);
-
-  };
-
-  /** blur can't stay in edit mode, so an invalid draft is abandoned */
-  const cancelOrCommitRename = () => {
-    if (renameProblem()) { setRenaming(false); }
-    else { commitRename(); }
-  };
 
   const copyLink = async () => {
     const doc = detail();
@@ -360,10 +316,7 @@ export default function Documents() {
   onMount(() => {
     const onkeydown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') { return; }
-      if (renaming()) {
-        setRenaming(false);
-      }
-      else if (search()) {
+      if (search()) {
         setSearch('');
         search_input?.focus();
       }
@@ -401,7 +354,7 @@ export default function Documents() {
     <ActionMenu label={`Actions for ${displayName(props.doc)}`} class={style['row-menu-button']}>
       <MenuItem icon={<Sheet />}>Open</MenuItem>
       <MenuItem icon={<Icon name='copy' />}>Duplicate</MenuItem>
-      <MenuItem onclick={() => startRename(props.doc)}>Rename…</MenuItem>
+      <MenuItem>Rename…</MenuItem>
       <MenuItem icon={<Icon name='folder' />}>Move to…</MenuItem>
       <hr />
       <MenuItem
@@ -544,6 +497,7 @@ export default function Documents() {
           <SortHeader column='name' label='Name' class={style['cell-name']} />
           <SortHeader column='path' label='Folder' class={style['cell-path']} />
           <SortHeader column='access' label='Access' class={style['cell-access']} />
+          <SortHeader column='version' label='Version' class={style['cell-version']} />
           <SortHeader column='modified' label='Modified' class={style['cell-modified']} />
           <div class={style.cell} role='columnheader'><span class='sr-only'>Actions</span></div>
         </div>
@@ -577,6 +531,7 @@ export default function Documents() {
                   <div class={`${bs.skeleton} ${style['skeleton-bar']}`} style={`width: ${52 + ((index * 37) % 46)}%`} />
                   <div class={`${bs.skeleton} ${style['skeleton-bar']} ${style['cell-path']}`} style='width: 45%' />
                   <div class={`${bs.skeleton} ${style['skeleton-bar']} ${style['cell-access']}`} style='width: 60%' />
+                  <div class={`${bs.skeleton} ${style['skeleton-bar']} ${style['cell-version']}`} style='width: 50%' />
                   <div class={`${bs.skeleton} ${style['skeleton-bar']}`} style='width: 66%' />
                   <div />
                 </div>
@@ -642,9 +597,9 @@ export default function Documents() {
                   <div class={`${style.cell} ${style['cell-center']}`} role='cell'>
                     <button
                         type='button'
-                        classList={{ [bs['icon-button']]: true, [style.star]: true, [style.starred]: doc.starred }}
-                        aria-label={doc.starred ? `Unstar ${displayName(doc)}` : `Star ${displayName(doc)}`}
-                        aria-pressed={doc.starred}
+                        classList={{ [bs['icon-button']]: true, [style.star]: true, [style.starred]: isStarred(doc) }}
+                        aria-label={isStarred(doc) ? `Unstar ${displayName(doc)}` : `Star ${displayName(doc)}`}
+                        aria-pressed={isStarred(doc)}
                         onclick={(event) => { event.stopPropagation(); toggleStar(doc.id); }}>
                       <Icon name='star' />
                     </button>
@@ -661,7 +616,11 @@ export default function Documents() {
                   </div>
 
                   <div class={`${style.cell} ${style['cell-path']}`} role='cell'>
-                    {folderOf(doc.path) || '/'}
+                    <Show when={folderOf(doc.path)} fallback={
+                      <span class={style['owner-tag']}>{ownerOf(doc.path)}</span>
+                    }>
+                      {folderOf(doc.path)}
+                    </Show>
                   </div>
 
                   <div class={`${style.cell} ${style['cell-access']}`} role='cell'>
@@ -670,6 +629,12 @@ export default function Documents() {
                         fallback={<span class={`${style['access-pill']} ${style['access-private']}`}>Private</span>}>
                       <span class={`${style['access-pill']} ${style['access-public']}`}>Public</span>
                     </Show>
+                  </div>
+
+                  {/* the version *number*, which the list query returns -- not a
+                      count of the history, which would need a fetch per row */}
+                  <div class={`${style.cell} ${style['cell-version']}`} role='cell'>
+                    v{doc.version}
                   </div>
 
                   <div class={`${style.cell} ${style['cell-modified']}`} role='cell' title={formatAbsolute(doc.modified)}>
@@ -712,74 +677,33 @@ export default function Documents() {
           <div class={bs['panel-header']}>
             <div class={style['panel-title']}>
 
-              <Show
-                  when={renaming()}
-                  fallback={
-                    <div class={style['panel-name']}>
-                      <Show when={doc().starred}>
-                        <Icon name='star' class={`${style.star} ${style.starred}`} />
-                      </Show>
-                      <button
-                          type='button'
-                          classList={{
-                            [style['rename-target']]: true,
-                            [style.unnamed]: isUnnamed(doc()),
-                          }}
-                          title='Rename'
-                          onclick={() => startRename(doc())}>
-                        {displayName(doc())}
-                      </button>
-                    </div>
-                  }>
-                <input
-                    class={style['rename-input']}
-                    aria-label='Document name'
-                    value={renameDraft()}
-                    ref={(el) => queueMicrotask(() => { el.focus(); el.select(); })}
-                    aria-invalid={!!renameProblem()}
-                    oninput={(event) => setRenameDraft(event.currentTarget.value)}
-                    onblur={cancelOrCommitRename}
-                    onkeydown={(event) => {
-                      if (event.key === 'Enter') { event.preventDefault(); commitRename(); }
-                      // escape is handled globally; don't let it also close the panel
-                      if (event.key === 'Escape') { event.stopPropagation(); setRenaming(false); }
-                    }} />
-              </Show>
-
-              {/* the address is derived from the name, so renaming moves the
-                  document -- show where it lands, or why it can't */}
-              <Show
-                  when={renaming()}
-                  fallback={
-                    <div class={style['panel-path']}>
-                      <span class={style['panel-uri']}>{documentUrl(doc())}</span>
-                      <button
-                          type='button'
-                          class={`${bs['icon-button']} ${style['copy-link']}`}
-                          aria-label={copied() ? 'Link copied' : 'Copy link'}
-                          title={copied() ? 'Copied' : 'Copy link'}
-                          onclick={copyLink}>
-                        <Show when={copied()} fallback={<Icon name='copy' />}>
-                          <Icon name='copy_confirmed' class={style['copy-confirmed']} />
-                        </Show>
-                      </button>
-                    </div>
-                  }>
-                <Show
-                    when={renameProblem()}
-                    fallback={
-                      <div class={style['rename-preview']}>
-                        <span class={style['panel-uri']}>/@duncan{renameTarget()}</span>
-                      </div>
-                    }>
-                  <div class={style['rename-error']} role='alert'>{renameProblem()}</div>
+              <div class={style['panel-name']}>
+                <Show when={doc().starred}>
+                  <Icon name='star' class={`${style.star} ${style.starred}`} />
                 </Show>
-              </Show>
+                <span classList={{ [style.unnamed]: isUnnamed(doc()) }}>
+                  {displayName(doc())}
+                </span>
+              </div>
+
+              <div class={style['panel-path']}>
+                <span class={style['panel-uri']}>{documentUrl(doc())}</span>
+                <button
+                    type='button'
+                    class={`${bs['icon-button']} ${style['copy-link']}`}
+                    aria-label={copied() ? 'Link copied' : 'Copy link'}
+                    title={copied() ? 'Copied' : 'Copy link'}
+                    onclick={copyLink}>
+                  <Show when={copied()} fallback={<Icon name='copy' />}>
+                    <Icon name='copy_confirmed' class={style['copy-confirmed']} />
+                  </Show>
+                </button>
+              </div>
 
               {/* legacy documents have only a slug, so the title above is just
                   the address repeated -- say so rather than let it look like a
                   badly-cased name */}
-              <Show when={isUnnamed(doc()) && !renaming()}>
+              <Show when={isUnnamed(doc())}>
                 <div class={style['unnamed-hint']}>
                   No name yet — this is the address. Renaming sets one.
                 </div>
@@ -816,9 +740,9 @@ export default function Documents() {
               <div>
                 <button
                     type='button'
-                    classList={{ [bs['icon-button']]: true, [style.star]: true, [style.starred]: doc().starred }}
-                    aria-pressed={doc().starred}
-                    aria-label={doc().starred ? 'Unstar this document' : 'Star this document'}
+                    classList={{ [bs['icon-button']]: true, [style.star]: true, [style.starred]: isStarred(doc()) }}
+                    aria-pressed={isStarred(doc())}
+                    aria-label={isStarred(doc()) ? 'Unstar this document' : 'Star this document'}
                     onclick={() => toggleStar(doc().id)}>
                   <Icon name='star' />
                 </button>
@@ -840,29 +764,60 @@ export default function Documents() {
                 Versions
               </div>
 
-              <div class={style['version-list']}>
-                <For each={doc().versions}>{(version, index) =>
-                  <div class={style['version-row']}>
-                    <span class={style['version-tag']}>v{version.version}</span>
-                    <span class={style['version-date']}>{formatStamp(version.modified)}</span>
-                    <Show when={index() === 0} fallback={
-                      <ActionMenu label={`Actions for version ${version.version}`} class={style['version-action']}>
-                        <MenuItem icon={<Sheet />}>Open this version</MenuItem>
-                        <MenuItem icon={<Icon name='copy' />}>Duplicate as new document</MenuItem>
-                        <MenuItem icon={<Icon name='confirm' />}>Restore</MenuItem>
-                      </ActionMenu>
-                    }>
-                      <span class={style['version-current']}>current</span>
-                    </Show>
-                  </div>
-                }</For>
-              </div>
+              {/* history arrives separately from the row, so this section has
+                  its own loading and failed states -- see loadHistory() */}
+              <Switch fallback={
+                <div class={style['version-loading']} aria-live='polite'>
+                  <For each={Array.from({ length: 3 }, (_, index) => index)}>{(index) =>
+                    <div class={`${bs.skeleton} ${style['version-skeleton']}`}
+                        style={`width: ${76 - (index * 12)}%`} aria-hidden='true' />
+                  }</For>
+                  <span class='sr-only'>Loading version history</span>
+                </div>
+              }>
 
-              <div class={style['version-note']}>
-                {doc().versions.length === 1
-                  ? 'Only one version so far. Older versions appear here as you save.'
-                  : `Keeping the last ${doc().versions.length} versions.`}
-              </div>
+                <Match when={detailHistory()?.status === 'failed'}>
+                  <div class={style['version-note']} role='alert'>
+                    Couldn’t load version history.
+                    <button
+                        type='button'
+                        class={style['version-retry']}
+                        onclick={() => retryHistory(doc().path)}>
+                      Try again
+                    </button>
+                  </div>
+                </Match>
+
+                <Match when={detailHistory()?.status === 'ready' && detailHistory()!.versions}>{(versions) => <>
+                  <div class={style['version-list']}>
+                    <For each={versions()}>{(version, index) =>
+                      <div class={style['version-row']}>
+                        <span class={style['version-tag']}>v{version.version}</span>
+                        <span class={style['version-date']}>{formatStamp(version.modified)}</span>
+                        <Show when={index() === 0} fallback={
+                          <ActionMenu label={`Actions for version ${version.version}`} class={style['version-action']}>
+                            <MenuItem icon={<Sheet />}>Open this version</MenuItem>
+                            <MenuItem icon={<Icon name='copy' />}>Duplicate as new document</MenuItem>
+                            <MenuItem icon={<Icon name='confirm' />}>Restore</MenuItem>
+                          </ActionMenu>
+                        }>
+                          <span class={style['version-current']}>current</span>
+                        </Show>
+                      </div>
+                    }</For>
+                  </div>
+
+                  <div class={style['version-note']}>
+                    <Switch fallback={`Keeping the last ${versions().length} versions.`}>
+                      <Match when={!versions().length}>No version history for this document.</Match>
+                      <Match when={versions().length === 1}>
+                        Only one version so far. Older versions appear here as you save.
+                      </Match>
+                    </Switch>
+                  </div>
+                </>}</Match>
+
+              </Switch>
             </div>
 
           </div>

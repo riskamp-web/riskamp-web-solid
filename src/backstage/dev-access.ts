@@ -18,6 +18,9 @@ export const DEV_PARAM = 'dev';
 /** the parameter that makes a load fail, for looking at the failure state */
 export const FAIL_PARAM = 'fail';
 
+/** the same, for version history -- see devFailHistory() */
+export const FAIL_HISTORY_PARAM = 'fail-history';
+
 /**
  * true when this is the dev server and the current url carries the flag.
  *
@@ -55,6 +58,18 @@ export function devBypass(): boolean {
  */
 export function devFailLoads(): boolean {
   return devFlag(FAIL_PARAM);
+}
+
+/**
+ * dev server, and the url carries ?fail-history: make loading a document's
+ * version history fail.
+ *
+ * a separate flag rather than reusing ?fail, because that one fails the document
+ * list -- which leaves no rows, so no panel, so no way to reach the state this
+ * is meant to show. `/documents?dev&fail-history` lists fine and fails on open.
+ */
+export function devFailHistory(): boolean {
+  return devFlag(FAIL_HISTORY_PARAM);
 }
 
 /**

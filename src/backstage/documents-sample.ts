@@ -11,19 +11,25 @@ import {
 } from './documents-data';
 
 /**
- * build a version list ending at `modified`, walking backwards toward `created`.
- * newest first, which is how the detail panel wants it.
+ * the canned version history for a document: a list ending at `modified` and
+ * walking backwards toward `created`, newest first, which is the order the
+ * detail panel renders.
+ *
+ * derived from the row rather than stored beside it, because history isn't part
+ * of the list query -- loadHistory() fetches it per document, and this stands in
+ * for that fetch. see historySource() in documents-data.ts.
  */
-function versions(count: number, created: number, modified: number): DocumentVersion[] {
+export function sampleHistory(doc: BackstageDocument): DocumentVersion[] {
 
-  const span = Math.max(modified - created, DAY);
+  const count = doc.version;
+  const span = Math.max(doc.modified - doc.created, DAY);
   const gap = Math.max(span / (count + 1), 45 * MINUTE);
 
   const list: DocumentVersion[] = [];
   for (let i = 0; i < count; i++) {
     list.push({
       version: count - i,
-      modified: Math.round(modified - (i * gap)),
+      modified: Math.round(doc.modified - (i * gap)),
     });
   }
 
@@ -32,7 +38,19 @@ function versions(count: number, created: number, modified: number): DocumentVer
 }
 
 /**
- * [ name, full path, access, starred, created (days ago), modified (ms ago), versions ]
+ * the owner every canned document belongs to. real paths lead with the account
+ * handle, so the fixture does too -- otherwise the page is designed against an
+ * address one segment shorter than the one it will actually be given. it's a
+ * stand-in and not anyone's handle: the dev bypass has no session to take a
+ * real one from.
+ */
+const OWNER = '@sample';
+
+/**
+ * [ name, owner-relative path, access, starred, created (days ago), modified (ms ago), version count ]
+ *
+ * paths are written without the owner and get it prefixed below, so the folder
+ * structure is the readable thing in this table.
  *
  * an empty name is a legacy document: the old save box only took a slug, so the
  * path is all it has. roughly a third of the set here, which is deliberate --
@@ -88,14 +106,13 @@ export function sampleDocuments(): BackstageDocument[] {
       id: index + 1,
       userid: 1,
       name,
-      path,
+      path: OWNER + path,
       status: STATUS_ACTIVE,
       access,
       created,
       modified,
       version: version_count,
       starred,
-      versions: versions(version_count, created, modified),
     };
 
   });

@@ -10,13 +10,14 @@
  * where the choice between it and live data gets made.
  */
 
-import { type BackstageDocument, 
+import { type BackstageDocument, type DocumentHistory, type DocumentVersion,
   flushDocuments,
-  loaded, setLoaded, 
-  documents, setDocuments, 
+  loaded, setLoaded,
+  documents, setDocuments,
+  histories, setHistories,
   failed, setFailed } from './documents-store';
 
-import { devBypass, devFailLoads } from './dev-access';
+import { devBypass, devFailHistory, devFailLoads } from './dev-access';
 import * as auth from '~/lib/auth';
 
 export const ACCESS_PRIVATE = 0;
@@ -44,7 +45,11 @@ export const VERSION_CAP = 7;
 
 
 
-export { documents, setDocuments, loaded, failed };
+export { documents, setDocuments, loaded, failed, histories };
+
+/* the store owns the shape, but this file is what the page imports from, so the
+   types travel with the helpers rather than making callers know about both */
+export type { BackstageDocument, DocumentHistory, DocumentVersion };
 
 /** in flight, so two callers land on one fetch rather than two */
 let pending: Promise<void> | undefined;
@@ -80,10 +85,90 @@ export function loadDocuments(): Promise<void> {
 
 }
 
-/** throw the rows away and fetch them again */
+/** throw the rows away and fetch them again; flushDocuments() takes histories too */
 export function refreshDocuments(): Promise<void> {
   flushDocuments();
   return loadDocuments();
+}
+
+/* ------------------------------------------------------------------ */
+/* version history                                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * the key a document's history is stored under. lowercased, because that's how
+ * the service resolves paths -- so /Finance/Model and /finance/model are one
+ * document and must not end up as two entries.
+ */
+export function historyKey(path: string): string {
+  return path.toLowerCase();
+}
+
+/** the history entry for a path, or undefined when nothing has asked for it yet */
+export function historyOf(path: string): DocumentHistory | undefined {
+  return histories[historyKey(path)];
+}
+
+/**
+ * fill in a document's version history, unless it's already there or already on
+ * its way -- so the panel can call this every time it opens without tracking
+ * what it has fetched. returns nothing: the store is the result, and a failure
+ * is a 'failed' entry rather than a rejection.
+ *
+ * a failed entry is left in place rather than deleted, so the panel can say the
+ * history couldn't be fetched instead of sitting on a spinner. retryHistory()
+ * is what clears it.
+ */
+export function loadHistory(path: string): void {
+
+  const key = historyKey(path);
+
+  // present in any state means someone already asked: loading is in flight,
+  // ready is the answer, and failed needs an explicit retry rather than a
+  // silent refetch every time the panel reopens
+  if (histories[key]) { return; }
+
+  setHistories(key, { status: 'loading', versions: [] });
+
+  historySource(path)
+    .then(versions => setHistories(key, { status: 'ready', versions }))
+    .catch(error => {
+      console.error('loading document history failed', path, error);
+      setHistories(key, { status: 'failed', versions: [] });
+    });
+
+}
+
+/** drop a failed (or stale) entry so the next loadHistory() fetches again */
+export function retryHistory(path: string): void {
+  setHistories(historyKey(path), undefined as unknown as DocumentHistory);
+  loadHistory(path);
+}
+
+/**
+ * where a document's history comes from.
+ *
+ * STUB -- this is canned data on a timer, not the service. the real call is
+ * already in ~/docs/SVELTE-documents (DocumentHistory): POST /api/document-history
+ * with { path }, returning HistoryEntry[], which is DocumentVersion[] under
+ * another name. swapping it in means replacing this body, nothing above it.
+ */
+async function historySource(path: string): Promise<DocumentVersion[]> {
+
+  if (import.meta.env.DEV && devFailHistory()) {
+    await new Promise(resolve => setTimeout(resolve, 480));
+    throw new Error('loading document history failed (?fail-history)');
+  }
+
+  const { sampleHistory } = await import('./documents-sample');
+
+  // slower than the list on purpose: this is the state the panel has to render
+  // well, and it's unreachable if the data is there before the panel opens
+  await new Promise(resolve => setTimeout(resolve, 700));
+
+  const doc = documents.find(row => historyKey(row.path) === historyKey(path));
+  return doc ? sampleHistory(doc) : [];
+
 }
 
 /**
@@ -139,19 +224,75 @@ async function sample(): Promise<BackstageDocument[]> {
 /* paths                                                               */
 /* ------------------------------------------------------------------ */
 
-/** the folder part of a full path: /finance/portfolio-var -> /finance */
-export function folderOf(path: string): string {
-  return path.slice(0, path.lastIndexOf('/'));
+/*
+ * a path is `@owner/folder/slug`: the owner's handle, then zero or more folder
+ * segments, then the document's slug. no leading slash -- the path is what
+ * follows the origin, and documentUrl() adds the slash back.
+ *
+ * the owner segment is part of the address but it is not a folder. every one of
+ * an account's documents sits under it, so treating it as one would file the
+ * entire list inside a single folder that never tells you anything, and push
+ * every real folder down a level. folderOf() strips it, and the folder tree is
+ * built from what's left -- so a folder path is relative to the owner's root
+ * and a document directly under the owner has no folder at all.
+ */
+
+/** the owner segment: @dwerner/finance/portfolio-var -> @dwerner */
+export function ownerOf(path: string): string {
+  const cut = path.indexOf('/');
+  return cut < 0 ? path : path.slice(0, cut);
 }
 
-/** the document part of a full path: /finance/portfolio-var -> portfolio-var */
+/**
+ * the folder part, relative to the owner and with a leading slash:
+ * @dwerner/finance/portfolio-var -> /finance, and @dwerner/bubbles -> '',
+ * which is the owner's root.
+ */
+export function folderOf(path: string): string {
+  const first = path.indexOf('/');
+  const last = path.lastIndexOf('/');
+  return first === last ? '' : path.slice(first, last);
+}
+
+/** the document part: @dwerner/finance/portfolio-var -> portfolio-var */
 export function slugOf(path: string): string {
   return path.slice(path.lastIndexOf('/') + 1);
 }
 
-/** assemble a path from a folder ('' for root) and a name */
-export function pathFor(folder: string, name: string): string {
-  return `${folder}/${slugify(name)}`;
+/** assemble a path from an owner, a folder ('' for the owner's root) and a name */
+export function pathFor(owner: string, folder: string, name: string): string {
+  return `${owner}${folder}/${slugify(name)}`;
+}
+
+/**
+ * drop the folder from a name that is only the document's address restated.
+ *
+ * the old save box wrote the address into the name field, so a document inside
+ * a folder comes back named "gort/horn" -- folder and slug -- which renders as
+ * a folder sitting in the title. the label is the document, not the route to it.
+ *
+ * checked against *this document's own* path rather than by looking for a '/',
+ * because names legitimately contain them: "LLM pricing 10/15/2024" is a real
+ * name in the real data, and a blanket "take the last segment" rule would show
+ * it as "2024".
+ *
+ * what's kept is the name's own last segment, not the slug, so whatever casing
+ * was typed survives -- slugs are lowercased, and un-slugifying can't recover
+ * "VaR" from "var". for a document at the owner's root the address is just the
+ * slug, so this is a no-op and a name like "Bubbles" is left alone.
+ */
+function trimAddressName(doc: BackstageDocument): string {
+
+  const name = doc.name.trim();
+
+  // the stored form has no leading slash; folderOf() supplies one, so drop it
+  const address = `${folderOf(doc.path)}/${slugOf(doc.path)}`.slice(1);
+
+  // compared case-insensitively, the way paths are compared everywhere else
+  if (name.toLowerCase() !== address.toLowerCase()) { return doc.name; }
+
+  return name.slice(name.lastIndexOf('/') + 1);
+
 }
 
 /**
@@ -160,20 +301,14 @@ export function pathFor(folder: string, name: string): string {
  * because un-slugifying can't recover "VaR" from "var" and shouldn't pretend to.
  */
 export function displayName(doc: BackstageDocument): string {
-
-  // hopefully we're not actually writing this to the database. it
-  // may be being generated by the back-end. if that's the case I 
-  // will remove it.
-
-  const name = doc.name === 'Unnamed document' ? undefined : doc.name;
-
-  return name || slugOf(doc.path);
+  return isUnnamed(doc) ? slugOf(doc.path) : trimAddressName(doc);
 }
 
 /** true when the label above is really just the address */
 export function isUnnamed(doc: BackstageDocument): boolean {
 
-  // @see displayName
+  // 'Unnamed document' is a sentinel, not a name -- hopefully generated by the
+  // back end rather than written to the database, in which case this goes
 
   return !doc.name || doc.name === 'Unnamed document';
 }
@@ -197,6 +332,10 @@ export interface FolderNode {
 /**
  * derive the folder tree from document paths. paths are metadata -- there's no
  * folder table -- so a folder exists exactly when something lives in it.
+ *
+ * folder paths here are owner-relative (`/finance/capital`), because folderOf()
+ * drops the owner segment: it isn't a folder, and an account with no folders at
+ * all should show none rather than one holding everything.
  */
 export function folderTree(list: BackstageDocument[]): FolderNode[] {
 
@@ -320,7 +459,7 @@ export function formatStamp(timestamp: number): string {
 /* sorting                                                             */
 /* ------------------------------------------------------------------ */
 
-export type SortKey = 'name' | 'path' | 'access' | 'modified';
+export type SortKey = 'name' | 'path' | 'access' | 'version' | 'modified';
 export type SortDirection = 'asc' | 'desc';
 
 export function sortDocuments(list: BackstageDocument[], key: SortKey, direction: SortDirection): BackstageDocument[] {
@@ -339,6 +478,9 @@ export function sortDocuments(list: BackstageDocument[], key: SortKey, direction
         break;
       case 'access':
         result = (a.access - b.access) || displayName(a).localeCompare(displayName(b));
+        break;
+      case 'version':
+        result = (a.version - b.version) || displayName(a).localeCompare(displayName(b));
         break;
       case 'modified':
         result = a.modified - b.modified;

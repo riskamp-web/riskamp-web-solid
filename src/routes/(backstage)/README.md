@@ -41,7 +41,7 @@ The pages, in `src/routes/(backstage)/`:
 | file | what it holds |
 | --- | --- |
 | `documents.tsx` | the documents page |
-| `documents.module.css` | the table, the version list, the rename field |
+| `documents.module.css` | the table and the version list |
 | `sign-in.tsx` | the sign-in page |
 | `sign-in.module.css` | the page tint, title block, password reveal, links row |
 | `sign-out.tsx` | logs out and leaves |
@@ -52,9 +52,22 @@ What they run on, in `src/backstage/`:
 
 | file | what it holds |
 | --- | --- |
-| `documents-data.ts` | the row shape, the document store and its loader, and the path/folder/format/sort helpers |
-| `documents-sample.ts` | the canned document set, and nothing else |
-| `dev-access.ts` | `requireAuth()` — the guard declaration plus its dev-only bypass |
+| `documents-store.ts` | the row and history shapes, and the two stores themselves |
+| `documents-data.ts` | the loaders, and the path/folder/name/format/sort helpers |
+| `documents-sample.ts` | the canned document set and its canned history |
+| `documents-sample2.ts` | a dump of **real** rows from the live account, for reference — not wired to anything |
+| `dev-access.ts` | `requireAuth()` — the guard declaration plus its dev-only bypasses |
+
+`documents-store.ts` holds the state and `documents-data.ts` holds the behaviour, so the
+sample fixture can import the shapes without importing the loader that imports it back.
+The page imports from `documents-data`, which re-exports the types and stores — one import
+site, not two.
+
+**`documents-sample2.ts` is the one to check a change against.** It's real data, and it
+carries the shapes the canned set doesn't: `@owner`-prefixed paths, 81 of 83 documents at
+the owner's root, names with spaces and mixed case, addresses stored in the name field, and
+no `starred` or `versions` at all. Temporarily pointing `sample()` at it is how the path,
+name and optional-field handling in this pass was checked.
 
 `(backstage)` is a pathless route group, so the pages serve `/documents`, `/sign-in` and
 `/sign-out` — the second is the path the toolbar's signed-out link already points at.
@@ -145,8 +158,20 @@ Settled with the user across several passes. The reasoning matters more than the
 - **Access is a text-only pill.** Public is the default, so it reads as the quiet one;
   private carries the weight. No icons — one state with an icon and one without reads as
   an inconsistency rather than a distinction.
-- **Rows have a hairline separator.** With seven columns, tracking one record across the
+- **Rows have a hairline separator.** With eight columns, tracking one record across the
   table is otherwise hard work.
+- **The Version column is the version *number*, not a count of the history.** The number
+  comes free with the list query; a count would need a fetch per row, which is exactly what
+  the history store exists to avoid.
+- **Access and Version are centred — with a caveat.** The sort caret keeps its box whether
+  or not it's showing (it fades with `opacity`), so a centred header button centres the
+  label *and* the caret together, leaving the label left of centre. The row values take the
+  same offset so each lines up under its heading. That padding is derived from the caret
+  and nothing else, deliberately: the offset is the same whatever the heading says, so it
+  needs no retuning when these labels are translated — which anything fitted to a measured
+  label width would.
+- **Columns drop in reverse order of usefulness** as the container narrows: version first
+  (it's reference detail, and the panel shows it), then folder, then access.
 - Minimal and subtle over loud and busy, generally.
 
 ## Sign in
@@ -206,9 +231,9 @@ Settled with the user across several passes. The reasoning matters more than the
 
 ## The document store
 
-The rows live in a module-level Solid store in `~/backstage/documents-data`, not in the
+The rows live in a module-level Solid store in `~/backstage/documents-store`, not in the
 page, so they're fetched once rather than once per visit — leave `/documents` and come back
-and the list (including anything you starred or renamed) is still there.
+and the list (including anything you starred) is still there.
 
 That lifetime is why the store sits outside the route folder: signing out needs to be able
 to call `flushDocuments()`, since otherwise the next person to sign in on this browser would
@@ -220,7 +245,7 @@ documents            // the store: read it, and write through setDocuments
 loaded()             // has it been filled?
 failed()             // did the last attempt to fill it fail?
 loadDocuments()      // fill it, unless it's already filled. returns nothing
-flushDocuments()     // empty it and mark it unloaded
+flushDocuments()     // empty it and mark it unloaded (takes histories with it)
 refreshDocuments()   // flush, then load
 ```
 
@@ -253,6 +278,51 @@ calls `refreshDocuments()`.
   `/documents?dev&fail`. An error state nobody can reach is an error state nobody has
   checked. It's dropped from production builds along with the rest of `dev-access.ts`.
 
+## Version history
+
+History is a **second store**, keyed by path, not a field on the row — because it arrives
+separately. The list query returns the current version *number* and nothing else, so the
+history is fetched per document when something asks for it.
+
+```ts
+histories                // path -> { status, versions }
+historyOf(path)          // the entry, or undefined if nobody has asked
+loadHistory(path)        // fetch it, unless it's there or already on its way
+retryHistory(path)       // drop the entry and fetch again
+flushHistories()         // drop them all
+```
+
+- **The entry is a tagged record, not a bare array.** `'loading' | 'ready' | 'failed'` are
+  three states that render differently, and *absent* is a fourth — nobody has asked yet.
+  That's what makes `loadHistory()` idempotent: an entry in any state means return early,
+  so the panel can call it on every open without tracking what it has fetched.
+- **A failed entry stays put** rather than being deleted, so the panel can say the fetch
+  failed instead of sitting on a spinner forever. `retryHistory()` is the explicit way out.
+- **Keyed by the lowercased path** (`historyKey()`), matching how the service resolves
+  paths — so `/Finance/Model` and `/finance/model` can't become two entries.
+- **A store, not a `Map`.** A `Map` mutated in place is invisible to the reactive system
+  and the panel would never re-render when the fetch lands.
+- **`flushDocuments()` flushes histories too.** They're keyed by path, so rows and the
+  history cached against them have to be dropped together, or the second describes
+  documents the first no longer holds. Anything that *changes* a path — rename, move — has
+  the same obligation.
+- **The panel is what triggers the fetch**, from a `createEffect` on the open document, and
+  reads back through a memo on the store. It draws skeleton bars while loading (shaped like
+  the list they become, so nothing jumps when it lands) and an inline **Try again** on
+  failure.
+- **`?fail-history` forces that failure** — `/documents?dev&fail-history`. It's a separate
+  flag from `?fail` on purpose: that one fails the document *list*, which leaves no rows, so
+  no panel, so no way to reach the state this is meant to show.
+
+### The fetch is stubbed
+
+`historySource()` is canned data on a timer — deliberately slower than the list, since the
+loading state is unreachable if the data arrives before the panel opens. **The real call
+already exists** in `~/docs/SVELTE-documents` (`DocumentHistory`): `POST
+/api/document-history` with `{ path }`, returning `HistoryEntry[]`, which is
+`DocumentVersion[]` under another name. Swapping it in means replacing that function body
+and nothing above it.
+
 ## Icons
 
 The documents page draws from the app icon set, `~/components/icon-sets`. That set ships
@@ -283,39 +353,106 @@ component:
 
 The document's **path is its identity**. There is no opaque id in the URL.
 
-- `path` is the **full** slug path — `/finance/portfolio-var`, not the folder. The folder
-  is everything before the last segment (`folderOf`).
-- `name` is the document name with its own casing, and is **optional**. The old save UI
-  asked for a name and a slug separately and almost nobody filled in the name, so most
-  existing documents have none.
-- **Rename is a move.** The path derives from the name, so committing a rename writes
-  both fields. Old URLs break — that's accepted, and arguably desirable, since a stale
-  link resolving to replaced content would be worse.
-- **Collisions block the save.** Paths are compared case-insensitively, matching how the
-  loader resolves them. No silent `-2` disambiguation.
+### The shape of a path
+
+A path is **`@owner/folder/slug`** — the account handle, then zero or more folder
+segments, then the document's slug. There's no leading slash: the path is everything after
+the origin, and `documentUrl()` supplies the slash.
+
+```
+@dwerner/gort/horn     ownerOf -> @dwerner    folderOf -> /gort    slugOf -> horn
+@dwerner/bubbles       ownerOf -> @dwerner    folderOf -> ''       slugOf -> bubbles
+```
+
+- **The owner segment is not a folder.** Every one of an account's documents sits under it,
+  so treating it as one would file the whole list inside a single folder that never tells
+  you anything, and push every real folder down a level. `folderOf()` strips it, and the
+  rail is built from what's left — so a folder path is owner-relative and a document
+  directly under the owner has no folder at all. In the real data that's 81 of 83 rows, and
+  exactly one real folder.
+- **The Folder column shows the owner tag for those rows**, held back at 50% opacity, so
+  the column reads as a location rather than as missing data while a real folder path still
+  stands out. Its negative margin cancels the pill's own padding so the *text* lines up
+  with the plain paths above and below it.
+- `pathFor(owner, folder, name)` reassembles one.
+
+### Names
+
+`name` is the document name with its own casing, and is **not reliable**. The old save UI
+asked for a name and a slug separately, almost nobody filled the name in, and what's there
+is frequently the address rather than a name.
+
+- **A name that restates the document's own address has its folder stripped.** Real rows
+  carry `name: "gort/horn"` for `@dwerner/gort/horn`, which renders as a folder sitting in
+  the title. `trimAddressName()` drops it — matching against *this document's* path, not by
+  looking for a `/`, because **names legitimately contain slashes**: `LLM pricing
+  10/15/2024` is a real name, and any "take the last segment" rule would show it as `2024`.
+- **The name's own segment is kept, not the slug**, so typed casing survives. Falling back
+  to the slug would turn `Bubbles` into `bubbles`.
+- `'Unnamed document'` is a **sentinel**, not a name — probably generated by the back end.
+  It's treated as unnamed.
 - **Unnamed documents show their slug, in monospace.** Deliberately not prettified:
   un-slugifying can't recover `VaR` from `var`, and shouldn't pretend to. Monospace marks
   the value as an address rather than a badly-cased name, and makes the documents still
   needing a name easy to spot — which matters for migrating the existing set. They are
   *not* dimmed; muted text would read as disabled.
-- Naming a legacy document whose slug already matches leaves its address untouched, which
-  is the common migration case.
 
 `slugify()` folds diacritics via `NFD` before applying the separator rule, so
-`Análisis de Riesgo` → `analisis-de-riesgo` rather than `an-lisis-de-riesgo`.
+`Análisis de Riesgo` → `analisis-de-riesgo` rather than `an-lisis-de-riesgo`. Note the real
+data does **not** obey it — live slugs contain spaces, `+`, `#` and mixed case (`I have
+space ++`, `multivariate.pert.p`), so anything that re-derives a slug on rename will
+rewrite addresses that currently work.
+
+### Optional fields
+
+`starred` and `versions` are both **optional**, because the list query returns neither.
+Absent means "not starred" and "history not fetched" respectively — read them through
+`isStarred()` on the page and the history store below, never directly.
+
+### Rename
+
+**Rename is currently not implemented.** The inline rename in the detail panel was removed
+in favour of a single dialog covering the name *and* the folder, which isn't built yet; the
+row menu's "Rename…" is an inert placeholder. `pathFor()` and `findPathCollision()` are
+left in place for it.
+
+What the removed implementation had settled, worth keeping when the dialog lands:
+
+- **Rename is a move.** The path derives from the name, so committing a rename writes both
+  fields. Old URLs break — accepted, and arguably desirable, since a stale link resolving
+  to replaced content would be worse.
+- **Collisions block the save.** Paths are compared case-insensitively, matching how the
+  loader resolves them. No silent `-2` disambiguation.
+- Naming a legacy document whose slug already matches leaves its address untouched, which
+  is the common migration case.
+- **It has to invalidate version history**, which is keyed by path — see below.
 
 ## Open questions
 
-Neither blocks the current page.
+None of these block the current page.
 
-1. **Folder naming.** Folders are derived from paths — there's no folder table, so a
+1. **The rename dialog**, which is the next piece of work. One dialog covering the name and
+   the folder together, replacing the inline rename that was removed. See "Rename" above for
+   what the removed one had settled, and note the live slugs don't obey `slugify()` — a
+   dialog that re-derives the slug will rewrite addresses that currently work, so it
+   probably shouldn't.
+2. **Documents whose `name` is exactly their slug.** Twelve of the real rows carry the
+   address in the name field without a folder (`project-cost-comparison`, `COUNTIFS`).
+   They're the same legacy artifact as `gort/horn`, but they currently render as ordinary
+   names rather than getting the monospace no-name treatment. Deferred by the user: it's a
+   design call, and flipping it restyles twelve rows. Nothing renders wrongly either way.
+3. **Folder naming.** Folders are derived from paths — there's no folder table, so a
    folder has nowhere to store a cased name. Recommendation: the segment *is* the name —
    sanitize with the same slugifier, lowercase, and show it raw in the rail. The
    alternative is folder metadata, which brings back empty folders and a table that was
    deliberately avoided.
-2. **Save flow.** Recommendation: separate folder picker and name field, with typing
+4. **Save flow.** Recommendation: separate folder picker and name field, with typing
    `finance/` into the name field splitting that segment into the folder control as an
    accelerator — so the parse is visible and rename stays distinct from move.
+5. **Header widths under i18n.** The Version track is 86px and Access 92px; both are close
+   to what their heading plus the caret needs, and `.sort-button { max-width: 100% }` with
+   `.cell`'s `text-overflow: ellipsis` means a longer translated heading truncates rather
+   than overflows. `minmax()` tracks, or simply more slack, would be the durable fix.
 
 ## Gotchas hit while building this
 
@@ -336,10 +473,21 @@ Worth knowing before editing; each of these failed silently.
 
 Dev server on 5173, then `/documents`. Worth exercising both themes (toolbar theme
 chooser), the loading skeleton, the true-empty state (delete everything — delete works on
-the canned store), zero-results search, multi-select, the slide-over, rename including a
-deliberate collision, and widths around 1400 / 760 / 500px for the container-query
-breakpoints. Star, access, rename and delete mutate the local store; duplicate and move
-are placeholders.
+the canned store), zero-results search, multi-select, the slide-over, and widths around
+1400 / 860 / 760 / 500px for the container-query breakpoints — the table should never
+scroll horizontally, and version should drop before folder. Star, access and delete mutate
+the local store; rename, duplicate and move are placeholders.
+
+The detail panel's Versions section has three states worth seeing: the skeleton bars (open
+a document you haven't opened before — the entry is cached after that, so reload to get it
+back), the loaded list, and `/documents?dev&fail-history` for the failure plus its **Try
+again**.
+
+**Check anything touching paths, names or optional fields against the real data**, by
+pointing `sample()` in `documents-data.ts` at `documents-sample2.ts` for a moment. The
+canned set is too well-behaved to catch the interesting cases: it has no address-in-name
+rows, no absent `starred`/`versions`, and its folders are deep where the real account's are
+almost entirely flat.
 
 The guard is worth exercising in all four combinations: signed out, `/documents` should
 land on `/sign-in` and `/sign-in` should render; signed in, `/sign-in` should land on `/`

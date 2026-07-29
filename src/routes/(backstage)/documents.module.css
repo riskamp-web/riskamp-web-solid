@@ -20,6 +20,7 @@
     [name] minmax(150px, 1.6fr)
     [path] minmax(110px, 1fr)
     [access] 92px
+    [version] 86px
     [modified] 134px
     [menu] 36px;
 
@@ -117,9 +118,56 @@
   color: var(--bs-text-muted);
 }
 
+/* a document directly under the owner has no folder, so the column shows where
+   it does live: the owner tag. it's the common case -- most of an account's
+   documents are never filed -- so it's held well back, and a real folder path
+   beside it reads as the exception rather than getting lost among these.
+
+   the negative margin cancels the pill's own padding, so the tag's *text* sits
+   on the same left edge as a plain folder path in the rows above and below it.
+   without it the column reads as two ragged columns. */
+.owner-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  margin: 0 -8px;
+  border-radius: 999px;
+  background: var(--bs-hover);
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
+/* the current version number. tabular figures so v9 -> v10 doesn't shift the
+   column, and muted because it's reference detail, not something you scan. */
+.cell-version {
+  display: flex;
+  justify-content: center;
+  color: var(--bs-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .cell-modified {
   color: var(--bs-text-muted);
   font-variant-numeric: tabular-nums;
+}
+
+/* the sort caret keeps its box whether or not it's showing -- it fades with
+   opacity, it isn't removed -- so a centred header button centres the label and
+   the caret *together*, which leaves the label itself sitting left of centre.
+   the values in the centred columns take the same offset, so each one lines up
+   under its heading rather than under the heading-plus-caret pair.
+
+   8px is .cell's own padding; 20px + 3px is the caret's box and the button's
+   gap, and the pair shifts the content left by half of that.
+
+   deliberately derived from the caret and nothing else. the offset the caret
+   introduces is the same whatever the heading says, so this needs no retuning
+   when these labels are translated -- which anything fitted to a measured
+   label width would. */
+.table-row > .cell-access,
+.table-row > .cell-version {
+  padding-right: calc(8px + 20px + 3px);
 }
 
 /* ------------------------------------------------------------------ */
@@ -129,6 +177,7 @@
 .cell-access {
   display: flex;
   align-items: center;
+  justify-content: center;
   overflow: visible;
 }
 
@@ -338,43 +387,6 @@
   overflow-wrap: anywhere;
 }
 
-/* the title doubles as the rename affordance: it looks like text until you
-   hover it, then reads as editable */
-.rename-target {
-  min-width: 0;
-  padding: 2px 4px;
-  margin: -2px -4px;
-  border: 1px solid transparent;
-  border-radius: var(--bs-radius-sm);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  overflow-wrap: anywhere;
-  cursor: text;
-
-  &:hover {
-    border-color: var(--bs-border-strong);
-  }
-}
-
-.rename-input {
-  width: 100%;
-  padding: 2px 5px;
-  margin: -3px -6px;
-  border: 1px solid var(--bs-border-strong);
-  border-radius: var(--bs-radius-sm);
-  background: transparent;
-  color: var(--bs-text);
-  font: inherit;
-  font-size: 15px;
-  font-weight: 600;
-
-  &[aria-invalid='true'] {
-    border-color: var(--bs-danger);
-  }
-}
-
 /* a document with no name shows its slug. monospace marks it as an address
    rather than a badly-cased name -- and makes the ones needing a name obvious
    without dimming them, which would read as disabled. */
@@ -386,17 +398,6 @@
 .unnamed-hint {
   margin-top: 2px;
   color: var(--bs-text-faint);
-}
-
-/* where the rename will land: the address is derived, so it moves with the name */
-.rename-preview {
-  display: flex;
-  min-width: 0;
-  color: var(--bs-text-muted);
-}
-
-.rename-error {
-  color: var(--bs-danger);
 }
 
 .panel-path {
@@ -486,12 +487,66 @@
   line-height: 1.45;
 }
 
+/* history is fetched when the panel opens, so it has a waiting state. bars
+   rather than a spinner: it resolves into a list, and matching the shape it
+   becomes keeps the panel from jumping when it lands. */
+.version-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 0 6px;
+}
+
+.version-skeleton {
+  height: 9px;
+  border-radius: var(--bs-radius-sm);
+}
+
+/* inline in the failure note, so the retry sits with the sentence explaining
+   why it's there rather than as a separate control */
+.version-retry {
+  padding: 0;
+  /* jsx collapses the newline between the sentence and this button, so the gap
+     has to come from here rather than the markup */
+  margin-left: 5px;
+  border: 0;
+  background: none;
+  color: var(--bs-accent);
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* narrow layouts                                                      */
 /* ------------------------------------------------------------------ */
 
-/* thresholds sit just above the point where the full set of tracks stops
-   fitting: 7 columns need ~598px, 6 need ~470px */
+/* thresholds sit just above the point where the current set of tracks stops
+   fitting: 8 columns need ~676px, 7 need ~598px, 6 need ~470px.
+
+   columns drop in reverse order of usefulness -- version first (it's reference
+   detail, and the panel shows it), then folder, then access. */
+
+@container bs-content (width < 700px) {
+  .table {
+    grid-template-columns:
+      [check] 34px
+      [star] 34px
+      [name] minmax(150px, 1.6fr)
+      [path] minmax(110px, 1fr)
+      [access] 92px
+      [modified] 134px
+      [menu] 36px;
+  }
+
+  .cell-version {
+    display: none;
+  }
+}
 
 @container bs-content (width < 640px) {
   .table {
@@ -504,6 +559,7 @@
       [menu] 36px;
   }
 
+  .cell-version,
   .cell-path {
     display: none;
   }
@@ -519,6 +575,7 @@
       [menu] 36px;
   }
 
+  .cell-version,
   .cell-path,
   .cell-access {
     display: none;

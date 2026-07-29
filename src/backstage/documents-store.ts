@@ -1,7 +1,8 @@
 
 import { createSignal } from 'solid-js';
-import { createStore } from 'solid-js/store';
+import { createStore, reconcile } from 'solid-js/store';
 
+/** matches HistoryEntry in ~/docs/SVELTE-documents, which is what the service returns */
 export interface DocumentVersion {
   version: number;
   modified: number;
@@ -20,7 +21,14 @@ export interface BackstageDocument {
    */
   name: string;
 
-  /** the full slug path, e.g. /finance/portfolio-var. this is the identity. */
+  /**
+   * the full path, e.g. @dwerner/finance/portfolio-var. this is the identity.
+   *
+   * the first segment is the owner's handle, then zero or more folders, then
+   * the slug. there's no leading slash: the path is everything after the
+   * origin, and documentUrl() supplies the slash. see documents-data.ts for
+   * the helpers that take it apart.
+   */
   path: string;
 
   status: number;
@@ -29,9 +37,17 @@ export interface BackstageDocument {
   modified: number;
   version: number;
 
+  /** which app wrote the document, e.g. 'RAW'. not shown anywhere yet. */
+  app?: string;
+
   // ---- redesign additions ----
-  starred: boolean;
-  versions: DocumentVersion[];
+
+  /**
+   * optional: the list endpoint doesn't return a starred flag, so an
+   * unstarred document and a document loaded from a service that has no
+   * concept of starring both arrive as undefined. read it as false.
+   */
+  starred?: boolean;
 
 }
 
@@ -64,9 +80,55 @@ export const [failed, setFailed] = createSignal(false);
  */
 export const [documents, setDocuments] = createStore<BackstageDocument[]>([]);
 
-/** empty the store and mark it unloaded; the next load fetches again */
+/**
+ * empty the store and mark it unloaded; the next load fetches again.
+ *
+ * histories go with it: they're keyed by path, so rows and the history cached
+ * against them have to be dropped together or the second describes documents
+ * the first no longer holds.
+ */
 export function flushDocuments(): void {
   setDocuments([]);
   setLoaded(false);
   setFailed(false);
+  flushHistories();
+}
+
+/* ------------------------------------------------------------------ */
+/* version history                                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * version history is a second store rather than a field on the row, because it
+ * arrives separately: the list query returns the current version *number* and
+ * nothing else, so history is fetched per document when something asks for it.
+ * putting it on the row would mean every row carrying a field that is empty
+ * until opened, and no way to tell "not fetched" from "no history".
+ *
+ * the three states are all real and all render differently, so the entry is a
+ * tagged record rather than a bare array: absent means nobody has asked yet,
+ * which is what makes loadHistory() idempotent.
+ */
+export interface DocumentHistory {
+  status: 'loading' | 'ready' | 'failed';
+  /** empty unless status is 'ready' */
+  versions: DocumentVersion[];
+}
+
+/**
+ * path -> history. keyed by the lowercased path, matching how the service
+ * resolves them (and how findPathCollision compares them) -- see historyKey()
+ * in documents-data.ts, which is the only thing that should build these keys.
+ *
+ * a store rather than a Map so the panel re-renders when an entry lands: a Map
+ * mutated in place is invisible to the reactive system.
+ */
+export const [histories, setHistories] = createStore<Record<string, DocumentHistory>>({});
+
+/**
+ * throw the cached history away. paths are the key, so anything that changes a
+ * path (rename, move, delete) invalidates the entry it was stored under.
+ */
+export function flushHistories(): void {
+  setHistories(reconcile({}));
 }
