@@ -36,7 +36,9 @@ be shared by every backstage page can't live inside any one of them. See below.
 | `sign-in.module.css` | the page tint, title block, password reveal, links row |
 | `backstage.module.css` | shared shell: theme tokens, rail/content/panel, control and form primitives. The consolidation point for the next backstage page |
 | `backstage-icons.tsx` | local inline SVG icons |
-| `documents-data.ts` | canned documents plus the path/folder/format/sort helpers |
+| `documents-data.ts` | the row shape, the document store and its loader, and the path/folder/format/sort helpers |
+| `documents-sample.ts` | the canned document set, and nothing else |
+| `dev-access.ts` | `requireAuth()` — the guard declaration plus its dev-only bypass |
 
 `(backstage)` is a pathless route group, so the files serve `/documents` and `/sign-in` —
 the latter is the path the toolbar's signed-out link already points at.
@@ -52,6 +54,9 @@ const { setTitle, setRequires } = useLayoutContext();
 setTitle('documents-page.title');
 setRequires('signed-in');        // or 'signed-out'
 ```
+
+Documents goes through `requireAuth('signed-in')` from `dev-access.ts` instead, which is
+`setRequires` plus the dev bypass below.
 
 `src/routes/(backstage).tsx` turns that plus `loggedIn()` into a redirect — `/sign-in` for
 a page that needs a session, `/` for one that needs none — and gates `props.children`
@@ -76,6 +81,32 @@ Three things worth knowing before touching it:
   reports empty and kicks off a background re-auth; a `/documents` visit in that window
   goes to `/sign-in` and then, once re-auth lands, to `/`. Refresh is a two-day path that
   normally happens on `/`, so this is left to sort itself out.
+
+### The dev bypass
+
+Documents is UI/UX against canned data, so signing in for every look at it is friction —
+but the guard has to be real. `dev-access.ts` resolves that: **`/documents?dev` opens the
+page without a session, on the dev server only.** The parameter's presence is what counts
+(`?dev`, `?dev=1`, `?dev=anything` all work), because `?dev` with no value parses to `''`
+and a truthiness test would reject the bare form.
+
+- **A production build doesn't contain it.** The check starts at `import.meta.env.DEV`,
+  which Vite replaces statically, so the branch — query read and warning text included —
+  is dropped from the bundle. Same mechanism as `src/routes/icons.tsx`. The `DEV` test is
+  written twice, once inside `devBypass()` and once at the head of the `requireAuth`
+  condition: with it only in the callee, the minifier reduces the call to `false` but keeps
+  the branch around it, which leaves the bypass unreachable rather than absent. Verified by
+  grepping `dist/` for the warning after a build — that's the check worth repeating if this
+  file is refactored.
+- **It skips the guard, it doesn't fake a session.** `loggedIn()` is still false, so the
+  toolbar renders its signed-out state and anything genuinely needing a token would still
+  fail. That's fine for a page on canned data, and worth remembering before wiring this one
+  to the document service.
+- **It works by not declaring**, which is already how the guard says "renders either way"
+  (`sign-out.tsx` declares nothing). So `(backstage).tsx` and `layout-context.tsx` know
+  nothing about it, and only the pages that call `requireAuth` can be bypassed.
+- Bypassing logs a `[dev] sign-in check bypassed via ?dev` warning, so a page that renders
+  when you expected a redirect explains itself.
 
 ## Design decisions
 
@@ -157,6 +188,50 @@ Settled with the user across several passes. The reasoning matters more than the
   awaiting their own pass, so the links 404 until then. Left as real links rather than
   inert text so the page doesn't have to change when they land.
 
+## The document store
+
+The rows live in a module-level Solid store in `documents-data.ts`, not in the page, so
+they're fetched once rather than once per visit — leave `/documents` and come back and the
+list (including anything you starred or renamed) is still there.
+
+```ts
+documents            // the store: read it, and write through setDocuments
+loaded()             // has it been filled?
+failed()             // did the last attempt to fill it fail?
+loadDocuments()      // fill it, unless it's already filled. returns nothing
+flushDocuments()     // empty it and mark it unloaded
+refreshDocuments()   // flush, then load
+```
+
+- **`loaded()` is a flag, not a length check.** An account with no documents is a real
+  state: `[]` means loaded and empty, and treating that as "not loaded yet" would refetch
+  forever. It also drives the page's loading skeleton, so the page no longer keeps a
+  `loading` signal of its own.
+- **`loadDocuments()` returns nothing.** The store is the result. It's safe to call on
+  every mount, and concurrent calls share one fetch rather than starting two.
+- **The loader has to work without an owner.** `refreshDocuments()` is the kind of thing an
+  event handler calls, where `useContext` finds nothing — which is why `devBypass()` reads
+  `window.location` rather than the router's `useLocation`.
+
+### When the load fails
+
+An empty list and a failed fetch both leave the store empty and mean opposite things — "you
+have no documents" versus "we couldn't ask" — so `failed()` separates them and the page
+draws its own state for it: **"Couldn't load your documents"**, with a **Try again** that
+calls `refreshDocuments()`.
+
+- **A failure is `failed()`, not a rejected promise.** `loadDocuments()` catches, logs the
+  cause to the console, and leaves the store *unloaded* — so remounting the page retries by
+  itself, and no caller has to wrap the call in a `try`.
+- **The state is a flag, not the error.** Nothing downstream can say anything specific about
+  the cause yet, and half-reporting one reads worse than reporting none. The message stays
+  unspecific on purpose; the console keeps the detail.
+- **The failure state has to come before the skeleton** in the page's `<Switch>`. A failed
+  load leaves `loaded()` false, so a `!loaded()` skeleton above it would run forever.
+- **`?fail` forces one**, on the dev server, the same way `?dev` skips the guard —
+  `/documents?dev&fail`. An error state nobody can reach is an error state nobody has
+  checked. It's dropped from production builds along with the rest of `dev-access.ts`.
+
 ## Data model
 
 The document's **path is its identity**. There is no opaque id in the URL.
@@ -222,7 +297,14 @@ are placeholders.
 The guard is worth exercising in all four combinations: signed out, `/documents` should
 land on `/sign-in` and `/sign-in` should render; signed in, `/sign-in` should land on `/`
 and `/documents` should render. `localStorage.removeItem('auth')` plus a reload is the
-signed-out state. Dropping the session mid-visit can be driven from the console — in dev,
+signed-out state. Signed out, `/documents?dev` should render the page with the bypass
+warning in the console — and a production build shouldn't contain that warning at all
+(`npm run build`, then grep `dist/` for it). `/documents?dev&fail` should land on the
+failure state; Try again re-runs the load (skeleton, then the same failure), and dropping
+`fail` from the address bar before pressing it again is enough to recover, since the flag is
+read fresh each time.
+
+Dropping the session mid-visit can be driven from the console — in dev,
 `import('/@fs/<repo>/src/lib/auth/index.ts')` resolves to the same module instance the app
 is using, so `ClearTokens()` from there bounces a live `/documents` to `/sign-in`.
 

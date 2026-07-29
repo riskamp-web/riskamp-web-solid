@@ -131,6 +131,17 @@ export function Check(props: IconProps) {
   return svg(props, <path d='M5.5 12.5l4 4 9-9' />);
 }
 
+/* a plain circle rather than the usual warning triangle: the failure it marks is
+   the server not answering, which is a state to report, not a hazard to warn
+   about. the triangle would be shouting. */
+export function Alert(props: IconProps) {
+  return svg(props, <>
+    <circle cx='12' cy='12' r='8' />
+    <path d='M12 8v4.5' />
+    <path d='M12 15.6v.1' />
+  </>);
+}
+
 /* eye / eye-off are a pair: the password reveal toggle draws one in each state,
    so neither can be text-only without the other reading as inconsistent */
 

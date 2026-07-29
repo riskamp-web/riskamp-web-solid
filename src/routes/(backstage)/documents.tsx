@@ -1,9 +1,9 @@
 /**
  * documents -- backstage redesign, first pass.
  *
- * UI/UX only: canned data, nothing wired to auth or the document service. star,
- * access and delete operate on the local store so the states are demonstrable;
- * rename / move / duplicate are inert placeholders.
+ * UI/UX only: canned data, nothing wired to the document service. star, access
+ * and delete write to the store in documents-data.ts so the states are
+ * demonstrable; rename / move / duplicate are inert placeholders.
  *
  * i18n: strings are hardcoded english for now. the redesign is contained to
  * src/routes/(backstage), so extracting them into ~/i18n waits until the design
@@ -12,20 +12,22 @@
  */
 
 import { For, JSX, Match, ParentProps, Show, Switch, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
-import { createStore } from 'solid-js/store';
 import { A } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
 
+import { requireAuth } from './dev-access';
+
 import bs from './backstage.module.css';
 import style from './documents.module.css';
 
-import { CaretDown, Check, Clock, Close, Copy, Folder, Globe, Lock, Overflow, Plus, Search, Sheet, Star, Trash } from './backstage-icons';
+import { Alert, CaretDown, Check, Clock, Close, Copy, Folder, Globe, Lock, Overflow, Plus, Search, Sheet, Star, Trash } from './backstage-icons';
 
 import {
-  ACCESS_PRIVATE, ACCESS_PUBLIC, BackstageDocument, DOCUMENTS, NOW, RECENT_WINDOW, SortDirection, SortKey,
-  displayName, documentUrl, findPathCollision, flattenFolders, folderOf, folderTree, formatAbsolute,
-  formatRelative, formatStamp, isUnnamed, pathFor, sortDocuments,
+  ACCESS_PRIVATE, ACCESS_PUBLIC, BackstageDocument, NOW, RECENT_WINDOW, SortDirection, SortKey,
+  displayName, documentUrl, documents, failed, findPathCollision, flattenFolders, folderOf,
+  folderTree, formatAbsolute, formatRelative, formatStamp, isUnnamed, loadDocuments, loaded,
+  pathFor, refreshDocuments, setDocuments, sortDocuments,
 } from './documents-data';
 
 type Scope = 'all' | 'starred' | 'recent' | 'private';
@@ -119,15 +121,13 @@ function MenuItem(props: ParentProps<{ icon?: JSX.Element, danger?: boolean, onc
 
 export default function Documents() {
 
-  const { setTitle, setRequires } = useLayoutContext();
+  const { setTitle } = useLayoutContext();
   setTitle('documents-page.title');
   onCleanup(() => setTitle(undefined));
 
-  // the layout redirects to /sign-in without a session; see (backstage).tsx
-  // disabled temp // setRequires('signed-in');
-
-  // canned data, copied so the demo can mutate it
-  const [docs, setDocs] = createStore<BackstageDocument[]>(DOCUMENTS.map(doc => ({ ...doc })));
+  // the layout redirects to /sign-in without a session; see (backstage).tsx.
+  // in dev, /documents?dev opens the page without one -- see dev-access.ts
+  requireAuth('signed-in');
 
   const [scope, setScope] = createSignal<Scope>('all');
   const [folder, setFolder] = createSignal<string | undefined>();
@@ -136,7 +136,6 @@ export default function Documents() {
   const [sortDirection, setSortDirection] = createSignal<SortDirection>('desc');
   const [selected, setSelected] = createSignal<number | undefined>();
   const [checked, setChecked] = createSignal<Set<number>>(new Set());
-  const [loading, setLoading] = createSignal(true);
   const [renaming, setRenaming] = createSignal(false);
   const [renameDraft, setRenameDraft] = createSignal('');
   const [copied, setCopied] = createSignal(false);
@@ -144,21 +143,18 @@ export default function Documents() {
   let last_trigger: HTMLElement | undefined;
   let search_input: HTMLInputElement | undefined;
 
-  onMount(() => {
-    // brief, so the skeleton state is real rather than theoretical
-    const handle = setTimeout(() => setLoading(false), 320);
-    onCleanup(() => clearTimeout(handle));
-  });
+  // no-op if another visit already filled the store; loaded() drives the skeleton
+  onMount(() => { loadDocuments(); });
 
   /* ---- derived ---- */
 
-  const folders = createMemo(() => flattenFolders(folderTree(docs as BackstageDocument[])));
+  const folders = createMemo(() => flattenFolders(folderTree(documents as BackstageDocument[])));
 
   const counts = createMemo(() => ({
-    all: docs.length,
-    starred: docs.filter(doc => doc.starred).length,
-    recent: docs.filter(doc => NOW - doc.modified < RECENT_WINDOW).length,
-    private: docs.filter(doc => doc.access === ACCESS_PRIVATE).length,
+    all: documents.length,
+    starred: documents.filter(doc => doc.starred).length,
+    recent: documents.filter(doc => NOW - doc.modified < RECENT_WINDOW).length,
+    private: documents.filter(doc => doc.access === ACCESS_PRIVATE).length,
   }));
 
   const visible = createMemo(() => {
@@ -167,7 +163,7 @@ export default function Documents() {
     const active_scope = scope();
     const active_folder = folder();
 
-    let list = docs as BackstageDocument[];
+    let list = documents as BackstageDocument[];
 
     switch (active_scope) {
       case 'starred':
@@ -202,7 +198,7 @@ export default function Documents() {
   const detail = createMemo<BackstageDocument | undefined>((previous) => {
     const id = selected();
     if (id === undefined) { return previous; }
-    return docs.find(doc => doc.id === id);
+    return documents.find(doc => doc.id === id);
   });
 
   const checkedCount = () => checked().size;
@@ -221,7 +217,7 @@ export default function Documents() {
     last_trigger = undefined;
   };
 
-  const toggleStar = (id: number) => setDocs(doc => doc.id === id, 'starred', starred => !starred);
+  const toggleStar = (id: number) => setDocuments(doc => doc.id === id, 'starred', starred => !starred);
 
   /* rename is driven from the detail panel; the row menu just opens the panel
      with the field already in edit mode */
@@ -250,7 +246,7 @@ export default function Documents() {
     const target = renameTarget();
     if (target.endsWith('/')) { return 'Name needs at least one letter or number.'; }
 
-    const clash = findPathCollision(docs as BackstageDocument[], target, doc.id);
+    const clash = findPathCollision(documents as BackstageDocument[], target, doc.id);
     return clash
       ? `“${displayName(clash)}” already uses this address.`
       : undefined;
@@ -268,7 +264,7 @@ export default function Documents() {
     // the path is derived, so a rename is also a move -- both fields change,
     // and naming a legacy document is how it stops being unnamed
     if (doc && name && (name !== doc.name || target !== doc.path)) {
-      setDocs(row => row.id === doc.id, row => ({ ...row, name, path: target }));
+      setDocuments(row => row.id === doc.id, row => ({ ...row, name, path: target }));
     }
 
     setRenaming(false);
@@ -298,12 +294,12 @@ export default function Documents() {
 
   const setAccess = (ids: number[], access: number) => {
     const set = new Set(ids);
-    setDocs(doc => set.has(doc.id), 'access', access);
+    setDocuments(doc => set.has(doc.id), 'access', access);
   };
 
   const remove = (ids: number[]) => {
     const set = new Set(ids);
-    setDocs(list => list.filter(doc => !set.has(doc.id)));
+    setDocuments(list => list.filter(doc => !set.has(doc.id)));
     if (selected() !== undefined && set.has(selected()!)) { setSelected(undefined); }
     setChecked(previous => {
       const next = new Set(previous);
@@ -540,7 +536,26 @@ export default function Documents() {
         <div class={style['table-body']} role='rowgroup'>
           <Switch>
 
-            <Match when={loading()}>
+            {/* before the skeleton: a failed load leaves the store unloaded, and
+                the skeleton would otherwise run forever */}
+            <Match when={failed()}>
+              <div class={`${style['body-full']} ${bs['empty-state']}`} role='alert'>
+                <Alert size={34} />
+                <div class={bs['empty-title']}>Couldn’t load your documents</div>
+                <div class={bs['empty-detail']}>
+                  The list didn’t come back from the server. Nothing has been lost — your
+                  documents are still there.
+                </div>
+                <button
+                    type='button'
+                    class={`${bs.button} ${bs['empty-action']}`}
+                    onclick={() => refreshDocuments()}>
+                  Try again
+                </button>
+              </div>
+            </Match>
+
+            <Match when={!loaded()}>
               <For each={Array.from({ length: 8 }, (_, index) => index)}>{(index) =>
                 <div class={style['skeleton-row']} aria-hidden='true'>
                   <div />
@@ -554,7 +569,7 @@ export default function Documents() {
               }</For>
             </Match>
 
-            <Match when={!docs.length}>
+            <Match when={!documents.length}>
               <div class={`${style['body-full']} ${bs['empty-state']}`}>
                 <Sheet size={34} />
                 <div class={bs['empty-title']}>No documents yet</div>
@@ -661,11 +676,11 @@ export default function Documents() {
       </div>
 
       <footer class={bs['content-footer']}>
-        <Show when={!loading()}>
+        <Show when={loaded()}>
           <span>
-            {visible().length === docs.length
-              ? `${docs.length} document${docs.length === 1 ? '' : 's'}`
-              : `${visible().length} of ${docs.length} documents`}
+            {visible().length === documents.length
+              ? `${documents.length} document${documents.length === 1 ? '' : 's'}`
+              : `${visible().length} of ${documents.length} documents`}
           </span>
           <Show when={search() && folder()}>
             <span>· searching all folders</span>

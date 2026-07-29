@@ -1,13 +1,19 @@
 /**
- * canned data for the documents page redesign.
+ * the documents page's data: the row shape, the loader, and the path / folder /
+ * format / sort helpers the page renders through.
  *
  * the row shape intentionally matches DocumentsRow in ~/docs/documents, plus the
  * two things the redesign adds: a `starred` flag and a real version list. that way
  * swapping in ListDocuments() later is a data change, not a markup change.
  *
- * this file is part of the contained backstage redesign; nothing here is wired to
- * the document service.
+ * the canned set itself lives in documents-sample.ts; loadDocuments() below is
+ * where the choice between it and live data gets made.
  */
+
+import { createSignal } from 'solid-js';
+import { createStore } from 'solid-js/store';
+
+import { devBypass, devFailLoads } from './dev-access';
 
 export const ACCESS_PRIVATE = 0;
 export const ACCESS_PUBLIC = 1;
@@ -48,9 +54,9 @@ export interface BackstageDocument {
 
 }
 
-const MINUTE = 60 * 1000;
-const HOUR = 60 * MINUTE;
-const DAY = 24 * HOUR;
+export const MINUTE = 60 * 1000;
+export const HOUR = 60 * MINUTE;
+export const DAY = 24 * HOUR;
 
 /**
  * one clock reading for the whole module, so relative timestamps stay stable
@@ -64,88 +70,126 @@ export const RECENT_WINDOW = 14 * DAY;
 /** documents keep at most this many versions (soft cap, matches the service) */
 export const VERSION_CAP = 7;
 
+/* ------------------------------------------------------------------ */
+/* the store                                                           */
+/* ------------------------------------------------------------------ */
+
 /**
- * build a version list ending at `modified`, walking backwards toward `created`.
- * newest first, which is how the detail panel wants it.
+ * the documents, module-level so they're loaded once rather than once per visit
+ * to the page. the page reads them directly and writes through setDocuments --
+ * star, access, rename and delete all land here.
  */
-function versions(count: number, created: number, modified: number): DocumentVersion[] {
+const [documents, setDocuments] = createStore<BackstageDocument[]>([]);
 
-  const span = Math.max(modified - created, DAY);
-  const gap = Math.max(span / (count + 1), 45 * MINUTE);
+/**
+ * whether the store has been filled. a flag rather than a length check, because
+ * an account with no documents is a real state: [] means loaded and empty, not
+ * "not loaded yet", and treating the two alike would refetch forever.
+ */
+const [loaded, setLoaded] = createSignal(false);
 
-  const list: DocumentVersion[] = [];
-  for (let i = 0; i < count; i++) {
-    list.push({
-      version: count - i,
-      modified: Math.round(modified - (i * gap)),
-    });
+/**
+ * whether the last attempt to fill the store failed.
+ *
+ * an empty list and a failed fetch both leave the store empty, and they mean
+ * opposite things -- "you have no documents" versus "we couldn't ask" -- so the
+ * page has to be able to tell them apart. deliberately a flag and not the error
+ * itself: nothing downstream is ready to say anything specific about the cause,
+ * and half-reporting one is worse than reporting none.
+ */
+const [failed, setFailed] = createSignal(false);
+
+export { documents, setDocuments, loaded, failed };
+
+/** in flight, so two callers land on one fetch rather than two */
+let pending: Promise<void> | undefined;
+
+/**
+ * fill the store, unless it's already filled -- so a page can call this on every
+ * mount without thinking about it. returns nothing: the store is the result,
+ * and a failure is failed(), not a rejection. a failed load leaves the store
+ * unloaded, so the next call retries.
+ */
+export function loadDocuments(): Promise<void> {
+
+  if (loaded()) { return Promise.resolve(); }
+  if (pending) { return pending; }
+
+  setFailed(false);
+
+  pending = source()
+    .then(list => {
+      setDocuments(list);
+      setLoaded(true);
+    })
+    .catch(error => {
+      // logged rather than reported: the page says the list couldn't be
+      // fetched, and whatever the cause turns out to be is worth having here
+      console.error('loading documents failed', error);
+      setDocuments([]);
+      setFailed(true);
+    })
+    .finally(() => { pending = undefined; });
+
+  return pending;
+
+}
+
+/** empty the store and mark it unloaded; the next load fetches again */
+export function flushDocuments(): void {
+  setDocuments([]);
+  setLoaded(false);
+  setFailed(false);
+}
+
+/** throw the rows away and fetch them again */
+export function refreshDocuments(): Promise<void> {
+  flushDocuments();
+  return loadDocuments();
+}
+
+/**
+ * where the rows come from. the dev bypass has no session, so live data isn't an
+ * option under it -- and the canned set is the point of that mode anyway. see
+ * dev-access.ts.
+ */
+async function source(): Promise<BackstageDocument[]> {
+
+  /* both dev switches lead with import.meta.env.DEV so the branches leave the
+     production bundle entirely rather than merely going unreachable -- the
+     callee's own check isn't enough for that. see dev-access.ts */
+
+  if (import.meta.env.DEV && devFailLoads()) {
+    await new Promise(resolve => setTimeout(resolve, 320));
+    throw new Error('loading documents failed (?fail)');
   }
 
-  return list;
+  if (import.meta.env.DEV && devBypass()) { return sample(); }
+
+  // TODO: live data. ListDocuments() in ~/docs/documents returns DocumentsRow[],
+  // which carries neither `starred` nor a version list -- both need somewhere to
+  // come from before this branch can be written. until then the canned set
+  // stands in, so the signed-in page still has something to draw.
+  return sample();
 
 }
 
 /**
- * [ name, full path, access, starred, created (days ago), modified (ms ago), versions ]
+ * the canned set, after a short delay: it's already in memory, so it would
+ * resolve before the page ever painted and the loading skeleton would be
+ * unreachable rather than merely brief. a live fetch produces this on its own.
  *
- * an empty name is a legacy document: the old save box only took a slug, so the
- * path is all it has. roughly a third of the set here, which is deliberate --
- * unnamed is the common case in the real data, not the edge case.
+ * the import is dynamic to keep the module graph acyclic. documents-sample.ts
+ * takes the shape and the constants from this file, so a static import back the
+ * other way puts its SEEDS table ahead of the constants it reads -- which fails
+ * at load with "Cannot access 'ACCESS_PUBLIC' before initialization", and takes
+ * the whole page with it.
  */
-type Seed = [string, string, number, boolean, number, number, number];
-
-/* public is the default access level, so private is the exception here too --
-   roughly a quarter of the set */
-const SEEDS: Seed[] = [
-  ['Portfolio VaR',             '/finance/portfolio-var',              ACCESS_PUBLIC,  true,  146,   2 * HOUR,  7],
-  ['Revenue Ramp Scenarios',    '/finance/revenue-ramp-scenarios',     ACCESS_PUBLIC,  true,   40,   2 * DAY,   4],
-  ['Project NPV Risk',          '/finance/project-npv-risk',           ACCESS_PUBLIC,  false, 210,  14 * DAY,   5],
-  ['',                          '/finance/cashflow-simulation',        ACCESS_PUBLIC,  false, 320,  56 * DAY,   3],
-  ['',                          '/finance/retirement-drawdown',        ACCESS_PUBLIC,  false, 620, 260 * DAY,   4],
-  ['Cost Overrun Analysis',     '/finance/capital/cost-overrun',       ACCESS_PRIVATE, true,   88,   3 * DAY,   4],
-  ['Capex Approval Model',      '/finance/capital/capex-approval',     ACCESS_PRIVATE, false, 190,  30 * DAY,   3],
-  ['',                          '/finance/credit/loan-default-corr',   ACCESS_PRIVATE, false, 400, 190 * DAY,   2],
-
-  ['Demand Forecast 2027',      '/models/demand-forecast-2027',        ACCESS_PUBLIC,  true,   60,   5 * HOUR,  6],
-  ['Project Schedule Risk',     '/models/project-schedule-risk',       ACCESS_PUBLIC,  false, 130,  11 * DAY,   5],
-  ['Supply Chain Disruption',   '/models/supply-chain-disruption',     ACCESS_PUBLIC,  false, 150,  21 * DAY,   4],
-  ['',                          '/models/clinical-trial-enrollment',   ACCESS_PRIVATE, false, 240,  74 * DAY,   3],
-  ['Catastrophe Bond Pricing',  '/models/actuarial/cat-bond-pricing',  ACCESS_PRIVATE, true,  175,   8 * HOUR,  3],
-  ['',                          '/models/actuarial/insurance-loss',    ACCESS_PUBLIC,  false, 300,  45 * DAY,   6],
-
-  ['Well Production Model',     '/energy/well-production-model',       ACCESS_PUBLIC,  true,  500,   9 * DAY,   7],
-  ['',                          '/energy/reservoir-decline-curves',    ACCESS_PUBLIC,  false, 480, 130 * DAY,   5],
-  ['Wind Farm Yield',           '/energy/renewables/wind-farm-yield',  ACCESS_PUBLIC,  false,  95,   1 * DAY,   2],
-
-  ['Option Pricing Sandbox',    '/scratch/option-pricing-sandbox',     ACCESS_PUBLIC,  false,  12,  35 * MINUTE, 1],
-  ['Sensitivity Test Bench',    '/scratch/sensitivity-test-bench',     ACCESS_PUBLIC,  false,   5,  20 * MINUTE, 2],
-  ['Correlation Matrix Draft',  '/scratch/correlation-matrix-draft',   ACCESS_PRIVATE, false,   2,   6 * HOUR,   1],
-
-  ['',                          '/monte-carlo-primer',                 ACCESS_PUBLIC,  false, 700, 300 * DAY,   1],
-];
-
-export const DOCUMENTS: BackstageDocument[] = SEEDS.map((seed, index) => {
-
-  const [name, path, access, starred, created_days, modified_ago, version_count] = seed;
-
-  const created = NOW - (created_days * DAY);
-  const modified = NOW - modified_ago;
-
-  return {
-    id: index + 1,
-    userid: 1,
-    name,
-    path,
-    status: STATUS_ACTIVE,
-    access,
-    created,
-    modified,
-    version: version_count,
-    starred,
-    versions: versions(version_count, created, modified),
-  };
-
-});
+async function sample(): Promise<BackstageDocument[]> {
+  const { sampleDocuments } = await import('./documents-sample');
+  await new Promise(resolve => setTimeout(resolve, 320));
+  return sampleDocuments();
+}
 
 /* ------------------------------------------------------------------ */
 /* paths                                                               */
