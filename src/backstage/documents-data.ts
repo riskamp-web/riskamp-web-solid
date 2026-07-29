@@ -21,9 +21,10 @@ import { devBypass, devFailHistory, devFailLoads } from './dev-access';
 import * as auth from '~/lib/auth';
 
 /* the date helpers below render text, so they translate like the page does.
-   t() reads a store, so it's only reactive where it's called inside one --
-   these are called from the page's jsx, which is a tracking scope */
-import { format, t, type I18N } from '~/i18n/i18n';
+   t() and currentLocale() read from solid state, so they're only reactive where
+   they're called inside a tracking scope -- these are called from the page's
+   jsx and from its memos, which are */
+import { currentLocale, format, t, type I18N } from '~/i18n/i18n';
 
 /* the page's view state (scope / folder / search / sort) outlives the page, so
    it's kept in the app's persistent store rather than here -- see savedView() */
@@ -414,7 +415,7 @@ export function folderTree(list: BackstageDocument[]): FolderNode[] {
   }
 
   const sort = (nodes: FolderNode[]) => {
-    nodes.sort((a, b) => a.name.localeCompare(b.name));
+    nodes.sort((a, b) => compareText(a.name, b.name));
     nodes.forEach(node => sort(node.children));
   };
   sort(roots);
@@ -440,33 +441,92 @@ export function flattenFolders(nodes: FolderNode[]): FolderNode[] {
 /* formatting                                                          */
 /* ------------------------------------------------------------------ */
 
-/* TODO: locale. the words around these come from ~/i18n, but the dates
-   themselves are still formatted en-US, so a translated page would read
-   "hoy, 3:15 PM" with an american date beside it. ~/i18n has no locale to hand
-   Intl yet -- when it does, these three (and the localeCompare() calls in the
-   sort helpers below) should take it. */
-const SHORT_DATE = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
-const LONG_DATE = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-const TIME = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' });
+/**
+ * everything on this page that Intl decides: dates, times, counts, sort order,
+ * and which plural form a count takes.
+ *
+ * built once per locale rather than per call -- Intl objects are expensive
+ * enough that a collator rebuilt inside a comparator would be felt on a long
+ * list -- and rebuilt when currentLocale() changes. reading the signal *here*
+ * rather than at module scope is what makes the page redraw itself on a
+ * language change: the readers below are called from the page's jsx and memos,
+ * so the read is tracked, and a stale set can't outlive the locale that made it.
+ */
+function intl(): {
+  short_date: Intl.DateTimeFormat;
+  long_date: Intl.DateTimeFormat;
+  time: Intl.DateTimeFormat;
+  number: Intl.NumberFormat;
+  collator: Intl.Collator;
+  plurals: Intl.PluralRules;
+} {
+
+  const locale = currentLocale();
+  if (intl_cache && intl_cache.locale === locale) { return intl_cache.formats; }
+
+  intl_cache = { locale, formats: build(locale) };
+  return intl_cache.formats;
+
+}
+
+let intl_cache: { locale: string, formats: ReturnType<typeof build> } | undefined;
+
+/**
+ * a locale Intl doesn't recognise throws rather than falling back, and
+ * UpdateLanguage doesn't validate what it's handed. a bad tag shouldn't take
+ * the page down with it, so this drops to the runtime default and says so.
+ */
+function build(locale: string) {
+  try {
+    return formats(locale);
+  }
+  catch (error) {
+    console.error('building formats for locale failed; using the default', locale, error);
+    return formats(undefined);
+  }
+}
+
+function formats(locale: string | undefined) {
+  return {
+    short_date: new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }),
+    long_date: new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', year: 'numeric' }),
+    time: new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }),
+    number: new Intl.NumberFormat(locale),
+    collator: new Intl.Collator(locale),
+    plurals: new Intl.PluralRules(locale),
+  };
+}
+
+/** counts, in the locale's digits and grouping -- 1,205 documents, or ١٬٢٠٥ */
+export function formatNumber(value: number): string {
+  return intl().number.format(value);
+}
+
+/** the locale's idea of alphabetical order, for the sort helpers below */
+export function compareText(a: string, b: string): number {
+  return intl().collator.compare(a, b);
+}
 
 /** absolute date; the year is only shown when it isn't the current one */
 export function formatAbsolute(timestamp: number): string {
   const date = new Date(timestamp);
   return date.getFullYear() === new Date(NOW).getFullYear()
-    ? SHORT_DATE.format(date)
-    : LONG_DATE.format(date);
+    ? intl().short_date.format(date)
+    : intl().long_date.format(date);
 }
 
 /**
  * "{count} minutes ago" and friends, in the singular or the plural.
  *
- * the count is chosen here rather than in the string because a language file
- * can't branch: english wants two forms, and picking between them is code. two
- * is also an assumption -- languages with more (polish, russian) need
- * Intl.PluralRules here, which wants the locale ~/i18n doesn't carry yet.
+ * the form is chosen here rather than in the string because a language file
+ * can't branch. Intl.PluralRules picks it, so which numbers count as singular
+ * is the locale's business, not english's -- french calls 0 singular, english
+ * doesn't. a locale with categories we don't carry keys for (few, many) lands
+ * on .other, which is the closest thing we have.
  */
-function plural(count: number, one: keyof I18N, other: keyof I18N): string {
-  return format(t(count === 1 ? one : other), { count });
+export function formatCount(count: number, one: keyof I18N, other: keyof I18N): string {
+  const category = intl().plurals.select(count);
+  return format(t(category === 'one' ? one : other), { count: formatNumber(count) });
 }
 
 /** relative under a week, absolute after -- so the column stays scannable */
@@ -476,13 +536,13 @@ export function formatRelative(timestamp: number): string {
 
   if (delta < 2 * MINUTE) { return t('documents-page.time.just-now'); }
   if (delta < HOUR) {
-    return plural(Math.floor(delta / MINUTE), 'documents-page.time.minutes.one', 'documents-page.time.minutes.other');
+    return formatCount(Math.floor(delta / MINUTE), 'documents-page.time.minutes.one', 'documents-page.time.minutes.other');
   }
   if (delta < DAY) {
-    return plural(Math.floor(delta / HOUR), 'documents-page.time.hours.one', 'documents-page.time.hours.other');
+    return formatCount(Math.floor(delta / HOUR), 'documents-page.time.hours.one', 'documents-page.time.hours.other');
   }
   if (delta < 7 * DAY) {
-    return plural(Math.floor(delta / DAY), 'documents-page.time.days.one', 'documents-page.time.days.other');
+    return formatCount(Math.floor(delta / DAY), 'documents-page.time.days.one', 'documents-page.time.days.other');
   }
 
   return formatAbsolute(timestamp);
@@ -493,8 +553,8 @@ export function formatRelative(timestamp: number): string {
 export function formatStamp(timestamp: number): string {
   const delta = NOW - timestamp;
   const date = new Date(timestamp);
-  if (delta < DAY) { return format(t('documents-page.time.today'), { time: TIME.format(date) }); }
-  if (delta < 2 * DAY) { return format(t('documents-page.time.yesterday'), { time: TIME.format(date) }); }
+  if (delta < DAY) { return format(t('documents-page.time.today'), { time: intl().time.format(date) }); }
+  if (delta < 2 * DAY) { return format(t('documents-page.time.yesterday'), { time: intl().time.format(date) }); }
   return formatAbsolute(timestamp);
 }
 
@@ -518,17 +578,17 @@ export function sortDocuments(list: BackstageDocument[], key: SortKey, direction
     let result = 0;
     switch (key) {
       case 'name':
-        result = displayName(a).localeCompare(displayName(b));
+        result = compareText(displayName(a), displayName(b));
         break;
       case 'path':
-        result = folderOf(a.path).localeCompare(folderOf(b.path))
-          || displayName(a).localeCompare(displayName(b));
+        result = compareText(folderOf(a.path), folderOf(b.path))
+          || compareText(displayName(a), displayName(b));
         break;
       case 'access':
-        result = (a.access - b.access) || displayName(a).localeCompare(displayName(b));
+        result = (a.access - b.access) || compareText(displayName(a), displayName(b));
         break;
       case 'version':
-        result = (a.version - b.version) || displayName(a).localeCompare(displayName(b));
+        result = (a.version - b.version) || compareText(displayName(a), displayName(b));
         break;
       case 'modified':
         result = a.modified - b.modified;

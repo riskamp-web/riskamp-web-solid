@@ -3,7 +3,7 @@ import { ParentProps, Switch, Match, For, Show, onCleanup, createEffect, on, cre
 import style from './toolbar.module.css';
 import { Logo } from '../logo';
 import { DropMenu } from '~/components/drop-menu/drop-menu';
-import { i18n_instance, t } from '~/i18n/i18n';
+import { t } from '~/i18n/i18n';
 
 import '~/components/tabs.css';
 

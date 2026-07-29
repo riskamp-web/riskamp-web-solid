@@ -8,8 +8,8 @@
  * i18n: extracted. every string on this page is a 'documents-page.*' key in
  * ~/i18n/lang/en.ts, including the aria-labels and the sr-only text. values are
  * spliced in with format(), never concatenated, so a translation can move them
- * -- see the comment on that block in en.ts. dates are still formatted en-US;
- * ~/i18n has no locale yet (see documents-data.ts).
+ * -- see the comment on that block in en.ts. dates, counts, sort order and
+ * plural forms follow currentLocale() through intl() in documents-data.ts.
  */
 
 import { For, JSX, Match, ParentProps, Show, Switch, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
@@ -33,9 +33,9 @@ import { Globe, Sheet } from './backstage-icons';
 import {
   ACCESS_PRIVATE, ACCESS_PUBLIC, BackstageDocument, DocumentScope, NOW, RECENT_WINDOW, SortDirection, SortKey,
   displayName, documentUrl, documents, failed, flattenFolders, folderOf,
-  folderTree, formatAbsolute, formatRelative, formatStamp, historyOf, isUnnamed, loadDocuments,
-  loadHistory, loaded, ownerOf, refreshDocuments, retryHistory, savedView, saveView, setDocuments,
-  sortDocuments,
+  folderTree, formatAbsolute, formatCount, formatNumber, formatRelative, formatStamp, historyOf,
+  isUnnamed, loadDocuments, loadHistory, loaded, ownerOf, refreshDocuments, retryHistory,
+  savedView, saveView, setDocuments, sortDocuments,
 } from '~/backstage/documents-data';
 
 /* the union lives next to the data: the saved view stores a scope, so
@@ -429,7 +429,7 @@ export default function Documents() {
               onclick={() => selectScope(item.key)}>
             {item.icon()}
             <span class={bs['rail-label']}>{t(item.label)}</span>
-            <span class={bs['rail-count']}>{counts()[item.key]}</span>
+            <span class={bs['rail-count']}>{formatNumber(counts()[item.key])}</span>
           </button>
         }</For>
       </div>
@@ -450,7 +450,7 @@ export default function Documents() {
                 onclick={() => selectFolder(node.path)}>
               <Icon name='folder' />
               <span class={bs['rail-label']}>{node.name}</span>
-              <span class={bs['rail-count']}>{node.count}</span>
+              <span class={bs['rail-count']}>{formatNumber(node.count)}</span>
             </button>
           }</For>
         </Show>
@@ -464,7 +464,7 @@ export default function Documents() {
         <Show when={!checkedCount()} fallback={
           <div class={style['selection-bar']}>
             <span class={style['selection-count']}>
-              {format(t('documents-page.selection.count'), { count: checkedCount() })}
+              {format(t('documents-page.selection.count'), { count: formatNumber(checkedCount()) })}
             </span>
             <div class={style['selection-divider']} />
             <button type='button' class={`${bs.button} ${bs['button-quiet']} ${bs['button-collapse']}`}
@@ -718,12 +718,13 @@ export default function Documents() {
       <footer class={bs['content-footer']}>
         <Show when={loaded()}>
           <span>
+            {/* which form the count takes is the locale's call, not english's
+                -- formatCount() asks Intl.PluralRules. see documents-data.ts */}
             {visible().length === documents.length
-              ? format(
-                t(documents.length === 1 ? 'documents-page.footer.count.one' : 'documents-page.footer.count.other'),
-                { count: documents.length })
+              ? formatCount(documents.length,
+                'documents-page.footer.count.one', 'documents-page.footer.count.other')
               : format(t('documents-page.footer.filtered'),
-                { count: visible().length, total: documents.length })}
+                { count: formatNumber(visible().length), total: formatNumber(documents.length) })}
           </span>
           <Show when={search() && folder()}>
             {/* the dot is a separator, not a word -- it stays out of the string */}
@@ -890,13 +891,11 @@ export default function Documents() {
                   </div>
 
                   <div class={style['version-note']}>
-                    <Switch fallback={
-                      format(t('documents-page.history.kept.other'), { count: versions().length })
-                    }>
+                    <Switch fallback={formatCount(versions().length,
+                      'documents-page.history.kept.one', 'documents-page.history.kept.other')}>
                       <Match when={!versions().length}>
                         {t('documents-page.history.none')}
                       </Match>
-                      <Match when={versions().length === 1}>{t('documents-page.history.kept.one')}</Match>
                     </Switch>
                   </div>
                 </>}</Match>

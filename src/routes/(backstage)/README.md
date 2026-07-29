@@ -20,9 +20,8 @@ Within that, on purpose:
 
 - theme tokens are declared locally (scoped to `.page` in `backstage.module.css`)
   rather than added to `src/app.css`
-- strings are **no longer hardcoded**: both pages are extracted into `~/i18n` — see
-  "Strings" below. (This was the deferred item here; what's left deferred is the *locale*,
-  which is a different piece of work)
+- strings are **no longer hardcoded**: both pages are extracted into `~/i18n`, and dates,
+  counts, sort order and plural forms follow `currentLocale()` — see "Strings" below
 - glyphs the app icon set lacks live in `backstage-icons.tsx` rather than being added to
   `~/components/icon-sets` (see "Icons" below — documents now draws from the app set, and
   what's left local is only what that set has no name for)
@@ -305,11 +304,12 @@ gap, both in `src/i18n/i18n.ts`:
   positional**, so a translation can put them where its own grammar needs them — which is
   the whole reason they're inside the string instead of concatenated around it. An unknown
   name is left as `{name}` rather than blanked, so a typo is visible instead of silent.
-- **Plurals are `.one` / `.other` key pairs**, picked in code. English needs two and the
-  language file can't branch. It's the shape `search-panel.search-results.information
-  .result` / `.results` already used elsewhere. A language with more forms needs
-  `Intl.PluralRules` at the picking site — `plural()` in `documents-data.ts` is the one
-  place for the count-based strings, which is why it exists.
+- **Plurals are `.one` / `.other` key pairs**, picked in code. A language file can't
+  branch. It's the shape `search-panel.search-results.information.result` / `.results`
+  already used elsewhere. `formatCount()` in `documents-data.ts` does every pick, and it
+  asks **`Intl.PluralRules`** rather than testing `=== 1` — which numbers are singular is
+  the locale's business, not English's (French counts 0 as singular). A locale with
+  categories we have no keys for — `few`, `many` — lands on `.other`.
 
 Sign-in needed neither helper — nothing on it interpolates or counts.
 
@@ -334,15 +334,33 @@ Four things to know before adding a string here:
   English (`{ ...en, ...data }`), so anything they lack falls back — same as both
   command-palette extractions did.
 
-Two things are knowingly left English, both waiting on the same missing piece — `~/i18n`
-has no locale to hand to `Intl`:
+### The locale
 
-- the three `Intl.DateTimeFormat('en-US', …)` in `documents-data.ts`, so a translated page
-  would read "hoy," next to an American date
-- the `localeCompare()` calls the sort helpers use, which order names by the *runtime's*
-  locale rather than the chosen one
+`~/i18n` exports **`currentLocale()`**, a signal holding a full tag (`en-us`), set by
+`UpdateLanguage()`. Everything `Intl` decides on this page goes through one function,
+`intl()` in `documents-data.ts`, which hands back the six objects built for that locale:
+short date, long date, time, number, collator, plural rules.
 
-Both carry a TODO naming the locale work.
+- **Built once per locale, not once per call.** `Intl` objects are expensive enough that a
+  collator rebuilt inside a sort comparator is felt on a long list, and the locale changes
+  about never. The cache is keyed by the tag, so a stale set can't outlive it.
+- **Reading `currentLocale()` inside `intl()` is what makes the page redraw.** Its callers
+  run inside the page's JSX and memos, so the read is tracked and a language change
+  reformats the dates and re-sorts the list without a reload. Hoisting the read to module
+  scope would break that as surely as a module-scope `t()`.
+- **A bad tag falls back rather than throwing.** `Intl` rejects a malformed locale with a
+  `RangeError`, and `UpdateLanguage` doesn't validate what it's handed (its own TODO). The
+  builder catches, logs, and uses the runtime default — a mistyped locale shouldn't blank
+  the documents list.
+- **Counts are formatted too**, via `formatNumber()` — grouping and digits are locale
+  business at four figures and up. Version numbers deliberately aren't: `v7` is closer to
+  an identifier than to a quantity.
+
+**`UpdateLanguage()` has rough edges worth knowing before testing against it** — it sets
+the locale *before* it loads the language file and doesn't put it back if that fails, so
+`UpdateLanguage('de-de')` rejects on the missing `de.ts` and leaves you with German dates
+and English text. Written up as an open TODO, item 6 under "Open questions"; nothing here
+is blocked by it, and this page defends itself against a bad tag on its own.
 
 ## The saved view
 
@@ -571,6 +589,29 @@ None of these block the current page.
    to what their heading plus the caret needs, and `.sort-button { max-width: 100% }` with
    `.cell`'s `text-overflow: ellipsis` means a longer translated heading truncates rather
    than overflows. `minmax()` tracks, or simply more slack, would be the durable fix.
+6. **TODO: `UpdateLanguage()` in `~/i18n/i18n.ts` is rough at the edges.** Left open
+   deliberately — it's the library's call, not this directory's, and nothing here is
+   blocked by it. Four things noticed while wiring the locale up, in rough order of how
+   likely they are to bite:
+
+   - **It sets the locale before it loads the language file, and doesn't put it back if
+     that fails.** `UpdateLanguage('de-de')` sets `currentLocale()` to `de-de`, then
+     rejects on the missing `de.ts` — leaving the app with German dates, German number
+     grouping, German collation and English text. Setting the locale only once the strings
+     have landed would make the failure atomic.
+   - **The rejection is the caller's problem, and there's no caller.** Nothing invokes
+     `UpdateLanguage` yet, so today this surfaces as an unhandled promise rejection in the
+     console. Whatever ends up wiring the language chooser has to decide what a missing
+     language file means to the person who picked it.
+   - **The language is the first two characters of the tag** (`locale.substring(0, 2)`),
+     so `'not a locale'` asks for `./lang/no.ts`. Its own `// TODO: validate` covers this.
+     Note the documents page defends itself independently — `intl()` in `documents-data.ts`
+     catches the `RangeError` a malformed tag causes and falls back — because a bad locale
+     shouldn't blank the document list.
+   - **Only `en`, `es` and `fr` exist**, and the `import()` is a Vite dynamic-import glob
+     over `~/i18n/lang/*.ts`, so anything else is a runtime failure rather than a
+     compile-time one. A list of the locales that actually ship, checked before the import,
+     would turn that into a fallback.
 
 ## Gotchas hit while building this
 
@@ -598,23 +639,37 @@ the local store; rename, duplicate and move are placeholders.
 
 Nothing on the page should ever render blank — a blank label is a missing key. The
 reactivity trap is worth checking directly, from the console, since it fails silently and
-only when the language changes:
+only when the language changes. `UpdateLanguage()` is the way in — `setI18nInstance` isn't
+exported:
 
 ```js
-const i18n = await import('/_build/src/i18n/i18n.ts');
-const en = (await import('/_build/src/i18n/lang/en.ts')).default;
-i18n.setI18nInstance('strings', { ...en, 'documents-page.scope.all': 'XXX' });
+const i18n = await import(module_url('i18n/i18n'));   // see below
+await i18n.UpdateLanguage('fr-fr');
 ```
 
-The rail's first item and the first option in the narrow-mode `<select>` must both change
-without a reload. If either doesn't, that `t()` is outside a tracking scope. The same
-recipe against `'sign-in-page.error.rejected'`, run while a failure banner is on screen,
-is what proves that page's errors are stored as keys rather than as text.
+Dates must reformat (`Jul 20` → `20 juil.`), times must go 24-hour, and the list must
+re-sort — all without a reload. If they don't, a `currentLocale()` read is outside a
+tracking scope. The *strings* stay English because `fr.ts` has none of these keys; to check
+those, temporarily add one to `fr.ts` and watch it appear.
 
-**`/_build/src/…` is the path that works** — the dev server serves the app's modules from
-there, and importing the same file through `/@fs/<repo>/src/…` gets you a *second copy* of
-the module with its own store, so the page ignores everything you do to it. That's worth
-knowing for any console poking at module state, including the `ClearTokens()` recipe below.
+**Getting the module the app is actually using is the hard part**, and getting it wrong
+looks exactly like a bug in the page. Two ways to end up talking to a second copy with its
+own state, both of which cost time here:
+
+- `/@fs/<repo>/src/…` is a different URL from `/_build/src/…`, so it loads a second module
+- once a file has been edited in a dev session, Vite serves it to the app as
+  `/_build/src/i18n/i18n.ts?t=<timestamp>`, and importing it *without* the query gets a
+  second copy again — a fresh reload doesn't clear this
+
+So resolve the URL the page loaded rather than typing one:
+
+```js
+const module_url = (name) => performance.getEntriesByType('resource')
+  .map(entry => entry.name).find(url => url.includes(`/_build/src/${name}.ts`));
+```
+
+The same applies to any console poking at module state, including the `ClearTokens()`
+recipe below.
 
 The saved view is worth exercising both ways round: narrow the list (a folder or a scope,
 some search text, a sort other than Modified), leave for `/` and come back with the Back
@@ -643,9 +698,8 @@ failure state; Try again re-runs the load (skeleton, then the same failure), and
 read fresh each time.
 
 Dropping the session mid-visit can be driven from the console — in dev,
-`import('/_build/src/lib/auth/index.ts')` resolves to the same module instance the app is
-using, so `ClearTokens()` from there bounces a live `/documents` to `/sign-in`. (This said
-`/@fs/<repo>/…` before; that path loads a second copy of the module, so it does nothing.)
+`import(module_url('lib/auth/index'))` (the helper above) resolves to the module instance
+the app is using, so `ClearTokens()` from there bounces a live `/documents` to `/sign-in`.
 
 Then `/sign-in`, which talks to the real `auth.riskamp.com`: submit empty (two field
 messages, focus on the first), a bad credential (pending label, then the banner, password
