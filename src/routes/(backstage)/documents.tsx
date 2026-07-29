@@ -558,8 +558,7 @@ export default function Documents() {
                 <Icon name='warning' />
                 <div class={bs['empty-title']}>Couldn’t load your documents</div>
                 <div class={bs['empty-detail']}>
-                  The list didn’t come back from the server. Nothing has been lost — your
-                  documents are still there.
+                  Loading failed because of an error. Please try again later.
                 </div>
                 <button
                     type='button'
