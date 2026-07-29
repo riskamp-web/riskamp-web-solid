@@ -30,3 +30,6 @@ gitignore
 # System Files
 .DS_Store
 Thumbs.db
+
+# Snapshots, screenshots and console logs written by the playwright MCP tool
+.playwright-mcp/
