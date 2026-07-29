@@ -1,5 +1,5 @@
 
-nav {
+nav.sidebar-nav {
   margin-right: 1em;
   height: 100%;
   /*
@@ -12,7 +12,7 @@ nav {
 
 }
 
-header {
+header.sidebar-header {
 
   display: flex;
   flex-direction: row;
