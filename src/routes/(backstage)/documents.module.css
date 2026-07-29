@@ -360,6 +360,19 @@
   }
 }
 
+/* a document with no name shows its slug. monospace marks it as an address
+   rather than a badly-cased name -- and makes the ones needing a name obvious
+   without dimming them, which would read as disabled. */
+.unnamed {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+.unnamed-hint {
+  margin-top: 2px;
+  color: var(--bs-text-faint);
+}
+
 /* where the rename will land: the address is derived, so it moves with the name */
 .rename-preview {
   display: flex;

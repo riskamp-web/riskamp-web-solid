@@ -25,8 +25,17 @@ export interface BackstageDocument {
   // ---- fields that mirror DocumentsRow ----
   id: number;
   userid: number;
+
+  /**
+   * the document name, with its own casing. optional in practice: the old UI
+   * asked for a name and a slug separately, and almost nobody filled in the
+   * name, so most existing documents have none and the slug carries.
+   */
   name: string;
+
+  /** the full slug path, e.g. /finance/portfolio-var. this is the identity. */
   path: string;
+
   status: number;
   access: number;
   created: number;
@@ -77,38 +86,42 @@ function versions(count: number, created: number, modified: number): DocumentVer
 }
 
 /**
- * [ name, path, access, starred, created (days ago), modified (ms ago), versions ]
+ * [ name, full path, access, starred, created (days ago), modified (ms ago), versions ]
+ *
+ * an empty name is a legacy document: the old save box only took a slug, so the
+ * path is all it has. roughly a third of the set here, which is deliberate --
+ * unnamed is the common case in the real data, not the edge case.
  */
 type Seed = [string, string, number, boolean, number, number, number];
 
 /* public is the default access level, so private is the exception here too --
    roughly a quarter of the set */
 const SEEDS: Seed[] = [
-  ['Portfolio VaR',             '/finance',            ACCESS_PUBLIC,  true,  146,   2 * HOUR,  7],
-  ['Revenue Ramp Scenarios',    '/finance',            ACCESS_PUBLIC,  true,   40,   2 * DAY,   4],
-  ['Project NPV Risk',          '/finance',            ACCESS_PUBLIC,  false, 210,  14 * DAY,   5],
-  ['Cashflow Simulation',       '/finance',            ACCESS_PUBLIC,  false, 320,  56 * DAY,   3],
-  ['Retirement Drawdown',       '/finance',            ACCESS_PUBLIC,  false, 620, 260 * DAY,   4],
-  ['Cost Overrun Analysis',     '/finance/capital',    ACCESS_PRIVATE, true,   88,   3 * DAY,   4],
-  ['Capex Approval Model',      '/finance/capital',    ACCESS_PRIVATE, false, 190,  30 * DAY,   3],
-  ['Loan Default Correlations', '/finance/credit',     ACCESS_PRIVATE, false, 400, 190 * DAY,   2],
+  ['Portfolio VaR',             '/finance/portfolio-var',              ACCESS_PUBLIC,  true,  146,   2 * HOUR,  7],
+  ['Revenue Ramp Scenarios',    '/finance/revenue-ramp-scenarios',     ACCESS_PUBLIC,  true,   40,   2 * DAY,   4],
+  ['Project NPV Risk',          '/finance/project-npv-risk',           ACCESS_PUBLIC,  false, 210,  14 * DAY,   5],
+  ['',                          '/finance/cashflow-simulation',        ACCESS_PUBLIC,  false, 320,  56 * DAY,   3],
+  ['',                          '/finance/retirement-drawdown',        ACCESS_PUBLIC,  false, 620, 260 * DAY,   4],
+  ['Cost Overrun Analysis',     '/finance/capital/cost-overrun',       ACCESS_PRIVATE, true,   88,   3 * DAY,   4],
+  ['Capex Approval Model',      '/finance/capital/capex-approval',     ACCESS_PRIVATE, false, 190,  30 * DAY,   3],
+  ['',                          '/finance/credit/loan-default-corr',   ACCESS_PRIVATE, false, 400, 190 * DAY,   2],
 
-  ['Demand Forecast 2027',      '/models',             ACCESS_PUBLIC,  true,   60,   5 * HOUR,  6],
-  ['Project Schedule Risk',     '/models',             ACCESS_PUBLIC,  false, 130,  11 * DAY,   5],
-  ['Supply Chain Disruption',   '/models',             ACCESS_PUBLIC,  false, 150,  21 * DAY,   4],
-  ['Clinical Trial Enrollment', '/models',             ACCESS_PRIVATE, false, 240,  74 * DAY,   3],
-  ['Catastrophe Bond Pricing',  '/models/actuarial',   ACCESS_PRIVATE, true,  175,   8 * HOUR,  3],
-  ['Insurance Loss Model',      '/models/actuarial',   ACCESS_PUBLIC,  false, 300,  45 * DAY,   6],
+  ['Demand Forecast 2027',      '/models/demand-forecast-2027',        ACCESS_PUBLIC,  true,   60,   5 * HOUR,  6],
+  ['Project Schedule Risk',     '/models/project-schedule-risk',       ACCESS_PUBLIC,  false, 130,  11 * DAY,   5],
+  ['Supply Chain Disruption',   '/models/supply-chain-disruption',     ACCESS_PUBLIC,  false, 150,  21 * DAY,   4],
+  ['',                          '/models/clinical-trial-enrollment',   ACCESS_PRIVATE, false, 240,  74 * DAY,   3],
+  ['Catastrophe Bond Pricing',  '/models/actuarial/cat-bond-pricing',  ACCESS_PRIVATE, true,  175,   8 * HOUR,  3],
+  ['',                          '/models/actuarial/insurance-loss',    ACCESS_PUBLIC,  false, 300,  45 * DAY,   6],
 
-  ['Well Production Model',     '/energy',             ACCESS_PUBLIC,  true,  500,   9 * DAY,   7],
-  ['Reservoir Decline Curves',  '/energy',             ACCESS_PUBLIC,  false, 480, 130 * DAY,   5],
-  ['Wind Farm Yield',           '/energy/renewables',  ACCESS_PUBLIC,  false,  95,   1 * DAY,   2],
+  ['Well Production Model',     '/energy/well-production-model',       ACCESS_PUBLIC,  true,  500,   9 * DAY,   7],
+  ['',                          '/energy/reservoir-decline-curves',    ACCESS_PUBLIC,  false, 480, 130 * DAY,   5],
+  ['Wind Farm Yield',           '/energy/renewables/wind-farm-yield',  ACCESS_PUBLIC,  false,  95,   1 * DAY,   2],
 
-  ['Option Pricing Sandbox',    '/scratch',            ACCESS_PUBLIC,  false,  12,  35 * MINUTE, 1],
-  ['Sensitivity Test Bench',    '/scratch',            ACCESS_PUBLIC,  false,   5,  20 * MINUTE, 2],
-  ['Correlation Matrix Draft',  '/scratch',            ACCESS_PRIVATE, false,   2,   6 * HOUR,   1],
+  ['Option Pricing Sandbox',    '/scratch/option-pricing-sandbox',     ACCESS_PUBLIC,  false,  12,  35 * MINUTE, 1],
+  ['Sensitivity Test Bench',    '/scratch/sensitivity-test-bench',     ACCESS_PUBLIC,  false,   5,  20 * MINUTE, 2],
+  ['Correlation Matrix Draft',  '/scratch/correlation-matrix-draft',   ACCESS_PRIVATE, false,   2,   6 * HOUR,   1],
 
-  ['Monte Carlo Primer',        '',                    ACCESS_PUBLIC,  false, 700, 300 * DAY,   1],
+  ['',                          '/monte-carlo-primer',                 ACCESS_PUBLIC,  false, 700, 300 * DAY,   1],
 ];
 
 export const DOCUMENTS: BackstageDocument[] = SEEDS.map((seed, index) => {
@@ -133,6 +146,39 @@ export const DOCUMENTS: BackstageDocument[] = SEEDS.map((seed, index) => {
   };
 
 });
+
+/* ------------------------------------------------------------------ */
+/* paths                                                               */
+/* ------------------------------------------------------------------ */
+
+/** the folder part of a full path: /finance/portfolio-var -> /finance */
+export function folderOf(path: string): string {
+  return path.slice(0, path.lastIndexOf('/'));
+}
+
+/** the document part of a full path: /finance/portfolio-var -> portfolio-var */
+export function slugOf(path: string): string {
+  return path.slice(path.lastIndexOf('/') + 1);
+}
+
+/** assemble a path from a folder ('' for root) and a name */
+export function pathFor(folder: string, name: string): string {
+  return `${folder}/${slugify(name)}`;
+}
+
+/**
+ * what to show in the UI. documents saved through the old box have no name, so
+ * the slug is all there is -- and it's shown as-is rather than prettified,
+ * because un-slugifying can't recover "VaR" from "var" and shouldn't pretend to.
+ */
+export function displayName(doc: BackstageDocument): string {
+  return doc.name || slugOf(doc.path);
+}
+
+/** true when the label above is really just the address */
+export function isUnnamed(doc: BackstageDocument): boolean {
+  return !doc.name;
+}
 
 /* ------------------------------------------------------------------ */
 /* folders                                                             */
@@ -186,9 +232,13 @@ export function folderTree(list: BackstageDocument[]): FolderNode[] {
   };
 
   for (const doc of list) {
-    if (!doc.path) { continue; } // root-level document, not in any folder
 
-    const segments = doc.path.split('/').filter(Boolean);
+    // paths are full, so the folder is everything before the last segment;
+    // a root-level document leaves nothing behind
+    const folder = folderOf(doc.path);
+    if (!folder) { continue; }
+
+    const segments = folder.split('/').filter(Boolean);
 
     // walk every ancestor so nested folders get counts too
     for (let i = 0; i < segments.length; i++) {
@@ -283,13 +333,14 @@ export function sortDocuments(list: BackstageDocument[], key: SortKey, direction
     let result = 0;
     switch (key) {
       case 'name':
-        result = a.name.localeCompare(b.name);
+        result = displayName(a).localeCompare(displayName(b));
         break;
       case 'path':
-        result = (a.path || '').localeCompare(b.path || '') || a.name.localeCompare(b.name);
+        result = folderOf(a.path).localeCompare(folderOf(b.path))
+          || displayName(a).localeCompare(displayName(b));
         break;
       case 'access':
-        result = (a.access - b.access) || a.name.localeCompare(b.name);
+        result = (a.access - b.access) || displayName(a).localeCompare(displayName(b));
         break;
       case 'modified':
         result = a.modified - b.modified;
@@ -318,17 +369,17 @@ export function slugify(value: string): string {
 
 /** the URL a document lives at, e.g. /@duncan/finance/portfolio-var */
 export function documentUrl(doc: BackstageDocument, user = 'duncan'): string {
-  return `/@${user}${doc.path}/${slugify(doc.name)}`;
+  return `/@${user}${doc.path}`;
 }
 
 /**
- * the slug is the identity, so two documents in one folder can't share one.
- * returns the document already holding the slug, if any.
+ * the path is the identity, so no two documents can share one. paths are
+ * matched case-insensitively, the same way the loader resolves them.
  */
-export function findSlugCollision(
+export function findPathCollision(
     list: BackstageDocument[],
-    folder: string,
-    slug: string,
+    path: string,
     ignore_id?: number): BackstageDocument | undefined {
-  return list.find(doc => doc.id !== ignore_id && doc.path === folder && slugify(doc.name) === slug);
+  const target = path.toLowerCase();
+  return list.find(doc => doc.id !== ignore_id && doc.path.toLowerCase() === target);
 }

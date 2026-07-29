@@ -24,8 +24,8 @@ import { CaretDown, Check, Clock, Close, Copy, Folder, Globe, Lock, Overflow, Pl
 
 import {
   ACCESS_PRIVATE, ACCESS_PUBLIC, BackstageDocument, DOCUMENTS, NOW, RECENT_WINDOW, SortDirection, SortKey,
-  documentUrl, findSlugCollision, flattenFolders, folderTree, formatAbsolute, formatRelative, formatStamp,
-  slugify, sortDocuments,
+  displayName, documentUrl, findPathCollision, flattenFolders, folderOf, folderTree, formatAbsolute,
+  formatRelative, formatStamp, isUnnamed, pathFor, sortDocuments,
 } from './documents-data';
 
 type Scope = 'all' | 'starred' | 'recent' | 'private';
@@ -181,10 +181,14 @@ export default function Documents() {
     if (query) {
       // search flattens: it looks past the selected folder, on the theory that
       // if you're typing a name you don't want to be told it's somewhere else
-      list = list.filter(doc => (doc.name + ' ' + doc.path).toLowerCase().includes(query));
+      list = list.filter(doc => (displayName(doc) + ' ' + doc.path).toLowerCase().includes(query));
     }
     else if (active_folder) {
-      list = list.filter(doc => doc.path === active_folder || doc.path.startsWith(active_folder + '/'));
+      const folder = active_folder;
+      list = list.filter(doc => {
+        const own = folderOf(doc.path);
+        return own === folder || own.startsWith(folder + '/');
+      });
     }
 
     return sortDocuments(list, sortKey(), sortDirection());
@@ -220,8 +224,14 @@ export default function Documents() {
      with the field already in edit mode */
   const startRename = (doc: BackstageDocument) => {
     setSelected(doc.id);
-    setRenameDraft(doc.name);
+    setRenameDraft(displayName(doc));
     setRenaming(true);
+  };
+
+  /** where the current draft would put the document */
+  const renameTarget = () => {
+    const doc = detail();
+    return doc ? pathFor(folderOf(doc.path), renameDraft().trim()) : '';
   };
 
   /* the slug is the document's identity, so a rename that would collide inside
@@ -234,24 +244,32 @@ export default function Documents() {
     const name = renameDraft().trim();
     if (!name) { return 'Enter a name.'; }
 
-    const slug = slugify(name);
-    if (!slug) { return 'Name needs at least one letter or number.'; }
+    const target = renameTarget();
+    if (target.endsWith('/')) { return 'Name needs at least one letter or number.'; }
 
-    const clash = findSlugCollision(docs as BackstageDocument[], doc.path, slug, doc.id);
+    const clash = findPathCollision(docs as BackstageDocument[], target, doc.id);
     return clash
-      ? `“${clash.name}” already uses this address.`
+      ? `“${displayName(clash)}” already uses this address.`
       : undefined;
 
   });
 
   const commitRename = () => {
+
     const doc = detail();
     if (renameProblem()) { return; } // stay in edit mode until it resolves
+
     const name = renameDraft().trim();
-    if (doc && name && name !== doc.name) {
-      setDocs(row => row.id === doc.id, 'name', name);
+    const target = renameTarget();
+
+    // the path is derived, so a rename is also a move -- both fields change,
+    // and naming a legacy document is how it stops being unnamed
+    if (doc && name && (name !== doc.name || target !== doc.path)) {
+      setDocs(row => row.id === doc.id, row => ({ ...row, name, path: target }));
     }
+
     setRenaming(false);
+
   };
 
   /** blur can't stay in edit mode, so an invalid draft is abandoned */
@@ -366,7 +384,7 @@ export default function Documents() {
     </div>;
 
   const RowMenu = (props: { doc: BackstageDocument }) =>
-    <ActionMenu label={`Actions for ${props.doc.name}`} class={style['row-menu-button']}>
+    <ActionMenu label={`Actions for ${displayName(props.doc)}`} class={style['row-menu-button']}>
       <MenuItem icon={<Sheet />}>Open</MenuItem>
       <MenuItem icon={<Copy />}>Duplicate</MenuItem>
       <MenuItem onclick={() => startRename(props.doc)}>Rename…</MenuItem>
@@ -583,7 +601,7 @@ export default function Documents() {
                     <input
                         type='checkbox'
                         class={style.check}
-                        aria-label={`Select ${doc.name}`}
+                        aria-label={`Select ${displayName(doc)}`}
                         checked={checked().has(doc.id)}
                         onclick={(event) => event.stopPropagation()}
                         onchange={() => toggleChecked(doc.id)} />
@@ -593,7 +611,7 @@ export default function Documents() {
                     <button
                         type='button'
                         classList={{ [bs['icon-button']]: true, [style.star]: true, [style.starred]: doc.starred }}
-                        aria-label={doc.starred ? `Unstar ${doc.name}` : `Star ${doc.name}`}
+                        aria-label={doc.starred ? `Unstar ${displayName(doc)}` : `Star ${displayName(doc)}`}
                         aria-pressed={doc.starred}
                         onclick={(event) => { event.stopPropagation(); toggleStar(doc.id); }}>
                       <Star filled={doc.starred} />
@@ -601,11 +619,17 @@ export default function Documents() {
                   </div>
 
                   <div class={`${style.cell} ${style['cell-name']}`} role='cell'>
-                    <A href={documentUrl(doc)} onclick={(event) => event.stopPropagation()}>{doc.name}</A>
+                    <A
+                        href={documentUrl(doc)}
+                        classList={{ [style.unnamed]: isUnnamed(doc) }}
+                        title={isUnnamed(doc) ? 'This document has no name yet' : undefined}
+                        onclick={(event) => event.stopPropagation()}>
+                      {displayName(doc)}
+                    </A>
                   </div>
 
                   <div class={`${style.cell} ${style['cell-path']}`} role='cell'>
-                    {doc.path || '—'}
+                    {folderOf(doc.path) || '/'}
                   </div>
 
                   <div class={`${style.cell} ${style['cell-access']}`} role='cell'>
@@ -665,10 +689,13 @@ export default function Documents() {
                       </Show>
                       <button
                           type='button'
-                          class={style['rename-target']}
+                          classList={{
+                            [style['rename-target']]: true,
+                            [style.unnamed]: isUnnamed(doc()),
+                          }}
                           title='Rename'
                           onclick={() => startRename(doc())}>
-                        {doc().name}
+                        {displayName(doc())}
                       </button>
                     </div>
                   }>
@@ -710,13 +737,20 @@ export default function Documents() {
                     when={renameProblem()}
                     fallback={
                       <div class={style['rename-preview']}>
-                        <span class={style['panel-uri']}>
-                          /@duncan{doc().path}/{slugify(renameDraft())}
-                        </span>
+                        <span class={style['panel-uri']}>/@duncan{renameTarget()}</span>
                       </div>
                     }>
                   <div class={style['rename-error']} role='alert'>{renameProblem()}</div>
                 </Show>
+              </Show>
+
+              {/* legacy documents have only a slug, so the title above is just
+                  the address repeated -- say so rather than let it look like a
+                  badly-cased name */}
+              <Show when={isUnnamed(doc()) && !renaming()}>
+                <div class={style['unnamed-hint']}>
+                  No name yet — this is the address. Renaming sets one.
+                </div>
               </Show>
 
             </div>
