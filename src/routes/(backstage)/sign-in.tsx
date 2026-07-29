@@ -199,7 +199,9 @@ export default function SignIn() {
             </Show>
           </div>
 
-          <div class={bs['checkbox-row']}>
+          {/* hidden until the backend can actually not remember you -- see
+              .remember-row. the space it occupies is deliberate. */}
+          <div class={`${bs['checkbox-row']} ${style['remember-row']}`}>
             <input
                 id='sign-in-remember'
                 type='checkbox'

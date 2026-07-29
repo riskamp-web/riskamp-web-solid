@@ -71,11 +71,23 @@ Settled with the user across several passes. The reasoning matters more than the
   card has a ground to sit on; both values are existing tokens. Below 420px the card
   drops its border and goes edge-to-edge — a card with a 20px gutter either side stops
   being a card and starts being a frame.
+- **The card's centre sits on the top third, not the middle** — a form centred in a tall
+  window reads as low. Two flex spacers split the free space 1:2 and the card takes back
+  a sixth of its own height, which lands the centre on the third at any card or window
+  size. The column's bottom padding is twice its top for the same reason: any other ratio
+  biases the result. The compensation is gated at `min-height: 840px`, since below roughly
+  1.5x the card height it would push the card's top under the toolbar with no scroll to
+  reach it; shorter windows keep the plain 1:2 placement, a little lower and never clipped.
 - **The page draws its own top hairline.** The toolbar has no bottom edge of its own — it
   relies on being darker than the page, which works against white but not against the
   light tint, where the two are within a few percent and the boundary vanishes. Since the
   toolbar is outside the containment boundary, the fix is a `border-top` on the page, in
   the same `--bs-border` the rail and content header use.
+- **Remember me is present but `visibility: hidden`.** There's no opt-out to offer yet —
+  sessions are always remembered — but one is coming, so the row holds its space and
+  nothing shifts when it lands. `visibility` rather than `display` also keeps it out of
+  the tab order and the accessibility tree, which is where a control that does nothing
+  belongs.
 - **Visible labels, not placeholder labels.** The i18n keys from the old page used
   placeholders; a label that vanishes when you type isn't a label.
 - **Validation runs on submit, not by disabling the button.** A disabled submit doesn't

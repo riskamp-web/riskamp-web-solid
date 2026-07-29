@@ -372,26 +372,68 @@
 /* forgot password, the account form)                                     */
 /* ------------------------------------------------------------------ */
 
-/* the whole content area is one scrolling column; margin:auto on the card
-   centers it without clipping either end when the viewport is short, which
-   is what justify-content: center would do */
+/* the whole content area is one scrolling column.
+ *
+ * the card sits in the upper third rather than dead centre -- a form centred in
+ * a tall window reads as low. the two spacers split the free space 1:2, and
+ * because they shrink from a zero basis they collapse to nothing once the card
+ * is taller than the column, so a short window still scrolls to both ends
+ * (which justify-content: center would clip).
+ */
 .centered {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding: 32px 20px;
+
+  /* the bottom gutter is twice the top, the same 1:2 as the spacers -- with any
+     other ratio the padding biases the card off the third line */
+  padding: 32px 20px 64px;
+
+  &::before {
+    content: '';
+    flex: 1 1 0;
+  }
+
+  &::after {
+    content: '';
+    flex: 2 1 0;
+  }
 }
 
 .card {
+  flex: 0 0 auto;
   width: 100%;
   max-width: 372px;
-  margin: auto;
+  margin-inline: auto;
   padding: 24px;
   border: 1px solid var(--bs-border);
   border-radius: var(--bs-radius);
   background: var(--bs-surface);
+}
+
+/* splitting the free space 1:2 leaves the card's centre a sixth of its own
+ * height below the third line; this takes exactly that back. the percentage
+ * resolves against the card's own height, so the centre lands on the third at
+ * any card height and any window size.
+ *
+ * gated on window height, because a translate doesn't move the scroll extent:
+ * shift the card up far enough and its top goes under the toolbar with nothing
+ * to scroll to. it stays clear while the column is at least 1.5x the card --
+ * top edge = padding + (column - padding - card)/3 - card/6, which is >= 0
+ * exactly when column >= 1.5 * card. the tallest state (form error banner plus
+ * the caps lock hint) is a little over 500px, so ~765px of column, which is
+ * 815px of window once the toolbar is taken off; 840 leaves some margin.
+ *
+ * below that the card keeps the plain 1:2 placement -- a bit lower than the
+ * third, never clipped. this is a height question and .page contains
+ * inline-size only, so there's no container to query: one of the few places a
+ * media query is the right tool rather than the house @container. */
+@media (min-height: 840px) {
+  .card {
+    translate: 0 -16.667%;
+  }
 }
 
 /* stacked label + control + message. distinct from .field-row, which is the
@@ -719,7 +761,7 @@
    being a frame around the whole screen -- so drop the chrome and use the room */
 @container bs-page (width < 420px) {
   .centered {
-    padding: 20px 0 32px;
+    padding: 20px 0 40px;
   }
 
   .card {

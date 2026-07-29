@@ -70,6 +70,14 @@
   color: var(--bs-text-muted);
 }
 
+/* there is no "don't remember me" yet -- sessions are always remembered, and the
+   opt-out is still to come. hidden rather than removed so the row keeps its space
+   and nothing shifts when it lands; visibility also takes it out of the tab order
+   and the accessibility tree, which a control that does nothing should be. */
+.remember-row {
+  visibility: hidden;
+}
+
 .submit-row {
   margin-top: 2px;
 }
