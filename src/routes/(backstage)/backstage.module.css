@@ -44,6 +44,13 @@
   --bs-star: light-dark(#c27803, #fbbf24);
   --bs-danger: light-dark(#b3261e, #f4796f);
 
+  /* the strong end of the password meter, which needs a third colour that
+     --bs-danger and --bs-star can't supply. the only green in app.css is
+     --dialog-syntax-string-color, a syntax colour rather than a semantic one,
+     and its dark value leans teal -- and teal was rejected as an accent, so
+     aliasing it would smuggle that back in. */
+  --bs-strong: light-dark(#1a7f37, #3fb950);
+
   /* ---- metrics ---- */
   --bs-radius: 6px;
   --bs-radius-sm: 4px;
@@ -534,6 +541,120 @@
   color: var(--bs-danger);
 }
 
+/* the submit sits a step further from the last field than the fields sit from
+   each other. .form's 14px gap is right between peers, but the button isn't a
+   peer -- it's the action, and at the same distance the form reads as cramped.
+ *
+ * sign-in doesn't use this: its hidden remember row already supplies the space,
+ * which is why the 2px nudge in sign-in.module.css is all it needs. */
+.form-actions {
+  margin-top: 10px;
+}
+
+/* ---- password fields ---- */
+
+/* the reveal button sits over the input's right padding, so the input keeps
+   carrying its own border and the focus ring still wraps the whole box */
+.password-field {
+  position: relative;
+  display: flex;
+}
+
+.password-input {
+  padding-right: 34px;
+}
+
+.password-reveal {
+  position: absolute;
+  top: 50%;
+  right: 1px;
+  translate: 0 -50%;
+  width: 28px;
+  height: 28px;
+}
+
+.caps-hint {
+  color: var(--bs-text-muted);
+}
+
+/* ---- password strength meter ---- */
+
+/* a labelled track with a fill whose width is set inline -- the same shape as
+   the app's one existing bar, in run-simulation-dialog.module.css. its
+   --dialog-progress-* tokens aren't reusable here (dialog-scoped, and one orange
+   with no scale) but there's no reason to invent a second structure.
+ *
+ * the label matters as much as the bar: unlabelled, a 4px line under a field
+ * reads as a divider rather than as a measurement, which is exactly how it was
+ * first mistaken. */
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  /* .field's 5px gap alone lets the bar run into the input's bottom border --
+     they read as one object. this takes it to 10px, which is enough to separate
+     them while still keeping the meter clearly attached to the field above it
+     rather than floating between two fields. */
+  margin-top: 5px;
+}
+
+/* what the bar is on the left, its verdict on the right, *under* the bar.
+ *
+ * under, and at normal weight -- deliberately not styled like .field-block-label
+ * even though it names the thing next to it. a 500-weight label sitting below its
+ * own control reads as the label of a *fourth* field whose input happens to be a
+ * thin line. as a caption it reads as what it is, and the meter can stay tucked
+ * close to the password field it describes rather than being spaced off as a
+ * block of its own.
+ *
+ * the row keeps its height whether or not there's a verdict, so nothing shifts
+ * as one appears. */
+.meter-caption {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 18px;
+  color: var(--bs-text-muted);
+}
+
+/* full width, fixed height. no `flex: 1` here -- .meter is a column, so a flex
+   basis would apply to the *height* and collapse the track to nothing. */
+.meter-track {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bs-hover-strong);
+  overflow: hidden;
+}
+
+.meter-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  border-radius: 2px;
+  background: var(--bs-border-strong);
+  transition: width .18s ease, background-color .18s ease;
+
+  /* three colours over four levels: the width carries the rest. good and strong
+     share the green -- a fourth hue would be a distinction without a meaning. */
+  &.weak {
+    background: var(--bs-danger);
+  }
+
+  &.fair {
+    background: var(--bs-star);
+  }
+
+  &.good,
+  &.strong {
+    background: var(--bs-strong);
+  }
+}
+
+
 /* form-level failure: the field messages are per-field, this one is for the
    whole submission */
 .form-error {
@@ -575,14 +696,76 @@
   }
 }
 
-/* the row of links under a card -- the other places you might have meant to go */
+/* ---- the confirmation a card swaps to ---- */
+
+/* three pages end in one of these: create account, forgot password and update
+   password. the words differ, the shape doesn't. */
+.sent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 4px;
+  text-align: center;
+
+  & > .sent-detail {
+    max-width: 34ch;
+    color: var(--bs-text-muted);
+    line-height: 1.5;
+  }
+
+  /* named for its position, not its verb: create-account's is "use a different
+     address" and update-password's is "sign in". it's a margin, and each page
+     composes it with whichever button style it wants. */
+  & > .sent-action {
+    margin-top: 8px;
+  }
+}
+
+/* the mark the confirmation leads with, at 34px -- the same size and role as
+   the one an empty state leads with.
+ *
+ * it stays a class of its own rather than being reached as `.sent > .icon`,
+ * even though .icon is now declared in this same file: what broke before was a
+ * *cross-module* reference, and an explicit class keeps working wherever this
+ * rule ends up living.
+ *
+ * in the accent, not --bs-strong. green would be conventional now that there is
+ * one, but it was added for the meter, and repainting a shipped success state
+ * wasn't part of that. */
+.sent-icon {
+  width: 34px;
+  height: 34px;
+  color: var(--bs-accent);
+  margin-bottom: 4px;
+}
+
+/* the address inside the sentence. not bold -- emphasising it inline would mean
+   splitting the string around its placeholder into three pieces of jsx, which
+   is the concatenation splice() exists to avoid. */
+.sent-email {
+  color: var(--bs-text);
+  font-weight: 500;
+}
+
+/* the row of links under a card -- the other places you might have meant to go.
+ *
+ * a hairline separates them from the form's own action: they aren't part of it,
+ * and without a rule the submit button and the links read as one group where the
+ * links look like secondary actions on the form. the space is split either side
+ * of the rule rather than sitting all above it.
+ *
+ * the rule spans the content width rather than bleeding to the card's edges --
+ * same hairline token and same inset behaviour as the rail and content header. */
 .links {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 18px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--bs-border);
 }
 
 .links-separator {
@@ -868,5 +1051,9 @@
 
   .skeleton {
     animation: none;
+  }
+
+  .meter-fill {
+    transition: none;
   }
 }

@@ -1,11 +1,11 @@
 /**
  * create account -- backstage redesign.
  *
- * small, because almost everything this page draws is already a shared
+ * two rules, because almost everything this page draws is already a shared
  * primitive in backstage.module.css: the page tint, the card, the title block,
- * the form stack, the fields, the inputs, the button and the links row. what's
- * left here is the handle preview, the two notes under the button, and the
- * confirmation the card swaps to.
+ * the form stack, the fields, the inputs, the button, the links row, and the
+ * confirmation the card swaps to (which moved there once forgot-password and
+ * update-password turned out to end the same way).
  *
  * two modules are in play in create-account.tsx (`bs` and `style`) -- a class
  * read from the wrong one resolves to undefined and renders nothing, silently.
@@ -39,47 +39,4 @@
   margin-top: 14px;
   color: var(--bs-text-muted);
   line-height: 1.45;
-}
-
-/* the card swaps to this on success. */
-.sent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 0 4px;
-  text-align: center;
-
-  & > .sent-detail {
-    max-width: 34ch;
-    color: var(--bs-text-muted);
-    line-height: 1.5;
-  }
-
-  & > .sent-restart {
-    margin-top: 8px;
-  }
-}
-
-/* the mark the confirmation leads with, at 34px -- the same size and role as
-   the one an empty state leads with. in the accent, since the alternatives are
-   inventing a green or drawing it in body text.
- *
- * it carries its own local class rather than being reached as `.sent > .icon`:
- * .icon is declared in backstage.module.css, so writing it here compiles to a
- * class no element has and matches nothing, silently. same reason the sort
- * caret in documents.module.css has a local class. */
-.sent-icon {
-  width: 34px;
-  height: 34px;
-  color: var(--bs-accent);
-  margin-bottom: 4px;
-}
-
-/* the address the link went to, inside the sentence. not bold -- emphasising it
-   inline would mean splitting the string around its placeholder into three
-   pieces of jsx, which is the concatenation format() exists to avoid. */
-.sent-email {
-  color: var(--bs-text);
-  font-weight: 500;
 }

@@ -46,10 +46,13 @@ The pages, in `src/routes/(backstage)/`:
 | `sign-in.tsx` | the sign-in page |
 | `sign-in.module.css` | the password reveal, the caps lock hint, the hidden remember row |
 | `create-account.tsx` | the create-account page |
-| `create-account.module.css` | the handle preview, the notes under the button, the confirmation |
+| `create-account.module.css` | the handle preview and the notes under the button |
+| `forgot-password.tsx` | asks for an address and promises a link |
+| `update-password.tsx` | where that link lands: identifier, token, new password, strength meter |
 | `sign-out.tsx` | logs out and leaves |
-| `backstage.module.css` | shared shell: theme tokens, rail/content/panel, control and form primitives, and the whole single-column card page. The consolidation point for the next backstage page |
+| `backstage.module.css` | shared shell: theme tokens, rail/content/panel, control and form primitives, the whole single-column card page, the password field, the strength meter and the confirmation. The consolidation point for the next backstage page |
 | `backstage-icons.tsx` | the few glyphs the app icon set has no name for |
+| `backstage-parts.tsx` | `Icon`, `splice()` and `DevResetLink` — the markup helpers more than one page needs |
 
 What they run on, in `src/backstage/`:
 
@@ -59,8 +62,10 @@ What they run on, in `src/backstage/`:
 | `documents-data.ts` | the loaders, the path/folder/name/format/sort helpers, and the saved view |
 | `documents-sample.ts` | the canned document set and its canned history |
 | `documents-sample2.ts` | a dump of **real** rows from the live account, for reference — not wired to anything |
-| `create-account-mock.ts` | the sign-up validators, the `Message` type, and a stand-in for the server |
-| `dev-access.ts` | `requireAuth()` — the guard declaration plus its dev-only bypasses |
+| `account-validation.ts` | the shared field rules, the password scorer, and the `Message` type |
+| `create-account-mock.ts` | a stand-in for `/api/create-account`, and its canned collisions |
+| `password-reset-mock.ts` | stand-ins for `/api/recover-account` and `/api/recover`, and the canned tokens |
+| `dev-access.ts` | `requireAuth()` and `devResetLink()` — the dev-only affordances |
 
 `documents-store.ts` holds the state and `documents-data.ts` holds the behaviour, so the
 sample fixture can import the shapes without importing the loader that imports it back.
@@ -147,6 +152,13 @@ Settled with the user across several passes. The reasoning matters more than the
 
 - **Accent is the logo blue**, `light-dark(#0477be, #2a91d8)` — the same pair `app.css`
   already uses for `--dialog-border-color`. One accent, no second brand color.
+- **`--bs-strong` is the one added colour**, `light-dark(#1a7f37, #3fb950)`, and it exists for
+  the password meter's green end — `--bs-danger` and `--bs-star` couldn't supply a third step.
+  The only green in `app.css` is `--dialog-syntax-string-color`, a syntax colour rather than a
+  semantic one whose dark value leans teal, and teal was rejected as an accent, so aliasing it
+  would smuggle that back in. **The confirmation ticks stay `--bs-accent`**: a green tick is
+  conventional and now possible, but the green was added for the meter, and repainting three
+  shipped success states with it would dilute it. One line to change if that's wanted.
 - **Focus is drawn by the browser.** Nothing in this directory sets an outline. Controls
   are built so the native ring lands correctly: the search box is a single `<input>`
   carrying its own border and padding, with the icon and clear button positioned over
@@ -157,6 +169,13 @@ Settled with the user across several passes. The reasoning matters more than the
   against the surface in both themes. If something seems to need to be fainter than
   `--bs-text-faint`, it probably wants `--bs-text-muted`; the faint token is used in
   exactly one place.
+- **The card's action is separated from its footer links.** The submit sits 10px further out
+  than `.form`'s gap (`.form-actions`) so it reads as the action rather than as another field,
+  and a hairline above `.links` divides it from them — without one, the button and the links
+  read as a single group in which the links look like secondary actions on the form. The rule
+  spans the content width rather than bleeding to the card's edges, and the space is split
+  either side of it. Sign-in needs no `.form-actions`: its hidden remember row already supplies
+  that space.
 - **The detail panel covers the list, it doesn't push it.** Pushing re-lays-out every
   row, and when you're reading the panel the list behind it matters less.
 - **Access is a text-only pill.** Public is the default, so it reads as the quiet one;
@@ -319,6 +338,159 @@ and the wiring lands once the design has settled.
   mock page. Swapping in the real call means replacing that one function body, but see the
   open question below: the endpoints as they stand can't report *which* field collided.
 
+## Forgot password
+
+One field, and a confirmation that has to be read carefully.
+
+- **The page must not disclose whether an address has an account.** A form that says "sent!"
+  for real addresses and "no such account" for the rest is an account-enumeration oracle that
+  anyone can read. So `requestResetMock()` **returns nothing**, the confirmation is identical
+  either way, and the real `RecoverAccount`'s boolean should keep being ignored when this is
+  wired — it exists for the caller, not for the person reading the screen.
+- **That's what the real call's 1.7–3.7s delay defends**, and it's worth knowing before
+  "optimising" it away: a request for an unknown address has to take as long as one for a
+  known address, or the timing answers what the response refuses to.
+- **The confirmation is worded conditionally** — *"If there's an account for {email}, we've
+  sent it a link."* A flat "we've sent you a link" would be a lie half the time, and it's the
+  reason this can't reuse create-account's `done.body`, which asserts. A translator who
+  rewrites that clause into an assertion undoes the defence and nothing would catch it, which
+  is why the key carries a comment in `en.ts`.
+- **So the page has exactly one error state** beyond its own field check: the request didn't
+  complete. There is no `error.rejected`, because there is no attributable rejection — there
+  is no verdict at all.
+
+## Update password
+
+Where the recovery link lands, and where a brand-new account chooses its first password —
+create-account never asks for one, so both flows end here.
+
+- **It declares no auth requirement**, the only card page that doesn't. **The token is the
+  credential here, not the session**: someone signed in on this browser who follows a reset
+  link from their inbox must still be able to finish, and `'signed-out'` would bounce them to
+  `/` with no way to tell why and no route out but signing out first. Declaring nothing is
+  already how the guard says "renders either way" — `sign-out.tsx` does the same — so
+  `(backstage).tsx` needs no change. **This is the one thing here that would silently break
+  recovery for anyone with a live session, so it's worth re-checking after any guard work.**
+- **The first field takes a username *or* an email**, as v1's did, and that resolves a real
+  mismatch rather than being indecision: `RecoverAccount` is keyed by **email**, because an
+  address is the only thing you can mail to, while `ResetPassword` is keyed by **username**.
+  One link has to satisfy both, so the page sends whichever was typed and lets the server
+  resolve it. The `?email=` parameter and the field's label deliberately don't match.
+- **`?email=` and `?token=` seed the fields, they don't drive them.** Read once during render
+  via `useSearchParams` — which this page introduces; nothing else in `src/` used it. Reading
+  them reactively would fight typing. Both fields stay **visible and editable** because a link
+  truncated by an email client is exactly the failure someone has to be able to repair, and
+  hiding a token you can't verify removes the only way to correct it. A repeated parameter
+  arrives as an array, so `seed()` takes the first.
+- **Focus lands on the first field that's still empty**, so arriving from a link puts you on
+  the password and typing the URL by hand puts you at the top.
+- **The identifier and the token clear each other's messages**, which neither sibling page
+  does. A token verdict is a verdict about the *pair*, so editing either half invalidates it.
+  The password is independent and clears on its own.
+- The token field has **no standing hint**. One was tried and dropped: it's hard to say
+  anything about a token that isn't either obvious or awkwardly phrased, and the subtitle
+  already says both fields come from the link.
+
+### The password rule and the meter
+
+- **Minimum 8, and that's the only rule that blocks a submission.** Above it the meter advises
+  and never rejects. A rule demanding an upper, a digit and a symbol mostly teaches people to
+  end a weak password with `1!`, and it rejects passphrases that are genuinely strong. **The 8
+  is invented** — no backend minimum is known, the same honesty `USERNAME_MAX` gets.
+- **The scorer is length-dominant**, in `account-validation.ts`. Length is the only input that
+  buys entropy at a rate an attacker cares about, so it carries the score; each character
+  class is worth about a character and a half, never enough to promote a short password.
+- **The repeat penalty is applied to the length, not the score** — `effective = min(length,
+  distinct × 2)`. That one expression catches every shape of the problem at once: runs
+  (`aaaaaaaa`), alternations (`abababab`) and repeated blocks (`Aa1!Aa1!Aa1!Aa1!`, which is
+  sixteen characters and all four classes and scores Fair). A run-length test would miss two
+  of the three. The factor is 2 so it can't bite on real text.
+- **It has no dictionary and isn't getting one.** `password1` rates Fair, not Strong, which is
+  the most that arithmetic can do; knowing it's the first thing anyone would try means
+  shipping zxcvbn's several hundred kilobytes to draw one small bar. What the scorer *does*
+  guarantee is that the two actively misleading states can't happen — short-but-varied and
+  long-but-repetitive both reading as strong.
+- **`scorePassword()` returns `undefined` below the minimum**, rather than a fifth "too short"
+  level. Under the floor the password is *rejected*, which is the field message's job, and a
+  meter rating something unsubmittable invites reading it as permission. The bar draws empty.
+- **The meter carries a visible label**, and it is a **caption under the bar at normal
+  weight**, not a label above it. Both halves of that were arrived at by getting them wrong:
+
+  - Unlabelled, a 4px line under a field reads as a divider or a smudge rather than as a
+    measurement of anything — which is exactly how it was first mistaken. An `sr-only` prefix
+    was the first fix and wasn't one; the problem was visual, not aural.
+  - Labelled at `.field-block-label`'s 500 weight and placed *above* the bar, it then read as
+    the label of a **fourth field** whose input happened to be a thin line, which put the
+    field stack's rhythm out. As a 400-weight caption *below* the bar it reads as what it is —
+    and that's what lets the meter stay tucked 5px under the password field it describes,
+    rather than being spaced off as a block of its own.
+
+  The label is always drawn, so the bar is explained before you've typed enough to fill it; the
+  verdict joins it on the right, in a row that holds its height so nothing shifts when one
+  appears.
+- **The bar itself is decoration and the words are the information.** The track is
+  `aria-hidden`, and the label and verdict are real text tied to the input with
+  `aria-describedby`. **There is no `aria-live` here and there must not be** — this updates on
+  every keystroke, and a live region would announce four states while you type one word.
+  `role='meter'` was considered and rejected: unfocused and outside a live region it announces
+  nothing at all, so it buys nothing over text that's already in the tree and readable on
+  demand.
+- **`.meter` is a column, so `.meter-track` must not carry a flex basis.** `flex: 1` there
+  applies to the *height* and collapses the track to nothing — which it silently did, since a
+  0px bar just looks like a bar that hasn't filled yet.
+- **The meter's own `margin-top` takes it to 10px below the input.** `.field`'s 5px gap alone
+  lets the bar run into the input's bottom border, so they read as one object — but the meter
+  still has to sit closer to its field than the fields sit to each other, or it floats between
+  two of them and stops being obviously *about* the password.
+- **Four levels, four widths, three colours** — weak `--bs-danger`, fair `--bs-star`, good and
+  strong the new `--bs-strong`. The width does the work the third colour doesn't, which also
+  means the meter still reads for anyone who can't separate the red from the green.
+- **The meter yields when a message about the field is showing.** The interesting case is the
+  server's: it can refuse a password the scorer rates Fair, and a half-full amber bar above a
+  red "too easy to guess" is the meter contradicting the authority inside forty pixels. It's
+  been overruled, so it stops asserting; editing the field brings it back.
+
+### The canned data
+
+- Tokens: **`demo-token`** works, `expired-token` and `used-token` read as expired and used
+  (different messages, because "get a new link" and "check the link" are different actions),
+  anything else is invalid, and empty is caught client-side.
+- **A token issued for another account reads as invalid**, deliberately — "that token belongs
+  to someone else" tells an attacker their guess was otherwise well-formed.
+- **`WEAK_PASSWORDS` is `RESERVED`'s counterpart**: `password`, `password1`, `12345678`,
+  `letmein1`, `qwertyui`. Every one clears the minimum length, so the page accepts them and
+  the server sends them back — which is the state that proves the meter advises rather than
+  decides, and the only way to see the meter yield.
+- **The password is never trimmed**, anywhere on the path. Leading and trailing spaces are
+  legal, and dropping them silently sets a password its owner can't type. Every other field
+  on these pages calls `.trim()`, so this is the exception worth knowing about.
+- The weak check runs **after** the token is validated: telling someone their password is weak
+  before establishing they may set one confirms the token to anyone holding a guess.
+
+### The dev-only reset link
+
+A mock sends no email, so `/update-password` would otherwise be reachable only by typing a URL
+with a plausible token in it — and the *link* is the thing under test, since the page's whole
+reason for reading a query string is that a mail carries one. So both confirmations carry
+`DevResetLink`, in `backstage-parts.tsx`.
+
+**The shape of that function is what keeps it out of production, and it took three attempts.**
+`import.meta.env.DEV` is replaced by a literal, so a statement-level early `return` makes
+everything below it unreachable and the minifier deletes it — the same `if` `dev-access.ts`
+uses. What does *not* work, both verified by grepping `dist/`:
+
+- **`<Show when={import.meta.env.DEV}>`** — children are passed as a prop, so the markup and
+  its label are constructed regardless and only the rendering is skipped.
+- **`{import.meta.env.DEV && <A/>}` inside JSX** — Solid's compiler wraps the whole expression
+  in a `createMemo`, and the minifier can't see into the thunk. This one looks exactly right
+  and isn't.
+
+So: test the flag in a *statement*, never in an expression inside JSX. **If `DevResetLink` is
+ever edited, re-run the grep** — `npm run build`, then `grep -rl "open the reset link" dist/`,
+which must print nothing.
+
+Its label is the one deliberately un-extracted string in this directory — see "Strings".
+
 ## The document store
 
 The rows live in a module-level Solid store in `~/backstage/documents-store`, not in the
@@ -384,9 +556,25 @@ and go when those do. Three of the old keys are live and stay: `documents-page.t
 `setTitle`. Both card pages have their own heading key — same words, different job, and the
 toolbar's version is the one that would be shortened first.
 
-Create account duplicates sign-in's footer link strings and its unreachable-server sentence
-rather than sharing them: one self-contained block per page means a translator can shorten
-one page's footer without touching the other's, and deleting a page deletes its block.
+Each page duplicates the footer-link strings and the unreachable-server sentence rather than
+sharing them: one self-contained block per page means a translator can shorten one page's
+footer without touching the other's, and deleting a page deletes its block.
+
+**One block breaks that rule on purpose: `backstage-form.*`.** Those are the messages the
+shared validators in `account-validation.ts` return, so pointing them at any one page's block
+would mean three other pages rendering strings from it — and shortening a message for that
+page would silently change them all. It's the block no page owns, and it goes when the last
+backstage form does. A page's *own* verdicts stay in its own block: "is already taken" is
+create-account's, because only its mock can say it.
+
+`update-password.page.title` is **new**, not an archive leftover, even though it's named the
+old way — every toolbar title in the file is. Worth knowing before a sweep deletes the old
+keys around it.
+
+**One string in this directory is deliberately not extracted**: `DevResetLink`'s
+`[dev] open the reset link` label. A key would ship in `en.ts` and would imply someone should
+translate it, and the whole point of that component is that it isn't in the production bundle
+at all. The `[dev]` prefix matches `dev-access.ts`'s console-warning convention.
 
 The library is 30 lines and does one thing: `t(key)` returns a string. It has no
 interpolation and no plurals, so this pass added the two smallest things that close that
@@ -681,14 +869,25 @@ None of these block the current page.
    to what their heading plus the caret needs, and `.sort-button { max-width: 100% }` with
    `.cell`'s `text-overflow: ellipsis` means a longer translated heading truncates rather
    than overflows. `minmax()` tracks, or simply more slack, would be the durable fix.
-6. **The create-account endpoints can't say which field collided.** `CreateAccount` reports
-   nothing but `result.ok`, and `CheckAvailability` answers with a single value for the
-   username and the email *together* — so neither can distinguish "that name is taken" from
-   "that address is already registered", and neither can report both at once. The mock's
-   two-field result is a shape the backend has to be asked for; until it is, a wired page
-   could only say "one of these is taken", which is a worse page than the mock. Also open:
-   `/terms-of-service` has no page and no external URL, so that link 404s.
-7. **TODO: `UpdateLanguage()` in `~/i18n/i18n.ts` is rough at the edges.** Left open
+6. **The account endpoints can't say which field failed.** `CreateAccount` reports nothing but
+   `result.ok`; `CheckAvailability` answers with a single value for the username and the email
+   *together*; `ResetPassword` is also just `result.ok`. So none of them can distinguish "that
+   name is taken" from "that address is registered", or "expired token" from "weak password",
+   and none can report two at once. Every mock's per-field result is a shape the backend has to
+   be asked for — until it is, a wired page could only say "that didn't work", which is worse
+   than the mocks. Also open: `/terms-of-service` has no page and no external URL, so that
+   link 404s.
+7. **A token in the address bar stays in browser history**, and goes out in `Referer`. The fix
+   is one line — `setSearchParams({ token: null }, { replace: true })` after seeding — but it
+   makes the dev link single-use on reload, which makes the page harder to work on. Left for
+   whoever wires the real endpoint. Related: nobody has decided whether the real mail will
+   send `?email=` or `?username=`; the page reads `?email=` and the field accepts either, so
+   supporting both is a one-line addition.
+8. **Sign-in could use the shared validators.** It still does its own presence-only checks and
+   holds bare `keyof I18N` rather than `Message`, so adopting them means converting three
+   signals. Mechanical, but sign-in is the one *wired* page and a regression there costs a real
+   sign-in — so not in a pass that was about other pages.
+9. **TODO: `UpdateLanguage()` in `~/i18n/i18n.ts` is rough at the edges.** Left open
    deliberately — it's the library's call, not this directory's, and nothing here is
    blocked by it. Four things noticed while wiring the locale up, in rough order of how
    likely they are to bite:
@@ -725,7 +924,16 @@ Worth knowing before editing; each of these failed silently.
 - **CSS module references are unchecked.** `bs['panel-section']` where the class lives in
   `documents.module.css` resolves to `undefined` and renders no class, with no error. Two
   modules are in play in `documents.tsx` (`bs` and `style`) — check which file a class is
-  in. This shipped a broken margin for a whole pass before being caught.
+  in. This shipped a broken margin for a whole pass before being caught, and caught
+  create-account's confirmation icon a pass later (`.sent > .icon` written in the page's own
+  module, where `.icon` isn't declared — it draws at the wrong size in the wrong colour and
+  reports nothing). `tsc` cannot see any of this. Every promotion into
+  `backstage.module.css` means re-*looking* at the pages that lost the rules.
+- **A dev-only branch in JSX is not dead code.** `import.meta.env.DEV` is statically replaced,
+  but `<Show when={…}>` takes its children as a prop and Solid wraps `{… && <jsx/>}` in a
+  memo, so in both forms the markup and its strings stay in the production bundle. Only a
+  statement-level `if` gets them removed — see "The dev-only reset link". Both wrong forms
+  look right and shipped once each before the `dist/` grep caught them.
 
 ## Verifying
 
@@ -827,10 +1035,39 @@ still filled. Watch the handle preview track the username field, and confirm it 
 message never appear together. Signed in, `/create-account` must bounce to `/`, and `?dev`
 must **not** open it — the bypass only covers `'signed-in'`.
 
-**Sign in has to be looked at again after any change to the shared card rules**, since the
-page tint, title block, form stack and links row moved into `backstage.module.css` when
-create account landed. A class read from the wrong module renders nothing and reports
-nothing — that's the third gotcha below, and it bit again during this pass: the
-confirmation's icon silently drew at 20px in body colour because `.sent > .icon` in
-`create-account.module.css` compiles to a class no element has. It carries a local
-`.sent-icon` now.
+Then `/forgot-password`: empty submit, `not-an-email`, then a valid address → the
+confirmation. **Check that an address that can't exist behaves identically to a plausible
+one** — the two being indistinguishable *is* the non-disclosure property, and it's the only way
+to test it. Its single error state (the unreachable banner) needs a temporary `throw` in
+`requestResetMock`.
+
+Then `/update-password`. Bare first, with all three fields typed by hand, then via the dev link
+off either confirmation — which should arrive with two fields filled and focus on the password.
+The token states: `demo-token` works, `expired-token` and `used-token` give their own messages,
+garbage is invalid, empty is caught client-side. Then `password1` with a good token, which the
+**server** refuses and the meter yields to — that's the state proving the meter only advises.
+Fix one of the identifier/token pair and check the other's message clears too.
+
+The meter is worth walking properly, since arithmetic is all it has: `abcdefgh` Weak,
+`password1` Fair (**not** Strong), `aaaaaaaaaa` and `abababababab` Weak despite their length,
+`Aa1!Aa1!Aa1!Aa1!` Fair despite four classes, `Tr0ub4dor&3` Good, and a real passphrase Strong.
+Under 8 characters shows the label and an empty bar but no verdict. Both themes — the three
+colours should resolve to `--bs-danger`, `--bs-star` and `--bs-strong` exactly, and **the empty
+track has to be 4px and visible**, since a collapsed one is indistinguishable from an unfilled
+one. The card's height must not change between an empty password and a rated one.
+
+Also the reveal toggle, the Caps Lock hint, keyboard-only tab order, and ~380px for the
+edge-to-edge card.
+
+**And the guard, in both directions, which is the one thing here that fails silently and
+badly**: signed in, `/forgot-password` must bounce to `/` and **`/update-password` must still
+render**. A hand-built JWT with a future `exp` in `localStorage.auth` is enough to test it.
+
+**Sign in and create account have to be looked at again after any change to the shared card
+rules**, since the page tint, title block, form stack, links row, password field, confirmation
+and strength meter all live in `backstage.module.css` now. A class read from the wrong module
+renders nothing and reports nothing — the CSS-module gotcha below, which has bitten twice.
+
+Finally `npm run build`, then `grep -rl "open the reset link" dist/`, which must print
+nothing. Two plausible-looking forms of that dev guard leave the string in the bundle; see
+"The dev-only reset link".

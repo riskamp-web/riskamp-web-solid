@@ -186,13 +186,13 @@ export default function SignIn() {
 
           <div class={bs.field}>
             <label class={bs['field-block-label']} for='sign-in-password'>{t('sign-in-page.password.label')}</label>
-            <div class={style['password-field']}>
+            <div class={bs['password-field']}>
               <input
                   ref={password_input}
                   id='sign-in-password'
                   name='password'
                   type={revealed() ? 'text' : 'password'}
-                  class={`${bs.input} ${style['password-input']}`}
+                  class={`${bs.input} ${bs['password-input']}`}
                   autocomplete='current-password'
                   disabled={pending()}
                   aria-invalid={!!passwordError()}
@@ -204,7 +204,7 @@ export default function SignIn() {
                   onblur={() => setCapsLock(false)} />
               <button
                   type='button'
-                  class={`${bs['icon-button']} ${style['password-reveal']}`}
+                  class={`${bs['icon-button']} ${bs['password-reveal']}`}
                   aria-label={t(revealed() ? 'sign-in-page.password.hide.label' : 'sign-in-page.password.show.label')}
                   aria-pressed={revealed()}
                   disabled={pending()}
@@ -218,7 +218,7 @@ export default function SignIn() {
               <div id='sign-in-password-error' class={bs['field-message']}>{t(passwordError())}</div>
             </Show>
             <Show when={capsLock()}>
-              <div class={style['caps-hint']} role='status'>{t('sign-in-page.password.caps-lock')}</div>
+              <div class={bs['caps-hint']} role='status'>{t('sign-in-page.password.caps-lock')}</div>
             </Show>
           </div>
 

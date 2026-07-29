@@ -24,46 +24,17 @@
  * which isn't the same string as the heading on the page.)
  */
 
-import { JSX, Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
+import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
 import { A } from '@solidjs/router';
 
-import { IconName, icons } from '~/components/icon-sets';
 import { useLayoutContext } from '~/components/layout-context';
 import { format, t } from '~/i18n/i18n';
-import {
-  createAccountMock, messageText, validateEmail, validateUsername,
-  type CreateAccountResult, type Message,
-} from '~/backstage/create-account-mock';
+import { messageText, validateEmail, validateUsername, type Message } from '~/backstage/account-validation';
+import { createAccountMock, type CreateAccountResult } from '~/backstage/create-account-mock';
 
 import bs from './backstage.module.css';
 import style from './create-account.module.css';
-
-/**
- * the app icon set ships svg markup as strings, so an icon is an element with
- * the markup inside it rather than a component. the size lives in css.
- */
-function Icon(props: { name: IconName, class?: string }) {
-  return <span class={`${bs.icon} ${props.class || ''}`} innerHTML={icons[props.name]} />;
-}
-
-/**
- * splice an element into a translated string at its {placeholder}.
- *
- * format() splices values, which is enough when the value is words. it isn't
- * when the value has to be marked up -- a link, or an address in monospace --
- * and the alternative is breaking the sentence into two keys and concatenating
- * around the element, which is exactly what a translation can't reorder. this
- * keeps the whole sentence in one key with the placeholder wherever the
- * grammar wants it.
- *
- * an unmatched name leaves the text alone rather than dropping the element,
- * so a typo is visible in the ui instead of silently swallowing it.
- */
-function splice(text: string, name: string, element: JSX.Element): JSX.Element {
-  const parts = text.split(`{${name}}`);
-  if (parts.length < 2) { return text; }
-  return <>{parts[0]}{element}{parts.slice(1).join(`{${name}}`)}</>;
-}
+import { DevResetLink, Icon, splice } from './backstage-parts';
 
 export default function CreateAccount() {
 
@@ -272,7 +243,7 @@ export default function CreateAccount() {
         </Show>
       </div>
 
-      <div>
+      <div class={bs['form-actions']}>
         <button
             type='submit'
             class={`${bs.button} ${bs['button-primary']} ${bs['button-block']}`}
@@ -298,28 +269,34 @@ export default function CreateAccount() {
 
   const confirmation = (address: () => string) => <div
       ref={sent_block}
-      class={style.sent}
+      class={bs.sent}
       tabindex='-1'>
 
-    <Icon name='confirm' class={style['sent-icon']} />
+    <Icon name='confirm' class={bs['sent-icon']} />
 
     <h1 class={bs.title}>{t('create-account-page.done.heading')}</h1>
 
-    <div class={style['sent-detail']}>{splice(
+    <div class={bs['sent-detail']}>{splice(
       t('create-account-page.done.body'), 'email',
-      <span class={style['sent-email']}>{address()}</span>)}</div>
+      <span class={bs['sent-email']}>{address()}</span>)}</div>
 
-    <div class={style['sent-detail']}>{t('create-account-page.done.spam')}</div>
+    <div class={bs['sent-detail']}>{t('create-account-page.done.spam')}</div>
 
     {/* bordered rather than quiet: a borderless button here sits directly above
         the links row and reads as a third link, and a control you have to
         guess at is worse than a visible one */}
     <button
         type='button'
-        class={`${bs.button} ${style['sent-restart']}`}
+        class={`${bs.button} ${bs['sent-action']}`}
         onclick={restart}>
       {t('create-account-page.done.restart')}
     </button>
+
+    {/* the link the mail would have carried -- this page's confirmation promises
+        the same email as forgot-password's, and both flows end on
+        /update-password. dev only, and absent from a production build rather
+        than merely hidden in one; see DevResetLink. */}
+    <DevResetLink email={address()} />
 
   </div>;
 

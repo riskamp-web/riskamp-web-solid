@@ -1,6 +1,6 @@
 
 /**
- * create account -- the validators, and a stand-in for the server.
+ * create account -- a stand-in for the server.
  *
  * the page is UI/UX only for now, the same way documents is: nothing here
  * touches ~/lib/auth. the real calls already exist --
@@ -15,127 +15,16 @@
  * is, a wired page could only say "one of these is taken", which is a worse
  * page than this one.
  *
- * the split between the two halves of this file is the point of it:
- *
- *   - validate*()           what the page can rule out before asking
- *   - createAccountMock()   what only the server can answer
- *
- * the client rules are a courtesy that saves a round trip. the server is the
- * authority, and it knows things the page can't -- who already has the name,
- * which names are reserved -- so it runs its own checks and is allowed to
- * disagree. RESERVED below exists to keep the page honest about that: it makes
- * the page draw a verdict it could not have predicted, which is otherwise a
- * state you'd discover only once the real endpoint was wired up.
+ * the rules the page checks before it gets here are in account-validation.ts.
+ * those are a courtesy that saves a round trip; this is the authority, and it
+ * knows things the page can't -- who already has the name, which names are
+ * reserved -- so it runs its own checks and is allowed to disagree. RESERVED
+ * below exists to keep the page honest about that: it makes the page draw a
+ * verdict it could not have predicted, which is otherwise a state you'd
+ * discover only once the real endpoint was wired up.
  */
 
-import { format, t, type I18N } from '~/i18n/i18n';
-
-/* ------------------------------------------------------------------ */
-/* messages                                                            */
-/* ------------------------------------------------------------------ */
-
-/**
- * a message held as a *key* plus the values it splices in.
- *
- * sign-in holds a bare `keyof I18N` so that nothing is translated until it's
- * drawn -- otherwise a language change leaves a message in the old language.
- * this is that, plus the values, because some of these messages quote what you
- * typed. the values are captured when the verdict is reached rather than read
- * back at the render site: the field they came from may have been edited since,
- * and "@foo is already taken" should keep saying foo.
- *
- * a Message with no values is exactly sign-in's key, so nothing is lost.
- */
-export interface Message {
-  key: keyof I18N;
-  values?: Record<string, string | number>;
-}
-
-/**
- * resolve one at the point it's drawn.
- *
- * t() is reactive only inside a tracking scope, so this has to be called from
- * the page's jsx -- which is where it is. undefined resolves to '', so the
- * <Show> guards around these read the same as sign-in's.
- */
-export function messageText(message?: Message): string {
-  if (!message) { return ''; }
-  return message.values ? format(t(message.key), message.values) : t(message.key);
-}
-
-/* ------------------------------------------------------------------ */
-/* the rules                                                           */
-/* ------------------------------------------------------------------ */
-
-/**
- * the shortest username the service accepts.
- *
- * this is the one rule that already existed in the codebase: CheckAvailability
- * in ~/lib/auth refuses to even ask the server below five characters, which
- * means the backend enforces it.
- */
-export const USERNAME_MIN = 5;
-
-/** and the longest. no backend number is known for this one -- see the README */
-export const USERNAME_MAX = 30;
-
-/**
- * lowercase, starts with a letter, then letters, digits, hyphen, underscore.
- *
- * the username isn't only a login: it's the first segment of every document
- * address this account owns -- @dwerner/gort/horn -- and documentUrl() drops it
- * into a url with no encoding step anywhere. so it has to be url-safe without
- * escaping, and it has to be case-stable, or @Duncan and @duncan become two
- * addresses for one account. leading digits are out because a bare @123 reads
- * as an id rather than a handle.
- */
-const USERNAME_PATTERN = /^[a-z][a-z0-9_-]*$/;
-
-/**
- * deliberately loose: one @, something either side, a dot in the domain, and no
- * whitespace.
- *
- * this catches the typo; it doesn't adjudicate validity. the flow mails a
- * confirmation link and the account isn't usable until it's followed, so
- * delivery is the real check -- and a false rejection here is unrecoverable
- * (there's no "no, really, send it"), where a false accept costs one bounced
- * email that the confirm-by-link flow already absorbs. an RFC-shaped regex
- * reliably rejects plus-tags, apostrophes and new TLDs, which is the worse
- * trade.
- */
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
-
-/** what the page can tell about an email address without asking */
-export function validateEmail(value: string): Message | undefined {
-  if (!value) { return { key: 'create-account-page.email.required' }; }
-  if (!EMAIL_PATTERN.test(value)) { return { key: 'create-account-page.email.invalid' }; }
-  return undefined;
-}
-
-/**
- * what the page can tell about a username without asking.
- *
- * length and characters get separate messages rather than one sentence stating
- * the whole rule: length is the one people hit by accident, and "usernames are
- * at least 5 characters" is something you can act on without reading a clause
- * about character classes. the bounds are spliced in from the constants above
- * so the message can't drift from the code enforcing it.
- */
-export function validateUsername(value: string): Message | undefined {
-  if (!value) { return { key: 'create-account-page.username.required' }; }
-  if (value.length < USERNAME_MIN) {
-    return { key: 'create-account-page.username.too-short', values: { min: USERNAME_MIN } };
-  }
-  if (value.length > USERNAME_MAX) {
-    return { key: 'create-account-page.username.too-long', values: { max: USERNAME_MAX } };
-  }
-  if (!USERNAME_PATTERN.test(value)) { return { key: 'create-account-page.username.invalid' }; }
-  return undefined;
-}
-
-/* ------------------------------------------------------------------ */
-/* the stand-in server                                                 */
-/* ------------------------------------------------------------------ */
+import type { Message } from './account-validation';
 
 /* canned collisions. two independent sets rather than a list of account
    records, because the two collisions are independent -- which is what makes

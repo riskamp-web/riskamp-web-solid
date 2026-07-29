@@ -411,6 +411,7 @@ export default {
   'forgot-password.form.reset-password-button.label': 'Reset password',
 
   'create-account.page.title': 'Create account',
+  'update-password.page.title': 'Update password',
 
   'theme-toggle.light-theme': 'Light theme',
   'theme-toggle.dark-theme': 'Dark theme',
@@ -797,6 +798,31 @@ export default {
   'sign-in-page.link.create-account': 'Create account',
 
   //
+  // shared form rules -- the messages the validators in
+  // ~/backstage/account-validation.ts return.
+  //
+  // the one block no single page owns, and the exception to the
+  // one-block-per-page rule: these are returned by shared functions, so pointing
+  // them at any one page's block would mean the other pages render strings from
+  // it -- and shortening a message for that page would silently change them all.
+  // this block goes when the last backstage form does.
+  //
+  // a page's *own* verdicts stay in its own block: 'is already taken' is
+  // create-account's, because only its mock can say it.
+  //
+
+  'backstage-form.email.required': 'Enter your email address.',
+  'backstage-form.email.invalid': 'That doesn’t look like an email address.',
+
+  'backstage-form.username.required': 'Choose a username.',
+  'backstage-form.username.too-short': 'Usernames are at least {min} characters.',
+  'backstage-form.username.too-long': 'Usernames are at most {max} characters.',
+  'backstage-form.username.invalid': 'Use lowercase letters, numbers, hyphens and underscores, starting with a letter.',
+
+  'backstage-form.password.required': 'Choose a password.',
+  'backstage-form.password.too-short': 'Passwords are at least {min} characters.',
+
+  //
   // create account page (the redesigned one). 'create-account.page.title'
   // above is still live -- it's the toolbar's title, the same arrangement
   // sign-in has.
@@ -820,15 +846,9 @@ export default {
   'create-account-page.terms.link': 'terms of service',
 
   'create-account-page.email.label': 'Email address',
-  'create-account-page.email.required': 'Enter your email address.',
-  'create-account-page.email.invalid': 'That doesn’t look like an email address.',
   'create-account-page.email.taken': 'There’s already an account with that email address.',
 
   'create-account-page.username.label': 'Username',
-  'create-account-page.username.required': 'Choose a username.',
-  'create-account-page.username.too-short': 'Usernames are at least {min} characters.',
-  'create-account-page.username.too-long': 'Usernames are at most {max} characters.',
-  'create-account-page.username.invalid': 'Use lowercase letters, numbers, hyphens and underscores, starting with a letter.',
   'create-account-page.username.taken': '@{username} is already taken.',
   'create-account-page.username.reserved': '@{username} isn’t available.',
 
@@ -852,6 +872,90 @@ export default {
 
   'create-account-page.link.forgot-password': 'Forgot password',
   'create-account-page.link.sign-in': 'Sign in',
+
+  //
+  // forgot password page (the redesigned one -- the forgot-password.form.* keys
+  // above belong to the page in archive/. 'forgot-password.page.title' is still
+  // live: it's the toolbar's title).
+  //
+  // the confirmation is worded CONDITIONALLY on purpose. whether an address has
+  // an account is not something this page may disclose, so it says the same
+  // thing either way -- and "we've sent you a link" would be a lie half the
+  // time. don't "fix" this into the direct form.
+  //
+
+  'forgot-password-page.heading': 'Forgot password',
+  'forgot-password-page.subtitle': 'Enter your email address and we’ll send you a link to choose a new password.',
+
+  'forgot-password-page.email.label': 'Email address',
+
+  'forgot-password-page.submit.label': 'Send the link',
+  'forgot-password-page.submit.pending': 'Sending…',
+
+  'forgot-password-page.error.unreachable': 'Can’t reach the server. Check your connection and try again.',
+
+  'forgot-password-page.done.heading': 'Check your email',
+  'forgot-password-page.done.body': 'If there’s an account for {email}, we’ve sent it a link. Open it to choose a new password.',
+  'forgot-password-page.done.spam': 'Nothing there? Give it a minute, then check your spam folder.',
+  'forgot-password-page.done.restart': 'Use a different address',
+
+  'forgot-password-page.link.sign-in': 'Sign in',
+  'forgot-password-page.link.create-account': 'Create account',
+
+  //
+  // update password page -- where the link from the recovery email lands, and
+  // where a new account chooses its first password. 'update-password.page.title'
+  // below is the toolbar's title, named the old way like all the others.
+  //
+  // the first field takes a username OR an email: the recovery request is keyed
+  // by email and the reset is keyed by username, so one link has to satisfy both.
+  //
+
+  'update-password-page.heading': 'Choose a new password',
+  'update-password-page.subtitle': 'Your email address and token come from the link we sent you.',
+
+  'update-password-page.identifier.label': 'Username or email',
+  'update-password-page.identifier.required': 'Enter your username or email.',
+
+  'update-password-page.token.label': 'Token',
+  'update-password-page.token.required': 'Enter the token from the link we sent you.',
+  'update-password-page.token.invalid': 'That token isn’t valid. Check the link, or ask for a new one.',
+  'update-password-page.token.expired': 'That link has expired. Ask for a new one.',
+  'update-password-page.token.used': 'That link has already been used. Ask for a new one.',
+
+  'update-password-page.password.label': 'New password',
+  'update-password-page.password.show.label': 'Show password',
+  'update-password-page.password.hide.label': 'Hide password',
+  'update-password-page.password.caps-lock': 'Caps Lock is on.',
+
+  // the server's verdict, and one the client can't predict -- it has no list of
+  // common passwords and isn't shipping one. this is what proves the meter
+  // advises rather than decides: a password it rates Good can still be refused.
+  'update-password-page.password.common': 'That password is too easy to guess. Choose another.',
+
+  // the meter's visible label. it isn't decoration: unlabelled, the bar reads as
+  // a divider rather than as a measurement of anything
+  'update-password-page.strength.title': 'Password strength',
+
+  // the meter's four words. it advises and never blocks -- anything at or above
+  // the minimum length can be submitted, whatever this says
+  'update-password-page.strength.weak': 'Weak',
+  'update-password-page.strength.fair': 'Fair',
+  'update-password-page.strength.good': 'Good',
+  'update-password-page.strength.strong': 'Strong',
+
+  'update-password-page.submit.label': 'Update password',
+  'update-password-page.submit.pending': 'Updating…',
+
+  'update-password-page.error.unreachable': 'Can’t reach the server. Check your connection and try again.',
+  'update-password-page.error.rejected': 'That password couldn’t be updated. Check your details and try again.',
+
+  'update-password-page.done.heading': 'Password updated',
+  'update-password-page.done.body': 'You can now sign in with your new password.',
+  'update-password-page.done.sign-in': 'Sign in',
+
+  'update-password-page.link.sign-in': 'Sign in',
+  'update-password-page.link.forgot-password': 'Send a new link',
 
 };
 

@@ -1,16 +1,21 @@
 
 /**
- * dev-only escape hatch for the backstage route guard.
+ * the dev-only affordances the backstage pages lean on.
  *
- * the documents page is UI/UX against canned data, so signing in for every look
- * at it is friction -- but the guard has to be real. `/documents?dev` opens a
- * page that requires a session without one, on the dev server only.
+ * two kinds so far. the route-guard escape hatch: the documents page is UI/UX
+ * against canned data, so signing in for every look at it is friction -- but the
+ * guard has to be real, and `/documents?dev` opens a page that requires a
+ * session without one, on the dev server only. and the reset link: the sign-up
+ * and recovery pages promise an email that a mock can't send, so the link that
+ * mail would have carried is offered on the page instead.
  *
- * only documents uses this today; it lives on its own so another backstage page
- * can opt in with the same one-line call.
+ * everything here is written to be *absent* from a production build, not merely
+ * unreachable in one -- see the note on devFlag() for the trap that distinction
+ * hides.
  */
 
 import { AuthRequirement, useLayoutContext } from '~/components/layout-context';
+import { DEMO_TOKEN } from './password-reset-mock';
 
 /** the parameter that opens a signed-in page without a session */
 export const DEV_PARAM = 'dev';
@@ -70,6 +75,22 @@ export function devFailLoads(): boolean {
  */
 export function devFailHistory(): boolean {
   return devFlag(FAIL_HISTORY_PARAM);
+}
+
+/**
+ * the address the confirmation email would have carried.
+ *
+ * both the sign-up and the recovery flow tell you to go and read your mail, and
+ * a mock sends none -- so `/update-password` would otherwise be reachable only
+ * by typing a url with a plausible token in it. this hands back the real link so
+ * the flow can be walked end to end.
+ *
+ * callers must wrap the use in their own `import.meta.env.DEV` test, the same way
+ * requireAuth() repeats it below: with the check only in here, the branch around
+ * the call survives into the bundle carrying whatever link text sits next to it.
+ */
+export function devResetLink(email: string): string {
+  return `/update-password?email=${encodeURIComponent(email)}&token=${encodeURIComponent(DEMO_TOKEN)}`;
 }
 
 /**

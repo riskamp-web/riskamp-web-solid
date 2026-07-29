@@ -1,41 +1,15 @@
 /**
  * sign in -- backstage redesign.
  *
- * what's left here is only what no other page wants: the password reveal, the
- * caps lock hint and the hidden remember row.
- *
- * the page tint, the card, the title block, the form stack, the fields, the
- * inputs, the buttons and the links row are all shared primitives in
- * backstage.module.css -- create account uses every one of them, which is what
- * moved them there.
+ * two rules, because everything else this page draws is shared. the page tint,
+ * the card, the title block, the form stack, the fields, the inputs, the
+ * buttons, the password field and its reveal toggle, the caps lock hint and the
+ * links row are all in backstage.module.css -- the password group went there
+ * when update-password turned out to want the same input.
  *
  * two modules are in play in sign-in.tsx (`bs` and `style`) -- a class read from
  * the wrong one resolves to undefined and renders nothing, silently.
  */
-
-/* the reveal button sits over the input's right padding, so the input keeps
-   carrying its own border and the focus ring still wraps the whole box */
-.password-field {
-  position: relative;
-  display: flex;
-}
-
-.password-input {
-  padding-right: 34px;
-}
-
-.password-reveal {
-  position: absolute;
-  top: 50%;
-  right: 1px;
-  translate: 0 -50%;
-  width: 28px;
-  height: 28px;
-}
-
-.caps-hint {
-  color: var(--bs-text-muted);
-}
 
 /* there is no "don't remember me" yet -- sessions are always remembered, and the
    opt-out is still to come. hidden rather than removed so the row keeps its space
@@ -45,6 +19,8 @@
   visibility: hidden;
 }
 
+/* the form's 14px gap is a hair tight under the hidden remember row. specific to
+   this page: no other card page has a row that isn't there. */
 .submit-row {
   margin-top: 2px;
 }
