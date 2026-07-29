@@ -21,6 +21,10 @@ export const icons: IconSet = {
   revert_file:            rai['revert-file-2'],
   save_to_desktop:        rai['save-to-desktop'],
   export_xlsx:            rai['export-xlsx'],
+  trash:                  rai['trash'],
+  folder:                 rai['folder'],
+  star:                   rai['star'],
+  recent:                 rai['recent'],
 
   // --- panels --------------------------------------------------------
 
@@ -120,6 +124,7 @@ export const icons: IconSet = {
   confirm:                rai.confirm,
   menu_checked:           rai['menu-checked'],
   help:                   rai.help,
+  warning:                rai.warning,
   overflow:               rai.overflow,
   caret_down:             rai['caret-down'],
 

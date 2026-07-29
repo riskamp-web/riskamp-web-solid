@@ -15,6 +15,7 @@ export const ICON_GROUPS = {
   file_app: [
     'sign_out', 'fullscreen', 'new_spreadsheet', 'import_file', 'revert_file',
     'save_to_desktop', 'export_xlsx',
+    'trash', 'folder', 'star', 'recent',
   ],
 
   panels: [
@@ -74,6 +75,7 @@ export const ICON_GROUPS = {
    */
   ui_primitives: [
     'close', 'confirm', 'menu_checked', 'help', 'overflow', 'caret_down',
+    'warning',
   ],
 
   component: [
