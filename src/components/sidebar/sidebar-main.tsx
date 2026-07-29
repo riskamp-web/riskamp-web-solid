@@ -36,8 +36,8 @@ export function Sidebar(main_props: SidebarProps) {
     </>;
   }
 
-  return <nav>
-    <header>
+  return <nav class={style['sidebar-nav']}>
+    <header class={style['sidebar-header']}>
       <Show when={sidebar()}>
         <span>{t(ToolbarCommandMap[sidebar() as ToolbarCommandKey].title)}</span>
       </Show>
