@@ -24,7 +24,7 @@ import { loggedIn } from '~/lib/auth';
 
 function Layout(props: ParentProps) {
 
-  const { title, requirement } = useLayoutContext();
+  const { title, requirement, userPanel } = useLayoutContext();
 
   const redirect = createMemo(() => {
     switch (requirement()) {
@@ -39,7 +39,7 @@ function Layout(props: ParentProps) {
   // the toolbar sits outside the gate so the shell doesn't blink on the swap.
   return <>
       <main class="fixed">
-        <Toolbar title={title()} />
+        <Toolbar title={title()} account-info={userPanel()} />
         <Show when={redirect()} fallback={props.children}>
           {(href) => <Navigate href={href()} />}
         </Show>

@@ -25,8 +25,15 @@ export function useLayoutContext() {
 */
 
 interface LayoutContextType {
+
   title: Accessor<keyof I18N|undefined>;
   setTitle: Setter<keyof I18N|undefined>;
+
+  /** flag shows the username and user menu */
+  userPanel: Accessor<boolean>;
+
+  /** set flag to show the username and user menu */
+  setUserPanel: Setter<boolean>;
 
   /** what the page at the current path asked for, if it asked for anything */
   requirement: Accessor<AuthRequirement|undefined>;
@@ -40,6 +47,7 @@ const LayoutContext = createContext<LayoutContextType>();
 export function LayoutProvider(props: ParentProps) {
 
   const [title, setTitle] = createSignal<keyof I18N | undefined>();
+  const [userPanel, setUserPanel] = createSignal(false);
 
   /*
    * the auth requirement is keyed by the path that declared it, and pages
@@ -64,7 +72,7 @@ export function LayoutProvider(props: ParentProps) {
   };
 
   return (
-    <LayoutContext.Provider value={{ title, setTitle, requirement, setRequires }}>
+    <LayoutContext.Provider value={{ title, setTitle, requirement, setRequires, userPanel, setUserPanel }}>
       {props.children}
     </LayoutContext.Provider>
   );

@@ -149,9 +149,14 @@ function MenuItem(props: ParentProps<{ icon?: JSX.Element, danger?: boolean, onc
 
 export default function Documents() {
 
-  const { setTitle } = useLayoutContext();
+  const { setTitle, setUserPanel } = useLayoutContext();
   setTitle('documents-page.title');
-  onCleanup(() => setTitle(undefined));
+  setUserPanel(true);
+
+  onCleanup(() => {
+    setTitle(undefined);
+    setUserPanel(false);
+  });
 
   // the layout redirects to /sign-in without a session; see (backstage).tsx.
   // in dev, /documents?dev opens the page without one -- see dev-access.ts
