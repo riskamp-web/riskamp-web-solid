@@ -20,10 +20,9 @@ Within that, on purpose:
 
 - theme tokens are declared locally (scoped to `.page` in `backstage.module.css`)
   rather than added to `src/app.css`
-- **sign-in's** strings are still hardcoded English; extracting them waits until that
-  page's design settles. **Documents is extracted** — see "Strings" below.
-  `'documents-page.title'` and `'sign-in.page.title'` are existing keys, so both toolbar
-  titles were already localized regardless
+- strings are **no longer hardcoded**: both pages are extracted into `~/i18n` — see
+  "Strings" below. (This was the deferred item here; what's left deferred is the *locale*,
+  which is a different piece of work)
 - glyphs the app icon set lacks live in `backstage-icons.tsx` rather than being added to
   `~/components/icon-sets` (see "Icons" below — documents now draws from the app set, and
   what's left local is only what that set has no name for)
@@ -205,7 +204,9 @@ Settled with the user across several passes. The reasoning matters more than the
   the tab order and the accessibility tree, which is where a control that does nothing
   belongs.
 - **Visible labels, not placeholder labels.** The i18n keys from the old page used
-  placeholders; a label that vanishes when you type isn't a label.
+  placeholders; a label that vanishes when you type isn't a label. That's why the new
+  labels got their own keys rather than reusing `sign-in.form.*.placeholder` — the English
+  matches, the role doesn't.
 - **Validation runs on submit, not by disabling the button.** A disabled submit doesn't
   say which field it's waiting on. Field messages carry `aria-invalid` and focus moves to
   the first offender; the form-level failure is a `role='alert'` banner above the fields.
@@ -240,8 +241,8 @@ and the list (including anything you starred) is still there.
 
 That lifetime is why the store sits outside the route folder: signing out needs to be able
 to call `flushDocuments()`, since otherwise the next person to sign in on this browser would
-see the last one's documents until something refetched. **`sign-out.tsx` doesn't call it
-yet** — the store is only reachable from there, not yet wired.
+see the last one's documents until something refetched. **`sign-out.tsx` calls it**, after
+`Logout()` and before it navigates away.
 
 ```ts
 documents            // the store: read it, and write through setDocuments
@@ -283,11 +284,18 @@ calls `refreshDocuments()`.
 
 ## Strings
 
-The documents page is extracted: every string it shows is a `documents-page.*` key in
-`src/i18n/lang/en.ts`, in one block at the end of the file behind a comment that carries
-the conventions. That includes the `aria-label`s and the `sr-only` text — this page is
-the only place in the app that has any, and they're read aloud, so they're as user-facing
-as the visible copy. `documents-data.ts`'s date words come from the same block.
+Both pages are extracted, one block each at the end of `src/i18n/lang/en.ts` behind a
+comment carrying the conventions: `documents-page.*` and `sign-in-page.*`. That includes
+the `aria-label`s and the `sr-only` text — these pages are the only place in the app that
+has any, and they're read aloud, so they're as user-facing as the visible copy.
+`documents-data.ts`'s date words come from the documents block.
+
+**The old pages' keys are still in `en.ts` and are not what these use.**
+`documents-table.*`, `sign-in.form.*` and `auth.link.*` belong to the pages in `archive/`
+and go when those do. Two of the old keys are live and stay: `documents-page.title` and
+`sign-in.page.title`, both toolbar titles set through `setTitle`. The sign-in *page* has
+its own heading key — same words, different job, and the toolbar's version is the one that
+would be shortened first.
 
 The library is 30 lines and does one thing: `t(key)` returns a string. It has no
 interpolation and no plurals, so this pass added the two smallest things that close that
@@ -303,13 +311,21 @@ gap, both in `src/i18n/i18n.ts`:
   `Intl.PluralRules` at the picking site — `plural()` in `documents-data.ts` is the one
   place for the count-based strings, which is why it exists.
 
-Three things to know before adding a string here:
+Sign-in needed neither helper — nothing on it interpolates or counts.
+
+Four things to know before adding a string here:
 
 - **`t()` at module scope snapshots English.** It's reactive only because it reads a Solid
   store, and that only counts inside a tracking scope. So `SCOPES` holds `keyof I18N` and
   the render sites call `t(item.label)` — a `label: t(…)` in that array would freeze the
   language for the life of the page. `command-list.ts` has exactly that problem, which is
   what the `update-language` event in `i18n.ts` exists to work around.
+- **State holds keys, not text**, for the same reason. Sign-in's three form errors and two
+  field messages are `createSignal<keyof I18N | undefined>()` and get translated where
+  they're drawn; storing the translated string would leave a banner in the old language
+  after a language change. `t()` already returns `''` for `undefined`, so the `<Show>`
+  guards around them are unchanged — and the signals are now type-checked, which a string
+  wasn't.
 - **A missing key renders as nothing**, not as the key name. `tsc` catches a *typo*
   (`t()` takes `keyof I18N`, and `I18N` is `typeof en`, so adding a key to `en.ts` is all
   the typing there is) but nothing catches a string that was never extracted. A blank
@@ -591,7 +607,9 @@ i18n.setI18nInstance('strings', { ...en, 'documents-page.scope.all': 'XXX' });
 ```
 
 The rail's first item and the first option in the narrow-mode `<select>` must both change
-without a reload. If either doesn't, that `t()` is outside a tracking scope.
+without a reload. If either doesn't, that `t()` is outside a tracking scope. The same
+recipe against `'sign-in-page.error.rejected'`, run while a failure banner is on screen,
+is what proves that page's errors are stored as keys rather than as text.
 
 **`/_build/src/…` is the path that works** — the dev server serves the app's modules from
 there, and importing the same file through `/@fs/<repo>/src/…` gets you a *second copy* of

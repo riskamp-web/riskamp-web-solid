@@ -10,16 +10,17 @@
  * wire them to, and remember me is hidden because Login accepts the flag but
  * doesn't send it yet (see .remember-row).
  *
- * i18n: strings are hardcoded english for now -- documents is extracted, this
- * page waits until its design settles. see "Strings" in this directory's
- * README.md for the conventions it will follow. ('sign-in.page.title' is an
- * existing key, so the toolbar title is already localized.)
+ * i18n: extracted. every string is a 'sign-in-page.*' key in ~/i18n/lang/en.ts,
+ * including the aria-labels. the error signals hold *keys*, not text -- see
+ * below. ('sign-in.page.title' is a separate existing key: the toolbar title,
+ * which isn't the same string as the heading on the page.)
  */
 
 import { Show, createSignal, onCleanup, onMount } from 'solid-js';
 import { A, useNavigate } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
+import { t, type I18N } from '~/i18n/i18n';
 import * as auth from '~/lib/auth';
 
 import bs from './backstage.module.css';
@@ -50,9 +51,14 @@ export default function SignIn() {
   const [capsLock, setCapsLock] = createSignal(false);
 
   const [pending, setPending] = createSignal(false);
-  const [formError, setFormError] = createSignal<string | undefined>();
-  const [usernameError, setUsernameError] = createSignal<string | undefined>();
-  const [passwordError, setPasswordError] = createSignal<string | undefined>();
+
+  /* the errors are held as *keys* and translated where they're drawn. holding
+     the text instead would translate at the moment of the failure and leave a
+     banner in the old language after a language change -- the same trap as
+     calling t() at module scope, and it also makes these type-checked */
+  const [formError, setFormError] = createSignal<keyof I18N | undefined>();
+  const [usernameError, setUsernameError] = createSignal<keyof I18N | undefined>();
+  const [passwordError, setPasswordError] = createSignal<keyof I18N | undefined>();
 
   let username_input: HTMLInputElement | undefined;
   let password_input: HTMLInputElement | undefined;
@@ -79,8 +85,8 @@ export default function SignIn() {
     // validated on submit rather than by disabling the button: a button that
     // does nothing doesn't say which field it's waiting on
     setFormError(undefined);
-    setUsernameError(name ? undefined : 'Enter your username or email.');
-    setPasswordError(secret ? undefined : 'Enter your password.');
+    setUsernameError(name ? undefined : 'sign-in-page.username.required');
+    setPasswordError(secret ? undefined : 'sign-in-page.password.required');
 
     if (!name || !secret) {
       (name ? password_input : username_input)?.focus();
@@ -115,10 +121,10 @@ export default function SignIn() {
     }
 
     setFormError(
-      !reached ? 'Can’t reach the server. Check your connection and try again.'
-        : accepted ? 'Sign-in didn’t complete. Try again.'
+      !reached ? 'sign-in-page.error.unreachable'
+        : accepted ? 'sign-in-page.error.incomplete'
           // which half was wrong isn't disclosed
-          : 'Incorrect username or password.');
+          : 'sign-in-page.error.rejected');
 
     // keep the identifier -- retyping it is friction, and it's the half you're
     // least likely to have got wrong
@@ -147,18 +153,18 @@ export default function SignIn() {
       <div class={bs.card}>
 
         <div class={style['title-block']}>
-          <h1 class={style.title}>Sign in</h1>
-          <div class={style.subtitle}>Enter your username and password to sign in.</div>
+          <h1 class={style.title}>{t('sign-in-page.heading')}</h1>
+          <div class={style.subtitle}>{t('sign-in-page.subtitle')}</div>
         </div>
 
         <form class={style.form} novalidate onsubmit={(event) => { event.preventDefault(); void submit(); }}>
 
           <Show when={formError()}>
-            <div class={bs['form-error']} role='alert'>{formError()}</div>
+            <div class={bs['form-error']} role='alert'>{t(formError())}</div>
           </Show>
 
           <div class={bs.field}>
-            <label class={bs['field-block-label']} for='sign-in-username'>Username or email</label>
+            <label class={bs['field-block-label']} for='sign-in-username'>{t('sign-in-page.username.label')}</label>
             <input
                 ref={username_input}
                 id='sign-in-username'
@@ -174,12 +180,12 @@ export default function SignIn() {
                 value={username()}
                 oninput={(event) => { setUsername(event.currentTarget.value); clearErrors(); }} />
             <Show when={usernameError()}>
-              <div id='sign-in-username-error' class={bs['field-message']}>{usernameError()}</div>
+              <div id='sign-in-username-error' class={bs['field-message']}>{t(usernameError())}</div>
             </Show>
           </div>
 
           <div class={bs.field}>
-            <label class={bs['field-block-label']} for='sign-in-password'>Password</label>
+            <label class={bs['field-block-label']} for='sign-in-password'>{t('sign-in-page.password.label')}</label>
             <div class={style['password-field']}>
               <input
                   ref={password_input}
@@ -199,7 +205,7 @@ export default function SignIn() {
               <button
                   type='button'
                   class={`${bs['icon-button']} ${style['password-reveal']}`}
-                  aria-label={revealed() ? 'Hide password' : 'Show password'}
+                  aria-label={t(revealed() ? 'sign-in-page.password.hide.label' : 'sign-in-page.password.show.label')}
                   aria-pressed={revealed()}
                   disabled={pending()}
                   onclick={() => { setRevealed(shown => !shown); password_input?.focus(); }}>
@@ -209,10 +215,10 @@ export default function SignIn() {
               </button>
             </div>
             <Show when={passwordError()}>
-              <div id='sign-in-password-error' class={bs['field-message']}>{passwordError()}</div>
+              <div id='sign-in-password-error' class={bs['field-message']}>{t(passwordError())}</div>
             </Show>
             <Show when={capsLock()}>
-              <div class={style['caps-hint']} role='status'>Caps Lock is on.</div>
+              <div class={style['caps-hint']} role='status'>{t('sign-in-page.password.caps-lock')}</div>
             </Show>
           </div>
 
@@ -225,7 +231,7 @@ export default function SignIn() {
                 disabled={pending()}
                 checked={remember()}
                 onchange={(event) => setRemember(event.currentTarget.checked)} />
-            <label for='sign-in-remember'>Remember me on this device</label>
+            <label for='sign-in-remember'>{t('sign-in-page.remember.label')}</label>
           </div>
 
           <div class={style['submit-row']}>
@@ -234,16 +240,17 @@ export default function SignIn() {
                 class={`${bs.button} ${bs['button-primary']} ${bs['button-block']}`}
                 disabled={pending()}
                 aria-busy={pending()}>
-              {pending() ? 'Signing in…' : 'Sign in'}
+              {t(pending() ? 'sign-in-page.submit.pending' : 'sign-in-page.submit.label')}
             </button>
           </div>
 
         </form>
 
         <div class={style.links}>
-          <A class={bs.link} href='/forgot-password'>Forgot password</A>
+          <A class={bs.link} href='/forgot-password'>{t('sign-in-page.link.forgot-password')}</A>
+          {/* the dot is a separator, not a word -- it stays out of the strings */}
           <span class={style['links-separator']}>·</span>
-          <A class={bs.link} href='/create-account'>Create account</A>
+          <A class={bs.link} href='/create-account'>{t('sign-in-page.link.create-account')}</A>
         </div>
 
       </div>

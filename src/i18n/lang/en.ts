@@ -766,5 +766,35 @@ export default {
   'documents-page.time.today': 'today, {time}',
   'documents-page.time.yesterday': 'yesterday, {time}',
 
+  //
+  // sign-in page (the redesigned one -- the sign-in.* and auth.link.* keys
+  // above belong to the old page. 'sign-in.page.title' is still live: it's the
+  // toolbar's title, which isn't the same string as the heading on the page).
+  //
+
+  'sign-in-page.heading': 'Sign in',
+  'sign-in-page.subtitle': 'Enter your username and password to sign in.',
+
+  'sign-in-page.username.label': 'Username or email',
+  'sign-in-page.username.required': 'Enter your username or email.',
+
+  'sign-in-page.password.label': 'Password',
+  'sign-in-page.password.required': 'Enter your password.',
+  'sign-in-page.password.show.label': 'Show password',
+  'sign-in-page.password.hide.label': 'Hide password',
+  'sign-in-page.password.caps-lock': 'Caps Lock is on.',
+
+  'sign-in-page.remember.label': 'Remember me on this device',
+
+  'sign-in-page.submit.label': 'Sign in',
+  'sign-in-page.submit.pending': 'Signing in…',
+
+  'sign-in-page.error.rejected': 'Incorrect username or password.',
+  'sign-in-page.error.unreachable': 'Can’t reach the server. Check your connection and try again.',
+  'sign-in-page.error.incomplete': 'Sign-in didn’t complete. Try again.',
+
+  'sign-in-page.link.forgot-password': 'Forgot password',
+  'sign-in-page.link.create-account': 'Create account',
+
 };
 
