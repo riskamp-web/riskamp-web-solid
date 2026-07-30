@@ -5,13 +5,19 @@
  * backstage page (account, billing, auth) would want live here; page-specific
  * styling lives next to the page.
  *
- * tokens are scoped to .page rather than :root so they stay inside the redesign's
- * containment boundary. colors go through light-dark(), matching src/app.css --
- * where a global token is already right, we alias it instead of restating a value.
+ * tokens are still declared on .page rather than :root, so the containment
+ * boundary stays legible -- but they are now *aliases* of the canonical tokens in
+ * src/app.css rather than a parallel set. that fork is what made the two halves of
+ * the app read as two products: the values sat 2-5% apart (#dcdee2 vs #e5e7eb,
+ * #17181b vs #1a1a1a) with no decision behind the difference.
+ *
+ * so: don't restate a value here that app.css already defines. the --bs-* names
+ * stay because the rules below read better with them, and because a page-scoped
+ * name is still the place to override one for backstage only.
  *
  * two rules this file follows deliberately:
- *   - the accent is the logo blue (#0477BE), the same pair app.css already uses
- *     for --dialog-border-color. no second brand color.
+ *   - the accent is the logo blue, now --accent in app.css and used by the whole
+ *     product, toolbar included. no second brand color.
  *   - focus is drawn by the browser. nothing here sets an outline color.
  */
 
@@ -19,28 +25,33 @@
 
   /* ---- surfaces ---- */
   --bs-surface: light-dark(#ffffff, #26282c);
-  --bs-rail-background: light-dark(#f7f7f8, #222427);
+  /* the rail tint and the card pages' ground. this was #f7f7f8, a few percent off
+     the toolbar's own grey -- close enough that the boundary between toolbar and
+     page vanished in light mode, which is why sign-in used to draw its own top
+     hairline. same grey now, and the toolbar carries the edge itself. */
+  --bs-rail-background: var(--toolbar-bar-background);
   --bs-raised: light-dark(#ffffff, #2e3136);
 
-  /* ---- text ----
-     secondary text is only one step down from primary, not three. anything
-     that would need to be fainter than --bs-text-faint should probably just
-     be --bs-text-muted instead. */
-  --bs-text: light-dark(#17181b, #f0f1f4);
-  --bs-text-muted: light-dark(#3d424a, #ccd1d8);
-  --bs-text-faint: light-dark(#5c626b, #a9afb8);
+  /* ---- text ---- */
+  --bs-text: var(--text);
+  --bs-text-muted: var(--text-muted);
+  --bs-text-faint: var(--text-faint);
 
   /* ---- lines + washes ---- */
-  --bs-border: light-dark(#dcdee2, #3b3f45);
-  --bs-border-strong: light-dark(#b6bac1, #545961);
+  --bs-border: var(--border-hairline);
+  --bs-border-strong: var(--border-control);
   --bs-hover: light-dark(rgba(0, 0, 0, .045), rgba(255, 255, 255, .06));
   --bs-hover-strong: light-dark(rgba(0, 0, 0, .075), rgba(255, 255, 255, .1));
-  --bs-selected: light-dark(rgba(4, 119, 190, .1), rgba(42, 145, 216, .2));
+  --bs-selected: var(--accent-wash);
   --bs-shadow: var(--menu-shadow);
 
-  /* ---- accent: the logo blue, matching --dialog-border-color in app.css ---- */
-  --bs-accent: light-dark(#0477be, #2a91d8);
-  --bs-on-accent: #ffffff;
+  /* ---- accent ---- */
+  --bs-accent: var(--accent);
+  --bs-on-accent: var(--on-accent);
+
+  /* these three stay local: they are semantic colours the rest of the app has no
+     equivalent for (a starred row, a destructive action, the strong end of the
+     password meter). promoting them would mean claiming the app needs them. */
   --bs-star: light-dark(#c27803, #fbbf24);
   --bs-danger: light-dark(#b3261e, #f4796f);
 
@@ -52,10 +63,15 @@
   --bs-strong: light-dark(#1a7f37, #3fb950);
 
   /* ---- metrics ---- */
-  --bs-radius: 6px;
-  --bs-radius-sm: 4px;
+  --bs-radius: var(--surface-radius);
+  --bs-radius-sm: var(--control-radius);
   --bs-row-height: 38px;
-  --bs-control-height: 30px;
+
+  /* the app's control height. 30px used to be the backstage default, which put a
+     backstage button 4px shorter than the toolbar button above it for no reason.
+     the dense list chrome still wants 30px, so it overrides this token on its own
+     containers -- see .content-header / .panel-footer below. */
+  --bs-control-height: var(--control-height);
   --bs-rail-width: 208px;
   --bs-panel-width: 348px;
   --bs-inset: 16px;
@@ -188,7 +204,13 @@
   container: bs-content / inline-size;
 }
 
+/* dense list chrome: the search box, New document, and the selection bar that
+   replaces them while rows are ticked (which is nested in here, so it's covered).
+   overriding the token rather than adding a modifier class means .button, .input,
+   .search-input and .scope-select all follow without touching the markup. */
 .content-header {
+  --bs-control-height: var(--control-height-sm);
+
   flex: 0 0 auto;
   display: flex;
   flex-direction: row;
@@ -215,6 +237,9 @@
 /* primitives                                                          */
 /* ------------------------------------------------------------------ */
 
+/* the micro-label: right for a rail's group label and for table column heads,
+   where it has to sit out of the way of the data. it is NOT a general heading --
+   see .panel-heading below. */
 .section-label {
   padding: 0 8px;
   margin-bottom: 4px;
@@ -223,6 +248,18 @@
   font-weight: 600;
   letter-spacing: .06em;
   text-transform: uppercase;
+}
+
+/* the heading step these pages were missing. with only .section-label available,
+   an all-caps 12px micro-label was heading a whole panel section -- which reads as
+   a table's column head rather than as a heading, and left the detail panel with a
+   different heading vocabulary from the app's own sidebar panels.
+   --heading-font-size is the shared step, so the two now match. */
+.panel-heading {
+  margin-bottom: 6px;
+  color: var(--bs-text);
+  font-size: var(--heading-font-size);
+  font-weight: 600;
 }
 
 .muted {
@@ -401,15 +438,13 @@
 /* ------------------------------------------------------------------ */
 
 /* the card is the figure; tinting the page gives it a ground to sit on.
-   both values are existing tokens -- no new surface color.
+   the tint is the toolbar's own grey, so no new surface color.
 
-   the toolbar draws no bottom edge of its own, it relies on its background
-   being darker than the page. in light that tint and the toolbar are within a
-   few percent of each other and the boundary disappears, so the page carries
-   the hairline itself -- same border token the rail and the content header use. */
+   this used to carry a border-top, because the toolbar drew no bottom edge and the
+   boundary between the two vanished in light mode. the toolbar owns that edge now
+   (toolbar.module.css), so the page doesn't have to compensate. */
 .page-centered {
   background: var(--bs-rail-background);
-  border-top: 1px solid var(--bs-border);
 }
 
 /* the whole content area is one scrolling column.
@@ -581,8 +616,9 @@
 
 /* a labelled track with a fill whose width is set inline -- the same shape as
    the app's one existing bar, in run-simulation-dialog.module.css. its
-   --dialog-progress-* tokens aren't reusable here (dialog-scoped, and one orange
-   with no scale) but there's no reason to invent a second structure.
+   --dialog-progress-* tokens still aren't reusable here (dialog-scoped, and a
+   single colour where this needs a scale) but there's no reason to invent a
+   second structure.
  *
  * the label matters as much as the bar: unlabelled, a 4px line under a field
  * reads as a divider rather than as a measurement, which is exactly how it was
@@ -815,7 +851,10 @@
   padding: 12px var(--bs-inset) 20px;
 }
 
+/* dense too -- three actions in a 348px panel (see .content-header) */
 .panel-footer {
+  --bs-control-height: var(--control-height-sm);
+
   flex: 0 0 auto;
   display: flex;
   flex-direction: row;

@@ -16,9 +16,14 @@
     margin-block-end: 0;
   }
 
-  font-family: "Segoe UI", "Avenir", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  font-size: 14px;
- 
+  /* font-family is deliberately not set here: the local stack led with "Segoe UI",
+     "Avenir", so on macOS dialogs drew in Avenir while the rest of the app drew in
+     San Francisco. inheriting body's stack is the whole fix.
+
+     13px matches the toolbar, the sidebar controls and the backstage pages. prose
+     inside a dialog should take --prose-font-size rather than raising this. */
+  font-size: 13px;
+
   .frame {
     border: var(--dialog-border);
     /*
@@ -122,7 +127,7 @@
       margin: 0;
       border: 1px solid var(--border-subtle);
       padding: 8px 10px;
-      border-radius: 3px;
+      border-radius: var(--control-radius);
       background: transparent;
       font-family: inherit;
       font-size: inherit;
@@ -157,11 +162,13 @@
 
 }
 
+/* restates the shared control recipe in src/style/controls.css — keep the two in
+   step, or the reference editor stops matching the inputs beside it. */
 div.editor-layout {
   height: var(--toolbar-control-size);
   border-radius: var(--toolbar-control-border-radius);
-  border: 1px solid var(--toolbar-border-color);
-  background: var(--toolbar-tab-background-color);
+  border: 1px solid var(--border-control);
+  background: transparent;
   &:hover {
     background: var(--toolbar-control-hover-background);
   }
@@ -186,16 +193,17 @@ div.reference-editor {
   overflow: hidden;
   white-space: pre;
   padding: .25em .5em;
-  border-radius: 3px;
+  border-radius: var(--control-radius);
   border: 1px dotted currentColor;
 
+  /* the other restatement of the controls.css recipe */
   &.tc {
     height: var(--toolbar-control-size);
     padding: 0 .5em;
     line-height: calc(var(--toolbar-control-size) - 2px);
     border-radius: var(--toolbar-control-border-radius);
-    border: 1px solid var(--toolbar-border-color);
-    background: var(--toolbar-tab-background-color);
+    border: 1px solid var(--border-control);
+    background: transparent;
     &:hover {
       background: var(--toolbar-control-hover-background);
     }

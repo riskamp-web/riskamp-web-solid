@@ -1,16 +1,22 @@
 
+/* the shared control recipe. the fill used to be --toolbar-tab-background-color
+   with a --toolbar-border-color edge, which meant a grey field with a border you
+   couldn't see: on the toolbar it matched the chrome, and on a dialog's white
+   surface it read as a grey block. transparent + a findable edge is the backstage
+   treatment, and the firm border is also what makes the browser's focus ring land
+   on the control rather than inside it. */
 input[type=text].input, input[type=password].input, select.select, button.control-button {
-  
+
   height: var(--toolbar-control-size);
   border-radius: var(--toolbar-control-border-radius);
-  border: 1px solid var(--toolbar-border-color);
+  border: 1px solid var(--border-control);
 
   font-size: inherit;
   color: inherit;
   font-family: inherit;
 
   padding: 0 6px;
-  background: var(--toolbar-tab-background-color);
+  background: transparent;
 
   &:hover {
     background: var(--toolbar-control-hover-background);

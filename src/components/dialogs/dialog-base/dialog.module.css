@@ -60,8 +60,8 @@ dialog {
   z-index: 99;
   margin: 0;
   padding: 0;
-  border: 1px solid currentColor;
-  border-radius: 5px;
+  border: 1px solid currentColor;   /* overridden by --dialog-border in riskamp-dialog.css */
+  border-radius: var(--surface-radius);
   position: relative;
   width: fit-content;
   display: grid;

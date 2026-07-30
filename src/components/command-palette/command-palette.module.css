@@ -6,7 +6,7 @@
   flex-direction: row;
   align-items: center;
   background: var(--palette-input-background);
-  border-radius: 3px;
+  border-radius: var(--control-radius);
   padding: 7px 4px;
   max-width: 25em;
   width: calc(100% - 1em);

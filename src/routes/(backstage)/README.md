@@ -214,11 +214,12 @@ Settled with the user across several passes. The reasoning matters more than the
   biases the result. The compensation is gated at `min-height: 840px`, since below roughly
   1.5x the card height it would push the card's top under the toolbar with no scroll to
   reach it; shorter windows keep the plain 1:2 placement, a little lower and never clipped.
-- **The page draws its own top hairline.** The toolbar has no bottom edge of its own — it
-  relies on being darker than the page, which works against white but not against the
-  light tint, where the two are within a few percent and the boundary vanishes. Since the
-  toolbar is outside the containment boundary, the fix is a `border-top` on the page, in
-  the same `--bs-border` the rail and content header use.
+- **The toolbar draws its own bottom hairline**, so the page doesn't. It used to: the
+  toolbar had no bottom edge and relied on being darker than the page, which works against
+  white but not against the light tint, where the two were within a few percent and the
+  boundary vanished — so the page carried a compensating `border-top`. That was a
+  workaround for a token collision (the tint was `#f7f7f8` against the toolbar's
+  `#f4f5f6`); both are now the same grey and `.toolbar` owns the edge.
 - **Remember me is present but `visibility: hidden`.** There's no opt-out to offer yet —
   sessions are always remembered — but one is coming, so the row holds its space and
   nothing shifts when it lands. `visibility` rather than `display` also keeps it out of

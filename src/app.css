@@ -6,6 +6,46 @@
 
   --icon-stroke-width: 1px;
 
+  /* ===== Canonical design tokens =====================================
+     The one source of truth. Everything below this block — toolbar,
+     dialogs, sidebar, command palette, and the backstage pages' .page
+     block — aliases these rather than restating a value, so a change
+     here reaches the whole product.
+
+     Values come from the backstage redesign, which picked them against
+     measured contrast. The older area tokens they replace were close but
+     not equal (borders #e5e7eb vs #dcdee2, text #1a1a1a vs #17181b), and
+     the near-misses read as two products rather than as two decisions. */
+
+  /* accent: the logo blue. one accent, no second brand color. teal was
+     considered and rejected, so nothing here should reintroduce it. */
+  --accent:      light-dark(#0477BE, #2a91d8);
+  --accent-wash: light-dark(rgba(4, 119, 190, .1), rgba(42, 145, 216, .2));  /* selected / toggled-on */
+  --on-accent:   #fff;
+
+  /* text: secondary is one step down from primary, not three. roughly
+     10:1 against the surface in both themes. */
+  --text:       light-dark(#17181b, #f0f1f4);
+  --text-muted: light-dark(#3d424a, #ccd1d8);
+  --text-faint: light-dark(#5c626b, #a9afb8);
+
+  /* borders: two roles, deliberately. a hairline divides, a control edge
+     has to be findable — #e5e7eb was too faint to carry an input. */
+  --border-hairline: light-dark(#dcdee2, #3b3f45);  /* dividers, chrome edges, cards */
+  --border-control:  light-dark(#b6bac1, #545961);  /* inputs, buttons, menus */
+
+  /* metrics */
+  --control-height:    34px;
+  --control-height-sm: 30px;   /* dense list chrome only */
+  --control-radius:    4px;
+  --surface-radius:    6px;    /* cards, menus, panels, dialogs */
+
+  /* type: the base is 13px (see body). prose gets its own size because
+     reading and operating are different jobs; the AI chat sits higher
+     still, on --llm-chat-font-size above. */
+  --prose-font-size:   14px;
+  --heading-font-size: 16px;   /* section headings, sentence case */
+
   /* Each toolbar color is defined once as light-dark(light, dark). Which side is
      used is decided by `color-scheme` (set below): `light dark` auto-follows the
      OS; the [data-theme] overrides force one side. Dark values are first-pass
@@ -21,7 +61,10 @@
      Neutral translucent values that replace color-mix(currentColor …),
      which doesn't render reliably in Safari. Black in light, white in
      dark; dark alphas are first-pass and tunable. */
-  --border-subtle:    light-dark(rgba(0, 0, 0, .3),  rgba(255, 255, 255, .3));   /* hairline borders (was currentColor 30%) */
+  /* rgba(0,0,0,.3) on white resolves to ~#b3b3b3, which is what --border-control
+     already is, so this is a near-identity swap that also puts the drop-menu
+     hairline and the dialog footer buttons on the canonical edge. */
+  --border-subtle:    var(--border-control);
   --overlay-faint:    light-dark(rgba(0, 0, 0, .05), rgba(255, 255, 255, .06));  /* faint fill (was currentColor 5%) */
   --overlay-faintest: light-dark(rgba(0, 0, 0, .03), rgba(255, 255, 255, .04));  /* fainter fill (was currentColor 3%) */
 
@@ -30,8 +73,10 @@
      wraps only the color — it can't wrap a whole shadow value (→ invalid). */
   --menu-shadow: 1px 10px 18px 1px light-dark(rgba(0, 0, 0, 0.124), rgba(0, 0, 0, 0.55));
 
-  --toolbar-accent-color: light-dark(#000, #2dd4bf);
-  --toolbar-border-color: light-dark(#e5e7eb, #3a3d42);
+  /* was light-dark(#000, #2dd4bf) — a black glyph on a teal wash in light and
+     teal on teal in dark. one accent now draws every toggled-on control. */
+  --toolbar-accent-color: var(--accent);
+  --toolbar-border-color: var(--border-hairline);
   --toolbar-tab-text-color: light-dark(#000, #e5e7eb);
 
   /* toolbar surface / chrome colors (moved out of toolbar.module.css) */
@@ -45,7 +90,6 @@
   --toolbar-tab-background-color: var(--toolbar-bar-background);  /* was #f4f5f6 */
 
   --toolbar-tab-hover-color: light-dark(#6b7280, #9ca3af);
-  --toolbar-container-border-radius: 8px;
   --toolbar-tab-padding: 12px 18px;
   --toolbar-tab-font-size: 13px;
   --toolbar-transition-delay: .15s;
@@ -54,11 +98,11 @@
   --toolbar-tab-pane-height: 50px;
   --toolbar-tab-pane-padding: 8px 12px;
   --toolbar-tab-pane-gap: 4px;
-  --toolbar-control-size: 34px;
+  --toolbar-control-size: var(--control-height);
   --toolbar-dropdown-caret-size: 16px;
-  --toolbar-control-border-radius: 4px;
+  --toolbar-control-border-radius: var(--control-radius);
 
-  --toolbar-control-text-color: light-dark(#002, #e8eaed);
+  --toolbar-control-text-color: var(--text);
 
   --toolbar-control-icon-color: light-dark(#012, #b8bcc4);
 
@@ -67,7 +111,7 @@
 
   --toolbar-control-hover-background: light-dark(#f3f4f6, #34373c);
 
-  --toolbar-control-active-background: light-dark(rgba(13, 148, 136, 0.1), rgba(45, 212, 191, 0.16));
+  --toolbar-control-active-background: var(--accent-wash);  /* was a teal tint */
   --toolbar-divider-margin: 0 10px;
 
   --icon-size: 20px;
@@ -78,15 +122,19 @@
 
   /* chrome */
   --dialog-surface:      light-dark(#fff, #26282c);            /* .frame background */
-  --dialog-text-color:   light-dark(#1a1a1a, #e8eaed);         /* dialog body text */
+  --dialog-text-color:   var(--text);                          /* dialog body text */
   --dialog-shadow-color: light-dark(rgba(0, 0, 0, 0.124), rgba(0, 0, 0, 0.55));
 
   /* accent / header */
-  --dialog-border-color:    light-dark(#0477BE, #2a91d8);      /* header bg, selection, 4px border */
-  --dialog-title-color:     #fff;                              /* text on accent — same both themes */
-  --dialog-button-color:    #fff;
-  --dialog-close-box-color: #fff;
-  --dialog-border: 4px solid var(--dialog-border-color);
+  --dialog-border-color:    var(--accent);                     /* header bg, selection */
+  --dialog-title-color:     var(--on-accent);                  /* text on accent — same both themes */
+  --dialog-button-color:    var(--on-accent);
+  --dialog-close-box-color: var(--on-accent);
+
+  /* the frame was a 4px accent border, which was the most dated thing in the
+     app. the shadow on .frame (dialog.module.css) was always there and does
+     the lifting now; the filled accent header stays. */
+  --dialog-border: 1px solid var(--border-hairline);
   --dialog-initial-transform: translateY(.5em);
   --dialog-resize-handle-size: 8px;
   --dialog-resize-handle-color: rgb(from var(--dialog-border-color) r g b / .5);
@@ -100,7 +148,7 @@
 
   /* progress bar (run-simulation) */
   --dialog-progress-track-color: light-dark(rgb(223, 223, 223), #3a3d42);
-  --dialog-progress-bar-color:   light-dark(orange, orange);
+  --dialog-progress-bar-color:   var(--accent);   /* was orange */
 
   /* chart data series (trend-forecasting) */
   --chart-series-1-color: light-dark(rgb(70, 48, 129), #a78bfa);   /* purple: lightened for dark */
@@ -112,15 +160,18 @@
   --dialog-syntax-identifier-color: light-dark(purple, #c586c0);
 
   /* ===== Sidebar =====================================================
-     Single source of truth for sidebar colors. Dark values are first-pass
-     placeholders. Quickview chart's .series-1 reuses --chart-series-1-color. */
-  --sidebar-header-background:           light-dark(rgb(255, 238, 221), #3a352d);  /* header bar (peach) */
-  --sidebar-notes-tab-active-background: light-dark(rgb(211, 240, 250), #2a3a44);  /* notes selected tab */
-  --sidebar-input-border-color:          light-dark(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.22));
-  --sidebar-link-color:                  light-dark(blue, #6cb6ff);               /* markdown links */
+     Single source of truth for sidebar colors. Quickview chart's .series-1
+     reuses --chart-series-1-color.
+
+     The peach header is gone: it was a placeholder, and the panel header now
+     matches the backstage detail panel (title row + hairline, no fill), so the
+     two slide-overs read as the same object. */
+  --sidebar-notes-tab-active-background: var(--accent-wash);   /* notes selected tab; was pale blue */
+  --sidebar-input-border-color:          var(--border-control);
+  --sidebar-link-color:                  var(--accent);        /* markdown links; was light-dark(blue, #6cb6ff) */
   --sidebar-row-hover-background:        light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.09));
   --sidebar-row-hover-background-subtle: light-dark(rgba(0, 0, 0, 0.025), rgba(255, 255, 255, 0.035));
-  --sidebar-tab-active-color:            light-dark(orange, orange);              /* active-tab underline */
+  --sidebar-tab-active-color:            var(--accent);        /* active-tab underline; was orange */
   --sidebar-message-user-background:     light-dark(#f8f8ff, #2f3540);            /* AI user message bubble */
   --sidebar-fit-data-color:              light-dark(blue, #6cb6ff);               /* fit chart: empirical line */
   --sidebar-fit-theoretical-color:       light-dark(orange, orange);             /* fit chart: theoretical line */
@@ -131,17 +182,6 @@
   --palette-input-background:    light-dark(#fff, #26282c);              /* editor input surface; matches --dialog-surface */
   --palette-menu-shadow:         var(--menu-shadow);                       /* shared floating-menu shadow */
   --palette-selected-background: light-dark(lightgoldenrodyellow, #3a3d42); /* selected list row */
-
-  /* ===== Documents (route) ===========================================
-     Single source of truth for the documents-list colors. Dark values are
-     first-pass placeholders. */
-  --document-link-color: light-dark(blue, #6cb6ff);   /* document-list links; matches sidebar link shade */
-
-  /** 
-   * this color is managed by javascript. it will get updated with 
-   * the system default link color, and updated on theme changes. 
-   */
-   --link-color: red;
 
 }
 

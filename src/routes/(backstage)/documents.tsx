@@ -848,7 +848,7 @@ export default function Documents() {
             <div class={style['panel-section']}>
               {/* history is what the current version superseded -- the active
                   one isn't in the list, so the heading says so */}
-              <div class={bs['section-label']} style='padding: 0'>
+              <div class={bs['panel-heading']}>
                 {t('documents-page.history.title')}
               </div>
 

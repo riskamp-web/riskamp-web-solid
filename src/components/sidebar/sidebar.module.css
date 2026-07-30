@@ -12,16 +12,19 @@ nav.sidebar-nav {
 
 }
 
+/* title row + hairline, no fill. this used to be a peach bar, which was always a
+   placeholder; matching the backstage detail panel's .panel-header makes the two
+   slide-overs read as the same object rather than as two products. */
 header.sidebar-header {
 
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--sidebar-header-background);
+  border-bottom: 1px solid var(--border-hairline);
   font-weight: bold;
   padding: .35em .5em;
-  font-size: 1.2rem;
+  font-size: var(--heading-font-size);
 
   button.close-sidebar {
     border: none;
@@ -33,9 +36,16 @@ header.sidebar-header {
 
 }
 
+/* 13px is the app's base: the toolbar, the dialogs and the backstage pages all sit
+   here, and sidebar controls and tables are the same kind of thing. this used to be
+   14px for every panel indiscriminately.
+
+   Two things deliberately opt out: explanatory prose takes --prose-font-size, since
+   reading and operating are different jobs, and the AI chat sits on its own
+   --llm-chat-font-size (16px) and is not affected by this rule at all. */
 .container {
   display: contents;
-  font-size: 14px;
+  font-size: 13px;
   overflow: hidden;
   position: relative;
 }
@@ -100,9 +110,9 @@ header.sidebar-header {
       height: 100%;
       resize: none;
       font-family: inherit;
-      font-size: 16px;
+      font-size: 16px;   /* a writing surface, like the chat -- not a control */
       overflow: hidden;
-      border-radius: 3px;
+      border-radius: var(--control-radius);
       border: 1px solid var(--sidebar-input-border-color);
       display: none;
       overflow-y: scroll;
@@ -188,7 +198,7 @@ header.sidebar-header {
     display: flex;
     flex-direction: row;
     align-items: center;
-    font-size: 16px;
+    font-size: var(--heading-font-size);
     gap: 1em;
     margin-bottom: .5em;
 
@@ -282,10 +292,10 @@ header.sidebar-header {
       width: 100%;
       height: 100%;
       padding: .5em;
-      border-radius: 3px;
+      border-radius: var(--control-radius);
       resize: none;
       font-family: inherit;
-      font-size: 16px;
+      font-size: 16px;   /* a writing surface, like the chat -- not a control */
       line-height: 1.4;
     }
   }
@@ -373,7 +383,7 @@ header.sidebar-header {
   .box-stats-table {
     display: grid;
     grid-template-columns: 1fr auto;
-    font-size: 14px;
+    font-size: 13px;   /* a data table, so the base size */
     overflow: hidden;
 
     .row {
@@ -416,7 +426,7 @@ header.sidebar-header {
     p {
       margin-bottom: 0;
       margin-top: 1em;
-      font-size: 16px;
+      font-size: var(--prose-font-size);   /* prose, not controls */
     }
 
     p:last-of-type {
@@ -475,7 +485,7 @@ header.sidebar-header {
     display: flex;
     flex-direction: row;
     align-items: center;
-    font-size: 16px;
+    font-size: var(--heading-font-size);
     gap: 1em;
     margin-bottom: .5em;
   }
@@ -496,7 +506,9 @@ header.sidebar-header {
 
   }
 
+  /* prose, not controls — see .container above */
   .explainer {
+    font-size: var(--prose-font-size);
     p {
       margin-top: 1em;
       margin-bottom: 1em;

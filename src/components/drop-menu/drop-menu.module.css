@@ -19,6 +19,7 @@ button.label {
   margin: 0;
   transform-origin: top left;
   border: 1px solid var(--border-subtle);
+  border-radius: var(--surface-radius);
   margin-top: 3px;
 
   box-shadow: var(--menu-shadow);
