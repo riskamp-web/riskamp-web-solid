@@ -19,11 +19,11 @@
 
   background: var(--toolbar-bar-background);
 
-  /* the toolbar used to have no bottom edge of its own, relying on being darker
-     than the page. that works against white and fails against any tinted page --
-     which is why the backstage card pages used to draw their own top hairline to
-     compensate. owning the edge here fixes it for every page at once. */
-  border-bottom: 1px solid var(--border-hairline);
+  /* no bottom edge, deliberately: against the spreadsheet the toolbar separates
+     itself by being darker, and a hairline there is a line too many. the pages
+     that need a boundary -- the tinted backstage card pages, where the tint and
+     this background are the same grey -- draw it themselves (.page-centered in
+     backstage.module.css). */
 
   &.account-toolbar {
     grid-template-columns: auto auto 1fr auto auto auto .25em;
