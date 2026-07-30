@@ -26,6 +26,12 @@ header.sidebar-header {
   padding: .35em .5em;
   font-size: var(--heading-font-size);
 
+  /* this pushes the sidebar header down so the text roughly lines 
+     up with column headers; although that changes when the formula
+     bar is expanded. we could theoretically adapt to that (maybe)
+  */
+  padding-top: 38px;
+
   button.close-sidebar {
     border: none;
     background-color: transparent;

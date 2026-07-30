@@ -156,7 +156,7 @@ export function Sidebar(props: SidebarProps) {
 
         <For each={names()}>{named => 
           <div class="grid-table-row" onclick={e => Click(e, named)}>
-            <div innerHTML={named.type === 'expression' ? icons.name_expression : icons.name_range} />
+            <div innerHTML={named.type === 'expression' ? icons.developer : icons.insert_table} />
             <div>
               <button class="text-button" onclick={e => Click(e, named)}>
                 {named.name}

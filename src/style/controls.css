@@ -66,6 +66,8 @@ input[type=password].input::placeholder {
   white-space: nowrap;
   cursor: pointer;
 
+  height: 30px;
+
   /* dialog footer buttons had no color of their own, so they took the UA's
      `buttontext` -- pure black, against a dialog body at --text. */
   color: inherit;
