@@ -123,26 +123,18 @@
       display: block;
     }
 
+    /* metrics, border, radius, fill, font and hover all come from the shared
+       recipe in src/style/controls.css, which now matches on
+       `.riskamp-dialog footer button` -- these buttons used to be styled entirely
+       from here, which is why they never matched anything else in the product.
+
+       the `:active` state that lived here is gone on purpose: it used
+       --toolbar-control-active-background, which is now the accent wash, and that
+       wash means "toggled on" everywhere else. reusing it for a momentary press
+       muddles a meaning it only just acquired. */
     button, select {
       margin: 0;
-      border: 1px solid var(--border-subtle);
-      padding: 8px 10px;
-      border-radius: var(--control-radius);
-      background: transparent;
-      font-family: inherit;
-      font-size: inherit;
-      white-space: nowrap;
       text-overflow: ellipsis;
-
-      &:hover {
-        background: var(--toolbar-control-hover-background);
-      }
-
-      &:active {
-        background: var(--toolbar-control-active-background);
-      }
-
-
     }
 
     button.text-button {

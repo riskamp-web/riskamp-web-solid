@@ -40,6 +40,19 @@
   --control-radius:    4px;
   --surface-radius:    6px;    /* cards, menus, panels, dialogs */
 
+  /* buttons. these exist because the button recipe is written twice -- once for
+     the app in src/style/controls.css, once for backstage in
+     backstage.module.css -- and the values have to come from one place or the two
+     drift apart again. */
+  --control-padding-x:  12px;
+  --button-font-weight: 500;
+
+  /* translucent hover washes for controls that sit on a transparent background.
+     distinct from --toolbar-control-hover-background, which is an opaque grey the
+     toolbar's own icon buttons use. */
+  --hover:        light-dark(rgba(0, 0, 0, .045), rgba(255, 255, 255, .06));
+  --hover-strong: light-dark(rgba(0, 0, 0, .075), rgba(255, 255, 255, .1));
+
   /* type: the base is 13px (see body). prose gets its own size because
      reading and operating are different jobs; the AI chat sits higher
      still, on --llm-chat-font-size above. */

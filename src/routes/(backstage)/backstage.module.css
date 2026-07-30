@@ -40,8 +40,8 @@
   /* ---- lines + washes ---- */
   --bs-border: var(--border-hairline);
   --bs-border-strong: var(--border-control);
-  --bs-hover: light-dark(rgba(0, 0, 0, .045), rgba(255, 255, 255, .06));
-  --bs-hover-strong: light-dark(rgba(0, 0, 0, .075), rgba(255, 255, 255, .1));
+  --bs-hover: var(--hover);
+  --bs-hover-strong: var(--hover-strong);
   --bs-selected: var(--accent-wash);
   --bs-shadow: var(--menu-shadow);
 
@@ -317,6 +317,11 @@
   height: 28px;
 }
 
+/* MIRRORS the button rule in src/style/controls.css, which covers the app's
+   .control-button sites and every dialog footer. The two are unified by token, not
+   by a shared class -- keeping ~25 bs.button call sites and the CSS-module scoping
+   was worth writing the structure twice, but a change here needs the same change
+   there. */
 .button {
   display: inline-flex;
   flex-direction: row;
@@ -325,12 +330,16 @@
   gap: 6px;
   flex: 0 0 auto;
   height: var(--bs-control-height);
-  padding: 0 12px;
+  padding: 0 var(--control-padding-x);
   border: 1px solid var(--bs-border-strong);
   border-radius: var(--bs-radius-sm);
   background: transparent;
   color: inherit;
-  font: inherit;
+
+  /* font: inherit would reset the weight, so the shorthand is out */
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: var(--button-font-weight);
   text-decoration: none; /* .button is also used on <A> */
   white-space: nowrap;
   cursor: pointer;
@@ -346,11 +355,11 @@
   }
 }
 
+/* weight moved up to .button -- every button carries it now, not just this one */
 .button-primary {
   border-color: transparent;
   background: var(--bs-accent);
   color: var(--bs-on-accent);
-  font-weight: 500;
 
   &:hover {
     background: var(--bs-accent);

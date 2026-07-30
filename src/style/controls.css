@@ -5,7 +5,14 @@
    surface it read as a grey block. transparent + a findable edge is the backstage
    treatment, and the firm border is also what makes the browser's focus ring land
    on the control rather than inside it. */
-input[type=text].input, input[type=password].input, select.select, button.control-button {
+/* wrapped in :where() so the whole recipe has zero specificity. it is a *base*:
+   a variant class like .button-primary has to be able to override the fill and the
+   border, and `.riskamp-dialog footer button` (0,1,2) would otherwise beat a plain
+   class (0,1,0) and silently win. safe against src/reset.css, whose
+   `input, select, label, button` rule sets only font-family and font-size, to the
+   same `inherit` this does. */
+:where(input[type=text].input, input[type=password].input, select.select, button.control-button,
+       .riskamp-dialog footer button, .riskamp-dialog footer select) {
 
   height: var(--toolbar-control-size);
   border-radius: var(--toolbar-control-border-radius);
@@ -36,8 +43,65 @@ input[type=password].input::placeholder {
   color: var(--input-placeholder-color, revert);
 }
 
-button.control-button[disabled] {
-  opacity: .5;
+/* the button half of the recipe above, for the surfaces that are buttons rather
+   than fields: the .control-button sites (simulation-settings and ai sidebars, the
+   las-vegas dialog) and every dialog footer.
+
+   MIRRORS .button in src/routes/(backstage)/backstage.module.css. The two rules are
+   unified by token, not by a shared class, so a change to one needs the same change
+   to the other -- that is the accepted cost of leaving backstage's ~25 bs.button
+   call sites alone.
+
+   selects are in the recipe above but not here: they take the metrics, but
+   inline-flex on a <select> is meaningless and its inner layout isn't ours.
+
+   :where() for the same reason as above -- this is a base, not an override. */
+:where(button.control-button, .riskamp-dialog footer button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;                                   /* so icon + label works */
+  padding: 0 var(--control-padding-x);
+  font-weight: var(--button-font-weight);
+  white-space: nowrap;
+  cursor: pointer;
+
+  /* dialog footer buttons had no color of their own, so they took the UA's
+     `buttontext` -- pure black, against a dialog body at --text. */
+  color: inherit;
+
+  &:hover {
+    background: var(--hover-strong);
+  }
+}
+
+button.control-button:disabled, .riskamp-dialog footer button:disabled {
+  opacity: .45;
+  cursor: default;
+}
+
+/* the app's default action. filled accent, so a dialog says which button it is --
+   until now confirm and cancel were pixel-identical in every dialog.
+   mirrors .button-primary in backstage.module.css. */
+.button-primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--on-accent);
+
+  &:hover {
+    background: var(--accent);
+    filter: brightness(1.1);
+  }
+}
+
+/* mirrors .button-quiet in backstage.module.css */
+.button-quiet {
+  border-color: transparent;
+  color: var(--text-muted);
+
+  &:hover {
+    color: var(--text);
+  }
 }
 
 button.text-button {

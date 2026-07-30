@@ -384,8 +384,8 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
         </section>
 
         <footer>
-          <button onclick={() => Close(true)} class="button">{t('forecast-dialog.create-forecast-sheet')}</button>
-          <button onclick={() => Close(false)} class="button">{t('standard-buttons.cancel.title')}</button>
+          <button onclick={() => Close(true)} class="button-primary">{t('forecast-dialog.create-forecast-sheet')}</button>
+          <button onclick={() => Close(false)}>{t('standard-buttons.cancel.title')}</button>
         </footer>
 
       </InteractiveDialog>

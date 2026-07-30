@@ -543,14 +543,13 @@ export function InsertFunctionDialog(props: Props) {
       <footer>
         <div class={style.buttons}>
           <Show when={backButton() && state() === 'arguments'}>
-            <button class="button"
-                    onclick={() => setState('functions')}>{t('standard-buttons.back.title')}</button>
+            <button onclick={() => setState('functions')}>{t('standard-buttons.back.title')}</button>
           </Show>
           <div class="flex-grow"></div>
-          <button class="button"
+          <button class="button-primary"
                   disabled={state() === 'functions' && search_state.results.length <= 0}
                   onclick={AcceptButton}>{t('standard-buttons.accept.title')}</button>
-          <button onclick={() => Cancel()} class="button">{t('standard-buttons.cancel.title')}</button>
+          <button onclick={() => Cancel()}>{t('standard-buttons.cancel.title')}</button>
         </div>
       </footer>
     </InteractiveDialog>;

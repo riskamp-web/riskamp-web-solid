@@ -120,7 +120,8 @@ export function SparklineDialog(props: InteractiveDialogProps & SparklineProps) 
       </section>
 
       <footer>
-          <button disabled={parameters.some(param => !param.valid?.())}
+          <button class="button-primary"
+                  disabled={parameters.some(param => !param.valid?.())}
                   onclick={() => Close(true)}>{t('standard-buttons.accept.title')}</button>
           <button onclick={() => Close(false)}>{t('standard-buttons.cancel.title')}</button>
       </footer>

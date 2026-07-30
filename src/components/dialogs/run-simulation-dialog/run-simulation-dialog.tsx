@@ -222,8 +222,8 @@ export function RunSimulationDialog(props: Props) {
       </section>
       <footer>
         <div class={style.buttons}> 
-          <button autofocus class="button" onclick={Start} disabled={running()}>{t('run-simulation-start-label')}</button>
-          <button class="button" onClick={Stop} >{close_label()}</button>
+          <button autofocus class="button-primary" onclick={Start} disabled={running()}>{t('run-simulation-start-label')}</button>
+          <button onClick={Stop} >{close_label()}</button>
         </div>
       </footer>
     </Dialog>

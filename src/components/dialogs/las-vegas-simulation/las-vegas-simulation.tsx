@@ -331,8 +331,8 @@ export function Dialog(props: Props) {
             </div>
 
             <div class={style.buttons}>
-              <button class="control-button"
-                      onclick={() => Start()} 
+              <button class="control-button button-primary"
+                      onclick={() => Start()}
                       ref={start_button}
                       disabled={running() || !allValid()} >
                         {t('run-simulation-start-label')}</button>
