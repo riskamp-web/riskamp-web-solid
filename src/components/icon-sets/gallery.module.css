@@ -4,7 +4,7 @@
    without any extra work. */
 
 .gallery {
-  font-family: var(--inteface-font);
+  font-family: var(--interface-font);
   padding: 0 24px 48px;
 }
 
@@ -31,7 +31,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--base-font-size);
 }
 
 .field > span {
@@ -41,7 +41,7 @@
 .field select,
 .field input {
   font: inherit;
-  font-size: 13px;
+  font-size: var(--base-font-size);
   padding: 4px 8px;
   color: var(--toolbar-control-text-color);
   background: var(--toolbar-surface-color);
@@ -55,7 +55,7 @@
 
 .count {
   margin-left: auto;
-  font-size: 13px;
+  font-size: var(--base-font-size);
   color: var(--toolbar-control-color);
 }
 
@@ -68,7 +68,7 @@
   align-items: center;
   gap: 8px;
   margin: 0 0 12px;
-  font-size: 13px;
+  font-size: var(--base-font-size);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -80,7 +80,7 @@
   text-transform: none;
   letter-spacing: 0;
   padding: 1px 6px;
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
   background: var(--overlay-faint);
 }
 
@@ -97,7 +97,7 @@
   gap: 10px;
   padding: 10px 12px;
   border: 1px solid var(--border-subtle);
-  border-radius: 6px;
+  border-radius: var(--surface-radius);
   background: var(--overlay-faintest);
 }
 

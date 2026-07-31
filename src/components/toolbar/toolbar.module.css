@@ -78,7 +78,7 @@ label.tab {
 
 .toolbar-button {
   
-  --toolbar-control-size: 28px;
+  --toolbar-control-size: var(--icon-button-size);
   --toolbar-control-border-radius: 0px;
 
   border: 1px solid transparent;

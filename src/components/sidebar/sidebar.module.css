@@ -48,7 +48,7 @@ header.sidebar-header {
    --llm-chat-font-size (16px) and is not affected by this rule at all. */
 .container {
   display: contents;
-  font-size: 13px;
+  font-size: var(--base-font-size);
   overflow: hidden;
   position: relative;
 }
@@ -362,7 +362,7 @@ header.sidebar-header {
   .box-stats-table {
     display: grid;
     grid-template-columns: 1fr auto;
-    font-size: 13px;   /* a data table, so the base size */
+    font-size: var(--base-font-size);   /* a data table, so the base size */
     overflow: hidden;
 
     .row {

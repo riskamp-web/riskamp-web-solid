@@ -1,7 +1,7 @@
 
 
 :root {
-  --inteface-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --interface-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --llm-chat-font-size: 16px;
 
   /* ===== Canonical design tokens =====================================
@@ -32,11 +32,24 @@
   --border-hairline: light-dark(#dcdee2, #3b3f45);  /* dividers, chrome edges, cards */
   --border-control:  light-dark(#b6bac1, #545961);  /* inputs, buttons, menus */
 
+  /* the raised surface everything sits on: dialogs, menus, the active toolbar tab,
+     the palette input, the backstage pages. this one value was written out under
+     four different names (--dialog-surface, --toolbar-surface-color,
+     --palette-input-background, --bs-surface), which meant four places to change
+     and four chances to change only three of them. they all alias this now. */
+  --surface: light-dark(#fff, #26282c);
+
   /* metrics */
   --control-height:    34px;
   --control-height-sm: 30px;   /* dense list chrome only */
+  --icon-button-size:  28px;   /* square icon-only buttons: toolbar, backstage rows */
   --control-radius:    4px;
   --surface-radius:    6px;    /* cards, menus, panels, dialogs */
+  --radius-pill:       999px;  /* fully-round: access pills, owner tags, counts */
+
+  /* the app's transition. .125s was already the de-facto standard -- it was written
+     out at fourteen sites and was a token at none of them. */
+  --transition-fast: .125s;
 
   /* buttons. these exist because the button recipe is written twice -- once for
      the app in src/style/controls.css, once for backstage in
@@ -58,9 +71,10 @@
   --hover:        light-dark(rgba(0, 0, 0, .045), rgba(255, 255, 255, .06));
   --hover-strong: light-dark(rgba(0, 0, 0, .075), rgba(255, 255, 255, .1));
 
-  /* type: the base is 13px (see body). prose gets its own size because
-     reading and operating are different jobs; the AI chat sits higher
+  /* type: the base is 13px, set on body from the token below. prose gets its own
+     size because reading and operating are different jobs; the AI chat sits higher
      still, on --llm-chat-font-size above. */
+  --base-font-size:    13px;   /* the floor, and the size of every control */
   --prose-font-size:   14px;
   --heading-font-size: 16px;   /* section headings, sentence case */
 
@@ -72,8 +86,15 @@
 
   --spinner-color: currentColor;
 
-  /* change backgroudn on logo in dark mode */
+  /* change background on logo in dark mode */
   --logo-background-color: light-dark(transparent, #fff);
+
+  /* the mark's blue. this was only ever a hard-coded fallback inside logo.tsx --
+     the token it named was defined nowhere, so the fallback always won. it is
+     deliberately NOT --accent: in dark mode the logo sits on the white plate above,
+     so it wants the light-mode brand blue in both themes, not the lightened accent
+     that would then be drawn on white. */
+  --logo-color: #0477BE;
 
   /* ===== Shared primitives (cross-area) =============================
      Neutral translucent values that replace color-mix(currentColor …),
@@ -98,7 +119,7 @@
 
   /* toolbar surface / chrome colors (moved out of toolbar.module.css) */
   --toolbar-bar-background: light-dark(#f4f5f6, #1e1f22);   /* toolbar chrome background */
-  --toolbar-surface-color: light-dark(#fff, #26282c);      /* white surfaces: active tab, content pane */
+  --toolbar-surface-color: var(--surface);                 /* white surfaces: active tab, content pane */
   --toolbar-swatch-shadow-color: light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
 
   --toolbar-transition-delay: .15s;
@@ -123,7 +144,7 @@
      src/style/riskamp-dialog.css. Dark values are first-pass placeholders. */
 
   /* chrome */
-  --dialog-surface:      light-dark(#fff, #26282c);            /* .frame background */
+  --dialog-surface:      var(--surface);                       /* .frame background */
   --dialog-text-color:   var(--text);                          /* dialog body text */
   --dialog-shadow-color: light-dark(rgba(0, 0, 0, 0.124), rgba(0, 0, 0, 0.55));
 
@@ -176,7 +197,7 @@
   /* ===== Command palette =============================================
      Single source of truth for command-palette colors. Dark values are
      first-pass placeholders. */
-  --palette-input-background:    light-dark(#fff, #26282c);              /* editor input surface; matches --dialog-surface */
+  --palette-input-background:    var(--surface);                         /* editor input surface */
   --palette-menu-shadow:         var(--menu-shadow);                       /* shared floating-menu shadow */
   --palette-selected-background: light-dark(lightgoldenrodyellow, #3a3d42); /* selected list row */
 
@@ -214,7 +235,7 @@ body {
   min-height: 100dvh;
   position: relative;
 
-  font-size: 13px;
+  font-size: var(--base-font-size);
 }
 
 /* patch */

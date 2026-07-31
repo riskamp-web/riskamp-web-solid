@@ -50,7 +50,7 @@
   grid-template-columns: subgrid;
   /* scroll-snap-align: start; */
   grid-column: 1/-1;
-  transition: background-color .125s ease;
+  transition: background-color var(--transition-fast) ease;
 
   &:hover {
     background: var(--overlay-faintest);

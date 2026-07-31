@@ -23,7 +23,7 @@
 
      13px matches the toolbar, the sidebar controls and the backstage pages. prose
      inside a dialog should take --prose-font-size rather than raising this. */
-  font-size: 13px;
+  font-size: var(--base-font-size);
 
   .frame {
     border: var(--dialog-border);

@@ -91,7 +91,7 @@
 
   color: var(--bs-text);
   background: var(--bs-surface);
-  font-size: 13px;
+  font-size: var(--base-font-size);
 
   container: bs-page / inline-size;
 
@@ -155,7 +155,7 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background-color .125s ease, color .125s ease;
+  transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
 
   & > :is(svg, .icon) {
     flex: 0 0 auto;
@@ -311,8 +311,8 @@
   top: 50%;
   right: 1px;
   translate: 0 -50%;
-  width: 28px;
-  height: 28px;
+  width: var(--icon-button-size);
+  height: var(--icon-button-size);
 }
 
 /* MIRRORS the button rule in src/style/controls.css, which covers the app's
@@ -341,7 +341,7 @@
   text-decoration: none; /* .button is also used on <A> */
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color .125s ease, border-color .125s ease, color .125s ease;
+  transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease, color var(--transition-fast) ease;
 
   &:hover {
     background: var(--bs-hover-strong);
@@ -394,15 +394,15 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
+  width: var(--icon-button-size);
+  height: var(--icon-button-size);
   padding: 0;
   border: none;
   border-radius: var(--bs-radius-sm);
   background: transparent;
   color: var(--bs-text-muted);
   cursor: pointer;
-  transition: background-color .125s ease, color .125s ease;
+  transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
 
   &:hover {
     background: var(--bs-hover-strong);
@@ -432,7 +432,7 @@
     color: var(--bs-text-muted);
     font: inherit;
     cursor: pointer;
-    transition: background-color .125s ease, color .125s ease;
+    transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
 
     &:hover {
       background: var(--bs-hover-strong);
@@ -620,8 +620,8 @@
   top: 50%;
   right: 1px;
   translate: 0 -50%;
-  width: 28px;
-  height: 28px;
+  width: var(--icon-button-size);
+  height: var(--icon-button-size);
 }
 
 .caps-hint {
@@ -935,7 +935,7 @@
 }
 
 .skeleton {
-  border-radius: 3px;
+  border-radius: var(--control-radius);
   background: var(--bs-hover-strong);
   animation: skeleton-pulse 1.4s ease-in-out infinite;
 }
@@ -959,7 +959,7 @@
   background: var(--bs-raised);
   color: var(--bs-text);
   box-shadow: var(--bs-shadow);
-  font-size: 13px;
+  font-size: var(--base-font-size);
 
   & menu {
     list-style-type: none;

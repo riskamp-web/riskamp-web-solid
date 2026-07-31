@@ -3,8 +3,8 @@ import { Router, RouteSectionProps } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { onMount, Suspense } from "solid-js";
 
-import "./app.css";
 import "./reset.css";
+import "./app.css";
 import '~/style/riskamp-dialog.css';
 import '~/style/controls.css';
 import '~/style/utility.css';

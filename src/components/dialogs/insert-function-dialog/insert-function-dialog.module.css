@@ -89,7 +89,7 @@
   /* height: 20em; */
   height: 100%;
 
-  font-size: 13px;
+  font-size: var(--base-font-size);
   border: 1px solid var(--dialog-line-color);
 
   list-style-type: none;
