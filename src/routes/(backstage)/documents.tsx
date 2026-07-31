@@ -323,6 +323,10 @@ export default function Documents() {
 
   const toggleStar = (id: number) => setDocuments(doc => doc.id === id, 'starred', starred => !starred);
 
+  /** a past version's address: the document, with the version as a parameter */
+  const versionUrl = (doc: BackstageDocument, version: number) =>
+    `${documentUrl(doc)}?version=${version}`;
+
   const copyLink = async () => {
     const doc = detail();
     if (!doc) { return; }
@@ -911,14 +915,21 @@ export default function Documents() {
                   <div class={style['version-list']}>
                     <For each={versions()}>{(version) =>
                       <div class={style['version-row']}>
-                        <span class={style['version-tag']}>
+                        {/* a link rather than the menu's button: opening a past
+                            version is the row's obvious action, and a link is
+                            the thing you can middle-click or copy the address
+                            of. the menu keeps its own entry for discoverability */}
+                        <A
+                            class={style['version-tag']}
+                            href={versionUrl(doc(), version.version)}
+                            aria-label={format(t('documents-page.history.open.label'), { version: version.version })}>
                           {format(t('documents-page.version.short'), { version: version.version })}
-                        </span>
+                        </A>
                         <span class={style['version-date']}>{formatStamp(version.modified)}</span>
                         <ActionMenu
                             label={format(t('documents-page.history.menu.label'), { version: version.version })}
                             class={style['version-action']}>
-                          <MenuItem onclick={() => navigate(documentUrl(doc()) + '?version=' + version.version)}
+                          <MenuItem onclick={() => navigate(versionUrl(doc(), version.version))}
                                     icon={<Sheet />}>{t('documents-page.history.open')}</MenuItem>
                           <MenuItem icon={<Icon name='copy' />}>{t('documents-page.history.duplicate')}</MenuItem>
                           <MenuItem icon={<Icon name='confirm' />}>{t('documents-page.history.restore')}</MenuItem>

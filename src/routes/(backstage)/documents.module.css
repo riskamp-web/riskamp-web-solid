@@ -450,11 +450,20 @@
     background: var(--bs-hover);
   }
 
+  /* a link to that version of the document; same treatment as the name column,
+     which is the page's other place where the text itself is the link */
   & > .version-tag {
     flex: 0 0 auto;
     width: 26px;
     color: var(--bs-text-muted);
     font-variant-numeric: tabular-nums;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--bs-text);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
   }
 
   & > .version-date {

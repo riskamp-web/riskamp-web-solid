@@ -753,6 +753,9 @@ export default {
   'documents-page.history.retry': 'Try again',
   'documents-page.history.menu.label': 'Actions for version {version}',
   'documents-page.history.open': 'Open this version',
+  /* the version tag is a link, and 'v3' on its own is thin as a link name --
+     this is its accessible name, not visible text */
+  'documents-page.history.open.label': 'Open version {version}',
   'documents-page.history.duplicate': 'Duplicate as new document',
   'documents-page.history.restore': 'Restore',
   'documents-page.history.none': 'No older versions yet. They appear here as you save.',
