@@ -31,6 +31,7 @@
 }
 
 .table-header {
+  composes: micro-label from '../../style/shared.module.css';
   grid-row: header;
   grid-column: 1 / -1;
   display: grid;
@@ -40,9 +41,6 @@
   border-bottom: 1px solid var(--border-hairline);
   color: var(--text-muted);
   font-size: var(--bs-label-size);
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
 }
 
 .table-body {
@@ -86,11 +84,9 @@
 /* ------------------------------------------------------------------ */
 
 .cell {
+  composes: truncate from '../../style/shared.module.css';
   min-width: 0;
   padding: 0 8px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .cell-center {
@@ -127,15 +123,11 @@
    on the same left edge as a plain folder path in the rows above and below it.
    without it the column reads as two ragged columns. */
 .owner-tag {
-  display: inline-flex;
-  align-items: center;
+  composes: pill from '../../style/shared.module.css';
   height: 22px;
-  padding: 0 8px;
   margin: 0 -8px;
-  border-radius: var(--radius-pill);
   background: var(--hover);
   opacity: 0.5;
-  white-space: nowrap;
 }
 
 /* the current version number. tabular figures so v9 -> v10 doesn't shift the
@@ -183,14 +175,12 @@
 
 /* public is the default state, so it reads as the quiet one; private is the
    exception and carries the weight. no icons -- the words carry it. */
+/* padding comes from .pill: this was 9px against .owner-tag's 8px, which was a
+   difference with no decision behind it. */
 .access-pill {
-  display: inline-flex;
-  align-items: center;
+  composes: pill from '../../style/shared.module.css';
   height: 22px;
-  padding: 0 9px;
   border: 1px solid transparent;
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
 }
 
 .access-public {
@@ -281,13 +271,12 @@
 /* ------------------------------------------------------------------ */
 
 .sort-button {
+  composes: bare-button from '../../style/shared.module.css';
   display: inline-flex;
   align-items: center;
   gap: 3px;
   max-width: 100%;
   padding: 0;
-  border: none;
-  background: transparent;
   color: inherit;
   font: inherit;
   letter-spacing: inherit;
@@ -410,10 +399,8 @@
 }
 
 .panel-uri {
+  composes: truncate from '../../style/shared.module.css';
   min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
@@ -510,12 +497,11 @@
 /* inline in the failure note, so the retry sits with the sentence explaining
    why it's there rather than as a separate control */
 .version-retry {
+  composes: bare-button from '../../style/shared.module.css';
   padding: 0;
   /* jsx collapses the newline between the sentence and this button, so the gap
      has to come from here rather than the markup */
   margin-left: 5px;
-  border: 0;
-  background: none;
   color: var(--accent);
   font: inherit;
   cursor: pointer;

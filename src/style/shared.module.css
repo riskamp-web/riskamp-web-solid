@@ -1,0 +1,132 @@
+/**
+ * recipes shared between CSS modules, pulled in with `composes`.
+ *
+ * WHY THIS FILE EXISTS
+ *
+ * CSS module class names are hashed per file, so writing `.icon` in
+ * documents.module.css when it is declared in backstage.module.css silently
+ * matches nothing -- that exact bug is recorded in the backstage README. Until
+ * now the only way to share a rule between two modules was to copy it, and that
+ * is what happened: the sidebar's button rule is a byte-copy of the toolbar's,
+ * and drop-menu and menu-button differ by two padding values. `composes` is the
+ * mechanism built for this: it appends the shared class to the element rather
+ * than duplicating the declarations.
+ *
+ * HOW TO USE IT
+ *
+ *   .my-button {
+ *     composes: bare-button from '../../style/shared.module.css';
+ *     padding: 0 8px;
+ *   }
+ *
+ * Use a RELATIVE path. The `~` alias is a Vite JS-resolver alias and is not
+ * wired up for `composes`.
+ *
+ * TWO LIMITS, both real:
+ *
+ *  1. composes only works module -> module. The global stylesheets
+ *     (controls.css, riskamp-dialog.css, grid-table.css) and global selectors
+ *     like `.riskamp-dialog footer button` cannot use it. The split is:
+ *     controls.css owns form controls and buttons for the global/dialog
+ *     surfaces; this file owns recipes shared between modules. The button recipe
+ *     deliberately stays in controls.css.
+ *
+ *  2. composes does not raise specificity, and the cascade is decided by
+ *     stylesheet source order, not by the order of names in the class attribute.
+ *     A consumer overriding a composed declaration only wins because this file
+ *     is emitted before its importers. So keep these recipes to declarations a
+ *     consumer is unlikely to need to fight.
+ *
+ * WHAT BELONGS HERE: a rule at least three modules state identically, where the
+ * shared part is the *whole* meaning of the rule. What does not: anything only
+ * two files share by coincidence, and anything where the sites genuinely differ
+ * -- see the note on padding under .bare-button.
+ */
+
+/* the button-shaped-thing reset: a <button> that should not look like one.
+ *
+ * deliberately does NOT reset padding, margin or color, even though most sites
+ * that use it also do. they do not ALL do it -- drop-menu's `button.label`
+ * keeps the UA padding, and a button with no color of its own takes
+ * `buttontext` rather than inheriting -- so folding those in would restyle the
+ * odd one out. this is the part all ten sites genuinely agreed on; the rest
+ * stays local. */
+.bare-button {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* the floating menu surface: drop-menu, menu-button, and the backstage menu.
+ *
+ * the inner padding is NOT here -- it is the one thing the three disagree on
+ * (0, 4px, and 6px 0 on the items), and it is a density choice each menu makes.
+ * everything else -- the edge, the radius, the lift, the 3px drop off its
+ * anchor, and the list reset -- is the same rule written three times. */
+.floating-menu {
+  margin: 0;
+  margin-top: 3px;
+  transform-origin: top left;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--surface-radius);
+  box-shadow: var(--menu-shadow);
+
+  /* element selectors, so they are not hashed and reach into the consumer's
+     markup exactly as they did when this rule lived there. */
+  ul, menu {
+    list-style-type: none;
+    margin: 0;
+
+    li {
+      margin: 0;
+    }
+  }
+}
+
+/* one line, clipped with an ellipsis. ten sites across seven files. */
+.truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* the all-caps section/column label. three files, all three carrying the same
+   copied .06em -- which is the tell that it was one decision, not three. the
+   size is the consumer's: backstage has --bs-label-size, the icon gallery sits
+   at the base size. */
+.micro-label {
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* fully-round tag/badge. the two backstage pills differed by 1px of horizontal
+   padding for no reason; this settles it at 8px. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+/* the full-viewport transparent mask that keeps the pointer from entering an
+   iframe/canvas mid-drag. splitter and dialog both had this verbatim; the
+   cursor is the consumer's, since it says what is being dragged. */
+.mouse-mask {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  width: 100dvw;
+  height: 100dvh;
+  background: transparent;
+
+  &.visible {
+    display: block;
+  }
+}

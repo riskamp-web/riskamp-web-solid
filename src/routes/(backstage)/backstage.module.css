@@ -236,13 +236,11 @@
    where it has to sit out of the way of the data. it is NOT a general heading --
    see .panel-heading below. */
 .section-label {
+  composes: micro-label from '../../style/shared.module.css';
   padding: 0 8px;
   margin-bottom: 4px;
   color: var(--text-muted);
   font-size: var(--bs-label-size);
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
 }
 
 /* the heading step these pages were missing. with only .section-label available,
@@ -947,7 +945,13 @@
   padding: 4px;
   width: max-content;
   min-width: 176px;
-  border: 1px solid var(--border-hairline);
+  /* --border-control (via --border-subtle), not --border-hairline: app.css
+     assigns the hairline to "dividers, chrome edges, cards" and the control edge
+     to "inputs, buttons, menus", and this is a menu. It was the only one of the
+     four floating menus drawing a hairline. It does not compose .floating-menu
+     from shared.module.css because it differs in more than density -- it has no
+     3px drop off its anchor, and picking one up would move it. */
+  border: 1px solid var(--border-subtle);
   border-radius: var(--surface-radius);
   background: var(--bs-raised);
   color: var(--text);

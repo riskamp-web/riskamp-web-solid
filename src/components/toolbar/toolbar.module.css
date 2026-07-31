@@ -359,10 +359,7 @@ menu.text.overflow {
 }
 
 .plaintext-button {
-  border: none;
-  background: transparent;
-  font-size: inherit;
-  font-family: inherit;
+  composes: bare-button from '../../style/shared.module.css';
   padding: 0;
   margin: 0;
   display: inline-block;

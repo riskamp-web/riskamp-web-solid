@@ -6,31 +6,24 @@
 
 button.label {
   border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
   display: flex;
   flex-direction: row;
   gap: .5em;
   align-items: center;
-  background: transparent;
   white-space: nowrap;
 }
 
 .menu {
+  composes: floating-menu from '../../style/shared.module.css';
 
-  margin: 0;
-  transform-origin: top left;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--surface-radius);
-  margin-top: 3px;
-
-  box-shadow: var(--menu-shadow);
-
+  /* this menu's own density: flush, where menu-button's is inset. */
   ul, menu {
-    list-style-type: none;
-    margin: 0;
     padding: 0;
 
     li {
-      margin: 0;
       padding: 0;
     }
   }

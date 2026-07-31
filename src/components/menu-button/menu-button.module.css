@@ -6,33 +6,22 @@
 }
 
 .caret-button {
-  border: none;
+  composes: bare-button from '../../style/shared.module.css';
   display: flex;
   flex-direction: row;
   align-items: center;
-  background: transparent;
-  font-size: inherit;
-  font-family: inherit;
   gap: .5em;
   padding: 0;
 }
 
 .menu {
-  margin: 0;
-  transform-origin: top left;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--surface-radius);
-  margin-top: 3px;
+  composes: floating-menu from '../../style/shared.module.css';
 
-  box-shadow: var(--menu-shadow);
-
+  /* this menu's own density: inset, where drop-menu's is flush. */
   ul, menu {
-    list-style-type: none;
-    margin: 0;
     padding: 4px;
 
     li {
-      margin: 0;
       padding: 6px 0;
     }
   }
