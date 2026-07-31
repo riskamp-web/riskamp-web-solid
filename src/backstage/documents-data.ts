@@ -225,6 +225,7 @@ async function source(): Promise<BackstageDocument[]> {
   const result = await auth.AccessResource('/api/list-documents');
   if (result.ok) {
     const json = await result.json();
+    console.info({json});
     return (json.list || []);
   }
   else {

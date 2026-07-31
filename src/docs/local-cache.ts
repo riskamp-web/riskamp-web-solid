@@ -26,22 +26,28 @@ const EnsureCache = async () => {
 };
 
 /** canonical URL for key */
-const CacheURL = (key: string) => '/local-cache?key=' + key;
+const CacheURL = (key: string, version?: string) => {
+  let url = '/local-cache?key=' + key;
+  if (version) {
+    url += '&version=' + version;
+  }
+  return url;
+}
 
-export const Set = async (key: string, data: unknown) => {
+export const Set = async (key: string, version: string|undefined, data: unknown) => {
   const cache = await EnsureCache();
   if (cache) {
     const response = new Response(JSON.stringify(data));
-    await cache.put(CacheURL(key), response);
+    await cache.put(CacheURL(key, version), response);
     return true;
   }
   return false;
 };
 
-export const Get = async (key: string) => {
+export const Get = async (key: string, version: string|undefined) => {
   const cache = await EnsureCache();
   if (cache) {
-    const response = await cache.match(CacheURL(key));
+    const response = await cache.match(CacheURL(key, version));
     if (response) {
       return response.json();
     }
@@ -50,10 +56,10 @@ export const Get = async (key: string) => {
   throw new Error('no cache');
 };
 
-export const Delete = async (key: string) => {
+export const Delete = async (key: string, version: string|undefined) => {
   const cache = await EnsureCache();
   if (cache) {
-    return await cache.delete(CacheURL(key));
+    return await cache.delete(CacheURL(key, version));
   }
   return false;
 };

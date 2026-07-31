@@ -11,6 +11,26 @@ export function IsValidPath(path = '') {
   return !path || /^@[^/]+\/.+$/.test(path);
 }
 
+export function CacheCUrrentState(sheet?: SpreadsheetType, document_path = '', version: string|string[]|undefined = undefined) {
+
+  // const cache_path = params.document_path || '';
+
+  if (sheet && IsValidPath(document_path)) {
+
+    console.info("Calling cache set", {path: document_path, version});
+
+    cache.Set(document_path, typeof version === 'string' ? version : undefined, {
+      data: sheet.SerializeDocument({
+        preserve_simulation_data: true,
+      }),
+      cached: new Date().getTime(),
+      // canonical_version: version || 0,
+      // historical_version,
+    });
+  }
+
+}
+
 export async function RevertDocument(sheet?: SpreadsheetType, path = '') {
 
   // we should only be called if there's a path, but we might as well check
@@ -55,7 +75,7 @@ export async function RevertDocument(sheet?: SpreadsheetType, path = '') {
 
 };
 
-export async function TryLoadPath(sheet?: SpreadsheetType, path = '') {
+export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: string|string[]|undefined = undefined) {
 
   if (!sheet) {
     console.warn("mising sheet");
@@ -65,12 +85,25 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '') {
 
   if (path.startsWith('@')) {
 
+    console.info(2, {path, version});
+
     const match = path.match(/^(@[^/]+)\/(.+)$/);
 
     if (!match) {
+
+      // FIXME: warn?
+
       console.warn("invalid path");
       goto('/');
       return false;
+    }
+
+    if (version) {
+      if (Array.isArray(version)) {
+        console.warn("invalid version");
+        goto('/');
+        return false;
+      }
     }
 
     // const [_, user, file] = match;
@@ -78,15 +111,26 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '') {
 
     spinner.show();
 
-    let data = await cache.Get(path);
+    let data = await cache.Get(path, version);
     if (data?.data) {
+
+      console.info("Returning from cache");
+
       sheet.LoadDocument(data.data);
       spinner.hide();
       return true;
     }
 
     try {
-      data = await documents2.GetDocument(path, true);
+
+      console.info("dot dot dot");
+
+      if (version) {
+        data = await documents2.GetDocumentVersion(path, version, true);
+      }
+      else {
+        data = await documents2.GetDocument(path, true);
+      }
       sheet.LoadDocument(data);
       spinner.hide();
       return true;
@@ -102,7 +146,7 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '') {
   else {
     spinner.show();
 
-    const data = await cache.Get('');
+    const data = await cache.Get('', undefined);
     if (data?.data) {
       try {
         sheet.LoadDocument(data.data);

@@ -13,7 +13,7 @@
  */
 
 import { For, JSX, Match, ParentProps, Show, Switch, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
-import { A } from '@solidjs/router';
+import { A, useNavigate } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
 import { format, t, type I18N } from '~/i18n/i18n';
@@ -152,6 +152,8 @@ export default function Documents() {
   const { setTitle, setUserPanel } = useLayoutContext();
   setTitle('documents-page.title');
   setUserPanel(true);
+
+  const navigate = useNavigate();
 
   onCleanup(() => {
     setTitle(undefined);
@@ -887,7 +889,8 @@ export default function Documents() {
                         <ActionMenu
                             label={format(t('documents-page.history.menu.label'), { version: version.version })}
                             class={style['version-action']}>
-                          <MenuItem icon={<Sheet />}>{t('documents-page.history.open')}</MenuItem>
+                          <MenuItem onclick={() => navigate(documentUrl(doc()) + '?version=' + version.version)}
+                                    icon={<Sheet />}>{t('documents-page.history.open')}</MenuItem>
                           <MenuItem icon={<Icon name='copy' />}>{t('documents-page.history.duplicate')}</MenuItem>
                           <MenuItem icon={<Icon name='confirm' />}>{t('documents-page.history.restore')}</MenuItem>
                         </ActionMenu>

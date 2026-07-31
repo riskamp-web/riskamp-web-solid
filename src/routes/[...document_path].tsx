@@ -3,6 +3,8 @@
 import { Title } from "@solidjs/meta";
 
 import { useParams } from "@solidjs/router";
+import { useSearchParams } from "@solidjs/router";
+
 import { Spreadsheet } from '~/components/spreadsheet/spreadsheet';
 import { createEffect, createSignal, on } from 'solid-js';
 import { Splitter } from '~/components/splitter/splitter';
@@ -27,8 +29,7 @@ import { RunTrendForecast, trend_forecast_props } from '~/components/dialogs/tre
 import { BorderConstants, EmbeddedSheetEvent } from '@trebco/treb';
 import { sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
 
-import * as cache from '~/docs/local-cache';
-import { IsValidPath, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
+import { CacheCUrrentState, IsValidPath, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
 import { CheckFunction, CheckFunctionData, RestoreEditor } from '~/components/dialogs/insert-function-dialog/check-function';
 import { produce } from 'solid-js/store';
 import { GenerateFilename } from '~/lib/filename-util';
@@ -45,6 +46,7 @@ function Spin() {
 export default function Page() {
 
   const params = useParams() as { document_path: string|undefined };
+  const [searchParams] = useSearchParams();
 
   const [split, setSplit] = createSignal(100);
   const [getSheet, setSheet] = createSignal<SpreadsheetType|undefined>();
@@ -67,7 +69,11 @@ export default function Page() {
    * intiial path when we create the spreadsheet, so this is deferred.
    */
   createEffect(on(() => params.document_path, value => {
-    TryLoadPath(getSheet(), value);
+    TryLoadPath(getSheet(), value, searchParams.version);
+  }, { defer: true }));
+
+  createEffect(on(() => searchParams.version, value => {
+    TryLoadPath(getSheet(), params.document_path, value);
   }, { defer: true }));
 
   function ToggleStyle(sheet: SpreadsheetType, name: BooleanKeys<CellStyle>) {
@@ -353,7 +359,8 @@ export default function Page() {
   createEffect(on(getSheet, sheet => {
     if (sheet) {
       HijackDialog(sheet);
-      TryLoadPath(sheet as SpreadsheetType, params.document_path || '');
+
+      TryLoadPath(sheet as SpreadsheetType, params.document_path || '', searchParams.version);
 
       sheet.Subscribe((event: EmbeddedSheetEvent|MCEmbeddedSheetEvent) => {
 
@@ -406,25 +413,8 @@ export default function Page() {
           case 'document-change':
           case 'simulation-complete':
           case 'simulation-aborted':
-
-            {
-              // console.info("save on event", event.type);
-
-              const cache_path = params.document_path || '';
-              // const cache_path = page_pathname + (historical_version ? `//${historical_version}` : '');
-
-              if (IsValidPath(cache_path)) {
-                cache.Set(cache_path, {
-                  data: sheet.SerializeDocument({
-                    preserve_simulation_data: true,
-                  }),
-                  cached: new Date().getTime(),
-                  // canonical_version: version || 0,
-                  // historical_version,
-                });
-              }
-
-            }
+            // console.info("save on event", event.type);
+            CacheCUrrentState(sheet, params.document_path || '', searchParams.version);
             break;
 
           // default:
