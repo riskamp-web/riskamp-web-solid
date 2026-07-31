@@ -22,7 +22,7 @@
  * it shares its slot with the field's error message rather than sitting beside
  * it -- see the <Show> in the page. */
 .handle-preview {
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   overflow: hidden;
   white-space: nowrap;
@@ -37,6 +37,6 @@
   flex-direction: column;
   gap: 8px;
   margin-top: 14px;
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
   line-height: 1.45;
 }

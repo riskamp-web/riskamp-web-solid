@@ -37,8 +37,8 @@
   grid-template-columns: subgrid;
   align-items: center;
   height: 34px;
-  border-bottom: 1px solid var(--bs-border);
-  color: var(--bs-text-muted);
+  border-bottom: 1px solid var(--border-hairline);
+  color: var(--text-muted);
   font-size: var(--bs-label-size);
   font-weight: 600;
   letter-spacing: .06em;
@@ -66,18 +66,18 @@
 
   /* a hairline under each row: with seven columns, tracking one record across
      the table is otherwise hard work */
-  border-bottom: 1px solid var(--bs-border);
+  border-bottom: 1px solid var(--border-hairline);
 
   &:last-child {
     border-bottom-color: transparent;
   }
 
   &:hover {
-    background: var(--bs-hover);
+    background: var(--hover);
   }
 
   &.selected {
-    background: var(--bs-selected);
+    background: var(--accent-wash);
   }
 }
 
@@ -101,7 +101,7 @@
 }
 
 .cell-name {
-  color: var(--bs-text);
+  color: var(--text);
 
   & a {
     color: inherit;
@@ -115,7 +115,7 @@
 }
 
 .cell-path {
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
 }
 
 /* a document directly under the owner has no folder, so the column shows where
@@ -133,7 +133,7 @@
   padding: 0 8px;
   margin: 0 -8px;
   border-radius: var(--radius-pill);
-  background: var(--bs-hover);
+  background: var(--hover);
   opacity: 0.5;
   white-space: nowrap;
 }
@@ -143,12 +143,12 @@
 .cell-version {
   display: flex;
   justify-content: center;
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .cell-modified {
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -194,13 +194,13 @@
 }
 
 .access-public {
-  background: var(--bs-hover);
-  color: var(--bs-text-muted);
+  background: var(--hover);
+  color: var(--text-muted);
 }
 
 .access-private {
-  border-color: var(--bs-border-strong);
-  color: var(--bs-text);
+  border-color: var(--border-control);
+  color: var(--text);
 }
 
 /* ------------------------------------------------------------------ */
@@ -244,7 +244,7 @@
    long list -- so the filled state fills the glyph rather than only recoloring
    it. the path carries fill="none" as an attribute, which a rule beats. */
 .star {
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
   transition: color var(--transition-fast) ease, opacity var(--transition-fast) ease;
 
   /* the set's outline star is heavier than the row text it sits beside, and
@@ -296,7 +296,7 @@
   transition: color var(--transition-fast) ease;
 
   &:hover {
-    color: var(--bs-text);
+    color: var(--text);
   }
 
   & > .sort-caret {
@@ -306,7 +306,7 @@
   }
 
   &.sorted {
-    color: var(--bs-text);
+    color: var(--text);
 
     & > .sort-caret {
       opacity: 1;
@@ -361,7 +361,7 @@
 .selection-divider {
   width: 1px;
   height: 18px;
-  background: var(--bs-border-strong);
+  background: var(--border-control);
 }
 
 /* ------------------------------------------------------------------ */
@@ -397,7 +397,7 @@
 
 .unnamed-hint {
   margin-top: 2px;
-  color: var(--bs-text-faint);
+  color: var(--text-faint);
 }
 
 .panel-path {
@@ -406,7 +406,7 @@
   align-items: center;
   gap: 2px;
   min-width: 0;
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
 }
 
 .panel-uri {
@@ -422,7 +422,7 @@
 }
 
 .copy-confirmed {
-  color: var(--bs-accent);
+  color: var(--accent);
 }
 
 .panel-section {
@@ -443,11 +443,11 @@
   min-height: 32px;
   padding: 0 6px;
   margin: 0 -6px;
-  border-radius: var(--bs-radius-sm);
+  border-radius: var(--control-radius);
   transition: background-color var(--transition-fast) ease;
 
   &:hover {
-    background: var(--bs-hover);
+    background: var(--hover);
   }
 
   /* a link to that version of the document; same treatment as the name column,
@@ -455,12 +455,12 @@
   & > .version-tag {
     flex: 0 0 auto;
     width: 26px;
-    color: var(--bs-text-muted);
+    color: var(--text-muted);
     font-variant-numeric: tabular-nums;
     text-decoration: none;
 
     &:hover {
-      color: var(--bs-text);
+      color: var(--text);
       text-decoration: underline;
       text-underline-offset: 2px;
     }
@@ -469,7 +469,7 @@
   & > .version-date {
     flex: 1;
     min-width: 0;
-    color: var(--bs-text-muted);
+    color: var(--text-muted);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -487,7 +487,7 @@
 
 .version-note {
   margin-top: 10px;
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
   line-height: 1.45;
 }
 
@@ -504,7 +504,7 @@
 
 .version-skeleton {
   height: 9px;
-  border-radius: var(--bs-radius-sm);
+  border-radius: var(--control-radius);
 }
 
 /* inline in the failure note, so the retry sits with the sentence explaining
@@ -516,7 +516,7 @@
   margin-left: 5px;
   border: 0;
   background: none;
-  color: var(--bs-accent);
+  color: var(--accent);
   font: inherit;
   cursor: pointer;
 

@@ -5,15 +5,26 @@
  * backstage page (account, billing, auth) would want live here; page-specific
  * styling lives next to the page.
  *
- * tokens are still declared on .page rather than :root, so the containment
- * boundary stays legible -- but they are now *aliases* of the canonical tokens in
- * src/app.css rather than a parallel set. that fork is what made the two halves of
- * the app read as two products: the values sat 2-5% apart (#dcdee2 vs #e5e7eb,
- * #17181b vs #1a1a1a) with no decision behind the difference.
+ * TOKENS: this file used to declare a full parallel set of --bs-* names, most of
+ * which had become plain aliases of the canonical tokens in src/app.css. Those
+ * are gone -- the rules below read --text, --border-hairline, --accent and the
+ * rest directly. The indirection cost a lookup on every read and, worse, made the
+ * set unreadable: some --bs-* names were aliases and some were real values, and
+ * nothing in the name said which.
  *
- * so: don't restate a value here that app.css already defines. the --bs-* names
- * stay because the rules below read better with them, and because a page-scoped
- * name is still the place to override one for backstage only.
+ * So a --bs-* name now means exactly one of two things, and nothing else:
+ *
+ *   1. a value backstage owns, because the rest of the app has no equivalent --
+ *      --bs-raised, --bs-star, --bs-strong, --bs-row-height, --bs-inset,
+ *      --bs-label-size.
+ *   2. an override point: a token that is deliberately re-declared further down
+ *      this file, so a container can change it for everything inside it --
+ *      --bs-control-height (dense list chrome), --bs-rail-width and
+ *      --bs-panel-width (the container queries at the bottom). These read from
+ *      app.css but must keep their own names, because the name is the hook.
+ *
+ * Don't add a --bs-* that is neither. If backstage wants a value the app already
+ * defines, read the canonical token.
  *
  * two rules this file follows deliberately:
  *   - the accent is the logo blue, now --accent in app.css and used by the whole
@@ -23,64 +34,41 @@
 
 .page {
 
-  /* ---- surfaces ---- */
-  --bs-surface: light-dark(#ffffff, #26282c);
-  /* the rail tint and the card pages' ground. this was #f7f7f8, a few percent off
-     the toolbar's own grey -- close enough that the boundary between toolbar and
-     page vanished in light mode, which is why sign-in used to draw its own top
-     hairline. same grey now, and the toolbar carries the edge itself. */
-  --bs-rail-background: var(--toolbar-bar-background);
+  /* ---- values backstage owns ---- */
+
+  /* the panel/menu surface that has to read as lifted *above* --surface. the only
+     one of these that is a colour the app has no name for. */
   --bs-raised: light-dark(#ffffff, #2e3136);
 
-  /* ---- text ---- */
-  --bs-text: var(--text);
-  --bs-text-muted: var(--text-muted);
-  --bs-text-faint: var(--text-faint);
+  /* a starred row, and the strong end of the password meter. --bs-danger was here
+     too and is now --danger in app.css, which the AI chat also needs.
 
-  /* ---- lines + washes ---- */
-  --bs-border: var(--border-hairline);
-  --bs-border-strong: var(--border-control);
-  --bs-hover: var(--hover);
-  --bs-hover-strong: var(--hover-strong);
-  --bs-selected: var(--accent-wash);
-  --bs-shadow: var(--menu-shadow);
-
-  /* ---- accent ---- */
-  --bs-accent: var(--accent);
-  --bs-on-accent: var(--on-accent);
-
-  /* these three stay local: they are semantic colours the rest of the app has no
-     equivalent for (a starred row, a destructive action, the strong end of the
-     password meter). promoting them would mean claiming the app needs them. */
+     --bs-strong needs a third colour that --danger and --bs-star can't supply.
+     The only green in app.css is --dialog-syntax-string-color, a syntax colour
+     rather than a semantic one, whose dark value leans teal -- and teal was
+     rejected as an accent, so aliasing it would smuggle that back in. */
   --bs-star: light-dark(#c27803, #fbbf24);
-  /* promoted to --danger in app.css: the AI chat needs an error color too, and a
-     token scoped to .page can't reach it. same value, one place. */
-  --bs-danger: var(--danger);
-
-  /* the strong end of the password meter, which needs a third colour that
-     --bs-danger and --bs-star can't supply. the only green in app.css is
-     --dialog-syntax-string-color, a syntax colour rather than a semantic one,
-     and its dark value leans teal -- and teal was rejected as an accent, so
-     aliasing it would smuggle that back in. */
   --bs-strong: light-dark(#1a7f37, #3fb950);
 
-  /* ---- metrics ---- */
-  --bs-radius: var(--surface-radius);
-  --bs-radius-sm: var(--control-radius);
   --bs-row-height: 38px;
-
-  /* the app's control height. 30px used to be the backstage default, which put a
-     backstage button 4px shorter than the toolbar button above it for no reason.
-     the dense list chrome still wants 30px, so it overrides this token on its own
-     containers -- see .content-header / .panel-footer below. */
-  --bs-control-height: var(--control-height);
-  --bs-rail-width: 208px;
-  --bs-panel-width: 348px;
   --bs-inset: 16px;
 
   /* nothing in the backstage pages goes below 13px; the one exception is the
      all-caps column/section labels, which sit at 12px */
   --bs-label-size: 12px;
+
+  /* ---- override points ---- */
+
+  /* the app's control height. 30px used to be the backstage default, which put a
+     backstage button 4px shorter than the toolbar button above it for no reason.
+     the dense list chrome still wants 30px, so it overrides this token on its own
+     containers -- see .content-header / .panel-footer below. That override is why
+     this keeps a name of its own rather than reading --control-height directly. */
+  --bs-control-height: var(--control-height);
+
+  /* re-declared by the container queries at the bottom of this file. */
+  --bs-rail-width: 208px;
+  --bs-panel-width: 348px;
 
   /* the page is a flex child of main.fixed, which is overflow:hidden --
      everything that scrolls does so inside here */
@@ -89,8 +77,8 @@
   display: flex;
   overflow: hidden;
 
-  color: var(--bs-text);
-  background: var(--bs-surface);
+  color: var(--text);
+  background: var(--surface);
   font-size: var(--base-font-size);
 
   container: bs-page / inline-size;
@@ -130,8 +118,13 @@
   gap: 20px;
   padding: 14px 8px;
   overflow-y: auto;
-  border-right: 1px solid var(--bs-border);
-  background: var(--bs-rail-background);
+  border-right: 1px solid var(--border-hairline);
+
+  /* the toolbar's own grey, deliberately. this was #f7f7f8, a few percent off it --
+     close enough that the boundary between toolbar and page vanished in light mode,
+     which is why sign-in used to draw its own top hairline. same grey now, and the
+     toolbar carries the edge itself. */
+  background: var(--toolbar-bar-background);
 }
 
 .rail-section {
@@ -149,9 +142,9 @@
   height: 32px;
   padding: 0 8px;
   border: none;
-  border-radius: var(--bs-radius-sm);
+  border-radius: var(--control-radius);
   background: transparent;
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -159,7 +152,7 @@
 
   & > :is(svg, .icon) {
     flex: 0 0 auto;
-    color: var(--bs-text-muted);
+    color: var(--text-muted);
   }
 
   & > .rail-label {
@@ -172,22 +165,22 @@
 
   & > .rail-count {
     flex: 0 0 auto;
-    color: var(--bs-text-muted);
+    color: var(--text-muted);
     font-variant-numeric: tabular-nums;
   }
 
   &:hover {
-    background: var(--bs-hover);
-    color: var(--bs-text);
+    background: var(--hover);
+    color: var(--text);
   }
 
   &.active {
-    background: var(--bs-selected);
-    color: var(--bs-text);
+    background: var(--accent-wash);
+    color: var(--text);
     font-weight: 500;
 
     & > :is(svg, .icon) {
-      color: var(--bs-accent);
+      color: var(--accent);
     }
   }
 }
@@ -220,7 +213,7 @@
   gap: 10px;
   height: 54px;
   padding: 0 var(--bs-inset);
-  border-bottom: 1px solid var(--bs-border);
+  border-bottom: 1px solid var(--border-hairline);
 }
 
 .content-footer {
@@ -231,8 +224,8 @@
   gap: 6px;
   height: 34px;
   padding: 0 var(--bs-inset);
-  border-top: 1px solid var(--bs-border);
-  color: var(--bs-text-muted);
+  border-top: 1px solid var(--border-hairline);
+  color: var(--text-muted);
 }
 
 /* ------------------------------------------------------------------ */
@@ -245,7 +238,7 @@
 .section-label {
   padding: 0 8px;
   margin-bottom: 4px;
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
   font-size: var(--bs-label-size);
   font-weight: 600;
   letter-spacing: .06em;
@@ -259,7 +252,7 @@
    --heading-font-size is the shared step, so the two now match. */
 .panel-heading {
   margin-bottom: 6px;
-  color: var(--bs-text);
+  color: var(--text);
   font-size: var(--heading-font-size);
   font-weight: 600;
 }
@@ -285,10 +278,10 @@
   width: 100%;
   height: var(--bs-control-height);
   padding: 0 34px 0 34px;
-  border: 1px solid var(--bs-border-strong);
-  border-radius: var(--bs-radius-sm);
+  border: 1px solid var(--border-control);
+  border-radius: var(--control-radius);
   background: transparent;
-  color: var(--bs-text);
+  color: var(--text);
   font: inherit;
 
   /* UA clear button; we draw our own so it matches the icon set */
@@ -302,7 +295,7 @@
   top: 50%;
   left: 7px;
   translate: 0 -50%;
-  color: var(--bs-text-faint);
+  color: var(--text-faint);
   pointer-events: none;
 }
 
@@ -329,8 +322,8 @@
   flex: 0 0 auto;
   height: var(--bs-control-height);
   padding: 0 var(--control-padding-x);
-  border: 1px solid var(--bs-border-strong);
-  border-radius: var(--bs-radius-sm);
+  border: 1px solid var(--border-control);
+  border-radius: var(--control-radius);
   background: transparent;
   color: inherit;
 
@@ -344,7 +337,7 @@
   transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease, color var(--transition-fast) ease;
 
   &:hover {
-    background: var(--bs-hover-strong);
+    background: var(--hover-strong);
   }
 
   &:disabled {
@@ -356,27 +349,27 @@
 /* weight moved up to .button -- every button carries it now, not just this one */
 .button-primary {
   border-color: transparent;
-  background: var(--bs-accent);
-  color: var(--bs-on-accent);
+  background: var(--accent);
+  color: var(--on-accent);
 
   &:hover {
-    background: var(--bs-accent);
+    background: var(--accent);
     filter: brightness(1.1);
   }
 }
 
 .button-quiet {
   border-color: transparent;
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
 
   &:hover {
-    color: var(--bs-text);
+    color: var(--text);
   }
 }
 
 .button-danger {
   border-color: transparent;
-  color: var(--bs-danger);
+  color: var(--danger);
 
   &:hover {
     /* derived from --bs-danger rather than respelling it: this was the same two
@@ -385,7 +378,7 @@
        alphas -- inside each arm --bs-danger has already resolved to that theme's
        color. (relative syntax, not color-mix(): color-mix doesn't render
        reliably in the Safari we target.) */
-    background: light-dark(rgb(from var(--bs-danger) r g b / .09), rgb(from var(--bs-danger) r g b / .15));
+    background: light-dark(rgb(from var(--danger) r g b / .09), rgb(from var(--danger) r g b / .15));
   }
 }
 
@@ -398,15 +391,15 @@
   height: var(--icon-button-size);
   padding: 0;
   border: none;
-  border-radius: var(--bs-radius-sm);
+  border-radius: var(--control-radius);
   background: transparent;
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
   cursor: pointer;
   transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
 
   &:hover {
-    background: var(--bs-hover-strong);
-    color: var(--bs-text);
+    background: var(--hover-strong);
+    color: var(--text);
   }
 }
 
@@ -417,8 +410,8 @@
   flex-direction: row;
   justify-self: start;
   width: fit-content;
-  border: 1px solid var(--bs-border-strong);
-  border-radius: var(--bs-radius-sm);
+  border: 1px solid var(--border-control);
+  border-radius: var(--control-radius);
   overflow: hidden;
 
   & button {
@@ -429,18 +422,18 @@
     padding: 0 10px;
     border: none;
     background: transparent;
-    color: var(--bs-text-muted);
+    color: var(--text-muted);
     font: inherit;
     cursor: pointer;
     transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
 
     &:hover {
-      background: var(--bs-hover-strong);
+      background: var(--hover-strong);
     }
 
     &.active {
-      background: var(--bs-accent);
-      color: var(--bs-on-accent);
+      background: var(--accent);
+      color: var(--on-accent);
     }
   }
 }
@@ -459,8 +452,8 @@
    this the two surfaces are the same grey with nothing between them. this isn't
    compensating for a near-miss any more -- it's the only boundary there is. */
 .page-centered {
-  background: var(--bs-rail-background);
-  border-top: 1px solid var(--bs-border);
+  background: var(--toolbar-bar-background);
+  border-top: 1px solid var(--border-hairline);
 }
 
 /* the whole content area is one scrolling column.
@@ -499,9 +492,9 @@
   max-width: 372px;
   margin-inline: auto;
   padding: 24px;
-  border: 1px solid var(--bs-border);
-  border-radius: var(--bs-radius);
-  background: var(--bs-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--surface-radius);
+  background: var(--surface);
 }
 
 /* splitting the free space 1:2 leaves the card's centre a sixth of its own
@@ -542,7 +535,7 @@
 }
 
 .subtitle {
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
   line-height: 1.45;
 }
 
@@ -561,7 +554,7 @@
   gap: 5px;
 
   & > .field-block-label {
-    color: var(--bs-text-muted);
+    color: var(--text-muted);
     font-weight: 500;
   }
 }
@@ -573,14 +566,14 @@
   width: 100%;
   height: var(--bs-control-height);
   padding: 0 9px;
-  border: 1px solid var(--bs-border-strong);
-  border-radius: var(--bs-radius-sm);
+  border: 1px solid var(--border-control);
+  border-radius: var(--control-radius);
   background: transparent;
-  color: var(--bs-text);
+  color: var(--text);
   font: inherit;
 
   &[aria-invalid='true'] {
-    border-color: var(--bs-danger);
+    border-color: var(--danger);
   }
 
   &:disabled {
@@ -589,7 +582,7 @@
 }
 
 .field-message {
-  color: var(--bs-danger);
+  color: var(--danger);
 }
 
 /* the submit sits a step further from the last field than the fields sit from
@@ -625,7 +618,7 @@
 }
 
 .caps-hint {
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
 }
 
 /* ---- password strength meter ---- */
@@ -669,7 +662,7 @@
   justify-content: space-between;
   gap: 8px;
   min-height: 18px;
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
 }
 
 /* full width, fixed height. no `flex: 1` here -- .meter is a column, so a flex
@@ -678,7 +671,7 @@
   position: relative;
   height: 4px;
   border-radius: 2px;
-  background: var(--bs-hover-strong);
+  background: var(--hover-strong);
   overflow: hidden;
 }
 
@@ -687,13 +680,13 @@
   inset: 0 auto 0 0;
   width: 0;
   border-radius: 2px;
-  background: var(--bs-border-strong);
+  background: var(--border-control);
   transition: width .18s ease, background-color .18s ease;
 
   /* three colours over four levels: the width carries the rest. good and strong
      share the green -- a fourth hue would be a distinction without a meaning. */
   &.weak {
-    background: var(--bs-danger);
+    background: var(--danger);
   }
 
   &.fair {
@@ -711,11 +704,11 @@
    whole submission */
 .form-error {
   padding: 9px 11px;
-  border: 1px solid var(--bs-danger);
-  border-radius: var(--bs-radius-sm);
+  border: 1px solid var(--danger);
+  border-radius: var(--control-radius);
   /* see .button-danger above -- derived from the token, not respelled. */
-  background: light-dark(rgb(from var(--bs-danger) r g b / .07), rgb(from var(--bs-danger) r g b / .12));
-  color: var(--bs-text);
+  background: light-dark(rgb(from var(--danger) r g b / .07), rgb(from var(--danger) r g b / .12));
+  color: var(--text);
   line-height: 1.45;
 }
 
@@ -731,7 +724,7 @@
   }
 
   & > label {
-    color: var(--bs-text-muted);
+    color: var(--text-muted);
     cursor: pointer;
   }
 }
@@ -741,7 +734,7 @@
 }
 
 .link {
-  color: var(--bs-accent);
+  color: var(--accent);
   text-decoration: none;
 
   &:hover {
@@ -763,7 +756,7 @@
 
   & > .sent-detail {
     max-width: 34ch;
-    color: var(--bs-text-muted);
+    color: var(--text-muted);
     line-height: 1.5;
   }
 
@@ -789,7 +782,7 @@
 .sent-icon {
   width: 34px;
   height: 34px;
-  color: var(--bs-accent);
+  color: var(--accent);
   margin-bottom: 4px;
 }
 
@@ -797,7 +790,7 @@
    splitting the string around its placeholder into three pieces of jsx, which
    is the concatenation splice() exists to avoid. */
 .sent-email {
-  color: var(--bs-text);
+  color: var(--text);
   font-weight: 500;
 }
 
@@ -818,11 +811,11 @@
   gap: 8px;
   margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px solid var(--bs-border);
+  border-top: 1px solid var(--border-hairline);
 }
 
 .links-separator {
-  color: var(--bs-text-faint);
+  color: var(--text-faint);
 }
 
 /* ------------------------------------------------------------------ */
@@ -838,9 +831,9 @@
   max-width: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--bs-surface);
-  border-left: 1px solid var(--bs-border);
-  box-shadow: var(--bs-shadow);
+  background: var(--surface);
+  border-left: 1px solid var(--border-hairline);
+  box-shadow: var(--menu-shadow);
   transform: translateX(101%);
   visibility: hidden;
   transition: transform .16s ease, visibility .16s;
@@ -858,7 +851,7 @@
   align-items: flex-start;
   gap: 8px;
   padding: 14px var(--bs-inset) 12px;
-  border-bottom: 1px solid var(--bs-border);
+  border-bottom: 1px solid var(--border-hairline);
 }
 
 .panel-body {
@@ -878,7 +871,7 @@
   align-items: center;
   gap: 6px;
   padding: 10px var(--bs-inset);
-  border-top: 1px solid var(--bs-border);
+  border-top: 1px solid var(--border-hairline);
 }
 
 .field-row {
@@ -889,7 +882,7 @@
   min-height: 36px;
 
   & > .field-label {
-    color: var(--bs-text-muted);
+    color: var(--text-muted);
   }
 }
 
@@ -907,19 +900,19 @@
   min-height: 200px;
   padding: 40px 20px;
   text-align: center;
-  color: var(--bs-text-muted);
+  color: var(--text-muted);
 
   /* the mark an empty state leads with is drawn larger than an inline icon; the
      set draws at 20px, so the size lives here rather than in the markup */
   & > :is(svg, .icon) {
     width: 34px;
     height: 34px;
-    color: var(--bs-text-muted);
+    color: var(--text-muted);
     margin-bottom: 6px;
   }
 
   & > .empty-title {
-    color: var(--bs-text);
+    color: var(--text);
     font-size: 15px;
     font-weight: 600;
   }
@@ -936,7 +929,7 @@
 
 .skeleton {
   border-radius: var(--control-radius);
-  background: var(--bs-hover-strong);
+  background: var(--hover-strong);
   animation: skeleton-pulse 1.4s ease-in-out infinite;
 }
 
@@ -954,11 +947,11 @@
   padding: 4px;
   width: max-content;
   min-width: 176px;
-  border: 1px solid var(--bs-border);
-  border-radius: var(--bs-radius);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--surface-radius);
   background: var(--bs-raised);
-  color: var(--bs-text);
-  box-shadow: var(--bs-shadow);
+  color: var(--text);
+  box-shadow: var(--menu-shadow);
   font-size: var(--base-font-size);
 
   & menu {
@@ -971,7 +964,7 @@
     height: 0;
     margin: 4px 2px;
     border: none;
-    border-top: 1px solid var(--bs-border);
+    border-top: 1px solid var(--border-hairline);
   }
 }
 
@@ -984,7 +977,7 @@
   height: 32px;
   padding: 0 8px;
   border: none;
-  border-radius: var(--bs-radius-sm);
+  border-radius: var(--control-radius);
   background: transparent;
   color: inherit;
   font: inherit;
@@ -993,7 +986,7 @@
   cursor: pointer;
 
   & > :is(svg, .icon) {
-    color: var(--bs-text-muted);
+    color: var(--text-muted);
   }
 
   /* keeps labels aligned when an item has no icon */
@@ -1003,14 +996,14 @@
   }
 
   &:hover {
-    background: var(--bs-hover-strong);
+    background: var(--hover-strong);
   }
 
   &.danger {
-    color: var(--bs-danger);
+    color: var(--danger);
 
     & > :is(svg, .icon) {
-      color: var(--bs-danger);
+      color: var(--danger);
     }
   }
 }
@@ -1043,8 +1036,8 @@
   flex: 0 1 auto;
   min-width: 0;
   height: var(--bs-control-height);
-  border: 1px solid var(--bs-border-strong);
-  border-radius: var(--bs-radius-sm);
+  border: 1px solid var(--border-control);
+  border-radius: var(--control-radius);
   background: transparent;
   color: inherit;
   font: inherit;
