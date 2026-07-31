@@ -115,7 +115,7 @@ function ActionMenu(props: ParentProps<{ label: string, class?: string, trigger?
         id={uid}
         class={bs.menu}
         style={menu_style}
-        ontoggle={(event: any) => setOpen(event.newState === 'open')}
+        ontoggle={(event) => setOpen((event as ToggleEvent).newState === 'open')}
         onclick={(event) => {
           event.stopPropagation();
           // close on any item activation
@@ -175,20 +175,48 @@ export default function Documents() {
   const [sortKey, setSortKey] = createSignal<SortKey>(saved.sort);
   const [sortDirection, setSortDirection] = createSignal<SortDirection>(saved.direction);
 
-  /* what's open and what's ticked are deliberately *not* saved: they're about
-     the thing you're doing, not the list you're looking at, and coming back to a
-     stale selection reads as the page having done something on its own */
+  /* the open panel is part of the view too: reading a document's history means
+     opening versions one at a time, and coming back to a closed panel each time
+     makes that a chore. what's *ticked* still isn't saved -- a tick is a thing
+     you're about to act on, and restoring one reads as the page having done
+     something on its own */
   const [selected, setSelected] = createSignal<number | undefined>();
   const [checked, setChecked] = createSignal<Set<number>>(new Set());
   const [copied, setCopied] = createSignal(false);
 
   let last_trigger: HTMLElement | undefined;
+  /* eslint-disable-next-line no-unassigned-vars -- assigned through ref= below,
+     which the rule doesn't count as an assignment */
   let search_input: HTMLInputElement | undefined;
 
   // no-op if another visit already filled the store; loaded() drives the skeleton
   onMount(() => { loadDocuments(); });
 
-  /* one effect for all five, so saving is a single write and no handler has to
+  /* the saved view names the open document by path, but the panel keys off the
+     row id -- and on a cold load there are no rows to resolve it against yet.
+     so re-open when they arrive, and only once: without the latch, closing the
+     panel would re-run this and re-open it.
+
+     a saved path can outlive the document, the same way a saved folder can. no
+     match means nothing to open, and the save effect below clears it. */
+  let restored = !saved.open;
+
+  createEffect(() => {
+    if (restored || !loaded()) { return; }
+    restored = true;
+    const open = documents.find(doc => doc.path === saved.open);
+    if (open) { setSelected(open.id); }
+  });
+
+  /* a memo, not a plain read: it's derived from the store, so every star or
+     access change would otherwise re-run the save effect below. same path in,
+     same string out, and nothing downstream hears about it */
+  const openPath = createMemo(() => {
+    const id = selected();
+    return id === undefined ? undefined : documents.find(doc => doc.id === id)?.path;
+  });
+
+  /* one effect for all six, so saving is a single write and no handler has to
      remember to do it. it also runs on mount, writing back what it just read */
   createEffect(() => saveView({
     scope: scope(),
@@ -196,6 +224,7 @@ export default function Documents() {
     search: search(),
     sort: sortKey(),
     direction: sortDirection(),
+    open: openPath(),
   }));
 
   /* ---- derived ---- */
@@ -327,7 +356,7 @@ export default function Documents() {
 
   const toggleChecked = (id: number) => setChecked(previous => {
     const next = new Set(previous);
-    next.has(id) ? next.delete(id) : next.add(id);
+    if (next.has(id)) { next.delete(id); } else { next.add(id); }
     return next;
   });
 
@@ -522,7 +551,7 @@ export default function Documents() {
               value={folder() ?? scope()}
               onchange={(event) => {
                 const value = event.currentTarget.value;
-                value.startsWith('/') ? selectFolder(value) : selectScope(value as Scope);
+                if (value.startsWith('/')) { selectFolder(value); } else { selectScope(value as Scope); }
               }}>
             <For each={SCOPES}>{(item) => <option value={item.key}>{t(item.label)}</option>}</For>
             <For each={folders()}>{(node) =>

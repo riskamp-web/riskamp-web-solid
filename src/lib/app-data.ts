@@ -1,9 +1,8 @@
 import { createStore } from 'solid-js/store';
-import { createEffect, on } from 'solid-js';
+import { createEffect } from 'solid-js';
 import { type Model } from 'treb-llm-support';
 import type { DocumentsRow } from '~/docs/documents';
 import type { DocumentScope, SortDirection, SortKey } from '~/backstage/documents-data';
-import { isServer } from "solid-js/web";
 
 /**
  * FIXME: we should change how this works, make it deeper 
@@ -36,9 +35,9 @@ interface SessionData {
 
 /**
  * what the documents page was looking at: the list it had narrowed to, the order
- * it was in, and what was typed in the search box. persisted so that opening a
- * document and coming back lands on the same view rather than resetting to
- * everything, newest first.
+ * it was in, what was typed in the search box, and which document's detail panel
+ * was open. persisted so that opening a document and coming back lands on the
+ * same view rather than resetting to everything, newest first.
  *
  * every field is optional and every reader supplies its own default -- this is
  * read back from localStorage, so a version that predates a field, or one that
@@ -56,6 +55,12 @@ export interface DocumentsView {
   sort?: SortKey;
   /** and its direction */
   direction?: SortDirection;
+  /**
+   * the open document's path, or undefined for a closed panel. the *path*
+   * rather than the row id: ids come from the service and needn't survive a
+   * reload, while the path is the document's identity (see findPathCollision).
+   */
+  open?: string;
 }
 
 export interface PersistentData {
@@ -85,11 +90,6 @@ export interface PersistentData {
   /** explicit light/dark theme. leave undefined to use system theme. */
   explicit_theme?: 'light'|'dark';
 
-}
-
-interface AppData {
-  persisted: PersistentData;
-  session: SessionData;
 }
 
 export const [sessionData, setSessionData] = createStore<SessionData>({

@@ -613,21 +613,23 @@ export type DocumentScope = 'all' | 'starred' | 'recent' | 'private';
 const SCOPE_KEYS: DocumentScope[] = ['all', 'starred', 'recent', 'private'];
 
 /** what a fresh visit looks like: everything, newest first, nothing typed */
-export const DEFAULT_VIEW: Required<Omit<DocumentsView, 'folder'>> & { folder: string | undefined } = {
+export const DEFAULT_VIEW: Required<Omit<DocumentsView, 'folder' | 'open'>>
+    & { folder: string | undefined, open: string | undefined } = {
   scope: 'all',
   folder: undefined,
   search: '',
   sort: 'modified',
   direction: 'desc',
+  open: undefined,
 };
 
 /**
- * the view the page was left in -- scope, folder, search and sort. that lives in
- * persistentData rather than in the page because a route component's state dies
- * with it: opening a document unmounts the page, so restoring the list on the
- * way back needs somewhere outside it to have kept the answer. the document
- * store next door can't be it, since this is about the page's view of the rows,
- * not the rows.
+ * the view the page was left in -- scope, folder, search, sort, and the open
+ * document. that lives in persistentData rather than in the page because a
+ * route component's state dies with it: opening a document unmounts the page,
+ * so restoring the list on the way back needs somewhere outside it to have kept
+ * the answer. the document store next door can't be it, since this is about the
+ * page's view of the rows, not the rows.
  *
  * persisted rather than session-scoped, so it survives a reload as well as a
  * navigation -- there's nothing here worth losing, and nothing private.
@@ -646,13 +648,17 @@ export function savedView(): typeof DEFAULT_VIEW {
     search: typeof saved.search === 'string' ? saved.search : DEFAULT_VIEW.search,
     sort: SORT_KEYS.includes(saved.sort!) ? saved.sort! : DEFAULT_VIEW.sort,
     direction: SORT_DIRECTIONS.includes(saved.direction!) ? saved.direction! : DEFAULT_VIEW.direction,
+    /* only shape-checked here: whether the path still names a document can't be
+       known until the rows are in, so the page resolves it -- see openDocument
+       in documents.tsx */
+    open: typeof saved.open === 'string' && saved.open ? saved.open : undefined,
   };
 
 }
 
 /**
  * write the view back. the whole object every time rather than a field at a
- * time: the page saves from one effect that reads all five, so there's no
+ * time: the page saves from one effect that reads all six, so there's no
  * partial state to merge, and replacing the object keeps a removed field from
  * lingering in localStorage.
  */
