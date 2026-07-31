@@ -18,16 +18,36 @@ isn't markup, styling or route-shaped belongs in `src/backstage/`.
 
 Within that, on purpose:
 
-- theme tokens are declared locally (scoped to `.page` in `backstage.module.css`)
-  rather than added to `src/app.css`
 - strings are **no longer hardcoded**: both pages are extracted into `~/i18n`, and dates,
   counts, sort order and plural forms follow `currentLocale()` — see "Strings" below
 - glyphs the app icon set lacks live in `backstage-icons.tsx` rather than being added to
   `~/components/icon-sets` (see "Icons" below — documents now draws from the app set, and
   what's left local is only what that set has no name for)
 
-Promoting any of those out of here is deliberate later work, not cleanup to do in
+Promoting either of those out of here is deliberate later work, not cleanup to do in
 passing.
+
+**Tokens are the exception, and that containment is over.** This directory used to declare
+a full parallel set of `--bs-*` names on `.page`, and promoting them was listed here as
+later work. That work has since been done in the CSS refactor: the sixteen that had become
+plain aliases of `src/app.css` are gone, and the rules read `--text`, `--border-hairline`,
+`--accent` and the rest directly. Two values were promoted the other way — `--danger`
+(the AI chat needs an error colour and a `.page`-scoped token can't reach it) and
+`--surface` (one value that had four names across the product).
+
+Nine `--bs-*` survive, and each is now one of exactly two things:
+
+- **a value backstage owns**, because the app has no equivalent — `--bs-raised`,
+  `--bs-star`, `--bs-strong`, `--bs-row-height`, `--bs-inset`, `--bs-label-size`
+- **an override point** — `--bs-control-height`, `--bs-rail-width`, `--bs-panel-width`.
+  These read from `app.css` and *look* like aliases, but each is re-declared further down
+  `backstage.module.css` (the dense list chrome, and the container queries at the bottom),
+  so the name is the hook a container reaches for. Collapsing them would break the dense
+  chrome and the responsive rail.
+
+Don't add a `--bs-*` that is neither. If backstage wants a value the app already defines,
+read the canonical token. Markup, layout and page styling stay contained here as before —
+it is only the token layer that is now shared.
 
 Two deliberate exceptions so far, both by request. The **route guard** lives in
 `src/routes/(backstage).tsx` and `src/components/layout-context.tsx` — a check that has to
@@ -153,10 +173,10 @@ Settled with the user across several passes. The reasoning matters more than the
 - **Accent is the logo blue**, `light-dark(#0477be, #2a91d8)` — the same pair `app.css`
   already uses for `--dialog-border-color`. One accent, no second brand color.
 - **`--bs-strong` is the one added colour**, `light-dark(#1a7f37, #3fb950)`, and it exists for
-  the password meter's green end — `--bs-danger` and `--bs-star` couldn't supply a third step.
+  the password meter's green end — `--danger` and `--bs-star` couldn't supply a third step.
   The only green in `app.css` is `--dialog-syntax-string-color`, a syntax colour rather than a
   semantic one whose dark value leans teal, and teal was rejected as an accent, so aliasing it
-  would smuggle that back in. **The confirmation ticks stay `--bs-accent`**: a green tick is
+  would smuggle that back in. **The confirmation ticks stay `--accent`**: a green tick is
   conventional and now possible, but the green was added for the meter, and repainting three
   shipped success states with it would dilute it. One line to change if that's wanted.
 - **Focus is drawn by the browser.** Nothing in this directory sets an outline. Controls
@@ -167,7 +187,7 @@ Settled with the user across several passes. The reasoning matters more than the
   12px via `--bs-label-size`.
 - **Secondary text is one step down from primary, not three.** Roughly 10:1 contrast
   against the surface in both themes. If something seems to need to be fainter than
-  `--bs-text-faint`, it probably wants `--bs-text-muted`; the faint token is used in
+  `--text-faint`, it probably wants `--text-muted`; the faint token is used in
   exactly one place.
 - **The card's action is separated from its footer links.** The submit sits 10px further out
   than `.form`'s gap (`.form-actions`) so it reads as the action rather than as another field,
@@ -203,7 +223,7 @@ Settled with the user across several passes. The reasoning matters more than the
   username-or-email + password (`/api/login`), plus email-based account creation and
   recovery. There are no SSO providers, so no "continue with…" buttons are drawn — a
   button that can't be wired to anything is a promise the page can't keep.
-- **Centred card, no rail.** The page tints itself with `--bs-rail-background` so the
+- **Centred card, no rail.** The page tints itself with `--toolbar-bar-background` so the
   card has a ground to sit on; both values are existing tokens. Below 420px the card
   drops its border and goes edge-to-edge — a card with a 20px gutter either side stops
   being a card and starts being a frame.
@@ -217,7 +237,7 @@ Settled with the user across several passes. The reasoning matters more than the
 - **The page draws its own top hairline**, and this is load-bearing rather than a
   workaround. The toolbar has no bottom edge of its own: against the spreadsheet it
   separates itself by being darker, and a hairline there is a line too many. Against this
-  page it can't, because `--bs-rail-background` now *aliases* `--toolbar-bar-background` —
+  page it can't, because the rail tint now *is* `--toolbar-bar-background` —
   the tint and the toolbar are the same grey, so the `border-top` on `.page-centered` is the
   only boundary between them. (It was briefly moved onto the toolbar and moved back: a line
   under the toolbar is wrong on the main app page, which is the page it would mostly be seen
@@ -445,7 +465,7 @@ create-account never asks for one, so both flows end here.
   lets the bar run into the input's bottom border, so they read as one object — but the meter
   still has to sit closer to its field than the fields sit to each other, or it floats between
   two of them and stops being obviously *about* the password.
-- **Four levels, four widths, three colours** — weak `--bs-danger`, fair `--bs-star`, good and
+- **Four levels, four widths, three colours** — weak `--danger`, fair `--bs-star`, good and
   strong the new `--bs-strong`. The width does the work the third colour doesn't, which also
   means the meter still reads for anyone who can't separate the red from the green.
 - **The meter yields when a message about the field is showing.** The interesting case is the
@@ -759,7 +779,11 @@ component:
   `& > :is(svg, .icon)`, which covers both the wrapper and the local components. Watch the
   module boundary here: `.icon` is declared in `backstage.module.css`, so writing `.icon` in
   `documents.module.css` silently matches nothing — that's why the sort caret carries its own
-  local `.sort-caret` class.
+  local `.sort-caret` class. There is now a sanctioned way across that boundary when the rule
+  is genuinely shared: `composes: <name> from '../../style/shared.module.css'` — see
+  `src/style/shared.module.css`, which `.table-header`, `.cell`, `.owner-tag`, `.access-pill`,
+  `.sort-button` and `.section-label` already use. It only works on a single local class
+  selector, so it is not a general escape hatch.
 - **The star's filled state is CSS**, not a prop: the set's star is an outline, and
   `.starred svg path { fill: currentColor }` beats the `fill="none"` attribute on the path.
 - **What's still local**, in `backstage-icons.tsx`: `Globe` and `Sheet` (plus `Eye`/`EyeOff`
@@ -1055,7 +1079,7 @@ The meter is worth walking properly, since arithmetic is all it has: `abcdefgh` 
 `password1` Fair (**not** Strong), `aaaaaaaaaa` and `abababababab` Weak despite their length,
 `Aa1!Aa1!Aa1!Aa1!` Fair despite four classes, `Tr0ub4dor&3` Good, and a real passphrase Strong.
 Under 8 characters shows the label and an empty bar but no verdict. Both themes — the three
-colours should resolve to `--bs-danger`, `--bs-star` and `--bs-strong` exactly, and **the empty
+colours should resolve to `--danger`, `--bs-star` and `--bs-strong` exactly, and **the empty
 track has to be 4px and visible**, since a collapsed one is indistinguishable from an unfilled
 one. The card's height must not change between an empty password and a rated one.
 
