@@ -291,6 +291,9 @@ header.sidebar-header {
   overflow: hidden;
   height: 100%;
   max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 
   .lambda-editor {
     overflow: hidden;
@@ -308,14 +311,28 @@ header.sidebar-header {
 
   .names-table {
     overflow: hidden;
-    grid-template-columns: auto auto auto auto;
+    grid-template-columns: auto auto auto 1fr auto;
 
     :global(.grid-table-row > *) {
+      display: flex;
       align-items: center;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+  }
+
+  .names-controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1em;
+  }
+
+  .delete-button {
+    margin: 0 3px;
+    background-color: transparent;
   }
 
 }

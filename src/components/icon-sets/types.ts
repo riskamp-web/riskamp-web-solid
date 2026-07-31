@@ -75,7 +75,7 @@ export const ICON_GROUPS = {
    */
   ui_primitives: [
     'close', 'confirm', 'menu_checked', 'help', 'overflow', 'caret_down',
-    'warning',
+    'warning', 'plus',
   ],
 
   component: [

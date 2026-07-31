@@ -29,7 +29,7 @@ export const icons: IconSet = {
   // --- panels --------------------------------------------------------
 
   ai_chat:                rai['ai-chat'],
-  developer:              rai.developer,
+  developer:              rai['developer-2'],
   notes:                  rai.notes,
 
   // --- color ---------------------------------------------------------
@@ -127,6 +127,7 @@ export const icons: IconSet = {
   warning:                rai.warning,
   overflow:               rai.overflow,
   caret_down:             rai['caret-down'],
+  plus:                   rai['plus'],
 
   // --- component-specific --------------------------------------------
 

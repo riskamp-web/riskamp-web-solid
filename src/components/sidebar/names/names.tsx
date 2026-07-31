@@ -132,13 +132,25 @@ export function Sidebar(props: SidebarProps) {
 
   }
 
+  function DeleteName(event: Event, named: Named) {
+    event.stopPropagation();
+    console.info({named});
+    const sheet = props.sheet();
+    if (sheet) {
+      sheet.ClearName(named.name);
+      requestAnimationFrame(() => {
+        UpdateNames();
+        sheet.Focus();
+      });
+    }
+  }
+
   const [split, setSplit] = createSignal(50);
 
   return <div class={style['names-layout']}>
 
-    <Splitter vertical split={split} setSplit={setSplit} max={80} min={20}>
-
     <div classList={{
+      "flex-grow": true,
       "grid-table": true,
       [style['names-table']]: true,
        }} >
@@ -150,6 +162,7 @@ export function Sidebar(props: SidebarProps) {
         <div>{t('names-panel.header.name')}</div>
         <div>{t('names-panel.header.name-scope')}</div>
         <div>{t('names-panel.header.value')}</div>
+        <div></div>
       </div>
 
       <div class="grid-table-body top-border">
@@ -164,17 +177,29 @@ export function Sidebar(props: SidebarProps) {
             </div>
             <div>{Scope(named)}</div>
             <div>{RenderNamed(named)}</div>
+            <button classList={{
+                'text-button': true,
+                [style['delete-button']]: true,
+                }} 
+              title={t('names-panel.label.delete-name')} 
+              onclick={e => DeleteName(e, named)}
+              innerHTML={icons.close}/>
           </div>  
         }</For>
       </div>
 
     </div>
 
-    <div class={style['lambda-editor']}>
-      <textarea spellcheck='false' value={lambdaText()} />
+    <div class={style['names-controls']}>
+      <button class="control-button">
+        <span class="flex-row" innerHTML={icons.developer}></span>
+        <span>{t('names-panel.label.edit-name')}</span>
+      </button>
+      <button class="control-button button-primary">
+        <span class="flex-row" innerHTML={icons.plus}></span>
+        <span>{t('names-panel.label.define-name')}</span>
+      </button>
     </div>
-
-    </Splitter>
 
   </div>;
 }

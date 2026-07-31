@@ -152,7 +152,9 @@ export default {
   "names-panel.header.value": "Value",
   "names-panel.name-scope.sheet": "Sheet",
   "names-panel.name-scope.workbook": "Book",
-  "names-panel.label.delete-name": "Delete Name",
+  "names-panel.label.delete-name": "Delete name",
+  "names-panel.label.define-name": "Define name",
+  "names-panel.label.edit-name": "Edit name",
   "names-panel.name-type.reference": "Reference",
   "names-panel.name-type.expression": "Expression",
 
