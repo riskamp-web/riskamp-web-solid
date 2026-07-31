@@ -165,7 +165,7 @@ export function Sidebar(props: SidebarProps) {
         <div></div>
       </div>
 
-      <div class="grid-table-body top-border">
+      <div class="grid-table-body">
 
         <For each={names()}>{named => 
           <div class="grid-table-row" onclick={e => Click(e, named)}>

@@ -4,7 +4,7 @@
   overflow: hidden;
   position: relative;
   height: 100%;
-  max-height: 100%;;
+  max-height: 100%;
 }
 
 .tab-container {
@@ -60,7 +60,6 @@
   textarea {
     padding: .5em;
     font-family: inherit;
-    font-size: inherit;
     font-size: var(--llm-chat-font-size);
     resize: none;
     flex-grow: 1;
@@ -141,8 +140,23 @@
     }
   }
 
-  .tool_use, .tool_result {
-    /* background: color-mix(in srgb, orange 5%, transparent); */
+  /* the two providers name the same thing differently: anthropic sends tool_use /
+     tool_result, gemini sends functionCall / functionResponse. chat-messages.tsx
+     asked for all four, but only the first two were declared here -- so on the
+     gemini path `style.functionCall` was undefined and the <details> element got a
+     literal class="undefined" instead of a style. one rule, all four names. */
+  .tool_use, .tool_result, .functionCall, .functionResponse {
+    background: var(--overlay-faintest);
+  }
+
+  /* client-side error messages (IsClientSideErrorMessage). this was undefined too,
+     so an error in the chat drew exactly like an ordinary message. */
+  .error {
+    color: var(--danger);
+
+    .part {
+      white-space: pre-wrap;
+    }
   }
 
 }

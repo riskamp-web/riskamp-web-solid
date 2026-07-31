@@ -3,6 +3,8 @@
 
   border: 0;
   background: transparent;
+
+  /* a non-interactive loading overlay <dialog>; nothing here is focusable. */
   outline: none;
 
   &::backdrop {

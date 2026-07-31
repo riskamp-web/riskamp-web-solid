@@ -140,7 +140,6 @@ label.tab {
 }
 
 .group + .group {
-  border-left: 1px solid var(--toolbar-border-color);
   border-left: 1px solid var(--border-subtle);
   padding-left: 1em;
   margin-left: 1em;

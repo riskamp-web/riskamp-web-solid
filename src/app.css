@@ -45,6 +45,13 @@
   --control-padding-x:  12px;
   --button-font-weight: 500;
 
+  /* the one semantic status color. it lived only in backstage as --bs-danger, on the
+     argument that promoting it would mean claiming the app needs it -- the AI chat's
+     client-side error messages are that claim: they ask for an error treatment from
+     outside backstage, where a .page-scoped token can't reach. --bs-danger aliases
+     this now, so there is still one value. */
+  --danger: light-dark(#b3261e, #f4796f);
+
   /* translucent hover washes for controls that sit on a transparent background.
      distinct from --toolbar-control-hover-background, which is an opaque grey the
      toolbar's own icon buttons use. */

@@ -66,6 +66,11 @@ dialog {
   width: fit-content;
   display: grid;
   box-shadow: 1px 10px 18px 1px var(--dialog-shadow-color);
+
+  /* this is the <dialog> itself, opened with showModal(), so it takes focus as a
+     container -- a ring around the whole modal is not a focus indicator for
+     anything you can operate. the house rule ("focus is drawn by the browser")
+     is about controls; the controls inside keep their rings. */
   outline: none;
 
   grid-template-columns: 100%;

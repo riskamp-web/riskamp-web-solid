@@ -53,7 +53,9 @@
      equivalent for (a starred row, a destructive action, the strong end of the
      password meter). promoting them would mean claiming the app needs them. */
   --bs-star: light-dark(#c27803, #fbbf24);
-  --bs-danger: light-dark(#b3261e, #f4796f);
+  /* promoted to --danger in app.css: the AI chat needs an error color too, and a
+     token scoped to .page can't reach it. same value, one place. */
+  --bs-danger: var(--danger);
 
   /* the strong end of the password meter, which needs a third colour that
      --bs-danger and --bs-star can't supply. the only green in app.css is
@@ -377,7 +379,13 @@
   color: var(--bs-danger);
 
   &:hover {
-    background: light-dark(rgba(179, 38, 30, .09), rgba(244, 121, 111, .15));
+    /* derived from --bs-danger rather than respelling it: this was the same two
+       colors written out as rgba(), so changing the token left the washes behind.
+       light-dark() still wraps the pair because the two themes want different
+       alphas -- inside each arm --bs-danger has already resolved to that theme's
+       color. (relative syntax, not color-mix(): color-mix doesn't render
+       reliably in the Safari we target.) */
+    background: light-dark(rgb(from var(--bs-danger) r g b / .09), rgb(from var(--bs-danger) r g b / .15));
   }
 }
 
@@ -705,7 +713,8 @@
   padding: 9px 11px;
   border: 1px solid var(--bs-danger);
   border-radius: var(--bs-radius-sm);
-  background: light-dark(rgba(179, 38, 30, .07), rgba(244, 121, 111, .12));
+  /* see .button-danger above -- derived from the token, not respelled. */
+  background: light-dark(rgb(from var(--bs-danger) r g b / .07), rgb(from var(--bs-danger) r g b / .12));
   color: var(--bs-text);
   line-height: 1.45;
 }
