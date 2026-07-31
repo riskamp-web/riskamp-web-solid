@@ -172,24 +172,13 @@ button.menu-item, a.menu-item {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
+  gap: 1em;
 
   border: none;
   background: transparent;
   cursor: pointer;
   transition: all var(--toolbar-transition-delay);
   overflow: hidden;
-
-  /*
-
-  border: 1px solid transparent;
-
-  */
-
-  display: flex;
-  flex-direction: row;
-  gap: 1em;
-  border: none;
-  background: transparent;
 
   &.composite {
     line-height: 0;
@@ -208,10 +197,6 @@ button.menu-item, a.menu-item {
 
     background: var(--toolbar-control-hover-background);
     color: var(--toolbar-control-hover-color);
-    
-    /*
-    background: var(--toolbar-control-hover-background);
-    */
   }
 
 }

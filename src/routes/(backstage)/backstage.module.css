@@ -262,10 +262,6 @@
   font-weight: 600;
 }
 
-.muted {
-  color: var(--bs-text-muted);
-}
-
 .spacer {
   flex: 1;
   min-width: 0;

@@ -126,7 +126,9 @@
   color: var(--toolbar-control-text-color);
 }
 
+/* the auto sides and the 32px below used to come from the global `p` boilerplate
+   in app.css (`margin: 2rem auto`, and 2rem is 32px); stated here now that it's gone. */
 .empty {
-  margin-top: 32px;
+  margin: 32px auto;
   color: var(--toolbar-control-color);
 }

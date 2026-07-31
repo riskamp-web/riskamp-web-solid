@@ -26,13 +26,6 @@
   grid-template-rows: [header] auto [body] 1fr [footer] auto;
 
 
-  .spaced {
-    width: 2em;
-    align-items: center;
-    justify-content: center;
-    display: flex;
-  }
-
   .limit {
     overflow: hidden;
     white-space: nowrap;
@@ -93,11 +86,6 @@
 
   & > * {
     padding: .5em 0;
-  }
-
-  &.no-borders {
-    border-top: none;
-    border-bottom: none;
   }
 
 }

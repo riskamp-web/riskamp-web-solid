@@ -23,13 +23,6 @@
     left: .5em;
   }
 
-  /*
-  &:not(:focus-within):after {
-    content: attr(data-placeholder);
-    opacity: .5;
-  }
-  */
-
 }
 
 .container {
