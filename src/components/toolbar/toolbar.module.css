@@ -161,6 +161,12 @@ label.tab {
   gap: 1em;
 }
 
+.menu-message {
+  max-width: 260px;
+  padding: .75em;
+  opacity: .65;
+}
+
 button.menu-item, a.menu-item {
 
   will-change: transform; /* prevents subpixel shift on color change */

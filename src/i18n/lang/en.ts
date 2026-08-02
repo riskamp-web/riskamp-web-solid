@@ -128,6 +128,8 @@ export default {
   'toolbar.button.insert.comment': 'Comment',
   'toolbar.button.insert.table': 'Table',
 
+  'toolbar.message.changes-stored-in-browser': 'Changes are kept in browser storage until you save or revert them.',
+
   'sidebar.navigation.label.back': 'Back',
   'sidebar.navigation.label.forward': 'Forward',
   'sidebar.label.close-sidebar': 'Close sidebar',

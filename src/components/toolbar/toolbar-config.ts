@@ -15,19 +15,32 @@ export function menuitems(...commands: (ToolbarCommandKey|'separator')[]): Toolb
 
 export const toolbar_config: ToolbarConfig = {
 
-  status_menu_signed_in: menuitems(
-    'revert',
-    'separator',
-    'save',
-    'save-as',
-  ),
+  status_menu_signed_in: [
+    {
+      type: 'message',
+      text: 'toolbar.message.changes-stored-in-browser',
+    },
+      ...(menuitems(
+      'separator',
+      'revert',
+      'separator',
+      'save',
+      'save-as',
+    )||[])],
 
-  status_menu_signed_out: menuitems(
-    'revert',
-    'separator',
-    'sign-in',
-    'create-account',
-  ),
+  status_menu_signed_out: [
+    {
+      type: 'message',
+      text: 'toolbar.message.changes-stored-in-browser',
+    },
+
+      ...(menuitems(
+      'separator',
+      'revert',
+      'separator',
+      'sign-in',
+      'create-account',
+    )||[])],
 
   menus: [
     {

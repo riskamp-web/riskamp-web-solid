@@ -111,13 +111,22 @@ export type ToolbarMenu = {
   items?: ((ToolbarCommand) | 'separator')[];
 };
 
+export type ToolbarMessage = {
+  type: 'message',
+  text: keyof I18N;
+}
+
+export function IsToolbarMessage(candidate: ToolbarCommand|ToolbarMessage|'separator'): candidate is ToolbarMessage {
+  return (typeof candidate === 'object' && candidate && (candidate as ToolbarMessage).type === 'message');
+}
+
 export type ToolbarConfig = { 
   tabs: Tab[],
   trailer?: ButtonControl[],
   menus?: ToolbarMenu[];
 
-  status_menu_signed_in?: ToolbarMenu['items'];
-  status_menu_signed_out?: ToolbarMenu['items'];
+  status_menu_signed_in?: (ToolbarCommand | ToolbarMessage | 'separator')[];
+  status_menu_signed_out?: (ToolbarCommand | ToolbarMessage | 'separator')[];
 };
 
 export function WrapCommand(key: ToolbarCommandKey): ToolbarCommand {

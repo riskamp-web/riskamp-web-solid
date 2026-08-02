@@ -10,7 +10,8 @@ import '~/components/tabs.css';
 
 import { toolbar_config as base_toolbar_config } from './toolbar-config';
 import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, 
-    CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl, SteppedGroup } from './toolbar-utils';
+    CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl, SteppedGroup, 
+    IsToolbarMessage} from './toolbar-utils';
 import { ListCommand, ToolbarCommand } from './toolbar-commands';
 import { session, loggedIn } from '~/lib/auth';
 
@@ -119,6 +120,8 @@ export function Toolbar(props: ParentProps<Props>) {
    * FIXME: tune the threshold...
    */
   const useDialogCommandPalette = createMemo(() => width() < 1200);
+
+  const hideThemeSwitcher = createMemo(() => width() < 1300);
 
   // const [commandPaletteDialogOpen, setCommandPaletteDialogOpen] = createSignal(false);
 
@@ -492,7 +495,11 @@ export function Toolbar(props: ParentProps<Props>) {
                 <menu>
                   <For each={status_menu() || []}>
                     {item => <li>
-                      {item === 'separator' ? <hr/> :
+                      {item === 'separator' ? <hr/> : IsToolbarMessage(item) ? <div classList={{
+                          [style['menu-message']]: true, 
+                         }}>
+                        {t(item.text)}</div>
+                      :
                         <button class={style['menu-item']} onclick={event => HandleMenuItem(event, item)}>
                           <Switch>
                             <Match when={item.menuicon && item.icon}>
@@ -544,10 +551,16 @@ export function Toolbar(props: ParentProps<Props>) {
           </Switch>
         </div>
 
-        <div class={style.separator}></div>
+        {/* FIXME: dynamic showing/hiding should be done with CSS */}
+
+        <div class={
+            hideThemeSwitcher() ? style['hidden-element'] : style.separator
+          }></div>
 
         <div class={style['theme-toggle']}>
-          <ThemeSelector sheet={props.sheet} />
+          <Show when={!hideThemeSwitcher()}>
+            <ThemeSelector sheet={props.sheet} />
+          </Show>
         </div>
 
         {/* 
