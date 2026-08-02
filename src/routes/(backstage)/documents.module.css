@@ -245,7 +245,7 @@
   }
 
   &.starred {
-    color: var(--bs-star);
+    color: var(--warning);
 
     & svg path {
       fill: currentColor;

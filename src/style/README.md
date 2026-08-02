@@ -48,7 +48,7 @@ Read the canonical token rather than restating its value:
 - metrics — `--control-height` / `-sm`, `--icon-button-size`, `--control-radius`,
   `--surface-radius`, `--radius-pill`, `--transition-fast`
 - type — `--base-font-size` (13px, the floor), `--prose-font-size`, `--heading-font-size`
-- status — `--danger`
+- status — `--danger` (error), `--warning` (caution: important, not critical)
 
 **Deliberately exempt from the one-accent rule:** `--chart-series-*`, `--sidebar-fit-*` and
 `--dialog-syntax-*` are data encodings, not chrome. Don't pull them toward the accent.

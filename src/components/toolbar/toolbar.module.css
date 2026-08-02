@@ -384,13 +384,30 @@ menu.text.overflow {
   composes: pill from '../../style/shared.module.css';
   
   height: 22px;
-  background: darkgoldenrod;
-  color: #fff;
+
+  /* derived from --warning rather than respelling it -- see .form-error in backstage.
+     light-dark() still wraps the pair because the two themes want different alphas;
+     inside each arm --warning has already resolved. relative syntax, not color-mix(),
+     which doesn't render reliably in the Safari we target. these sit a touch above
+     .form-error's .07/.12 because the pill lands on the toolbar's grey chrome
+     (--toolbar-bar-background) rather than on white. */
+  background: light-dark(rgb(from var(--warning) r g b / .10),
+                         rgb(from var(--warning) r g b / .16));
+  border: 1px solid var(--warning);
+  color: var(--text);
+
+  /* visibility joins opacity so the hidden pill leaves the a11y tree and can't take a
+     pointer or focus. transitioning it preserves the fade in BOTH directions: per spec
+     visibility interpolates discretely but any intermediate resolves to `visible` when
+     either endpoint is visible, so the fade-out plays in full and the flip to hidden
+     lands at the end. no delay hack needed. */
   opacity: 0;
-  transition: opacity .2s ease;
+  visibility: hidden;
+  transition: opacity .2s ease, visibility .2s ease;
 
   &.status_pill_visible {
     opacity: 1;
+    visibility: visible;
   }
 
   /** testing leading dot/bullet */

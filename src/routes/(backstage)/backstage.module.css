@@ -15,8 +15,7 @@
  * So a --bs-* name now means exactly one of two things, and nothing else:
  *
  *   1. a value backstage owns, because the rest of the app has no equivalent --
- *      --bs-raised, --bs-star, --bs-strong, --bs-row-height, --bs-inset,
- *      --bs-label-size.
+ *      --bs-raised, --bs-strong, --bs-row-height, --bs-inset, --bs-label-size.
  *   2. an override point: a token that is deliberately re-declared further down
  *      this file, so a container can change it for everything inside it --
  *      --bs-control-height (dense list chrome), --bs-rail-width and
@@ -40,14 +39,14 @@
      one of these that is a colour the app has no name for. */
   --bs-raised: light-dark(#ffffff, #2e3136);
 
-  /* a starred row, and the strong end of the password meter. --bs-danger was here
-     too and is now --danger in app.css, which the AI chat also needs.
+  /* the strong end of the password meter. --bs-danger was here too and is now
+     --danger in app.css, which the AI chat also needs; --bs-star went the same way
+     and is now --warning, which the toolbar's unsaved-changes pill needs.
 
-     --bs-strong needs a third colour that --danger and --bs-star can't supply.
+     --bs-strong needs a third colour that --danger and --warning can't supply.
      The only green in app.css is --dialog-syntax-string-color, a syntax colour
      rather than a semantic one, whose dark value leans teal -- and teal was
      rejected as an accent, so aliasing it would smuggle that back in. */
-  --bs-star: light-dark(#c27803, #fbbf24);
   --bs-strong: light-dark(#1a7f37, #3fb950);
 
   --bs-row-height: 38px;
@@ -688,7 +687,7 @@
   }
 
   &.fair {
-    background: var(--bs-star);
+    background: var(--warning);
   }
 
   &.good,

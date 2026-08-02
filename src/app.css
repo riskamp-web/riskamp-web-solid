@@ -65,6 +65,14 @@
      this now, so there is still one value. */
   --danger: light-dark(#b3261e, #f4796f);
 
+  /* the second semantic status color. same story as --danger above: the value lived only
+     in backstage as --bs-star, and the toolbar's unsaved-changes pill asks for a caution
+     treatment from outside backstage, where a .page-scoped token can't reach. it reads as
+     caution rather than error deliberately -- unsaved work is persisted to the browser, so
+     it's important without being critical. the --bs-star name is gone and its two sites
+     read this, so there is still one value. */
+  --warning: light-dark(#c27803, #fbbf24);
+
   /* translucent hover washes for controls that sit on a transparent background.
      distinct from --toolbar-control-hover-background, which is an opaque grey the
      toolbar's own icon buttons use. */

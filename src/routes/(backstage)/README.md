@@ -35,10 +35,10 @@ plain aliases of `src/app.css` are gone, and the rules read `--text`, `--border-
 (the AI chat needs an error colour and a `.page`-scoped token can't reach it) and
 `--surface` (one value that had four names across the product).
 
-Nine `--bs-*` survive, and each is now one of exactly two things:
+Eight `--bs-*` survive, and each is now one of exactly two things:
 
 - **a value backstage owns**, because the app has no equivalent — `--bs-raised`,
-  `--bs-star`, `--bs-strong`, `--bs-row-height`, `--bs-inset`, `--bs-label-size`
+  `--bs-strong`, `--bs-row-height`, `--bs-inset`, `--bs-label-size`
 - **an override point** — `--bs-control-height`, `--bs-rail-width`, `--bs-panel-width`.
   These read from `app.css` and *look* like aliases, but each is re-declared further down
   `backstage.module.css` (the dense list chrome, and the container queries at the bottom),
@@ -173,7 +173,7 @@ Settled with the user across several passes. The reasoning matters more than the
 - **Accent is the logo blue**, `light-dark(#0477be, #2a91d8)` — the same pair `app.css`
   already uses for `--dialog-border-color`. One accent, no second brand color.
 - **`--bs-strong` is the one added colour**, `light-dark(#1a7f37, #3fb950)`, and it exists for
-  the password meter's green end — `--danger` and `--bs-star` couldn't supply a third step.
+  the password meter's green end — `--danger` and `--warning` couldn't supply a third step.
   The only green in `app.css` is `--dialog-syntax-string-color`, a syntax colour rather than a
   semantic one whose dark value leans teal, and teal was rejected as an accent, so aliasing it
   would smuggle that back in. **The confirmation ticks stay `--accent`**: a green tick is
@@ -465,7 +465,7 @@ create-account never asks for one, so both flows end here.
   lets the bar run into the input's bottom border, so they read as one object — but the meter
   still has to sit closer to its field than the fields sit to each other, or it floats between
   two of them and stops being obviously *about* the password.
-- **Four levels, four widths, three colours** — weak `--danger`, fair `--bs-star`, good and
+- **Four levels, four widths, three colours** — weak `--danger`, fair `--warning`, good and
   strong the new `--bs-strong`. The width does the work the third colour doesn't, which also
   means the meter still reads for anyone who can't separate the red from the green.
 - **The meter yields when a message about the field is showing.** The interesting case is the
@@ -1079,7 +1079,7 @@ The meter is worth walking properly, since arithmetic is all it has: `abcdefgh` 
 `password1` Fair (**not** Strong), `aaaaaaaaaa` and `abababababab` Weak despite their length,
 `Aa1!Aa1!Aa1!Aa1!` Fair despite four classes, `Tr0ub4dor&3` Good, and a real passphrase Strong.
 Under 8 characters shows the label and an empty bar but no verdict. Both themes — the three
-colours should resolve to `--danger`, `--bs-star` and `--bs-strong` exactly, and **the empty
+colours should resolve to `--danger`, `--warning` and `--bs-strong` exactly, and **the empty
 track has to be 4px and visible**, since a collapsed one is indistinguishable from an unfilled
 one. The card's height must not change between an empty password and a rated one.
 
