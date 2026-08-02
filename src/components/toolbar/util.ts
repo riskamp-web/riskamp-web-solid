@@ -1,7 +1,7 @@
 
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 import { toolbar_config } from './toolbar-config';
-import { ColorButtonControl, Control } from './toolbar-utils';
+import { ColorButtonControl, Control, IsToolbarMessage } from './toolbar-utils';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { t } from '~/i18n/i18n';
 import { ResolveThemeColor } from '@trebco/treb/treb-base-types';
@@ -203,6 +203,54 @@ function ListNumberFormats(sheet: SpreadsheetType) {
 
   return list;
   
+}
+
+let menu_command_list: ToolbarCommand[]|undefined;
+
+/**
+ * update menu commands that reflect save state. for this to work the 
+ * command has to have a state key, and it has to have an initial boolean
+ * value for the `enabled` field. otherwise we'll ignore it.
+ * 
+ * @param sheet 
+ * @param config 
+ * @param dirty 
+ * @param path 
+ * @param version 
+ */
+export function UpdateSaveState(sheet: SpreadsheetType, config: typeof toolbar_config, dirty: boolean, path: boolean, version: boolean) {
+
+  if (!menu_command_list) {
+    menu_command_list = [];
+    for (const menu of config.menus || []) {
+      for (const item of menu.items || []) {
+        if (item === 'separator') {
+          continue;
+        }
+        if (item.state_key && !menu_command_list.includes(item) && typeof item.enabled === 'boolean') {
+          menu_command_list.push(item);
+        }
+      }
+    }
+    for (const item of [...(config.status_menu_signed_in || []), ...(config.status_menu_signed_out || []), ]) {
+      if (item === 'separator' || IsToolbarMessage(item)) {
+        continue;
+      }
+      if (item.state_key && !menu_command_list.includes(item) && typeof item.enabled === 'boolean') {
+        menu_command_list.push(item);
+      }
+    }
+  }
+
+  for (const command of menu_command_list) {
+    if (command.state_key === 'revert') {
+      command.enabled = dirty && path;
+    }
+    else if (command.state_key === 'dirty') {
+      command.enabled = dirty;
+    }
+  }
+
 }
 
 export function UpdateState(sheet: SpreadsheetType, config: typeof toolbar_config) {

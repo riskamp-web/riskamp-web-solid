@@ -12,7 +12,7 @@ import { toolbar_config as base_toolbar_config } from './toolbar-config';
 import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, 
     CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl, SteppedGroup, 
     IsToolbarMessage} from './toolbar-utils';
-import { ListCommand, ToolbarCommand } from './toolbar-commands';
+import { ListCommand, ToolbarCommand, ToolbarCommandMap } from './toolbar-commands';
 import { session, loggedIn } from '~/lib/auth';
 
 import { createMutable, produce } from 'solid-js/store';
@@ -20,11 +20,11 @@ import { icons } from '~/components/icon-sets';
 import { MenuButton } from '../menu-button/menu-button';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
-import { ResolveColors, UpdateState } from './util';
+import { ResolveColors, UpdateSaveState, UpdateState } from './util';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { ColorButton } from './toolbar-color-picker';
 import { CompositeMenu } from './composite-menu';
-import { A } from '@solidjs/router';
+import { A, useSearchParams } from '@solidjs/router';
 import { CommandPalette } from '../command-palette/command-palette';
 import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
 import { CommandPaletteDialog } from '../dialogs/command-palette-dialog/command-palette-dialog';
@@ -38,6 +38,7 @@ interface Props {
   oncommand: (command: ToolbarCommand) => void|Promise<void>;
   sidebar: () => string|undefined;
   sheet: () => SpreadsheetType|undefined;
+  document_path: string|undefined;
 };
 
 const tab_group_name = crypto.randomUUID();
@@ -108,6 +109,14 @@ export function Toolbar(props: ParentProps<Props>) {
 
   const status_menu = createMemo(() => loggedIn() ? toolbar_config.status_menu_signed_in : toolbar_config.status_menu_signed_out);
 
+
+  createEffect(() => {
+    const sheet = props.sheet();
+    if (sheet) {
+      UpdateSaveState(sheet, toolbar_config, spreadsheet_dirty(), !!props.document_path, false);
+    }
+  });
+  
   function GetInitialWidth() {
     return window.innerWidth;
   }
@@ -408,7 +417,7 @@ export function Toolbar(props: ParentProps<Props>) {
                   <For each={menu.items || []}>
                     {item => <li>
                       {item === 'separator' ? <hr/> :
-                        <button class={style['menu-item']} onclick={event => HandleMenuItem(event, item)}>
+                        <button class={style['menu-item']} disabled={item.enabled === false} onclick={event => HandleMenuItem(event, item)}>
                           <Switch>
                             <Match when={item.menuicon && item.icon}>
                               <div class='display-contents' innerHTML={item.icon || ''} />
@@ -479,7 +488,6 @@ export function Toolbar(props: ParentProps<Props>) {
         </div>
 
         <div class={style['status-pill-container']}>
-
           <DropMenu disabled={!spreadsheet_dirty()} label={
             <div classList={{[shared.pill]: true, [style['status-pill']]: true, [style.status_pill_visible]: spreadsheet_dirty()}}>
               <div class="flex-row gap-0_5">
@@ -500,7 +508,7 @@ export function Toolbar(props: ParentProps<Props>) {
                          }}>
                         {t(item.text)}</div>
                       :
-                        <button class={style['menu-item']} onclick={event => HandleMenuItem(event, item)}>
+                        <button class={style['menu-item']} disabled={item.enabled === false} onclick={event => HandleMenuItem(event, item)}>
                           <Switch>
                             <Match when={item.menuicon && item.icon}>
                               <div class='display-contents' innerHTML={item.icon || ''} />

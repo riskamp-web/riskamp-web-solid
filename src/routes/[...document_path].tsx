@@ -477,7 +477,10 @@ export default function Page() {
       <Title>{pageTitle()}</Title>
 
       <div>
-        <Toolbar oncommand={HandleCommand} sidebar={active_sidebar} sheet={getSheet}/>
+        <Toolbar oncommand={HandleCommand} 
+                 document_path={params.document_path}
+                 sidebar={active_sidebar} 
+                 sheet={getSheet}/>
       </div>
 
       <div>

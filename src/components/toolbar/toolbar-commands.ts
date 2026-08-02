@@ -13,6 +13,9 @@ export interface BaseToolbarCommand {
   value?: string|boolean;
   state_key?: string;
 
+  /** new, for enable/disable menu command */
+  enabled?: boolean;
+
   /** show icon in menus, should be used sparingly */
   menuicon?: boolean;
   additional_data?: unknown; // yuck
@@ -108,11 +111,15 @@ export const ToolbarCommands: ToolbarCommand[] = [
     title: 'toolbar.button.revert-file',
     menuicon: true,
     icon: icons.revert_file,
+    enabled: false,
+    state_key: 'revert',
   },
 
 {
 		key: 'save',
     title: 'toolbar.button.save-file',
+    enabled: false,
+    state_key: 'dirty',
   },
 {
 		key: 'save-as',
