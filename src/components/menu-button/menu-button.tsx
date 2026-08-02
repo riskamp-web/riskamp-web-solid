@@ -7,6 +7,7 @@
 import { createContext, useContext } from "solid-js";
 import { ParentProps } from 'solid-js';
 import style from './menu-button.module.css';
+import shared from '../../style/shared.module.css';
 
 interface Props {
 
@@ -73,7 +74,7 @@ MenuButton.Static = (props: ParentProps<{class?: string}>) => {
   return <>
       <div class={style.composite}>
         <div class={style['static-content']}>{props.children}</div>
-        <button class={style['caret-button']} popovertarget={ctx?.popover_id}>
+        <button classList={{[shared['bare-button']]: true, [style['caret-button']]: true}} popovertarget={ctx?.popover_id}>
           <svg fill="currentColor" width="1em" height="1em"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
             <path d="M144 256L320 456L496 256L144 256z"/></svg>
         </button>
@@ -84,8 +85,8 @@ MenuButton.Static = (props: ParentProps<{class?: string}>) => {
 MenuButton.Menu = (props: ParentProps<{}>) => {
   const ctx = useContext(Context);
   return <>
-      <div class={style.menu} 
-           popover id={ctx?.popover_id} 
+      <div classList={{[shared['floating-menu']]: true, [style.menu]: true}}
+           popover id={ctx?.popover_id}
            data-anchor={`--${ctx?.container_id}`} 
            onbeforetoggle={ctx?.onbeforetoggle}
            ontoggle={ctx?.ontoggle}

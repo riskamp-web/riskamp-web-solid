@@ -1,41 +1,52 @@
 /**
- * recipes shared between CSS modules, pulled in with `composes`.
+ * recipes shared between CSS modules, applied as a second class at the element.
  *
  * WHY THIS FILE EXISTS
  *
  * CSS module class names are hashed per file, so writing `.icon` in
  * documents.module.css when it is declared in backstage.module.css silently
- * matches nothing -- that exact bug is recorded in the backstage README. Until
- * now the only way to share a rule between two modules was to copy it, and that
- * is what happened: the sidebar's button rule is a byte-copy of the toolbar's,
- * and drop-menu and menu-button differ by two padding values. `composes` is the
- * mechanism built for this: it appends the shared class to the element rather
- * than duplicating the declarations.
+ * matches nothing -- that exact bug is recorded in the backstage README. Without
+ * somewhere to put them, the only way to share a rule between two modules was to
+ * copy it, and that is what happened: the sidebar's button rule was a byte-copy
+ * of the toolbar's, and drop-menu and menu-button differed by two padding values.
  *
  * HOW TO USE IT
  *
- *   .my-button {
- *     composes: bare-button from '../../style/shared.module.css';
- *     padding: 0 8px;
- *   }
+ * Import this module alongside the component's own, and put both classes on the
+ * element. The recipe first, so it reads in cascade order:
  *
- * Use a RELATIVE path. The `~` alias is a Vite JS-resolver alias and is not
- * wired up for `composes`.
+ *   import style from './my-thing.module.css';
+ *   import shared from '../../style/shared.module.css';
  *
- * TWO LIMITS, both real:
+ *   <button classList={{[shared['bare-button']]: true, [style['my-button']]: true}}>
  *
- *  1. composes only works module -> module. The global stylesheets
- *     (controls.css, riskamp-dialog.css, grid-table.css) and global selectors
- *     like `.riskamp-dialog footer button` cannot use it. The split is:
+ * This used to be wired with `composes:` in the stylesheet instead. It was
+ * replaced because the mechanism was invisible from the markup and failed in
+ * ways that were hard to read: `composes` only works on a single local class
+ * selector, and a compound one made postcss reject the whole module with no
+ * symptom but a MIME-type error in the console. Nothing here is magic now -- the
+ * element has two classes because two classes were written on it.
+ *
+ * Use `classList`, not string interpolation: it skips keys that evaluate to
+ * `undefined`, so a typo'd recipe name adds nothing rather than putting the text
+ * "undefined" in the class attribute. And don't put `class` and `classList` on
+ * the same element -- on the client they are independent, and a dynamic `class`
+ * can clobber the toggles.
+ *
+ * TWO THINGS THAT STILL APPLY:
+ *
+ *  1. These are module classes, so global stylesheets (controls.css,
+ *     riskamp-dialog.css, grid-table.css) and global selectors like
+ *     `.riskamp-dialog footer button` still cannot reach them. The split is:
  *     controls.css owns form controls and buttons for the global/dialog
  *     surfaces; this file owns recipes shared between modules. The button recipe
  *     deliberately stays in controls.css.
  *
- *  2. composes does not raise specificity, and the cascade is decided by
+ *  2. A second class does not raise specificity, and the cascade is decided by
  *     stylesheet source order, not by the order of names in the class attribute.
- *     A consumer overriding a composed declaration only wins because this file
- *     is emitted before its importers. So keep these recipes to declarations a
- *     consumer is unlikely to need to fight.
+ *     A consumer overriding a recipe wins only because this file is emitted
+ *     before its importers. So keep these recipes to declarations a consumer is
+ *     unlikely to need to fight.
  *
  * WHAT BELONGS HERE: a rule at least three modules state identically, where the
  * shared part is the *whole* meaning of the rule. What does not: anything only
@@ -126,7 +137,7 @@
   height: 100dvh;
   background: transparent;
 
-  &.visible {
-    display: block;
-  }
+  /* visibility is deliberately NOT here. both consumers already own a `.visible`
+     of their own -- the dialog's also flips pointer-events -- and each is nested
+     under its parent, so it outranks anything this rule could say. */
 }

@@ -6,7 +6,6 @@
 }
 
 .caret-button {
-  composes: bare-button from '../../style/shared.module.css';
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -15,7 +14,6 @@
 }
 
 .menu {
-  composes: floating-menu from '../../style/shared.module.css';
 
   /* this menu's own density: inset, where drop-menu's is flush. */
   ul, menu {

@@ -5,6 +5,7 @@
 
 import { ParentProps, JSX, Switch, Match } from 'solid-js';
 import style from './drop-menu.module.css';
+import shared from '../../style/shared.module.css';
 
 export interface Props {
   label: string|JSX.Element;
@@ -44,7 +45,7 @@ export function DropMenu(props: ParentProps<Props>) {
       </Switch>
     </button>
 
-    <div class={style.menu} popover id={popover_id} data-anchor={`--${container_id}`} style={inline_style}>
+    <div classList={{[shared['floating-menu']]: true, [style.menu]: true}} popover id={popover_id} data-anchor={`--${container_id}`} style={inline_style}>
       {props.children}
     </div>
     

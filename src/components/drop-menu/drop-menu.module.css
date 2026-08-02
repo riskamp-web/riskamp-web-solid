@@ -21,7 +21,6 @@ button.disabled {
 }
 
 .menu {
-  composes: floating-menu from '../../style/shared.module.css';
 
   /* this menu's own density: flush, where menu-button's is inset. */
   ul, menu {

@@ -22,7 +22,6 @@
  * it shares its slot with the field's error message rather than sitting beside
  * it -- see the <Show> in the page. */
 .handle-preview {
-  composes: truncate from '../../style/shared.module.css';
   color: var(--text-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }

@@ -3,6 +3,7 @@ import { Accessor, Component, createSignal, mergeProps, onMount, ParentProps, Se
 
 // import using css modules, will scope
 import style from "./splitter.module.css";
+import shared from "../../style/shared.module.css";
 
 interface Props {
 
@@ -133,9 +134,10 @@ export const Splitter: Component<ParentProps<Props>> = (props) => {
           >
       </div>
       <div classList={{
+        [shared['mouse-mask']]: true,
         [style['mouse-mask']]: true,
         [style.visible]: dragging(),
-       }} 
+       }}
        onmouseup={EndDrag}
        onmousemove={MouseMove}
        ref={mouse_mask}></div>

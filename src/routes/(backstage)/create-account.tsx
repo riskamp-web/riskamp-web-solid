@@ -34,6 +34,7 @@ import { createAccountMock, type CreateAccountResult } from '~/backstage/create-
 
 import bs from './backstage.module.css';
 import style from './create-account.module.css';
+import shared from '../../style/shared.module.css';
 import { DevResetLink, Icon, splice } from './backstage-parts';
 
 export default function CreateAccount() {
@@ -238,7 +239,7 @@ export default function CreateAccount() {
             one slot also means the card doesn't jump as errors come and go. */}
         <Show
             when={usernameError()}
-            fallback={<div id='create-account-username-handle' class={style['handle-preview']}>{handle()}</div>}>
+            fallback={<div id='create-account-username-handle' classList={{[shared.truncate]: true, [style['handle-preview']]: true}}>{handle()}</div>}>
           <div id='create-account-username-error' class={bs['field-message']}>{messageText(usernameError())}</div>
         </Show>
       </div>

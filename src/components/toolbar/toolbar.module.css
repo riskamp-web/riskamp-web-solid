@@ -368,7 +368,6 @@ menu.text.overflow {
 }
 
 .plaintext-button {
-  composes: bare-button from '../../style/shared.module.css';
   padding: 0;
   margin: 0;
   display: inline-block;
@@ -381,7 +380,6 @@ menu.text.overflow {
 
 
 .status-pill {
-  composes: pill from '../../style/shared.module.css';
   
   height: 22px;
 

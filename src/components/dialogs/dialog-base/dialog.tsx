@@ -1,6 +1,7 @@
 
 import { createEffect, onMount, type Setter, ParentProps, children, JSX, Signal, Show, createSignal, type Accessor } from 'solid-js';
 import style from './dialog.module.css';
+import shared from '../../../style/shared.module.css';
 import { icons } from '~/components/icon-sets';
 import { OpenExternal } from '~/lib/navigate';
 
@@ -243,6 +244,7 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
         </div>
 
         <div classList={{
+            [shared['mouse-mask']]: true,
             [style['mouse-mask']]: true,
             [style.visible]: !!dragging(),
             [style.move]: dragging() === 'move',

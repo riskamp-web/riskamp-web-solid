@@ -235,7 +235,6 @@
    where it has to sit out of the way of the data. it is NOT a general heading --
    see .panel-heading below. */
 .section-label {
-  composes: micro-label from '../../style/shared.module.css';
   padding: 0 8px;
   margin-bottom: 4px;
   color: var(--text-muted);

@@ -55,21 +55,11 @@
 
   }
 
+  /* geometry comes from .mouse-mask in src/style/shared.module.css, applied
+     alongside this class on the element. only the cursor is local -- it says what
+     is being dragged, which is the one thing the two masks disagree on. */
   .mouse-mask {
 
-    display: none;
-
-    position: fixed;
-    z-index: 999;
-    top: 0px;
-    left: 0px;
-
-    width: 100vw;
-    height: 100vh;
-    width: 100dvw;
-    height: 100dvh;
-
-    background: transparent;
     cursor: ew-resize;
 
     &.visible {

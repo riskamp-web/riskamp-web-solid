@@ -26,7 +26,7 @@ it.** An audit that greps for class names will report every one of these as dead
 | `src/app.css` | **Every token, and every themeable colour in the product.** The only file allowed to hold a colour literal. |
 | `src/reset.css` | `box-sizing`, and font inheritance for form elements. Imported first. |
 | `src/style/controls.css` | The control recipe: `.input`, `.select`, `.control-button`, and `.riskamp-dialog footer button`. Global classes, because it has to reach global selectors. |
-| `src/style/shared.module.css` | Recipes shared **between CSS modules**, via `composes`. See below. |
+| `src/style/shared.module.css` | Recipes shared **between CSS modules**, applied as a second class at the element. See below. |
 | `src/style/utility.css` | Atomic helpers (`.flex-row`, `.ellipsis`, …). |
 | `src/style/grid-table.css` | The app's list surface. `documents.module.css` restates it locally **on purpose** while the backstage redesign is still moving. |
 | `src/style/riskamp-dialog.css` | Dialog chrome. Should eventually move under `src/components/dialogs/`. |
@@ -57,7 +57,7 @@ Read the canonical token rather than restating its value:
 collapsed, a `--bs-*` name means either a value backstage owns or an **override point**
 re-declared further down that file. Details in `src/routes/(backstage)/README.md`.
 
-## Three things that fail silently
+## Two things that fail silently
 
 **1. `light-dark()` can only wrap a `<color>`, never a whole `box-shadow`.**
 `--x: light-dark(1px 10px 18px rgba(…), 1px 10px 18px rgba(…))` is invalid, computes to
@@ -66,24 +66,41 @@ outside: `--menu-shadow: 1px 10px 18px 1px light-dark(rgba(…), rgba(…))`. Ve
 reading computed `boxShadow` (must not be `none`), not `getPropertyValue`, which returns the
 raw token text either way.
 
-**2. `composes` only works on a single local class selector.**
-`button.label { composes: … }` is a compound selector; postcss rejects it, the module stops
-transforming, and the only symptom is a **MIME-type error in the browser console** — the dev
-server serves HTML where the JS should be. This is the main limit on how far
-`shared.module.css` reaches: a rule keyed off `.dialog-buttons > button` or
-`.copy-header button` cannot compose without restructuring its selector, which would change
-specificity. Those keep their local copies.
-
-Other `composes` notes: use a **relative** path (`../../style/shared.module.css`) — the `~`
-alias is a JS-resolver alias and isn't wired for it. And `composes` does **not** raise
-specificity; the cascade follows stylesheet source order. Vite emits `shared.module.css`
-before its importers, which is what lets a consumer override a composed declaration.
-
-**3. CSS module class names are hashed per file.**
+**2. CSS module class names are hashed per file.**
 Writing `.icon` in `documents.module.css` when it's declared in `backstage.module.css`
-matches nothing, silently, and `tsc` can't see it. `composes` is the sanctioned way across
-that boundary when the rule is genuinely shared; otherwise give the second file its own
-class.
+matches nothing, silently, and `tsc` can't see it. For a rule that is genuinely shared, put
+it in `shared.module.css` and apply both classes at the element (see below); otherwise give
+the second file its own class.
+
+## Shared recipes
+
+`shared.module.css` holds rules more than one module states identically — `bare-button`,
+`floating-menu`, `truncate`, `micro-label`, `pill`, `mouse-mask`. A consumer imports it
+alongside its own module and puts **both classes on the element**, recipe first:
+
+```tsx
+import style from './my-thing.module.css';
+import shared from '../../style/shared.module.css';
+
+<button classList={{[shared['bare-button']]: true, [style['my-button']]: true}}>
+```
+
+Use `classList`, not string interpolation. It skips keys that evaluate to `undefined`, so a
+typo'd recipe name adds nothing instead of writing the text `undefined` into the attribute;
+it skips empty-string keys, so a forwarded `props.class || ''` is safe. **Don't put `class`
+and `classList` on the same element** — on the client they're independent operations, and a
+dynamic `class` can clobber the toggles.
+
+This replaced `composes:`, which did the same joining inside the stylesheet. It was dropped
+because the relationship was invisible from the markup and it failed badly: `composes` only
+worked on a single local class selector, and a compound one made postcss reject the entire
+module, with no symptom but a MIME-type error in the console.
+
+Two things carry over. A second class does **not** raise specificity — the cascade follows
+stylesheet source order, and a consumer overrides a recipe only because `shared.module.css`
+is emitted before its importers. And a recipe applied at N call sites has to be remembered at
+all N; where that count is high, write the declarations out locally instead. `.cell` in
+`documents.module.css` is the standing example, at fifteen sites.
 
 ## Also worth knowing
 

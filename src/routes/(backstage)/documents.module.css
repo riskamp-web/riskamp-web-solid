@@ -31,7 +31,6 @@
 }
 
 .table-header {
-  composes: micro-label from '../../style/shared.module.css';
   grid-row: header;
   grid-column: 1 / -1;
   display: grid;
@@ -83,8 +82,16 @@
 /* cells                                                               */
 /* ------------------------------------------------------------------ */
 
+/* the truncate recipe is written out here rather than pulled from
+   shared.module.css: .cell is applied at fifteen call sites in documents.tsx, and
+   under the explicit-class pattern every one of them would have to remember to add
+   it -- forgetting is silent, it just stops eliding. three declarations duplicated
+   is the cheaper side of that trade. */
 .cell {
-  composes: truncate from '../../style/shared.module.css';
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
   min-width: 0;
   padding: 0 8px;
 }
@@ -123,7 +130,6 @@
    on the same left edge as a plain folder path in the rows above and below it.
    without it the column reads as two ragged columns. */
 .owner-tag {
-  composes: pill from '../../style/shared.module.css';
   height: 22px;
   margin: 0 -8px;
   background: var(--hover);
@@ -178,7 +184,6 @@
 /* padding comes from .pill: this was 9px against .owner-tag's 8px, which was a
    difference with no decision behind it. */
 .access-pill {
-  composes: pill from '../../style/shared.module.css';
   height: 22px;
   border: 1px solid transparent;
 }
@@ -271,7 +276,6 @@
 /* ------------------------------------------------------------------ */
 
 .sort-button {
-  composes: bare-button from '../../style/shared.module.css';
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -399,7 +403,6 @@
 }
 
 .panel-uri {
-  composes: truncate from '../../style/shared.module.css';
   min-width: 0;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
@@ -497,7 +500,6 @@
 /* inline in the failure note, so the retry sits with the sentence explaining
    why it's there rather than as a separate control */
 .version-retry {
-  composes: bare-button from '../../style/shared.module.css';
   padding: 0;
   /* jsx collapses the newline between the sentence and this button, so the gap
      has to come from here rather than the markup */

@@ -779,11 +779,12 @@ component:
   `& > :is(svg, .icon)`, which covers both the wrapper and the local components. Watch the
   module boundary here: `.icon` is declared in `backstage.module.css`, so writing `.icon` in
   `documents.module.css` silently matches nothing — that's why the sort caret carries its own
-  local `.sort-caret` class. There is now a sanctioned way across that boundary when the rule
-  is genuinely shared: `composes: <name> from '../../style/shared.module.css'` — see
-  `src/style/shared.module.css`, which `.table-header`, `.cell`, `.owner-tag`, `.access-pill`,
-  `.sort-button` and `.section-label` already use. It only works on a single local class
-  selector, so it is not a general escape hatch.
+  local `.sort-caret` class. There is a sanctioned way across that boundary when the rule is
+  genuinely shared: put it in `src/style/shared.module.css` and apply both classes at the
+  element — `classList={{[shared.pill]: true, [style['access-pill']]: true}}`. `.table-header`,
+  `.owner-tag`, `.access-pill`, `.sort-button` and `.section-label` all do this. `.cell` is the
+  deliberate exception: it needs `truncate` at fifteen call sites, so it writes those three
+  declarations out locally rather than asking every site to remember the recipe.
 - **The star's filled state is CSS**, not a prop: the set's star is an outline, and
   `.starred svg path { fill: currentColor }` beats the `fill="none"` attribute on the path.
 - **What's still local**, in `backstage-icons.tsx`: `Globe` and `Sheet` (plus `Eye`/`EyeOff`

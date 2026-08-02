@@ -1,6 +1,7 @@
 
 import { ParentProps, Switch, Match, For, Show, onCleanup, createEffect, on, createSignal, createMemo } from 'solid-js';
 import style from './toolbar.module.css';
+import shared from '../../style/shared.module.css';
 import { Logo } from '../logo';
 import { DropMenu } from '~/components/drop-menu/drop-menu';
 import { t } from '~/i18n/i18n';
@@ -477,7 +478,7 @@ export function Toolbar(props: ParentProps<Props>) {
         <div class={style['status-pill-container']}>
 
           <DropMenu disabled={!spreadsheet_dirty()} label={
-            <div classList={{[style['status-pill']]: true, [style.status_pill_visible]: spreadsheet_dirty()}}>
+            <div classList={{[shared.pill]: true, [style['status-pill']]: true, [style.status_pill_visible]: spreadsheet_dirty()}}>
               <div class="flex-row gap-0_5">
                 <span>  
                   {t('status-pill.messages.unsaved-changes')}

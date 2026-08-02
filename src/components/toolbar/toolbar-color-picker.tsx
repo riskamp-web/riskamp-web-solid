@@ -1,6 +1,7 @@
 
 import { For, Show, createSignal } from 'solid-js';
 import style from './toolbar.module.css';
+import shared from '../../style/shared.module.css';
 import { t } from '~/i18n/i18n';
 
 import '~/components/tabs.css';
@@ -185,7 +186,7 @@ export function ColorButton(props: {
                               props.control.command.active_color = undefined;
                               props.HandleCommand(e, props.control.command);
                             }} 
-                            class={style['plaintext-button']}>{t(props.control.command.default_color_text)}</button>
+                            classList={{[shared['bare-button']]: true, [style['plaintext-button']]: true}}>{t(props.control.command.default_color_text)}</button>
                   </div>
                 </div>
               </Show>
@@ -213,7 +214,7 @@ export function ColorButton(props: {
                     <input type="color"
                            ref={native_color_chooser} 
                            onchange={e => setNewColorSelected(e.currentTarget.value)} />
-                    <button class={style['plaintext-button']}
+                    <button classList={{[shared['bare-button']]: true, [style['plaintext-button']]: true}}
                             onclick={() => native_color_chooser?.click()}>{t('color-picker.choose_color')}</button>
                     <div class="flex-grow"></div>
                     <button disabled={!newColorSelected()}

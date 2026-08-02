@@ -24,6 +24,7 @@ import { IconName, icons } from '~/components/icon-sets';
 
 import bs from './backstage.module.css';
 import style from './documents.module.css';
+import shared from '../../style/shared.module.css';
 
 /* the app set has no public/private pair and no plain document glyph, so those
    two stay local for now; everything else on this page comes from ~/components/
@@ -419,6 +420,7 @@ export default function Documents() {
       <button
           type='button'
           classList={{
+            [shared['bare-button']]: true,
             [style['sort-button']]: true,
             [style.sorted]: sortKey() === props.column,
             [style.ascending]: sortKey() === props.column && sortDirection() === 'asc',
@@ -475,7 +477,7 @@ export default function Documents() {
       </div>
 
       <div class={bs['rail-section']}>
-        <div class={bs['section-label']}>{t('documents-page.rail.folders')}</div>
+        <div classList={{[shared['micro-label']]: true, [bs['section-label']]: true}}>{t('documents-page.rail.folders')}</div>
         <Show when={folders().length} fallback={
           <div class={bs['rail-item']} style='cursor: default'>
             <span class={bs['rail-label']}>{t('documents-page.rail.no-folders')}</span>
@@ -575,7 +577,7 @@ export default function Documents() {
       <div classList={{ [style.table]: true, [style.selecting]: !!checkedCount() }} role='table'
           aria-label={t('documents-page.table.label')}>
 
-        <div class={style['table-header']} role='row'>
+        <div classList={{[shared['micro-label']]: true, [style['table-header']]: true}} role='row'>
           <div class={`${style.cell} ${style['cell-center']}`} role='columnheader'>
             <input
                 type='checkbox'
@@ -714,7 +716,7 @@ export default function Documents() {
 
                   <div class={`${style.cell} ${style['cell-path']}`} role='cell'>
                     <Show when={folderOf(doc.path)} fallback={
-                      <span class={style['owner-tag']}>{ownerOf(doc.path)}</span>
+                      <span classList={{[shared.pill]: true, [style['owner-tag']]: true}}>{ownerOf(doc.path)}</span>
                     }>
                       {folderOf(doc.path)}
                     </Show>
@@ -723,10 +725,10 @@ export default function Documents() {
                   <div class={`${style.cell} ${style['cell-access']}`} role='cell'>
                     <Show
                         when={doc.access === ACCESS_PUBLIC}
-                        fallback={<span class={`${style['access-pill']} ${style['access-private']}`}>
+                        fallback={<span classList={{[shared.pill]: true, [style['access-pill']]: true, [style['access-private']]: true}}>
                           {t('documents-page.access.private')}
                         </span>}>
-                      <span class={`${style['access-pill']} ${style['access-public']}`}>
+                      <span classList={{[shared.pill]: true, [style['access-pill']]: true, [style['access-public']]: true}}>
                         {t('documents-page.access.public')}
                       </span>
                     </Show>
@@ -793,7 +795,7 @@ export default function Documents() {
               </div>
 
               <div class={style['panel-path']}>
-                <span class={style['panel-uri']}>{documentUrl(doc())}</span>
+                <span classList={{[shared.truncate]: true, [style['panel-uri']]: true}}>{documentUrl(doc())}</span>
                 <button
                     type='button'
                     class={`${bs['icon-button']} ${style['copy-link']}`}
@@ -904,7 +906,7 @@ export default function Documents() {
                     {t('documents-page.history.error')}
                     <button
                         type='button'
-                        class={style['version-retry']}
+                        classList={{[shared['bare-button']]: true, [style['version-retry']]: true}}
                         onclick={() => retryHistory(doc().path)}>
                       {t('documents-page.history.retry')}
                     </button>
