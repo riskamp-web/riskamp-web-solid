@@ -94,6 +94,16 @@ export const ToolbarCommands: ToolbarCommand[] = [
   },
 
 {
+		key: 'sign-in',
+    title: 'toolbar.button.sign-in',
+  },
+
+{
+		key: 'create-account',
+    title: 'toolbar.button.create-account',
+  },
+
+{
 		key: 'revert',
     title: 'toolbar.button.revert-file',
     menuicon: true,
@@ -103,6 +113,10 @@ export const ToolbarCommands: ToolbarCommand[] = [
 {
 		key: 'save',
     title: 'toolbar.button.save-file',
+  },
+{
+		key: 'save-as',
+    title: 'toolbar.button.save-file-as',
   },
 
 {

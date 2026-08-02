@@ -3,6 +3,7 @@ import { createEffect } from 'solid-js';
 import { type Model } from 'treb-llm-support';
 import type { DocumentsRow } from '~/docs/documents';
 import type { DocumentScope, SortDirection, SortKey } from '~/backstage/documents-data';
+import { I18N } from '~/i18n/i18n';
 
 /**
  * FIXME: we should change how this works, make it deeper 
@@ -28,6 +29,20 @@ interface SessionData {
     filter?: string;
   }
   */
+
+  /** 
+   * this is the last version of the document loaded from storage (or 0 in
+   * the case of drag-and-drop or imported documents). it's used to determine
+   * when versions in the browser cache have unsaved changes. it requires some
+   * management.
+   */
+  last_saved_version: number;
+  
+  /**
+   * this is a mirror of the document state (version), maintained separately
+   * for convenience
+   */
+  document_version: number;
 
   selected_documents?: Record<number, boolean>;
 
@@ -105,6 +120,9 @@ export const [sessionData, setSessionData] = createStore<SessionData>({
     filter: '',
   },
 */
+
+  last_saved_version: 0,
+  document_version: 0,
 
   selected_documents: {},
 

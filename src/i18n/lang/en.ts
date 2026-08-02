@@ -37,10 +37,14 @@ export default {
   'toolbar.button.import-file': 'Import file',
   'toolbar.button.open-file': 'Open file',
   'toolbar.button.save-file': 'Save file',
+  'toolbar.button.save-file-as': 'Save as...',
   'toolbar.button.revert-file': 'Revert file',
   'toolbar.button.save-to-desktop': 'Save to desktop',
   'toolbar.button.export-xlsx': 'Export XLSX',
   'toolbar.button.export-csv': 'Export CSV',
+
+  'toolbar.button.sign-in': 'Sign in',
+  'toolbar.button.create-account': 'Create account',
 
   'toolbar.button.search-cells.label': 'Search cells',
   'toolbar.button.defined-names.label': 'Defined names',
@@ -961,6 +965,11 @@ export default {
 
   'update-password-page.link.sign-in': 'Sign in',
   'update-password-page.link.forgot-password': 'Send a new link',
+
+  ///
+
+  'status-pill.messages.unsaved-changes': 'Unsaved changes',
+
 
 };
 

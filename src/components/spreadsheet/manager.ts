@@ -3,8 +3,12 @@ import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { goto } from '~/lib/navigate';
 import { spinner } from '~/components/spinner/spinner-control';
 
-import * as cache from '~/docs/local-cache';
+// import * as cache from '~/docs/local-cache';
 import * as documents2 from '~/docs/documents2';
+import { sessionData, setSessionData } from '~/lib/app-data';
+
+import { CacheFactory } from '~/docs/local-cache';
+import type { LoadSource, MCTREBDocument } from 'riskamp-web';
 
 /** check if the path is valid for load/save operations */
 export function IsValidPath(path = '') {
@@ -17,21 +21,29 @@ export function CacheCUrrentState(sheet?: SpreadsheetType, document_path = '', v
 
   if (sheet && IsValidPath(document_path)) {
 
-    console.info("Calling cache set", {path: document_path, version});
+    console.info("Calling cache set", {path: document_path, version}, 'cv', sessionData.last_saved_version);
 
-    cache.Set(document_path, typeof version === 'string' ? version : undefined, {
-      data: sheet.SerializeDocument({
-        preserve_simulation_data: true,
-      }),
-      cached: new Date().getTime(),
-      // canonical_version: version || 0,
-      // historical_version,
+    // not sure why this function is not asymc, but matching
+    // the old implementation...
+
+    CacheFactory.Instance().then(cache => {
+      cache.Set(document_path, typeof version === 'string' ? version : undefined, {
+        data: sheet.SerializeDocument({
+          preserve_simulation_data: true,
+        }),
+        cached: new Date().getTime(),
+        canonical_version: sessionData.last_saved_version || 0,
+      });
     });
+
+    setSessionData('document_version', sheet.state || 0);
+
+
   }
 
 }
 
-export async function RevertDocument(sheet?: SpreadsheetType, path = '') {
+export async function RevertDocument(sheet?: SpreadsheetType, path = '', version: string|string[]|undefined = undefined) {
 
   // we should only be called if there's a path, but we might as well check
   if (path) {
@@ -39,8 +51,10 @@ export async function RevertDocument(sheet?: SpreadsheetType, path = '') {
     // window.dispatchEvent(new CustomEvent('show-spinner'));
     spinner.show();
 
+    const cache = await CacheFactory.Instance();
+
     // flush local cache
-    await cache.Delete(path);
+    await cache.Delete(path, typeof version === 'string' ? version : undefined);
 
     /*
     if (historical_version) {
@@ -56,16 +70,12 @@ export async function RevertDocument(sheet?: SpreadsheetType, path = '') {
     try {
       const data = await documents2.GetDocument(path, true, refresh_cache);
       sheet?.LoadDocument(data);
-      // network_version.set(path, sheet.state);
-      // canonical_version = sheet.state;
-      // historical_version = undefined;
-
-      // console.info("NVSx2", page_pathname, sheet.state);
     }
     catch (err) {
       // ? FIXME: what to do in this case
       console.error(err);
       goto('/');
+
     }
 
     // window.dispatchEvent(new CustomEvent('hide-spinner'));
@@ -111,27 +121,31 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
 
     spinner.show();
 
-    let data = await cache.Get(path, version);
+    const cache = await CacheFactory.Instance();
+    const data = await cache.Get(path, version);
     if (data?.data) {
 
       console.info("Returning from cache");
 
-      sheet.LoadDocument(data.data);
+      sheet.LoadDocument(data.data, { source: 'cache' as LoadSource });
+      setSessionData('last_saved_version', data.canonical_version || 0);
+
       spinner.hide();
       return true;
     }
 
     try {
 
-      console.info("dot dot dot");
+      let doc: MCTREBDocument;
 
       if (version) {
-        data = await documents2.GetDocumentVersion(path, version, true);
+        doc = await documents2.GetDocumentVersion(path, version, true);
       }
       else {
-        data = await documents2.GetDocument(path, true);
+        doc = await documents2.GetDocument(path, true);
       }
-      sheet.LoadDocument(data);
+      sheet.LoadDocument(doc);
+
       spinner.hide();
       return true;
     }
@@ -146,10 +160,13 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
   else {
     spinner.show();
 
+    const cache = await CacheFactory.Instance();
     const data = await cache.Get('', undefined);
     if (data?.data) {
       try {
-        sheet.LoadDocument(data.data);
+        console.info("Returning from cache (default document)");
+        sheet.LoadDocument(data.data, { source: 'cache' as LoadSource });
+        setSessionData('last_saved_version', data.canonical_version || 0);
       }
       catch (err) {
         console.error(err);

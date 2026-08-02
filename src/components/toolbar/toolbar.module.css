@@ -5,9 +5,12 @@
    special handling to make the command palette take up extra space.
    we could probably expand login instead, it doesn't matter. but this
    is fragile
+
+   FIXME: let's move to named areas, this is becoming unmanageable.
+
    */
 
-  grid-template-columns: repeat(6, auto) 1fr repeat(5, auto);
+  grid-template-columns: repeat(6, auto) 1fr repeat(6, auto);
 
   column-gap: 1em;
 
@@ -214,6 +217,12 @@ a.menu-item.disabled {
   overflow: hidden;
 }
 
+.status-pill-container {
+  grid-row: 1/2;
+
+}
+
+
 .login {
   grid-row: 1/2;
 }
@@ -368,5 +377,35 @@ menu.text.overflow {
 .composite-label {
   padding-left: .5em;
   padding-right: .5em;
+}
+
+
+.status-pill {
+  composes: pill from '../../style/shared.module.css';
+  
+  height: 22px;
+  background: darkgoldenrod;
+  color: #fff;
+  opacity: 0;
+  transition: opacity .2s ease;
+
+  &.status_pill_visible {
+    opacity: 1;
+  }
+
+  /** testing leading dot/bullet */
+
+  /*
+  &::before {
+    content: '';
+    width: .5em;
+    height: .5em;
+    background: currentColor;
+    border-radius: 100%;
+    display: inline-block;
+    margin-right: .5em;
+  }
+  */
+
 }
 

@@ -7,6 +7,73 @@
  * altogether.
  */
 
+import type { MCTREBDocument } from 'riskamp-web';
+
+export interface CachedDocumentType {
+  data?: MCTREBDocument;
+  canonical_version?: number;
+  cached?: number;
+}
+
+export class CacheFactory {
+
+  private static instance?: CacheFactory;
+
+  public static async Instance() {
+    if (!this.instance) {
+      const cache = await caches.open('local');
+      this.instance = new CacheFactory(cache);
+    }
+    return this.instance;
+  }
+
+  private constructor(private cache: Cache) {}
+
+  public CacheURL(key: string, version?: string) {
+    let url = '/local-cache?key=' + key;
+    if (version) {
+      url += '&version=' + version;
+    }
+    return url;
+  }
+
+  public async Set(key: string, version: string|undefined, data: CachedDocumentType) {
+    const response = new Response(JSON.stringify(data));
+    await this.cache.put(this.CacheURL(key, version), response);
+  }
+
+  public async Get(key: string, version: string|undefined): Promise<CachedDocumentType|undefined> {
+    const response = await this.cache.match(this.CacheURL(key, version));
+    if (response) {
+      return response.json();
+    }
+    return undefined;
+  }
+
+  public async Delete(key: string, version: string|undefined) {
+    return await this.cache.delete(this.CacheURL(key, version));
+  }
+
+  public async Flush() {
+    for (const key of await this.cache.keys()) {
+      await this.cache.delete(key);
+    }
+  }
+
+  public async ListKeys() {
+    const keys: string[] = [];
+    for (const key of await this.cache.keys()) {
+      const match = key.url.match(/key=(.*?)$/);
+      if (match) {
+        keys.push(match[1]);
+      }
+    }
+    return keys;
+  }
+
+}
+
+/*
 let cache_: Cache | undefined;
 let cache_initialized = false;
 
@@ -25,7 +92,7 @@ const EnsureCache = async () => {
   return undefined;
 };
 
-/** canonical URL for key */
+/ * * canonical URL for key * /
 const CacheURL = (key: string, version?: string) => {
   let url = '/local-cache?key=' + key;
   if (version) {
@@ -86,3 +153,5 @@ export const ListKeys = async () => {
   }
   return keys;
 }
+*/
+

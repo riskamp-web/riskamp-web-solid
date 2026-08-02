@@ -115,6 +115,9 @@ export type ToolbarConfig = {
   tabs: Tab[],
   trailer?: ButtonControl[],
   menus?: ToolbarMenu[];
+
+  status_menu_signed_in?: ToolbarMenu['items'];
+  status_menu_signed_out?: ToolbarMenu['items'];
 };
 
 export function WrapCommand(key: ToolbarCommandKey): ToolbarCommand {

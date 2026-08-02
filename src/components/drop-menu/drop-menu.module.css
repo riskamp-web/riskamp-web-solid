@@ -16,6 +16,10 @@ button.label {
   white-space: nowrap;
 }
 
+button.disabled {
+  pointer-events: none;
+}
+
 .menu {
   composes: floating-menu from '../../style/shared.module.css';
 

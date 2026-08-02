@@ -371,6 +371,13 @@ export default function Page() {
 
         switch (event.type) {
           case 'load':
+
+            console.info("LOAD", event.source);
+            if (event.source as string !== 'cache') {
+              console.info("setting last save version (not from cache) ->", sheet?.state || 0);
+              setSessionData('last_saved_version', sheet?.state || 0);
+            }
+
             if (sheet.user_data?.note) {
               setSidebar('notes');
             }
@@ -400,6 +407,10 @@ export default function Page() {
           // fall through
 
           case 'reset':
+
+            if (event.type === 'reset') {
+              setSessionData('last_saved_version', 0);
+            }
 
             // on reset, we want to clear any saved seed
 

@@ -102,6 +102,10 @@ export function Toolbar(props: ParentProps<Props>) {
 
   }));
 
+  const spreadsheet_dirty = createMemo(() => sessionData.document_version !== sessionData.last_saved_version);
+
+  const status_menu = createMemo(() => loggedIn() ? toolbar_config.status_menu_signed_in : toolbar_config.status_menu_signed_out);
+
   function GetInitialWidth() {
     return window.innerWidth;
   }
@@ -405,10 +409,6 @@ export function Toolbar(props: ParentProps<Props>) {
                             <Match when={item.menuicon && item.icon}>
                               <div class='display-contents' innerHTML={item.icon || ''} />
                             </Match>
-                            {/* 
-                            <Match when={props.sidebar?.() === item.key}>
-                              <div class='display-contents' innerHTML={icons.menu_checked || ''} />
-                            </Match> */}
                             <Match when={true}>
                               <div class={style['svg-placeholder']}></div>
                             </Match>
@@ -472,6 +472,46 @@ export function Toolbar(props: ParentProps<Props>) {
               <CommandPalette sheet={props.sheet} oncommand={props.oncommand}/>
             </Match>
           </Switch>
+        </div>
+
+        <div class={style['status-pill-container']}>
+
+          <DropMenu disabled={!spreadsheet_dirty()} label={
+            <div classList={{[style['status-pill']]: true, [style.status_pill_visible]: spreadsheet_dirty()}}>
+              <div class="flex-row gap-0_5">
+                <span>  
+                  {t('status-pill.messages.unsaved-changes')}
+                </span>
+                <svg fill="currentColor" width="1em" height="1em"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+                  <path d="M144 256L320 456L496 256L144 256z"/></svg>
+              </div>
+            </div>    
+          }>
+
+                <menu>
+                  <For each={status_menu() || []}>
+                    {item => <li>
+                      {item === 'separator' ? <hr/> :
+                        <button class={style['menu-item']} onclick={event => HandleMenuItem(event, item)}>
+                          <Switch>
+                            <Match when={item.menuicon && item.icon}>
+                              <div class='display-contents' innerHTML={item.icon || ''} />
+                            </Match>
+                            <Match when={true}>
+                              <div class={style['svg-placeholder']}></div>
+                            </Match>
+                          </Switch>
+                          <span>{t(item.title)}</span>
+                            <div class={style['right-align']}>
+                              <div classList={{[style.dot]: true, [style['dot-visible']]: props.sidebar?.() === item.key}}></div>
+                            </div>
+                        </button>}
+                    </li>}
+                  </For>
+                </menu>
+
+          </DropMenu>
+
         </div>
 
         <div class={style.login}>
