@@ -29,7 +29,7 @@ import { RunTrendForecast, trend_forecast_props } from '~/components/dialogs/tre
 import { BorderConstants, EmbeddedSheetEvent } from '@trebco/treb';
 import { sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
 
-import { CacheCUrrentState, IsValidPath, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
+import { CacheCUrrentState, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
 import { CheckFunction, CheckFunctionData, RestoreEditor } from '~/components/dialogs/insert-function-dialog/check-function';
 import { produce } from 'solid-js/store';
 import { GenerateFilename } from '~/lib/filename-util';

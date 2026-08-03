@@ -48,7 +48,7 @@ export interface ColorCommand extends BaseToolbarCommand {
 
 export type ToolbarCommand = Command | ColorCommand | ToggleCommand | ListCommand;
 
-export const ToolbarCommands: ToolbarCommand[] = [
+export const ToolbarCommands = [
 
 {
   key: 'dark-theme',
@@ -607,7 +607,7 @@ export const ToolbarCommands: ToolbarCommand[] = [
     icon: icons.recalculate,
   },
 
- ] as const ; // satisfies ToolbarCommand[]; 
+ ] as const satisfies ToolbarCommand[]; 
 
  /*
 type KeysOfType<Map, Match> = {
