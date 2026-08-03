@@ -7,7 +7,7 @@
 
 import { Accessor, createContext, createSignal, ParentProps, Setter, useContext } from "solid-js";
 import { useLocation } from "@solidjs/router";
-import { I18N } from '~/i18n/i18n';
+import { StringKey } from '~/i18n/i18n';
 
 /**
  * what a page needs of the session. pages that declare nothing render either way.
@@ -16,7 +16,7 @@ export type AuthRequirement = 'signed-in' | 'signed-out';
 
 /*
 
-const [title, setTitle] = createSignal<keyof I18N|undefined>();
+const [title, setTitle] = createSignal<StringKey|undefined>();
 const LayoutContext = createContext({ title, setTitle });
 
 export function useLayoutContext() {
@@ -26,8 +26,8 @@ export function useLayoutContext() {
 
 interface LayoutContextType {
 
-  title: Accessor<keyof I18N|undefined>;
-  setTitle: Setter<keyof I18N|undefined>;
+  title: Accessor<StringKey|undefined>;
+  setTitle: Setter<StringKey|undefined>;
 
   /** flag shows the username and user menu */
   userPanel: Accessor<boolean>;
@@ -46,7 +46,7 @@ const LayoutContext = createContext<LayoutContextType>();
 
 export function LayoutProvider(props: ParentProps) {
 
-  const [title, setTitle] = createSignal<keyof I18N | undefined>();
+  const [title, setTitle] = createSignal<StringKey | undefined>();
   const [userPanel, setUserPanel] = createSignal(false);
 
   /*

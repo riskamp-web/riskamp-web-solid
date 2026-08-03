@@ -13,7 +13,7 @@
  * server is the authority and is allowed to disagree -- see the mock modules.
  */
 
-import { format, t, type I18N } from '~/i18n/i18n';
+import { format, t, type StringKey } from '~/i18n/i18n';
 
 /* ------------------------------------------------------------------ */
 /* messages                                                            */
@@ -22,7 +22,7 @@ import { format, t, type I18N } from '~/i18n/i18n';
 /**
  * a message held as a *key* plus the values it splices in.
  *
- * sign-in holds a bare `keyof I18N` so that nothing is translated until it's
+ * sign-in holds a bare `StringKey` so that nothing is translated until it's
  * drawn -- otherwise a language change leaves a message in the old language.
  * this is that, plus the values, because some of these messages quote what you
  * typed. the values are captured when the verdict is reached rather than read
@@ -32,7 +32,7 @@ import { format, t, type I18N } from '~/i18n/i18n';
  * a Message with no values is exactly sign-in's key, so nothing is lost.
  */
 export interface Message {
-  key: keyof I18N;
+  key: StringKey;
   values?: Record<string, string | number>;
 }
 
@@ -223,7 +223,7 @@ export function scorePassword(value: string): PasswordScore | undefined {
 }
 
 /** the i18n key for a strength word. the four are a `.strength.*` group */
-export function strengthKey(strength: Strength): keyof I18N {
+export function strengthKey(strength: Strength): StringKey {
   switch (strength) {
     case 'strong': return 'update-password-page.strength.strong';
     case 'good': return 'update-password-page.strength.good';

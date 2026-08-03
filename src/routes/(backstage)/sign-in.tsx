@@ -20,7 +20,7 @@ import { Show, createSignal, onCleanup, onMount } from 'solid-js';
 import { A, useNavigate } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
-import { t, type I18N } from '~/i18n/i18n';
+import { t, type StringKey } from '~/i18n/i18n';
 import * as auth from '~/lib/auth';
 
 import bs from './backstage.module.css';
@@ -56,9 +56,9 @@ export default function SignIn() {
      the text instead would translate at the moment of the failure and leave a
      banner in the old language after a language change -- the same trap as
      calling t() at module scope, and it also makes these type-checked */
-  const [formError, setFormError] = createSignal<keyof I18N | undefined>();
-  const [usernameError, setUsernameError] = createSignal<keyof I18N | undefined>();
-  const [passwordError, setPasswordError] = createSignal<keyof I18N | undefined>();
+  const [formError, setFormError] = createSignal<StringKey | undefined>();
+  const [usernameError, setUsernameError] = createSignal<StringKey | undefined>();
+  const [passwordError, setPasswordError] = createSignal<StringKey | undefined>();
 
   let username_input: HTMLInputElement | undefined;
   let password_input: HTMLInputElement | undefined;

@@ -394,7 +394,7 @@ export function Sidebar(props: SidebarProps) {
               title={
                 copiedData() === props.data ?
                   t('ui-interaction.copy-to-clipboard.copied') :
-                  t('ui-interaction.copy-to-clipboard')
+                  t('ui-interaction.copy-to-clipboard.label')
                 }
               onclick={() => CopyData(props.data)}
               innerHTML={
@@ -432,7 +432,7 @@ export function Sidebar(props: SidebarProps) {
 
     <div class="section flex-column">
       <h1>
-        <span>{t('fit-data-panel.candidate-distributions')}</span>
+        <span>{t('fit-data-panel.candidate-distributions.label')}</span>
         <select class="select" onchange={e => setSelectedIndex(Number(e.currentTarget.value) || 0)}>
           <For each={fitResults()}>
             {(result, index) => <option value={index()}>{result.distribution}</option>}

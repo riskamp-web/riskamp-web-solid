@@ -16,7 +16,7 @@ import { For, JSX, Match, ParentProps, Show, Switch, createEffect, createMemo, c
 import { A, useNavigate } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
-import { format, t, type I18N } from '~/i18n/i18n';
+import { format, t, type StringKey } from '~/i18n/i18n';
 
 import { requireAuth } from '~/backstage/dev-access';
 
@@ -63,7 +63,7 @@ const isStarred = (doc: BackstageDocument) => !!doc.starred;
    reads a store, and calling it out here -- at module scope, outside any
    tracking scope -- would snapshot english into the array for the life of the
    page. this is the trap command-list.ts fell into. */
-const SCOPES: { key: Scope, label: keyof I18N, icon: () => JSX.Element }[] = [
+const SCOPES: { key: Scope, label: StringKey, icon: () => JSX.Element }[] = [
   { key: 'all', label: 'documents-page.scope.all', icon: () => <Sheet /> },
   { key: 'starred', label: 'documents-page.scope.starred', icon: () => <Icon name='star' /> },
   { key: 'recent', label: 'documents-page.scope.recent', icon: () => <Icon name='recent' /> },
@@ -932,7 +932,7 @@ export default function Documents() {
                             label={format(t('documents-page.history.menu.label'), { version: version.version })}
                             class={style['version-action']}>
                           <MenuItem onclick={() => navigate(versionUrl(doc(), version.version))}
-                                    icon={<Sheet />}>{t('documents-page.history.open')}</MenuItem>
+                                    icon={<Sheet />}>{t('documents-page.history.open.text')}</MenuItem>
                           <MenuItem icon={<Icon name='copy' />}>{t('documents-page.history.duplicate')}</MenuItem>
                           <MenuItem icon={<Icon name='confirm' />}>{t('documents-page.history.restore')}</MenuItem>
                         </ActionMenu>

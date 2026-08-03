@@ -5,7 +5,7 @@ import { persistentData, setPersistentData } from '~/lib/app-data';
 import { icons } from '~/components/icon-sets';
 import { produce } from 'solid-js/store';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { I18N, t } from '~/i18n/i18n';
+import { StringKey, t } from '~/i18n/i18n';
 
 interface Props {
   sheet: Accessor<SpreadsheetType|undefined>;
@@ -41,7 +41,7 @@ export function ThemeSelector(props: Props) {
     }
   }
 
-  const theme = createMemo<{ icon: string, title: keyof I18N }>(() => {
+  const theme = createMemo<{ icon: string, title: StringKey }>(() => {
     switch (persistentData.explicit_theme) {
       case 'dark':
         return { icon: icons.theme_dark, title: 'theme-toggle.dark-theme' };

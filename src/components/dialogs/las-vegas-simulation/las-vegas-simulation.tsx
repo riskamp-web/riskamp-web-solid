@@ -1,7 +1,7 @@
 
 import { createEffect, createMemo, createSignal, For, Match, on, Switch } from 'solid-js';
 import { CreateParameters, InteractiveDialog, Parameter, type Props } from '../interactive-dialog/interactive-dialog';
-import { I18N, t } from '~/i18n/i18n';
+import { StringKey, t } from '~/i18n/i18n';
 import { EmbeddedSheetEvent, ICellAddress, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { Size } from '../dialog-base/dialog';
 import style from './las-vegas-simulation.module.css';
@@ -19,8 +19,8 @@ export const props: Omit<Props, 'sheet'> = {
 };
 
 interface ParameterType {
-  label: keyof I18N;
-  info: keyof I18N;
+  label: StringKey;
+  info: StringKey;
   validate?: (value: string) => boolean;
 }
 
@@ -268,7 +268,7 @@ export function Dialog(props: Props) {
     return parameters[0].valid() && parameters[1].valid() && parameters[2].valid();
   });
 
-  function UpdateInfo(info?: keyof I18N) {
+  function UpdateInfo(info?: StringKey) {
     if (info) {
       setInfo(t(info));
     }

@@ -1,6 +1,6 @@
 
 
-import type { I18N } from '~/i18n/i18n';
+import type { StringKey } from '~/i18n/i18n';
 import { ToolbarCommandMap, 
           // ToolbarCommands, 
           type ColorCommand, 
@@ -23,13 +23,13 @@ export interface Placeholder {
 
 export interface Label {
   type: 'label';
-  label: keyof I18N;
+  label: StringKey;
 }
 
 export interface Icon {
   type: 'icon';
   icon: string;
-  title?: keyof I18N;
+  title?: StringKey;
 }
 
 export interface ButtonControl {
@@ -102,18 +102,18 @@ export type SteppedGroup = {
 };
 
 export type Tab = {
-  label: keyof I18N;
+  label: StringKey;
   groups: (SteppedGroup|Control[])[];
 };
 
 export type ToolbarMenu = {
-  label: keyof I18N;
+  label: StringKey;
   items?: ((ToolbarCommand) | 'separator')[];
 };
 
 export type ToolbarMessage = {
   type: 'message',
-  text: keyof I18N;
+  text: StringKey;
 }
 
 export function IsToolbarMessage(candidate: ToolbarCommand|ToolbarMessage|'separator'): candidate is ToolbarMessage {
@@ -152,7 +152,7 @@ export function colorbutton(command: ToolbarColorCommandKeys): ColorButtonContro
 }
 
 /*
-function label(label: keyof I18N): Label {
+function label(label: StringKey): Label {
   return {
     type: 'label',
     label,

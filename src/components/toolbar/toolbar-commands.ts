@@ -1,13 +1,13 @@
 
 
-import type { I18N } from '~/i18n/i18n';
+import type { StringKey } from '~/i18n/i18n';
 import type { Color } from 'riskamp-web';
 
 import { icons } from '~/components/icon-sets';
 
 export interface BaseToolbarCommand {
   key: string;
-  title?: keyof I18N;
+  title?: StringKey;
   icon?: string;
   text?: string;
   value?: string|boolean;
@@ -24,7 +24,7 @@ export interface BaseToolbarCommand {
 export interface ToggleCommand extends BaseToolbarCommand {
   type: 'toggle',
   active?: {
-    title?: keyof I18N;
+    title?: StringKey;
     icon?: string;
   }
 }
@@ -41,7 +41,7 @@ export interface ListCommand extends BaseToolbarCommand {
 
 export interface ColorCommand extends BaseToolbarCommand {
   type: 'color';
-  default_color_text?: keyof I18N;
+  default_color_text?: StringKey;
   default_color: Color;
   active_color?: Color;
 }

@@ -259,7 +259,7 @@ export default function CreateAccount() {
         <div class={style.notes}>
           <div>{t('create-account-page.after')}</div>
           <div>{splice(
-            t('create-account-page.terms'), 'link',
+            t('create-account-page.terms.text'), 'link',
             <A class={bs.link} href='/terms-of-service'>{t('create-account-page.terms.link')}</A>)}</div>
         </div>
       </div>

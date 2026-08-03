@@ -1,8 +1,7 @@
 
 import { Navigate } from '@solidjs/router';
-import { children, ParentProps, Show } from 'solid-js';
+import { ParentProps, Show } from 'solid-js';
 import { Toolbar, type Props as ToolbarProps } from '~/components/toolbar/account-toolbar';
-import { I18N } from '~/i18n/i18n';
 import * as auth from '~/lib/auth';
 
 type Props = ToolbarProps & {

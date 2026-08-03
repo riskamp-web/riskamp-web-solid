@@ -77,7 +77,7 @@ export function Sidebar(props: SidebarProps) {
             </section>
 
             <section>
-              <h1>{t('sidebar.simulation_settings.random-seed')}</h1>
+              <h1>{t('sidebar.simulation_settings.random-seed.section-header')}</h1>
               <div class={style.explainer} innerHTML={t('sidebar.simulation_settings.random-seed.explanatory-text').split(/\n/g).map(para => `<p>${para}</p>`).join('\n')} />
               <div class={style.table}>
                 <div class="flex-row gap-1">

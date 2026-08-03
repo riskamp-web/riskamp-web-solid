@@ -1,7 +1,7 @@
 
 import style from '../sidebar.module.css';
 import { Register } from '../registry';
-import { I18N, t } from '~/i18n/i18n';
+import { StringKey, t } from '~/i18n/i18n';
 import { createMutable } from 'solid-js/store';
 import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, Show, Switch } from 'solid-js';
 
@@ -148,7 +148,7 @@ export function Sidebar(props: SidebarProps) {
   const [noData, setNoData] = createSignal(false); 
 
   interface BoxStatsRow {
-    label: keyof I18N;
+    label: StringKey;
     value: string;
   }
 

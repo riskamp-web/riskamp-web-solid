@@ -3,7 +3,7 @@ import { Switch, Match, Show } from 'solid-js';
 import style from './toolbar.module.css';
 import { Logo } from '../logo';
 import { DropMenu } from '~/components/drop-menu/drop-menu';
-import { I18N, t } from '~/i18n/i18n';
+import { StringKey, t } from '~/i18n/i18n';
 
 import '~/components/tabs.css';
 import { session, loggedIn } from '~/lib/auth';
@@ -14,7 +14,7 @@ import { A } from '@solidjs/router';
 import { ThemeSelector } from './theme-selector';
 
 export interface Props {
-  title?: keyof I18N;
+  title?: StringKey;
   'account-info'?: boolean;
 }
 

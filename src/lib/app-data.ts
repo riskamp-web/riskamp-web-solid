@@ -3,7 +3,6 @@ import { createEffect } from 'solid-js';
 import { type Model } from 'treb-llm-support';
 import type { DocumentsRow } from '~/docs/documents';
 import type { DocumentScope, SortDirection, SortKey } from '~/backstage/documents-data';
-import { I18N } from '~/i18n/i18n';
 
 /**
  * FIXME: we should change how this works, make it deeper 

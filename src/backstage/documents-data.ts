@@ -24,7 +24,7 @@ import * as auth from '~/lib/auth';
    t() and currentLocale() read from solid state, so they're only reactive where
    they're called inside a tracking scope -- these are called from the page's
    jsx and from its memos, which are */
-import { currentLocale, format, t, type I18N } from '~/i18n/i18n';
+import { currentLocale, format, t, type StringKey } from '~/i18n/i18n';
 
 /* the page's view state (scope / folder / search / sort) outlives the page, so
    it's kept in the app's persistent store rather than here -- see savedView() */
@@ -525,7 +525,7 @@ export function formatAbsolute(timestamp: number): string {
  * doesn't. a locale with categories we don't carry keys for (few, many) lands
  * on .other, which is the closest thing we have.
  */
-export function formatCount(count: number, one: keyof I18N, other: keyof I18N): string {
+export function formatCount(count: number, one: StringKey, other: StringKey): string {
   const category = intl().plurals.select(count);
   return format(t(category === 'one' ? one : other), { count: formatNumber(count) });
 }
