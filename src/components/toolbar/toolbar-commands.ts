@@ -51,6 +51,16 @@ export type ToolbarCommand = Command | ColorCommand | ToggleCommand | ListComman
 export const ToolbarCommands: ToolbarCommand[] = [
 
 {
+  key: 'dark-theme',
+},
+{
+  key: 'light-theme',
+},
+{
+  key: 'system-theme',
+},
+
+{
 		key: 'sign-out',
     title: 'toolbar.menu-commands.sign-out',
     icon: icons.sign_out,

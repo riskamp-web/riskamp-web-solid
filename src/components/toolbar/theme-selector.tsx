@@ -5,55 +5,56 @@ import { persistentData, setPersistentData } from '~/lib/app-data';
 import { icons } from '~/components/icon-sets';
 import { produce } from 'solid-js/store';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { t } from '~/i18n/i18n';
+import { I18N, t } from '~/i18n/i18n';
 
 interface Props {
   sheet: Accessor<SpreadsheetType|undefined>;
+}
+
+/** centralizing and unifying */
+export function SetTheme(sheet?: SpreadsheetType, theme?: 'dark'|'light'|'system') {
+
+  console.info("Set theme", theme);
+
+  if (theme === 'dark'|| theme === 'light') {
+    setPersistentData(produce(s => { s.explicit_theme = theme }));
+  }
+  else {
+    setPersistentData(produce(s => { s.explicit_theme = undefined }));
+  }
+  requestAnimationFrame(() => sheet?.UpdateTheme());
 }
 
 export function ThemeSelector(props: Props) {
   
   function CycleTheme() {
     switch (persistentData.explicit_theme) {
-      case 'dark':
-        setPersistentData(produce(s => { s.explicit_theme = undefined }));
+      case 'dark': 
+        SetTheme(props.sheet(), 'system'); 
         break;
-      case 'light':
-        setPersistentData(produce(s => { s.explicit_theme = 'dark' }));
+      case 'light': 
+        SetTheme(props.sheet(), 'dark'); 
         break;
       default:
-        setPersistentData(produce(s => { s.explicit_theme = 'light' }));
+        SetTheme(props.sheet(), 'light'); 
         break;
     }
-
-    requestAnimationFrame(() => props.sheet()?.UpdateTheme());
-    
   }
 
-  const theme_icon = createMemo(() => {
+  const theme = createMemo<{ icon: string, title: keyof I18N }>(() => {
     switch (persistentData.explicit_theme) {
       case 'dark':
-        return icons.theme_dark;
+        return { icon: icons.theme_dark, title: 'theme-toggle.dark-theme' };
       case 'light':
-        return icons.theme_light;
+        return { icon: icons.theme_light, title: 'theme-toggle.light-theme' };
       default:
-        return icons.theme_system;
-    }
-  });
-
-  const theme_title = createMemo(() => {
-    switch (persistentData.explicit_theme) {
-      case 'dark':
-        return 'theme-toggle.dark-theme';
-      case 'light':
-        return 'theme-toggle.light-theme';
-      default:
-        return 'theme-toggle.system-theme';
+        return { icon: icons.theme_system, title: 'theme-toggle.system-theme' };
     }
   });
 
   return <button class={style['toolbar-button']} 
-              title={t(theme_title())}
-              innerHTML={theme_icon()} onclick={CycleTheme} />;
+              title={t(theme().title)}
+              innerHTML={theme().icon} onclick={CycleTheme} />;
 
 }
+

@@ -7,6 +7,7 @@ import type { CellStyle, EmbeddedSpreadsheet } from 'riskamp-web';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { Sheet } from '@trebco/treb/treb-data-model';
 import { t } from '~/i18n/i18n';
+import { ToolbarCommandMap } from '../toolbar/toolbar-commands';
 
 export interface PaletteCommand {
 
@@ -264,6 +265,28 @@ export const commands: PaletteCommand[] = [
     label: t('command-palette.insert-box-plot.label'),
     fn: SheetToolbarCommand({ command: 'insert-box-plot' }),
     alt: t('command-palette.insert-box-plot.alt')
+  },
+
+  {
+    label: t('command-palette.theme.dark-theme.label'),
+    alt: t('command-palette.theme.dark-theme.alt'),
+    fn: (ctx: Context) => {
+      ctx.oncommand(ToolbarCommandMap['dark-theme']);
+    },
+  },
+  {
+    label: t('command-palette.theme.light-theme.label'),
+    alt: t('command-palette.theme.light-theme.alt'),
+    fn: (ctx: Context) => {
+      ctx.oncommand(ToolbarCommandMap['light-theme']);
+    },
+  },
+  {
+    label: t('command-palette.theme.system-theme.label'),
+    alt: t('command-palette.theme.system-theme.alt'),
+    fn: (ctx: Context) => {
+      ctx.oncommand(ToolbarCommandMap['system-theme']);
+    },
   },
 
   /*

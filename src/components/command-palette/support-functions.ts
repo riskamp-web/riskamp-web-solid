@@ -9,6 +9,9 @@ import type { SelectionState } from '@trebco/treb/treb-embed/src/selection-state
 import type { EmbeddedSpreadsheet as EmbeddedSpreadsheetBase } from '@trebco/treb/treb-embed/src/embedded-spreadsheet';
 import type { SpreadsheetType as Spreadsheet } from '~/lib/spreadsheet-type';
 import type { BooleanKeys } from '~/lib/typescript-magic';
+import { type ToolbarCommand } from '../toolbar/toolbar-commands';
+
+export type HandleCommandType = (command: ToolbarCommand) => void|Promise<void>;
 
 export interface ColorParameter {
   type: 'color';
@@ -62,7 +65,9 @@ export interface Context {
   
   // FIXME: wrap up this type so we don't need all these details
   // dispatcher: EventDispatcher<{ command: { command: ToolbarCommandType, data?: any }}>;
-  
+
+  oncommand: HandleCommandType;
+
 }
 
 export const ApplyStyle = (style: CellStyle) => {

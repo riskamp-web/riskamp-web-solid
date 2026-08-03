@@ -427,6 +427,15 @@ export default {
 
   // adding command palette commands labels/alt text
 
+  'command-palette.theme.dark-theme.label': 'Use dark theme',
+  'command-palette.theme.dark-theme.alt': 'color scheme',
+
+  'command-palette.theme.light-theme.label': 'Use light theme',
+  'command-palette.theme.light-theme.alt': 'color scheme',
+
+  'command-palette.theme.system-theme.label': 'Use system theme',
+  'command-palette.theme.system-theme.alt': 'color scheme light dark',
+
   'command-palette.remove-hyperlink.label': 'Remove hyperlink',
   'command-palette.remove-hyperlink.alt': 'delete clear link',
 

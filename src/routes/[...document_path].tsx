@@ -9,7 +9,7 @@ import { Spreadsheet } from '~/components/spreadsheet/spreadsheet';
 import { createEffect, createSignal, on } from 'solid-js';
 import { Splitter } from '~/components/splitter/splitter';
 import { Toolbar } from '~/components/toolbar/toolbar';
-import { ToolbarCommand } from '~/components/toolbar/toolbar-commands';
+import { ToolbarCommand, ToolbarCommandKey } from '~/components/toolbar/toolbar-commands';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { Sidebar } from '~/components/sidebar/sidebar-main';
 import { goto, OpenExternal } from '~/lib/navigate';
@@ -33,6 +33,7 @@ import { CacheCUrrentState, IsValidPath, RevertDocument, TryLoadPath } from '~/c
 import { CheckFunction, CheckFunctionData, RestoreEditor } from '~/components/dialogs/insert-function-dialog/check-function';
 import { produce } from 'solid-js/store';
 import { GenerateFilename } from '~/lib/filename-util';
+import { SetTheme } from '~/components/toolbar/theme-selector';
 
 /*
 function Spin() {
@@ -124,7 +125,9 @@ export default function Page() {
       return;
     }
 
-    switch (command.key) {
+    const key = command.key as ToolbarCommandKey;
+
+    switch (key) {
       case 'las-vegas-simulation':
         LasVegasSimulation();
         return;
@@ -176,7 +179,7 @@ export default function Page() {
           if (Array.isArray(command.additional_data)) {
             options.additional_cells = [...command.additional_data as string[]];
           }
-          options.auto = (command.key === 'run-simulation-again');
+          options.auto = (key === 'run-simulation-again');
           setRunSimulationOptions(options);
           setRunSimulationOpen(true);
         }
@@ -199,7 +202,7 @@ export default function Page() {
           color = command.active_color;
         }
         sheet.HandleToolbarMessage({
-          command: command.key,
+          command: key,
           color,
         });
       }
@@ -214,7 +217,7 @@ export default function Page() {
       case 'strike':
       case 'italic':
       case 'wrap':
-        ToggleStyle(sheet, command.key);
+        ToggleStyle(sheet, key);
         break;
 
       case 'font-scale':
@@ -239,7 +242,7 @@ export default function Page() {
       case 'indent':
       case 'outdent':
 
-        sheet.HandleToolbarMessage({ command: command.key });
+        sheet.HandleToolbarMessage({ command: key });
         sheet.Focus();
         break;
 
@@ -311,11 +314,11 @@ export default function Page() {
       case 'notes':
       case 'fit-data':  
       case 'simulation-settings':
-        if (active_sidebar() === command.key) {
+        if (active_sidebar() === key) {
           setSidebar(undefined);
         }
         else {
-          setSidebar(command.key);
+          setSidebar(key);
         }
         break;
 
@@ -327,8 +330,20 @@ export default function Page() {
         goto(`/@riskamp/riskamp-walkthrough`);
         break;
 
+      case 'dark-theme':
+        SetTheme(sheet, 'dark');
+        break;
+
+      case 'light-theme':
+        SetTheme(sheet, 'light');
+        break;
+
+      case 'system-theme':
+        SetTheme(sheet, 'system');
+        break;
+
       default:
-        console.warn('unhandled', command.key);
+        console.warn('unhandled', key);
         // setOpen(true);
     }
 

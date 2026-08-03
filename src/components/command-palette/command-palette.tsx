@@ -1,20 +1,21 @@
 
 import { Accessor, createEffect, createSignal, Match, on, onCleanup, onMount, Show, Switch } from 'solid-js';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { type ToolbarCommand, type ToolbarCommandKey } from '../toolbar/toolbar-commands';
+import { type ToolbarCommand } from '../toolbar/toolbar-commands';
 import style from './command-palette.module.css';
 import { t } from '~/i18n/i18n';
 import { UA } from '~/lib/UA';
 import fuzzysort from 'fuzzysort';
 import { commands, type PaletteCommand } from './command-list';
-import type { Parameter } from './support-functions';
+import type { Context, HandleCommandType, Parameter } from './support-functions';
 import { IsHTMLColor, IsThemeColor } from '@trebco/treb/treb-base-types';
 
 import { ListControl, type ListRef } from './list-control';
 
+
 export interface Props {
   sheet: Accessor<SpreadsheetType|undefined>;
-  oncommand: (command: ToolbarCommand & { key: ToolbarCommandKey}) => void|Promise<void>;
+  oncommand: HandleCommandType;
 
   /** 
    * flag indicates we're in a dialog. don't handle control + dot, 
@@ -23,7 +24,7 @@ export interface Props {
   dialog?: boolean;
 }
 
-function CreateContext(command: PaletteCommand, sheet: SpreadsheetType) {
+function CreateContext(command: PaletteCommand, sheet: SpreadsheetType, oncommand: HandleCommandType): Context {
 
   // handle split, use active (focused) pane
 
@@ -45,6 +46,7 @@ function CreateContext(command: PaletteCommand, sheet: SpreadsheetType) {
     // dispatcher, 
     selection_state: target.selection_state,
     document_styles: target.document_styles,
+    oncommand,
   };
 };
 
@@ -194,7 +196,7 @@ export function CommandPalette(props: Props) {
       active_command = command;
 
       if (command.init) {
-        command.init(CreateContext(command, sheet));
+        command.init(CreateContext(command, sheet, props.oncommand));
       }
       if (input) {
         input.textContent = '';
@@ -234,7 +236,7 @@ export function CommandPalette(props: Props) {
     setActiveParameter();
 
     if (command.fn) {
-      command.fn(CreateContext(command, sheet));
+      command.fn(CreateContext(command, sheet, props.oncommand));
     }
     
     requestAnimationFrame(() => sheet.Focus());
