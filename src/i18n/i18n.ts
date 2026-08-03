@@ -33,8 +33,13 @@ export type KeyPaths<T, P extends string = ''> = {
     : KeyPaths<T[K], P extends '' ? K : `${P}.${K}`>;
 };
 
+// a *copy* of english, never `en` itself. a store writes through to the object
+// it wraps, so handing it `en` would mean loading a translation overwrites the
+// english catalogue in place -- and then switching back to english restores
+// from a catalogue that is no longer english. every assignment below goes
+// through deepMerge for the same reason.
 const [i18n_instance, setI18nInstance] = createStore({
-  strings: en as I18N,
+  strings: deepMerge(en),
 });
 
 const [currentLocale, setCurrentLocale] = createSignal('en-us');
@@ -93,15 +98,16 @@ export function t(key?: StringKey): string {
  * canonical key set, so this walks *that*: a key the translation doesn't have
  * keeps its english, and a key english doesn't have isn't a key.
  *
- * every object here is fresh -- `base` is the module-level english catalogue,
- * which the store already proxies, and mutating it would be permanent.
+ * it always builds fresh objects, even with no delta to apply -- `base` is the
+ * module-level english catalogue, and anything handed to the store is written
+ * through to. call it with one argument for a plain copy.
  */
-function deepMerge<T extends StringTree>(base: T, delta: unknown): T {
-  if (!delta || typeof delta !== 'object') { return base; }
+function deepMerge<T extends StringTree>(base: T, delta?: unknown): T {
+  const patch = (delta && typeof delta === 'object') ? delta as StringTree : undefined;
 
   const merged: StringTree = {};
   for (const [segment, value] of Object.entries(base)) {
-    const translated = (delta as StringTree)[segment];
+    const translated = patch?.[segment];
     merged[segment] = typeof value === 'string'
       ? (typeof translated === 'string' ? translated : value)
       : deepMerge(value, translated);
@@ -138,8 +144,12 @@ export async function UpdateLanguage(locale?: string) {
 
   if (locale) {
 
-    setCurrentLocale(locale);
     const lang = locale.substring(0, 2).toLowerCase();
+
+    // the locale is set *after* the strings are in place, in both branches.
+    // anything watching currentLocale() to know the language changed -- the
+    // command palette re-runs its search on it -- would otherwise wake up while
+    // the store still held the outgoing language and read the old strings.
 
     if (lang !== 'en') {
 
@@ -148,16 +158,25 @@ export async function UpdateLanguage(locale?: string) {
 
       // start with the base, in case anything is missing, then apply the deltas
       setI18nInstance('strings', deepMerge(en, data));
+      setCurrentLocale(locale);
 
       // some things (specific example: the insert function button, which
       // is inserted as static html and not managed by solid) cannot react
       // to changes in the managed language object. so we need to fire
       // an event for anyone who needs to take specific action.
+      //
+      // KEEP THIS. nothing listens for it at the moment -- command-list.ts was
+      // the last consumer and it holds keys now, so it re-renders on its own --
+      // but anything drawn outside solid's reach still needs telling, and there
+      // will be more of those. it is not dead code, it is an empty socket.
+      //
+      // note it only fires on this branch: a switch *back* to english doesn't
+      // announce itself. worth fixing when something listens again.
       requestAnimationFrame(() => window.dispatchEvent(new CustomEvent('update-language')));
     } else {
 
+      setI18nInstance('strings', deepMerge(en));
       setCurrentLocale('en-us');
-      setI18nInstance('strings', en);
 
     }
 

@@ -312,7 +312,7 @@ and the wiring lands once the design has settled.
   rejection here is unrecoverable (there's no "no, really, send it"), where a false accept
   costs one bounced email that a confirm-by-link flow already absorbs. An RFC-shaped regex
   reliably rejects plus-tags, apostrophes and new TLDs, which is the worse trade.
-- **Errors are `Message`s, not keys.** Sign-in holds a bare `keyof I18N` so nothing is
+- **Errors are `Message`s, not keys.** Sign-in holds a bare `StringKey` so nothing is
   translated until it's drawn; this page needs the same *plus* the values some messages
   quote, and it captures them when the verdict is reached rather than reading them back at
   the render site — the field they came from may have been edited since, and "@foo is already
@@ -616,26 +616,35 @@ gap, both in `src/i18n/i18n.ts`:
 
 Sign-in needed neither helper — nothing on it interpolates or counts.
 
-Four things to know before adding a string here:
+Five things to know before adding a string here:
 
 - **`t()` at module scope snapshots English.** It's reactive only because it reads a Solid
-  store, and that only counts inside a tracking scope. So `SCOPES` holds `keyof I18N` and
+  store, and that only counts inside a tracking scope. So `SCOPES` holds `StringKey` and
   the render sites call `t(item.label)` — a `label: t(…)` in that array would freeze the
-  language for the life of the page. `command-list.ts` has exactly that problem, which is
-  what the `update-language` event in `i18n.ts` exists to work around.
+  language for the life of the page. `command-list.ts` used to have exactly that problem;
+  it holds keys now, and the palette resolves them where it draws and where it searches.
+- **The `update-language` event stays, even with nothing listening.** `i18n.ts` fires a
+  window `update-language` CustomEvent on a language change. `command-list.ts` was its last
+  consumer, so it currently has no listeners at all — leave it in place regardless. It's
+  the only way to tell anything drawn *outside* Solid's reach (markup inserted as static
+  HTML, the insert-function button being the example in the code) that the language moved,
+  and more of those are coming. Two things to know if you do listen: it fires on a
+  `requestAnimationFrame`, so the store is already updated when it lands, and it does
+  **not** fire when switching back to English.
 - **State holds keys, not text**, for the same reason. Sign-in's three form errors and two
-  field messages are `createSignal<keyof I18N | undefined>()` and get translated where
+  field messages are `createSignal<StringKey | undefined>()` and get translated where
   they're drawn; storing the translated string would leave a banner in the old language
   after a language change. `t()` already returns `''` for `undefined`, so the `<Show>`
   guards around them are unchanged — and the signals are now type-checked, which a string
   wasn't.
-- **A missing key renders as nothing**, not as the key name. `tsc` catches a *typo*
-  (`t()` takes `keyof I18N`, and `I18N` is `typeof en`, so adding a key to `en.ts` is all
-  the typing there is) but nothing catches a string that was never extracted. A blank
-  label in the UI means a missing key.
-- **`es.ts` / `fr.ts` are deliberately untouched.** They're partial deltas merged over
-  English (`{ ...en, ...data }`), so anything they lack falls back — same as both
-  command-palette extractions did.
+- **A key that doesn't resolve renders as itself**, not as a blank — a path showing through
+  in the UI is the signal. `tsc` catches a *typo*: `t()` takes `StringKey`, the union of
+  every dotted path through `en.ts` that lands on a string, so a key has to exist to be
+  passed. What nothing catches is a string that was never extracted at all.
+- **`es.ts` / `fr.ts` are deliberately untouched.** They're partial deltas deep-merged over
+  English, so anything they lack falls back — down to the individual key, which is why a
+  translation can supply part of a namespace. They carry `satisfies DeepPartial<I18N>`, so
+  a key English doesn't have is an error there.
 
 ### The locale
 
@@ -659,11 +668,12 @@ short date, long date, time, number, collator, plural rules.
   business at four figures and up. Version numbers deliberately aren't: `v7` is closer to
   an identifier than to a quantity.
 
-**`UpdateLanguage()` has rough edges worth knowing before testing against it** — it sets
-the locale *before* it loads the language file and doesn't put it back if that fails, so
-`UpdateLanguage('de-de')` rejects on the missing `de.ts` and leaves you with German dates
-and English text. Written up as an open TODO, item 6 under "Open questions"; nothing here
-is blocked by it, and this page defends itself against a bad tag on its own.
+**`UpdateLanguage()` has rough edges worth knowing before testing against it** — it doesn't
+validate the tag, and a language file that doesn't exist rejects rather than falling back,
+so `UpdateLanguage('de-de')` throws on the missing `de.ts`. The locale itself is safe: it's
+set only once the strings are in the store, so a failed load leaves you on the language you
+were already on. Written up as an open TODO, item 9 under "Open questions"; nothing here is
+blocked by it, and this page defends itself against a bad tag on its own.
 
 ## The saved view
 
@@ -912,19 +922,20 @@ None of these block the current page.
    send `?email=` or `?username=`; the page reads `?email=` and the field accepts either, so
    supporting both is a one-line addition.
 8. **Sign-in could use the shared validators.** It still does its own presence-only checks and
-   holds bare `keyof I18N` rather than `Message`, so adopting them means converting three
+   holds bare `StringKey` rather than `Message`, so adopting them means converting three
    signals. Mechanical, but sign-in is the one *wired* page and a regression there costs a real
    sign-in — so not in a pass that was about other pages.
 9. **TODO: `UpdateLanguage()` in `~/i18n/i18n.ts` is rough at the edges.** Left open
    deliberately — it's the library's call, not this directory's, and nothing here is
-   blocked by it. Four things noticed while wiring the locale up, in rough order of how
+   blocked by it. Three things noticed while wiring the locale up, in rough order of how
    likely they are to bite:
 
-   - **It sets the locale before it loads the language file, and doesn't put it back if
-     that fails.** `UpdateLanguage('de-de')` sets `currentLocale()` to `de-de`, then
-     rejects on the missing `de.ts` — leaving the app with German dates, German number
-     grouping, German collation and English text. Setting the locale only once the strings
-     have landed would make the failure atomic.
+   *(A fourth — it set the locale before loading the language file, so a failed load left
+   the app with that language's dates and English text — is fixed: `setCurrentLocale()` now
+   runs after the strings are in the store, in both branches. That also made
+   `currentLocale()` usable as a "the language changed" dependency, which is how the
+   command palette re-runs its search.)*
+
    - **The rejection is the caller's problem, and there's no caller.** Nothing invokes
      `UpdateLanguage` yet, so today this surfaces as an unhandled promise rejection in the
      console. Whatever ends up wiring the language chooser has to decide what a missing
@@ -972,9 +983,9 @@ the canned store), zero-results search, multi-select, the slide-over, and widths
 scroll horizontally, and version should drop before folder. Star, access and delete mutate
 the local store; rename, duplicate and move are placeholders.
 
-Nothing on the page should ever render blank — a blank label is a missing key. The
-reactivity trap is worth checking directly, from the console, since it fails silently and
-only when the language changes. `UpdateLanguage()` is the way in — `setI18nInstance` isn't
+No dotted key path should ever show through in the UI — a visible `documents-page.…` is a
+key that didn't resolve. The reactivity trap is worth checking directly, from the console,
+since it fails silently and only when the language changes. `UpdateLanguage()` is the way in — `setI18nInstance` isn't
 exported:
 
 ```js

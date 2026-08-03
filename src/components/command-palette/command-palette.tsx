@@ -1,9 +1,8 @@
 
-import { Accessor, createEffect, createSignal, Match, on, onCleanup, onMount, Show, Switch } from 'solid-js';
+import { Accessor, createEffect, createMemo, createSignal, Match, on, onCleanup, onMount, Show, Switch } from 'solid-js';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { type ToolbarCommand } from '../toolbar/toolbar-commands';
 import style from './command-palette.module.css';
-import { t } from '~/i18n/i18n';
+import { currentLocale, t } from '~/i18n/i18n';
 import { UA } from '~/lib/UA';
 import fuzzysort from 'fuzzysort';
 import { commands, type PaletteCommand } from './command-list';
@@ -12,6 +11,9 @@ import { IsHTMLColor, IsThemeColor } from '@trebco/treb/treb-base-types';
 
 import { ListControl, type ListRef } from './list-control';
 
+
+/** one entry from a parameter's choice list -- derived so it can't drift from it. */
+type Choice = NonNullable<Parameter['choices']>[number];
 
 export interface Props {
   sheet: Accessor<SpreadsheetType|undefined>;
@@ -376,11 +378,21 @@ export function CommandPalette(props: Props) {
 
   const [results, setResults] = createSignal<PaletteCommand[]>([]);
 
-  createEffect(on(query, query => {
+  // the command list holds keys, so the search matches against what the keys
+  // resolve to rather than the keys themselves -- fuzzysort takes accessors as
+  // well as field names, and re-reads them on every go().
+  //
+  // currentLocale is a dependency because on() runs its callback untracked: the
+  // t() calls below wouldn't subscribe, and a language change would leave the
+  // current results ranked by the old language until the next keystroke.
+  createEffect(on([query, currentLocale], ([query]) => {
     if (query) {
       const fs_results = fuzzysort.go(query, commands, {
         all: false,
-        keys: ['label', 'alt'],
+        keys: [
+          (command: PaletteCommand) => t(command.label),
+          (command: PaletteCommand) => t(command.alt),
+        ],
         threshold: .35,
       });
       setResults(fs_results.map(result => result.obj));
@@ -447,13 +459,15 @@ export function CommandPalette(props: Props) {
 
   const command_or_control = ua.is_mac ? 'Cmd' : 'Ctrl';
 
-  const [placeholder, _setPlaceholder] = createSignal(
+  // a memo, not a signal: the initializer of a signal runs once, so the old
+  // version froze the placeholder at whatever language was loaded on mount.
+  const placeholder = createMemo(() =>
     t('command-palette-ui.command-palette.label') + ` - ${command_or_control} +  .`
   );
 
   const [selectedIndex, setSelectedIndex] = createSignal(0);
 
-  function ClickParameter(event: Event, choice: string | { label: string, value: string }, _index: number) {
+  function ClickParameter(event: Event, choice: Choice, _index: number) {
     const sheet = props.sheet();
     const active_parameter = activeParameter();
     if (sheet && active_parameter && active_command) {
@@ -478,7 +492,7 @@ export function CommandPalette(props: Props) {
     return <>
             <Show when={local.parameter.label}>
               <div class={style.label}>
-                {local.parameter.label || ''}
+                {t(local.parameter.label)}
               </div>
             </Show>
             <Switch>
@@ -486,7 +500,7 @@ export function CommandPalette(props: Props) {
                 <ListControl list={() => local.parameter.choices||[]} 
                             onclick={ClickParameter}
                             ref={ref => list_ref = ref}
-                            label={item => typeof item === 'string' ? item : item.label} />
+                            label={item => typeof item === 'string' ? item : t(item.label)} />
               </Match>
               <Match when={local.parameter.type === 'color'}>
                 ...
@@ -534,7 +548,7 @@ export function CommandPalette(props: Props) {
                            onclick={HandleClick}
                            list={results} 
                            ref={ref => list_ref = ref}
-                           label={result => result.label} />
+                           label={result => t(result.label)} />
             </Match>
           </Switch>
 

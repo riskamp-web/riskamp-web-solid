@@ -10,6 +10,7 @@ import type { EmbeddedSpreadsheet as EmbeddedSpreadsheetBase } from '@trebco/tre
 import type { SpreadsheetType as Spreadsheet } from '~/lib/spreadsheet-type';
 import type { BooleanKeys } from '~/lib/typescript-magic';
 import { type ToolbarCommand } from '../toolbar/toolbar-commands';
+import type { StringKey } from '~/i18n/i18n';
 
 export type HandleCommandType = (command: ToolbarCommand) => void|Promise<void>;
 
@@ -51,8 +52,20 @@ export interface BooleanParameter {
 
 export type Parameter = (ColorParameter | TextParameter | NumberParameter | MultiLineTextParameter | BooleanParameter) & {
   name?: string;
-  label?: string;
-  choices?: (string | { label: string, value: string })[];
+
+  /** prompt, held as a key -- the command list is built at import, see PaletteCommand */
+  label?: StringKey;
+
+  /**
+   * a choice is either the literal string offered (and submitted), or a
+   * key/value pair when what's shown isn't what's submitted.
+   *
+   * the bare-string arm is how a command's init() hands back choices it worked
+   * out at runtime -- the number-format command fills it with format names off
+   * the document -- so that arm stays text. the pair's label is ours, written
+   * in the list, so it's a key.
+   */
+  choices?: (string | { label: StringKey, value: string })[];
 };
 
 export interface Context {

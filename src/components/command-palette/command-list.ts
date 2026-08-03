@@ -6,16 +6,21 @@ import { type Parameter, type Context, ApplyStyle, SheetToolbarCommand, ToolbarC
 import type { CellStyle, EmbeddedSpreadsheet } from 'riskamp-web';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { Sheet } from '@trebco/treb/treb-data-model';
-import { t } from '~/i18n/i18n';
+import type { StringKey } from '~/i18n/i18n';
 import { ToolbarCommandMap } from '../toolbar/toolbar-commands';
 
 export interface PaletteCommand {
 
-  /** 
-   * command label. text in the label is passed to the search engine 
-   * when searching for commands.
+  /**
+   * command label, held as a key and resolved where it's drawn. the resolved
+   * text is what the search engine matches against -- see command-palette.tsx,
+   * which hands fuzzysort accessors rather than field names.
+   *
+   * this is a key rather than the text because the list is built once, at
+   * import: a t() here would snapshot whatever language was loaded then and
+   * keep it for the life of the page.
    */
-  label: string;
+  label: StringKey;
 
   /** 
    * alterante text you might search for, that should return this command
@@ -24,7 +29,7 @@ export interface PaletteCommand {
    * type some combination of those terms -- you might say "remove link" instead
    * of "remove hyperlink", and we want that to return this command.
    */
-  alt?: string;
+  alt?: StringKey;
 
   /** 
    * we're requiring functions as a sanity check, part of the 
@@ -43,8 +48,8 @@ export interface PaletteCommand {
 export const commands: PaletteCommand[] = [
 
   {
-    label: t('command-palette.remove-hyperlink.label'),
-    alt: t('command-palette.remove-hyperlink.alt'),
+    label: 'command-palette.remove-hyperlink.label',
+    alt: 'command-palette.remove-hyperlink.alt',
     fn: (ctx: Context) => {
       const grid = (ctx.sheet as EmbeddedSpreadsheet & {grid: Grid}).grid;
       const sel = grid.GetSelection();
@@ -55,11 +60,11 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.insert-hyperlink.label'),
-    alt: t('command-palette.insert-hyperlink.alt'),
+    label: 'command-palette.insert-hyperlink.label',
+    alt: 'command-palette.insert-hyperlink.alt',
     parameters: [{
       type: 'text',
-      label: t('command-palette.insert-hyperlink.parameter.url.label'),
+      label: 'command-palette.insert-hyperlink.parameter.url.label',
     }],
     fn: (ctx: Context) => {
       const text = (ctx.parameters?.[0]?.type === 'text') ? ctx.parameters[0].value : '';
@@ -92,13 +97,13 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.add-edit-comment.label'),
-    alt: t('command-palette.add-edit-comment.alt'),
+    label: 'command-palette.add-edit-comment.label',
+    alt: 'command-palette.add-edit-comment.alt',
     parameters: [{
       type: 'multi-line-text',
       label: UA.is_mac ?
-        t('command-palette.add-edit-comment.parameter.comment.label-mac') :
-        t('command-palette.add-edit-comment.parameter.comment.label'),
+        'command-palette.add-edit-comment.parameter.comment.label-mac' :
+        'command-palette.add-edit-comment.parameter.comment.label',
     }],
     fn: (ctx: Context) => {
       ctx.sheet.SetNote(undefined, ctx.parameters?.[0].value?.toString() || '');
@@ -111,8 +116,8 @@ export const commands: PaletteCommand[] = [
     },
   },
   {
-    label: t('command-palette.remove-comment.label'),
-    alt: t('command-palette.remove-comment.alt'),
+    label: 'command-palette.remove-comment.label',
+    alt: 'command-palette.remove-comment.alt',
     fn: (ctx: Context) => {
       ctx.sheet.SetNote(undefined, '');
       (ctx.sheet.grid as any).layout.HideNote();
@@ -120,14 +125,14 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.reset-background-color.label'),
-    alt: t('command-palette.reset-background-color.alt'),
+    label: 'command-palette.reset-background-color.label',
+    alt: 'command-palette.reset-background-color.alt',
     fn: ApplyStyle({ fill: {}}),
   },
 
   {
-    label: t('command-palette.set-background-color.label'),
-    alt: t('command-palette.set-background-color.alt'),
+    label: 'command-palette.set-background-color.label',
+    alt: 'command-palette.set-background-color.alt',
     parameters: [{
         type: 'color', 
       }],
@@ -135,14 +140,14 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.reset-text-color.label'),
+    label: 'command-palette.reset-text-color.label',
     fn: ApplyStyle({ text: {}}),
-    alt: t('command-palette.reset-text-color.alt'),
+    alt: 'command-palette.reset-text-color.alt',
   },
 
   {
-    label: t('command-palette.set-text-color.label'),
-    alt: t('command-palette.set-text-color.alt'),
+    label: 'command-palette.set-text-color.label',
+    alt: 'command-palette.set-text-color.alt',
     parameters: [{
         type: 'color', 
       }],
@@ -150,8 +155,8 @@ export const commands: PaletteCommand[] = [
     },
 
   {
-    label: t('command-palette.reset-border-color.label'),
-    alt: t('command-palette.reset-border-color.alt'),
+    label: 'command-palette.reset-border-color.label',
+    alt: 'command-palette.reset-border-color.alt',
     fn: ApplyStyle({ 
       border_top_fill: {},
       border_left_fill: {},
@@ -161,7 +166,7 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.set-border-color.label'),
+    label: 'command-palette.set-border-color.label',
     parameters: [{
         type: 'color', 
       }],
@@ -178,112 +183,112 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.borders-clear.label'),
+    label: 'command-palette.borders-clear.label',
     fn: SheetToolbarCommand({ command: 'border-none' }),
   },
 
   {
-    label: t('command-palette.border-top.label'),
+    label: 'command-palette.border-top.label',
     fn: SheetToolbarCommand({ command: 'border-top' }),
   },
 
   {
-    label: t('command-palette.border-bottom.label'),
+    label: 'command-palette.border-bottom.label',
     fn: SheetToolbarCommand({ command: 'border-bottom' }),
   },
 
   {
-    label: t('command-palette.border-double-bottom.label'),
+    label: 'command-palette.border-double-bottom.label',
     fn: SheetToolbarCommand({ command: 'border-double-bottom' }),
   },
 
   {
-    label: t('command-palette.border-left.label'),
+    label: 'command-palette.border-left.label',
     fn: SheetToolbarCommand({ command: 'border-left' }),
   },
 
   {
-    label: t('command-palette.border-right.label'),
+    label: 'command-palette.border-right.label',
     fn: SheetToolbarCommand({ command: 'border-right' }),
   },
 
   {
-    label: t('command-palette.border-outside.label'),
-    alt: t('command-palette.border-outside.alt'),
+    label: 'command-palette.border-outside.label',
+    alt: 'command-palette.border-outside.alt',
     fn: SheetToolbarCommand({ command: 'border-outside' }),
   },
 
   {
-    label: t('command-palette.border-all.label'),
+    label: 'command-palette.border-all.label',
     fn: SheetToolbarCommand({ command: 'border-all' }),
   },
 
   {
-    label: t('command-palette.reset-font-scale.label'),
+    label: 'command-palette.reset-font-scale.label',
     fn: SheetToolbarCommand({ command: 'font-scale', scale: 1.0 }),
-    alt: t('command-palette.reset-font-scale.alt')
+    alt: 'command-palette.reset-font-scale.alt'
   },
 
   {
-    label: t('command-palette.font-scale-increase.label'),
+    label: 'command-palette.font-scale-increase.label',
     fn: SheetToolbarCommand({ command: 'adjust-font-scale', delta: .1 }),
-    alt: t('command-palette.font-scale-increase.alt')
+    alt: 'command-palette.font-scale-increase.alt'
   },
 
   {
-    label: t('command-palette.font-scale-decrease.label'),
+    label: 'command-palette.font-scale-decrease.label',
     fn: SheetToolbarCommand({ command: 'adjust-font-scale', delta: -.1 }),
-    alt: t('command-palette.font-scale-decrease.alt')
+    alt: 'command-palette.font-scale-decrease.alt'
   },
 
   {
-    label: t('command-palette.insert-donut-chart.label'),
+    label: 'command-palette.insert-donut-chart.label',
     fn: SheetToolbarCommand({ command: 'insert-donut-chart' }),
-    alt: t('command-palette.insert-donut-chart.alt')
+    alt: 'command-palette.insert-donut-chart.alt'
   },
   {
-    label: t('command-palette.insert-column-chart.label'),
+    label: 'command-palette.insert-column-chart.label',
     fn: SheetToolbarCommand({ command: 'insert-column-chart' }),
-    alt: t('command-palette.insert-column-chart.alt')
+    alt: 'command-palette.insert-column-chart.alt'
   },
   {
-    label: t('command-palette.insert-bar-chart.label'),
+    label: 'command-palette.insert-bar-chart.label',
     fn: SheetToolbarCommand({ command: 'insert-bar-chart' }),
-    alt: t('command-palette.insert-bar-chart.alt')
+    alt: 'command-palette.insert-bar-chart.alt'
   },
   {
-    label: t('command-palette.insert-line-chart.label'),
+    label: 'command-palette.insert-line-chart.label',
     fn: SheetToolbarCommand({ command: 'insert-line-chart' }),
-    alt: t('command-palette.insert-line-chart.alt')
+    alt: 'command-palette.insert-line-chart.alt'
   },
   {
-    label: t('command-palette.insert-scatter-plot.label'),
+    label: 'command-palette.insert-scatter-plot.label',
     fn: SheetToolbarCommand({ command: 'insert-scatter-plot' }),
-    alt: t('command-palette.insert-scatter-plot.alt')
+    alt: 'command-palette.insert-scatter-plot.alt'
   },
   {
-    label: t('command-palette.insert-box-plot.label'),
+    label: 'command-palette.insert-box-plot.label',
     fn: SheetToolbarCommand({ command: 'insert-box-plot' }),
-    alt: t('command-palette.insert-box-plot.alt')
+    alt: 'command-palette.insert-box-plot.alt'
   },
 
   {
-    label: t('command-palette.theme.dark-theme.label'),
-    alt: t('command-palette.theme.dark-theme.alt'),
+    label: 'command-palette.theme.dark-theme.label',
+    alt: 'command-palette.theme.dark-theme.alt',
     fn: (ctx: Context) => {
       ctx.oncommand(ToolbarCommandMap['dark-theme']);
     },
   },
   {
-    label: t('command-palette.theme.light-theme.label'),
-    alt: t('command-palette.theme.light-theme.alt'),
+    label: 'command-palette.theme.light-theme.label',
+    alt: 'command-palette.theme.light-theme.alt',
     fn: (ctx: Context) => {
       ctx.oncommand(ToolbarCommandMap['light-theme']);
     },
   },
   {
-    label: t('command-palette.theme.system-theme.label'),
-    alt: t('command-palette.theme.system-theme.alt'),
+    label: 'command-palette.theme.system-theme.label',
+    alt: 'command-palette.theme.system-theme.alt',
     fn: (ctx: Context) => {
       ctx.oncommand(ToolbarCommandMap['system-theme']);
     },
@@ -323,7 +328,7 @@ export const commands: PaletteCommand[] = [
   */
 
   {
-    label: t('command-palette.insert-image.label'),
+    label: 'command-palette.insert-image.label',
     fn: SheetToolbarCommand({ command: 'insert-image' }),
   },
 
@@ -332,23 +337,23 @@ export const commands: PaletteCommand[] = [
   */
 
   {
-    label: t('command-palette.cf-gradient-red-green.label'),
+    label: 'command-palette.cf-gradient-red-green.label',
     fn: (ctx: Context) => {
       ctx.sheet.ConditionalFormatGradient(undefined, 'red-green');
     }
   },
 
   {
-    label: t('command-palette.cf-gradient-green-red.label'),
+    label: 'command-palette.cf-gradient-green-red.label',
     fn: (ctx: Context) => {
       ctx.sheet.ConditionalFormatGradient(undefined, 'green-red');
     }
   },
 
   {
-    label: t('command-palette.cf-unique-values.label'),
+    label: 'command-palette.cf-unique-values.label',
     parameters: [{
-      label: t('command-palette.cf-unique-values.parameter.color.label'),
+      label: 'command-palette.cf-unique-values.parameter.color.label',
       type: 'color',
       default: { theme: 9, tint: .66 },
     }],
@@ -366,19 +371,19 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.cf-data-bars.label'),
-    alt: t('command-palette.cf-data-bars.alt'),
+    label: 'command-palette.cf-data-bars.label',
+    alt: 'command-palette.cf-data-bars.alt',
     parameters: [{
-      label: t('command-palette.cf-data-bars.parameter.color.label'),
+      label: 'command-palette.cf-data-bars.parameter.color.label',
       type: 'color',
       default: { theme: 4, tint: .5 },
     }, {
-      label: t('command-palette.cf-data-bars.parameter.hide-values.label'),
+      label: 'command-palette.cf-data-bars.parameter.hide-values.label',
       type: 'boolean',
       default: true,
       choices: [
-        { value: 'true', label: t('command-palette.cf-data-bars.parameter.hide-values.choice.true') },
-        { value: 'false', label: t('command-palette.cf-data-bars.parameter.hide-values.choice.false') }
+        { value: 'true', label: 'command-palette.cf-data-bars.parameter.hide-values.choice.true' },
+        { value: 'false', label: 'command-palette.cf-data-bars.parameter.hide-values.choice.false' }
       ],
     }],
     fn: (ctx: Context) => {
@@ -397,9 +402,9 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.cf-duplicate-values.label'),
+    label: 'command-palette.cf-duplicate-values.label',
     parameters: [{
-      label: t('command-palette.cf-duplicate-values.parameter.color.label'),
+      label: 'command-palette.cf-duplicate-values.parameter.color.label',
       type: 'color',
       default: { theme: 7, tint: .66 },
     }],
@@ -417,8 +422,8 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.cf-clear.label'),
-    alt: t('command-palette.cf-clear.alt'),
+    label: 'command-palette.cf-clear.label',
+    alt: 'command-palette.cf-clear.alt',
     fn: (ctx: Context) => {
       ctx.sheet.RemoveConditionalFormats()
     }
@@ -426,7 +431,7 @@ export const commands: PaletteCommand[] = [
 
 
   { 
-    label: t('command-palette.fit-column-widths.label'),
+    label: 'command-palette.fit-column-widths.label',
     fn: (ctx: Context) => {
       const columns: number[] = [];
       const sel = ctx.sheet.GetSelection();
@@ -462,19 +467,19 @@ export const commands: PaletteCommand[] = [
   */
 
   {
-    label: t('command-palette.fit-data.label'),
+    label: 'command-palette.fit-data.label',
     fn: ToolbarCommand('fit-data'),
-    alt: t('command-palette.fit-data.alt'),
+    alt: 'command-palette.fit-data.alt',
   },
 
   {
-    label: t('command-palette.named-ranges.label'),
+    label: 'command-palette.named-ranges.label',
     fn: ToolbarCommand('names'),
-    alt: t('command-palette.named-ranges.alt'),
+    alt: 'command-palette.named-ranges.alt',
   },
 
   {
-    label: t('command-palette.set-tab-color.label'),
+    label: 'command-palette.set-tab-color.label',
     parameters: [{
       type: 'color',
     }],
@@ -487,15 +492,15 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.reset-tab-color.label'),
-    alt: t('command-palette.reset-tab-color.alt'),
+    label: 'command-palette.reset-tab-color.label',
+    alt: 'command-palette.reset-tab-color.alt',
     fn: (ctx: Context) => {
       ctx.sheet.SetTabColor(undefined, undefined);
     },
   },
   
   { 
-    label: t('command-palette.fit-row-heights.label'),
+    label: 'command-palette.fit-row-heights.label',
     fn: (ctx: Context) => {
       const rows: number[] = [];
       const sel = ctx.sheet.GetSelection();
@@ -519,21 +524,21 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.correlation-matrix.label'),
+    label: 'command-palette.correlation-matrix.label',
     fn: ToolbarCommand('correlation-matrix'),
   },
 
   {
-    label: t('command-palette.hide-sheet.label'),
-    alt: t('command-palette.hide-sheet.alt'),
+    label: 'command-palette.hide-sheet.label',
+    alt: 'command-palette.hide-sheet.alt',
     fn: (ctx: Context) => {
       ctx.sheet.HideSheet(ctx.sheet.active_sheet, true);
     },
   },
 
   {
-    label: t('command-palette.unhide-all-sheets.label'),
-    alt: t('command-palette.unhide-all-sheets.alt'),
+    label: 'command-palette.unhide-all-sheets.label',
+    alt: 'command-palette.unhide-all-sheets.alt',
     fn: (ctx: Context) => {
       for (const sheet of ctx.sheet.grid.model.sheets.list) {
         if (!sheet.visible) {
@@ -544,7 +549,7 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.unhide-columns.label'),
+    label: 'command-palette.unhide-columns.label',
     fn: (ctx: Context) => {
       const columns: number[] = [];
 
@@ -562,7 +567,7 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.unhide-rows.label'),
+    label: 'command-palette.unhide-rows.label',
     fn: (ctx: Context) => {
       const rows: number[] = [];
 
@@ -580,7 +585,7 @@ export const commands: PaletteCommand[] = [
   },
 
   { 
-    label: t('command-palette.hide-rows.label'),
+    label: 'command-palette.hide-rows.label',
     fn: (ctx: Context) => {
       const rows: number[] = [];
       const sel = ctx.sheet.GetSelection();
@@ -605,7 +610,7 @@ export const commands: PaletteCommand[] = [
   },
 
   { 
-    label: t('command-palette.hide-columns.label'),
+    label: 'command-palette.hide-columns.label',
     fn: (ctx: Context) => {
       const columns: number[] = [];
       const sel = ctx.sheet.GetSelection();
@@ -630,119 +635,119 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.las-vegas-simulation.label'),
+    label: 'command-palette.las-vegas-simulation.label',
     fn: ToolbarCommand('run-lv-simulation'),
   },
 
   {
-    label: t('command-palette.simulation-settings.label'),
+    label: 'command-palette.simulation-settings.label',
     fn: ToolbarCommand('simulation-settings'),
   },
 
   {
-    label: t('command-palette.language-settings.label'),
+    label: 'command-palette.language-settings.label',
     fn: ToolbarCommand('language-settings'),
   },
 
   {
-    label: t('command-palette.load-desktop-file.label'),
-    alt: t('command-palette.load-desktop-file.alt'),
+    label: 'command-palette.load-desktop-file.label',
+    alt: 'command-palette.load-desktop-file.alt',
     fn: (ctx: Context) => ctx.sheet.LoadLocalFile(),
   },
 
   {
-    label: t('command-palette.save-xlsx.label'),
-    alt: t('command-palette.save-xlsx.alt'),
+    label: 'command-palette.save-xlsx.label',
+    alt: 'command-palette.save-xlsx.alt',
     fn: (ctx: Context) => ctx.sheet.Export(),
   },
 
   {
-    label: t('command-palette.save-csv.label'),
-    alt: t('command-palette.save-csv.alt'),
+    label: 'command-palette.save-csv.label',
+    alt: 'command-palette.save-csv.alt',
     fn: (ctx: Context) => ctx.sheet.ExportDelimited(),
   },
 
   {
-    label: t('command-palette.save-to-cloud.label'),
+    label: 'command-palette.save-to-cloud.label',
     fn: ToolbarCommand('save'),
   },
 
   {
-    label: t('command-palette.load-document.label'),
-    alt: t('command-palette.load-document.alt'),
+    label: 'command-palette.load-document.label',
+    alt: 'command-palette.load-document.alt',
     fn: (ctx: Context) => goto('/documents'),
   },
 
   {
-    label: t('command-palette.download-json.label'),
-    alt: t('command-palette.download-json.alt'),
+    label: 'command-palette.download-json.label',
+    alt: 'command-palette.download-json.alt',
     fn: (ctx: Context) => ctx.sheet.SaveToDesktop(),
   },
 
   {
-    label: t('command-palette.insert-function.label'),
+    label: 'command-palette.insert-function.label',
     fn: ToolbarCommand('insert-function'),
   },
 
   {
-    label: t('command-palette.find.label'),
+    label: 'command-palette.find.label',
     fn: ToolbarCommand('find'),
   },
   {
-    label: t('command-palette.insert-distribution.label'),
+    label: 'command-palette.insert-distribution.label',
     fn: ToolbarCommand('insert-distribution'),
   },
   {
-    label: t('command-palette.run-simulation.label'),
+    label: 'command-palette.run-simulation.label',
     fn: ToolbarCommand('run-simulation-again'),
   },
   {
-    label: t('command-palette.quick-view.label'),
+    label: 'command-palette.quick-view.label',
     fn: ToolbarCommand('quick-view'),
   },
   {
-    label: t('command-palette.new-model.label'),
+    label: 'command-palette.new-model.label',
     fn: ToolbarCommand('new-document'),
   },
   {
-    label: t('command-palette.revert-file.label'),
+    label: 'command-palette.revert-file.label',
     fn: ToolbarCommand('revert'),
   },
 
   {
-    label: t('command-palette.recalculate.label'),
+    label: 'command-palette.recalculate.label',
     fn: (ctx: Context) => ctx.sheet.Recalculate(),
   },
 
   {
-    label: t('command-palette.undo.label'),
+    label: 'command-palette.undo.label',
     fn: (ctx: Context) => ctx.sheet.Undo(),
   },
 
   {
-    label: t('command-palette.delete-columns.label'),
+    label: 'command-palette.delete-columns.label',
     fn: (ctx: Context) => ctx.sheet.DeleteColumns(),
   },
   {
-    label: t('command-palette.delete-rows.label'),
+    label: 'command-palette.delete-rows.label',
     fn: (ctx: Context) => ctx.sheet.DeleteRows(),
   },
 
   {
-    label: t('command-palette.insert-column.label'),
+    label: 'command-palette.insert-column.label',
     fn: (ctx: Context) => ctx.sheet.InsertColumns(),
   },
   {
-    label: t('command-palette.insert-row.label'),
+    label: 'command-palette.insert-row.label',
     fn: (ctx: Context) => ctx.sheet.InsertRows(),
   },
 
   {
-    label: t('command-palette.set-view-scale.label'),
+    label: 'command-palette.set-view-scale.label',
     parameters: [{
       type: 'number',
       style: 'percent',
-      label: t('command-palette.set-view-scale.parameter.scale.label')
+      label: 'command-palette.set-view-scale.parameter.scale.label'
     }],
     fn: (ctx: Context) => {
       const parameter = ctx.parameters?.[0];
@@ -754,18 +759,18 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.reset-view-scale.label'),
+    label: 'command-palette.reset-view-scale.label',
     fn: (ctx: Context) => {
       ctx.sheet.grid.SetScale(1);
     }
   },
 
   {
-    label: t('command-palette.rename-tab.label'),
-    alt: t('command-palette.rename-tab.alt'),
+    label: 'command-palette.rename-tab.label',
+    alt: 'command-palette.rename-tab.alt',
     parameters: [{
       type: 'text',
-      label: t('command-palette.rename-tab.parameter.name.label')
+      label: 'command-palette.rename-tab.parameter.name.label'
     }],
     fn: (ctx: Context) => {
       const parameter = ctx.parameters?.[0];
@@ -776,10 +781,10 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.add-tab.label'),
-    alt: t('command-palette.add-tab.alt'),
+    label: 'command-palette.add-tab.label',
+    alt: 'command-palette.add-tab.alt',
     parameters: [{
-      label: t('command-palette.add-tab.parameter.name.label'),
+      label: 'command-palette.add-tab.parameter.name.label',
       type: 'text',
     }],
     init: (ctx: Context) => {
@@ -819,20 +824,20 @@ export const commands: PaletteCommand[] = [
     },
   },
   {
-    label: t('command-palette.delete-tab.label'),
-    alt: t('command-palette.delete-tab.alt'),
+    label: 'command-palette.delete-tab.label',
+    alt: 'command-palette.delete-tab.alt',
     fn: (ctx: Context) => ctx.sheet.DeleteSheet(),
   },
 
   {
-    label: t('command-palette.increase-indent.label'),
-    alt: t('command-palette.increase-indent.alt'),
+    label: 'command-palette.increase-indent.label',
+    alt: 'command-palette.increase-indent.alt',
     fn: SheetToolbarCommand({ command: 'indent' }),
     // fn: (ctx: Context) => (ctx.sheet as any).HandleToolbarMessage({ command: 'indent'}),
   },
   {
-    label: t('command-palette.decrease-indent.label'),
-    alt: t('command-palette.decrease-indent.alt'),
+    label: 'command-palette.decrease-indent.label',
+    alt: 'command-palette.decrease-indent.alt',
     // fn: (ctx: Context) => (ctx.sheet as any).HandleToolbarMessage({ command: 'outdent'}),
     fn: SheetToolbarCommand({ command: 'outdent' }),
   },
@@ -849,23 +854,23 @@ export const commands: PaletteCommand[] = [
 
 
   {
-    label: t('command-palette.number-format-increase-precision.label'),
-    alt: t('command-palette.number-format-increase-precision.alt'),
+    label: 'command-palette.number-format-increase-precision.label',
+    alt: 'command-palette.number-format-increase-precision.alt',
     fn: SheetToolbarCommand({ command: 'increase-precision' }),
   },
   {
-    label: t('command-palette.number-format-decrease-precision.label'),
-    alt: t('command-palette.number-format-decrease-precision.alt'),
+    label: 'command-palette.number-format-decrease-precision.label',
+    alt: 'command-palette.number-format-decrease-precision.alt',
     fn: SheetToolbarCommand({ command: 'decrease-precision' }),
   },
 
   {
-    label: t('command-palette.number-format.label'),
-    alt: t('command-palette.number-format.alt'),
+    label: 'command-palette.number-format.label',
+    alt: 'command-palette.number-format.alt',
     parameters: [{ 
       name: 'Format', 
       type: 'text', 
-      label: t('command-palette.number-format.parameter.format.label'),
+      label: 'command-palette.number-format.parameter.format.label',
       choices: [],
     }],
     fn: StyleParameters(['number_format']),
@@ -903,110 +908,110 @@ export const commands: PaletteCommand[] = [
   },
 
   {
-    label: t('command-palette.merge-cells.label'),
+    label: 'command-palette.merge-cells.label',
     fn: (ctx: Context) => ctx.sheet.MergeCells(),
   },
   {
-    label: t('command-palette.unmerge-cells.label'),
+    label: 'command-palette.unmerge-cells.label',
     fn: (ctx: Context) => ctx.sheet.UnmergeCells(),
   },
 
   {
-    label: t('command-palette.lock-cells.label'),
+    label: 'command-palette.lock-cells.label',
     fn: (ctx: Context) => ctx.sheet.ApplyStyle(undefined, {
       locked: true,
     }),
   },
   {
-    label: t('command-palette.unlock-cells.label'),
+    label: 'command-palette.unlock-cells.label',
     fn: (ctx: Context) => ctx.sheet.ApplyStyle(undefined, {
       locked: false,
     }),
   },
 
   {
-    label: t('command-palette.valign-top.label'),
+    label: 'command-palette.valign-top.label',
     fn: ApplyStyle({ vertical_align: 'top' }),
   },
   {
-    label: t('command-palette.valign-bottom.label'),
+    label: 'command-palette.valign-bottom.label',
     fn: ApplyStyle({ vertical_align: 'bottom' }),
   },
   {
-    label: t('command-palette.valign-middle.label'),
+    label: 'command-palette.valign-middle.label',
     // alt: 'center',
     fn: ApplyStyle({ vertical_align: 'middle' }),
   },
 
   {
-    label: t('command-palette.align-left.label'),
-    alt: t('command-palette.align-left.alt'),
+    label: 'command-palette.align-left.label',
+    alt: 'command-palette.align-left.alt',
     fn: (ctx: Context) => ctx.sheet.ApplyStyle(undefined, {
       horizontal_align: 'left',
     }),
   },
   {
-    label: t('command-palette.align-right.label'),
-    alt: t('command-palette.align-right.alt'),
+    label: 'command-palette.align-right.label',
+    alt: 'command-palette.align-right.alt',
     fn: (ctx: Context) => ctx.sheet.ApplyStyle(undefined, {
       horizontal_align: 'right',
     }),
   },
   {
-    label: t('command-palette.align-center.label'),
-    alt: t('command-palette.align-center.alt'),
+    label: 'command-palette.align-center.label',
+    alt: 'command-palette.align-center.alt',
     fn: (ctx: Context) => ctx.sheet.ApplyStyle(undefined, {
       horizontal_align: 'center',
     }),
   },
 
   { 
-    label: t('command-palette.toggle-word-wrap.label'),
+    label: 'command-palette.toggle-word-wrap.label',
     fn: ToggleStyle('wrap'),
   },
   
   {
-    label: t('command-palette.toggle-gridlines.label'),
+    label: 'command-palette.toggle-gridlines.label',
     fn: (ctx: Context) => {
       ctx.sheet.ShowGridlines();
     }
   },
 
   {
-    label: t('command-palette.show-gridlines.label'),
+    label: 'command-palette.show-gridlines.label',
     fn: (ctx: Context) => {
       ctx.sheet.ShowGridlines(undefined, true);
     }
   },
 
   {
-    label: t('command-palette.hide-gridlines.label'),
+    label: 'command-palette.hide-gridlines.label',
     fn: (ctx: Context) => {
       ctx.sheet.ShowGridlines(undefined, false);
     }
   },
 
   { 
-    label: t('command-palette.toggle-bold.label'),
+    label: 'command-palette.toggle-bold.label',
     fn: ToggleStyle('bold'),
   },
 
   { 
-    label: t('command-palette.toggle-italic.label'),
+    label: 'command-palette.toggle-italic.label',
     fn: ToggleStyle('italic'),
   },
   { 
-    label: t('command-palette.toggle-underline.label'),
+    label: 'command-palette.toggle-underline.label',
     fn: ToggleStyle('underline'),
   },
   { 
-    label: t('command-palette.toggle-strikethrough.label'),
+    label: 'command-palette.toggle-strikethrough.label',
     fn: ToggleStyle('strike'),
   },
 
   {
-    label: t('command-palette.reset-text-formatting.label'),
-    alt: t('command-palette.reset-text-formatting.alt'),
+    label: 'command-palette.reset-text-formatting.label',
+    alt: 'command-palette.reset-text-formatting.alt',
     fn: ApplyStyle({
       bold: false, 
       italic: false, 
