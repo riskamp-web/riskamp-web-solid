@@ -176,19 +176,14 @@
   --dialog-progress-track-color: light-dark(rgb(223, 223, 223), #3a3d42);
   --dialog-progress-bar-color:   var(--accent);   /* was orange */
 
-  /* chart data series (trend-forecasting) */
-  --chart-series-1-color: light-dark(rgb(70, 48, 129), #a78bfa);   /* purple: lightened for dark */
-  --chart-series-2-color: light-dark(orange, orange);
-
   /* reference-editor syntax colors */
   --dialog-syntax-string-color:     light-dark(green, #4ec9a0);
   --dialog-syntax-call-color:       light-dark(blue, #569cd6);
   --dialog-syntax-identifier-color: light-dark(purple, #c586c0);
 
   /* ===== Sidebar =====================================================
-     Single source of truth for sidebar colors. Quickview chart's .series-1
-     reuses --chart-series-1-color.
-
+     Single source of truth for sidebar 
+     
      The peach header is gone: it was a placeholder, and the panel header now
      matches the backstage detail panel (title row + hairline, no fill), so the
      two slide-overs read as the same object. */

@@ -2,6 +2,7 @@
 import { onMount, Setter } from "solid-js";
 import { type EmbeddedSpreadsheet, type MCEmbeddedSpreadsheetOptions, RiskAMPWeb } from 'riskamp-web';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
+import { ApplyThemeColors } from '../toolbar/theme-selector';
 
 interface Props {
   fill?: boolean;
@@ -75,8 +76,13 @@ export function Spreadsheet(props: Props) {
 
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
       mq.addEventListener('change', () => {
-        requestAnimationFrame(() => sheet.UpdateTheme());
+        requestAnimationFrame(() => {
+          sheet.UpdateTheme();
+          ApplyThemeColors();
+        });
       });
+
+      ApplyThemeColors();
 
     }
   });
