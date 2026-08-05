@@ -493,10 +493,11 @@ export default {
 
   'quick-view': {
     panel: {
-      labe: {
+      label: {
         'click-to-lock': 'Lock the quick view selection',
         'click-to-unlock': 'Unlock the quick view selection',
         'return-to-selection': 'Return to selected cell',
+        'selection-locked': 'Selection locked',
       },
     },
   },
@@ -655,7 +656,7 @@ export default {
       mean_error: 'Mean error',
     },
 
-    labe: {
+    label: {
       'click-to-lock': 'Lock the fit data selection',
       'click-to-unlock': 'Unlock the fit data selection',
     },

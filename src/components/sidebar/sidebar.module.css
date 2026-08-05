@@ -502,3 +502,49 @@ header.sidebar-header {
   }
 
 }
+
+/*
+.unfocus-lock {
+  &:not(:focus) {
+    &::after {
+      position: absolute;
+      content: 'hello';
+      right: 0px;
+    }
+  }
+}
+*/
+
+.composite-container {
+
+  flex-grow: 1;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+
+  & > div {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  & .lock {
+    display: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    pointer-events: none;
+    padding-right: .5em;
+
+    & span {
+      pointer-events: initial;
+    }
+
+  }
+
+  &:not(:focus-within) {
+    .lock {
+      display: flex;
+    }
+  }
+
+}

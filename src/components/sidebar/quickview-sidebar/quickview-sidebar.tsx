@@ -26,6 +26,7 @@ import { NumberFormatCache } from '@trebco/treb/treb-format';
 import './quickview-charts.css';
 import { ToolbarCommandMap, ToolbarCommands } from '~/components/toolbar/toolbar-commands';
 import { MCEmbeddedSheetEvent } from 'riskamp-web';
+import { icons } from '~/components/icon-sets';
 
 function Variance(data: number[], sample = false) {
   const len = data.length;
@@ -111,12 +112,17 @@ export function Sidebar(props: SidebarProps) {
   let subscription = 0;
 
   onMount(() => {
+
+    // initial paint pass on mount    
+
     requestAnimationFrame(() => {
       parameter_element?.focus();
       charts.histogram.Initialize(chart_containers[0]);
       charts.boxplot.Initialize(chart_containers[1]);
       RedrawInternal();
     });
+
+    // listen for resize and simulation events
 
     window.addEventListener('resize', Resize);
     subscription = props.sheet()?.Subscribe((event: MCEmbeddedSheetEvent|EmbeddedSheetEvent) => {
@@ -132,6 +138,9 @@ export function Sidebar(props: SidebarProps) {
   });
 
   onCleanup(() => {
+
+    // clean up event listener and subscription
+
     window.removeEventListener('resize', Resize);
     if (subscription) {
       props.sheet()?.Cancel(subscription);
@@ -341,19 +350,30 @@ function RedrawInternal() {
         'quick-view': true,
       }}>
       <div class="flex-row">
-        <div class="reference-editor tc contenteditable-placeholder flex-grow" 
-              data-selection-target 
-              tabindex="0"
-              role="textbox" 
-              spellcheck="false"
-              contenteditable="true"
-              onfocusout={FocusOut}
-              onfocusin={FocusIn}
-              onkeydown={KeyDown}
-              data-placeholder={t('quick-view-dialog.select-cell')}
-              oninput={() => TollRedraw()}
-              onchange={() => TollRedraw()}
-              ref={parameter_element}>{initial_value}</div>
+        <div class={style['composite-container']}>
+          <div classList={{
+                  'reference-editor': true,
+                  tc: true,
+                  'contenteditable-placeholder': true,
+                  'flex-grow': true,
+                }} 
+                data-selection-target 
+                tabindex="0"
+                role="textbox" 
+                spellcheck="false"
+                contenteditable="true"
+                onfocusout={FocusOut}
+                onfocusin={FocusIn}
+                onkeydown={KeyDown}
+                data-placeholder={t('quick-view-dialog.select-cell')}
+                oninput={() => TollRedraw()}
+                onchange={() => TollRedraw()}
+                ref={parameter_element}>{initial_value}</div>
+          <div class={style.lock}>
+            <span innerHTML={icons.lock_cells} title={t('quick-view.panel.label.selection-locked')}
+                  onclick={e => parameter_element?.focus()}/>
+          </div>
+        </div>
       </div>
 
         <div class="tab-container">
