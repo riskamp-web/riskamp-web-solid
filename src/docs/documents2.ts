@@ -63,3 +63,36 @@ export const GetDocument = async (path: string, cache = true, refresh_cache = fa
   throw new Error(data.status?.toString());
 
 };
+
+export async function UpdateDocument(pathname: string, args: {
+      name?: string;
+      document?: string;
+      access?: 'public'|'private';
+      starred?: boolean;
+    }) {
+  
+  const access = (typeof args.access === 'string') ? (args.access === 'public' ? 1 : 0) : undefined;
+
+  if (pathname.endsWith('/')) {
+    pathname = pathname.substring(0, pathname.length - 1)
+  }
+
+  try {
+    const result = await auth.AccessResource('/api/update-document', {
+      pathname,
+      name: args.name,
+      document: args.document,
+      access,
+      starred: args.starred
+    });
+
+    return result.ok;
+  }
+  catch {
+    // 
+  }
+
+  return false;
+
+}
+

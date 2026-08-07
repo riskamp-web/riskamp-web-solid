@@ -52,7 +52,7 @@ export function InteractiveSidebar(props: ParentProps<Props>) {
         if (root_node) {
           const editors = Array.from(root_node.querySelectorAll('div[data-selection-target]')) as HTMLDivElement[];
           for (const editor of editors) {
-            editor.textContent = editor.textContent;
+            editor.textContent = editor.textContent; // is there some reason for this?
           }
           initialized = false;
         }

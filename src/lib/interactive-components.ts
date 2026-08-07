@@ -138,6 +138,7 @@ export function Init(root_node: HTMLElement, sheet?: EmbeddedSpreadsheet, clear_
 
     sheet?.ExternalEditor({
       nodes: editors,
+      // update_formula_text_on_selection: true,
     });
     // initialized = true;
 
@@ -154,6 +155,7 @@ export function UpdateNodes(
 
     sheet?.ExternalEditor({
       nodes,
+      // update_formula_text_on_selection: true,
     });
 
     // console.info("Update nodes", nodes);
