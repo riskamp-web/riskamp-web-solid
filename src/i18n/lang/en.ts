@@ -543,6 +543,21 @@ export default {
   'run-simulation-cancel-label': 'Stop',
   'run-simulation-cancel-title': 'Stop simulation',
 
+  'save-as-dialog': {
+    title: 'Save As',
+    folder: 'Folder',
+    name: 'Name',
+    save: 'Save',
+    overwrite: 'Overwrite',
+    'folder-placeholder': 'Optional — e.g. finance/reports',
+    'name-placeholder': 'Document name',
+    'preview-label': 'Will be saved as',
+    'copy-link': 'Copy link',
+    'copy-link-copied': 'Link copied',
+    collision: 'A document already exists at this path.',
+    empty: 'Enter a name',
+  },
+
   'las-vegas-simulation-panel': {
     title: 'Las Vegas simulation',
   },

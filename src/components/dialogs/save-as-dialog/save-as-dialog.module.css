@@ -1,0 +1,133 @@
+
+/* a definite initial width on the frame so a long preview path ellipsizes
+   instead of stretching the dialog; resize writes an inline width that
+   overrides this (capped by max-width), so the grip can reveal more path. */
+.dialog-root :global(.frame) {
+  width: 26em;
+  max-width: 90vw;
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+  min-width: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: .25em;
+}
+
+.field-label {
+  color: var(--text-muted);
+  font-size: .85em;
+}
+
+.field input[type=text] {
+  width: 100%;
+}
+
+/* the folder field while the name is driving it */
+.shadowed {
+  color: var(--text-faint);
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: .2em;
+  margin-top: .5em;
+  padding: .5em .6em;
+  border-radius: var(--surface-radius);
+  background: var(--overlay-faint);
+}
+
+.preview-label {
+  color: var(--text-muted);
+  font-size: .75em;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+/* holds either the path row or the placeholder; a fixed min-height (the copy
+   button's height) keeps the box the same size whichever is shown, so typing
+   the first character doesn't jump the layout */
+.preview-value {
+  display: flex;
+  align-items: center;
+  min-height: 22px;
+}
+
+.path-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: .4em;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.path {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--mono-font-family, ui-monospace, monospace);
+
+  /* single line; when it overflows, ellipsis at the START so the slug stays
+     visible. css only ellipsizes the line's end, so the line is flipped to rtl
+     to move that end to the left; the text itself is anchored ltr by a leading
+     LRM (see the .path span) so segments and the '@' keep their order. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+  text-align: left;
+}
+
+.copy-button {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border: none;
+  border-radius: var(--control-radius);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--hover-strong);
+    color: var(--text);
+  }
+}
+
+.icon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+
+  & > svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.copy-confirmed {
+  color: var(--accent);
+}
+
+.placeholder {
+  color: var(--text-faint);
+}
+
+/* overwrite heads-up, below the preview box. always rendered so its line height
+   is reserved; .hidden only drops its visibility, so toggling never reflows. */
+.warning {
+  color: var(--warning);
+}
+
+.hidden {
+  visibility: hidden;
+}
