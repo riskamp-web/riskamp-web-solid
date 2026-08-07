@@ -378,6 +378,11 @@
   font-weight: 600;
   line-height: 1.3;
   overflow-wrap: anywhere;
+
+  /* reserve the star's box (.icon is 20px) so star/unstar doesn't change the
+     line height and shift everything below -- worst on path-derived slugs,
+     where the 12px monospace line is well short of the star */
+  min-height: 20px;
 }
 
 /* a document with no name shows its slug. monospace marks it as an address

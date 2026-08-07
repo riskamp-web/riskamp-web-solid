@@ -176,6 +176,13 @@ export default function Documents() {
   const [sortKey, setSortKey] = createSignal<SortKey>(saved.sort);
   const [sortDirection, setSortDirection] = createSignal<SortDirection>(saved.direction);
 
+  /* where the list was scrolled to. part of the saved view for the same reason
+     the open panel is: opening a document unmounts the page, and coming back to
+     the top of a list you'd scrolled through is a chore. updated from the body's
+     onscroll below, throttled -- a raw scroll would write localStorage every
+     frame */
+  const [scroll, setScroll] = createSignal(saved.scroll);
+
   /* the open panel is part of the view too: reading a document's history means
      opening versions one at a time, and coming back to a closed panel each time
      makes that a chore. what's *ticked* still isn't saved -- a tick is a thing
@@ -189,6 +196,8 @@ export default function Documents() {
   /* eslint-disable-next-line no-unassigned-vars -- assigned through ref= below,
      which the rule doesn't count as an assignment */
   let search_input: HTMLInputElement | undefined;
+  /* eslint-disable-next-line no-unassigned-vars -- ref, same as search_input */
+  let table_body: HTMLDivElement | undefined;
 
   // no-op if another visit already filled the store; loaded() drives the skeleton
   onMount(() => { loadDocuments(); });
@@ -217,7 +226,7 @@ export default function Documents() {
     return id === undefined ? undefined : documents.find(doc => doc.id === id)?.path;
   });
 
-  /* one effect for all six, so saving is a single write and no handler has to
+  /* one effect for all seven, so saving is a single write and no handler has to
      remember to do it. it also runs on mount, writing back what it just read */
   createEffect(() => saveView({
     scope: scope(),
@@ -225,8 +234,22 @@ export default function Documents() {
     search: search(),
     sort: sortKey(),
     direction: sortDirection(),
+    scroll: scroll(),
     open: openPath(),
   }));
+
+  /* the body scrolls under a fixed header, so the offset to keep is its
+     scrollTop. throttled to one read per frame-ish window: scroll fires many
+     times a second and every distinct value re-runs the save effect above */
+  let scroll_timer: number | undefined;
+  const onScroll = () => {
+    if (scroll_timer !== undefined) { return; }
+    scroll_timer = window.setTimeout(() => {
+      scroll_timer = undefined;
+      setScroll(table_body?.scrollTop ?? 0);
+    }, 150);
+  };
+  onCleanup(() => { if (scroll_timer !== undefined) { window.clearTimeout(scroll_timer); } });
 
   /* ---- derived ---- */
 
@@ -284,6 +307,17 @@ export default function Documents() {
 
     return sortDocuments(list, sortKey(), sortDirection());
 
+  });
+
+  /* restore the saved offset once the rows are in -- there's nothing to scroll
+     against before then. once only, mirroring the open-panel latch above:
+     onscroll would otherwise keep re-triggering this. saved.scroll is read
+     untracked, so a later save doesn't re-scroll the list */
+  let scroll_restored = !saved.scroll;
+  createEffect(() => {
+    if (scroll_restored || !loaded() || !visible().length) { return; }
+    scroll_restored = true;
+    if (table_body) { table_body.scrollTop = saved.scroll; }
   });
 
   /** the panel keeps showing the last document while it slides out */
@@ -597,7 +631,7 @@ export default function Documents() {
           <div class={style.cell} role='columnheader'><span class='sr-only'>{t('documents-page.column.actions')}</span></div>
         </div>
 
-        <div class={style['table-body']} role='rowgroup'>
+        <div ref={table_body} class={style['table-body']} role='rowgroup' onscroll={onScroll}>
           <Switch>
 
             {/* before the skeleton: a failed load leaves the store unloaded, and

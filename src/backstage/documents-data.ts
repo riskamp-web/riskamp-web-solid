@@ -620,6 +620,7 @@ export const DEFAULT_VIEW: Required<Omit<DocumentsView, 'folder' | 'open'>>
   search: '',
   sort: 'modified',
   direction: 'desc',
+  scroll: 0,
   open: undefined,
 };
 
@@ -648,6 +649,7 @@ export function savedView(): typeof DEFAULT_VIEW {
     search: typeof saved.search === 'string' ? saved.search : DEFAULT_VIEW.search,
     sort: SORT_KEYS.includes(saved.sort!) ? saved.sort! : DEFAULT_VIEW.sort,
     direction: SORT_DIRECTIONS.includes(saved.direction!) ? saved.direction! : DEFAULT_VIEW.direction,
+    scroll: typeof saved.scroll === 'number' && saved.scroll >= 0 ? saved.scroll : DEFAULT_VIEW.scroll,
     /* only shape-checked here: whether the path still names a document can't be
        known until the rows are in, so the page resolves it -- see openDocument
        in documents.tsx */

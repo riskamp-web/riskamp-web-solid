@@ -69,6 +69,8 @@ export interface DocumentsView {
   sort?: SortKey;
   /** and its direction */
   direction?: SortDirection;
+  /** the list's saved scroll offset, in px */
+  scroll?: number;
   /**
    * the open document's path, or undefined for a closed panel. the *path*
    * rather than the row id: ids come from the service and needn't survive a
