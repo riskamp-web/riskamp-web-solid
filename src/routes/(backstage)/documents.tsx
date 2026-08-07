@@ -36,8 +36,10 @@ import {
   displayName, documentUrl, documents, failed, flattenFolders, folderOf,
   folderTree, formatAbsolute, formatCount, formatNumber, formatRelative, formatStamp, historyOf,
   isUnnamed, loadDocuments, loadHistory, loaded, ownerOf, refreshDocuments, retryHistory,
-  savedView, saveView, setDocuments, sortDocuments,
+  savedView, saveView, setDocuments, sortDocuments, pathOf,
 } from '~/backstage/documents-data';
+
+import { UpdateDocument } from '~/docs/documents2';
 
 /* the union lives next to the data: the saved view stores a scope, so
    ~/lib/app-data has to be able to type one */
@@ -356,7 +358,10 @@ export default function Documents() {
     last_trigger = undefined;
   };
 
-  const toggleStar = (id: number) => setDocuments(doc => doc.id === id, 'starred', starred => !starred);
+  const toggleStar = (doc: BackstageDocument) => {
+    UpdateDocument(pathOf(doc.path), { starred: !doc.starred });
+    setDocuments(candidate => candidate.id === doc.id, 'starred', starred => !starred);
+  }
 
   /** a past version's address: the document, with the version as a parameter */
   const versionUrl = (doc: BackstageDocument, version: number) =>
@@ -379,6 +384,12 @@ export default function Documents() {
 
   const setAccess = (ids: number[], access: number) => {
     const set = new Set(ids);
+    const docs = documents.filter(test => set.has(test.id));
+    for (const doc of docs) {
+      UpdateDocument(pathOf(doc.path), {
+        access: access === ACCESS_PUBLIC ? 'public' : 'private',
+      });
+    }
     setDocuments(doc => set.has(doc.id), 'access', access);
   };
 
@@ -733,7 +744,7 @@ export default function Documents() {
                           t(isStarred(doc) ? 'documents-page.row.unstar.label' : 'documents-page.row.star.label'),
                           { name: displayName(doc) })}
                         aria-pressed={isStarred(doc)}
-                        onclick={(event) => { event.stopPropagation(); toggleStar(doc.id); }}>
+                        onclick={(event) => { event.stopPropagation(); toggleStar(doc); }}>
                       <Icon name='star' />
                     </button>
                   </div>
@@ -892,7 +903,7 @@ export default function Documents() {
                     aria-label={t(isStarred(doc())
                       ? 'documents-page.panel.unstar.label'
                       : 'documents-page.panel.star.label')}
-                    onclick={() => toggleStar(doc().id)}>
+                    onclick={() => toggleStar(doc())}>
                   <Icon name='star' />
                 </button>
               </div>

@@ -290,6 +290,12 @@ export function slugOf(path: string): string {
   return path.slice(path.lastIndexOf('/') + 1);
 }
 
+/** given a path, remove the owner segment: @dwerner/finance/portfolio-var -> finance/portfolio-var */
+export function pathOf(path: string): string {
+  const cut = path.indexOf('/');
+  return cut < 0 ? path : path.slice(cut + 1);
+}
+
 /** assemble a path from an owner, a folder ('' for the owner's root) and a name */
 export function pathFor(owner: string, folder: string, name: string): string {
   return `${owner}${folder}/${slugify(name)}`;
