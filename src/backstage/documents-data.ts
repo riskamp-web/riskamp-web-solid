@@ -302,43 +302,59 @@ export function pathFor(owner: string, folder: string, name: string): string {
 }
 
 /**
- * drop the folder from a name that is only the document's address restated.
+ * the pretty display form of a document, split out of its name field against
+ * its path: the folder segments to show (with their typed casing) and the
+ * document's own label.
  *
- * the old save box wrote the address into the name field, so a document inside
- * a folder comes back named "gort/horn" -- folder and slug -- which renders as
- * a folder sitting in the title. the label is the document, not the route to it.
+ * the name field carries a full pretty path -- "Finance/Reports/My Model" --
+ * because the path itself is slugged (lowercase, ascii) and is the only place a
+ * folder's typed casing could otherwise live. every '/' in a name is a folder
+ * separator: names are not allowed to contain a literal one.
  *
- * checked against *this document's own* path rather than by looking for a '/',
- * because names legitimately contain them: "LLM pricing 10/15/2024" is a real
- * name in the real data, and a blanket "take the last segment" rule would show
- * it as "2024".
+ * but old data doesn't follow that rule, so the split is *structure-aware*
+ * rather than a blind lastIndexOf('/'): the name's leading segments are trusted
+ * as folders only when there's exactly one per path folder and each slugs to the
+ * matching path folder. otherwise the name is a plain title -- which legitimately
+ * contains slashes, "LLM pricing 10/15/2024" is real data -- and is shown whole.
+ * a document at the owner's root has no folders, so a name like "Bubbles" is a
+ * trivial no-op.
  *
- * what's kept is the name's own last segment, not the slug, so whatever casing
- * was typed survives -- slugs are lowercased, and un-slugifying can't recover
- * "VaR" from "var". for a document at the owner's root the address is just the
- * slug, so this is a no-op and a name like "Bubbles" is left alone.
+ * when the name doesn't supply folders, they fall back to the path's own
+ * segments (with whatever casing the path carries) so folderTree still has a
+ * label. an unnamed document is all slug, shown as-is: un-slugifying can't
+ * recover "VaR" from "var" and shouldn't pretend to.
  */
-function trimAddressName(doc: BackstageDocument): string {
+function prettyPath(doc: BackstageDocument): { folders: string[]; name: string } {
 
-  const name = doc.name.trim();
+  const pathFolders = folderOf(doc.path).split('/').filter(Boolean);
 
-  // the stored form has no leading slash; folderOf() supplies one, so drop it
-  const address = `${folderOf(doc.path)}/${slugOf(doc.path)}`.slice(1);
+  const named = !isUnnamed(doc);
+  const segments = named ? doc.name.trim().split('/') : [];
+  const leading = segments.length - 1;
 
-  // compared case-insensitively, the way paths are compared everywhere else
-  if (name.toLowerCase() !== address.toLowerCase()) { return doc.name; }
+  const aligned = named
+    && leading === pathFolders.length
+    && pathFolders.every((seg, i) => slugify(segments[i]) === slugify(seg));
 
-  return name.slice(name.lastIndexOf('/') + 1);
+  if (aligned) {
+    return { folders: segments.slice(0, leading), name: segments[leading] };
+  }
+
+  return {
+    folders: pathFolders,                                   // the path's own casing
+    name: isUnnamed(doc) ? slugOf(doc.path) : doc.name.trim(),
+  };
 
 }
 
-/**
- * what to show in the UI. documents saved through the old box have no name, so
- * the slug is all there is -- and it's shown as-is rather than prettified,
- * because un-slugifying can't recover "VaR" from "var" and shouldn't pretend to.
- */
+/** what to show as a document's label -- the pretty leaf of its name */
 export function displayName(doc: BackstageDocument): string {
-  return isUnnamed(doc) ? slugOf(doc.path) : trimAddressName(doc);
+  return prettyPath(doc).name;
+}
+
+/** the pretty folder segments for a document, aligned 1:1 with its path folders */
+export function displayFolders(doc: BackstageDocument): string[] {
+  return prettyPath(doc).folders;
 }
 
 /** true when the label above is really just the address */
@@ -370,54 +386,49 @@ export interface FolderNode {
  * derive the folder tree from document paths. paths are metadata -- there's no
  * folder table -- so a folder exists exactly when something lives in it.
  *
- * folder paths here are owner-relative (`/finance/capital`), because folderOf()
- * drops the owner segment: it isn't a folder, and an account with no folders at
- * all should show none rather than one holding everything.
+ * folders are consolidated *case-insensitively*, because the back end resolves
+ * paths that way -- /Finance/Model and /finance/model are one folder, not two.
+ * the node is keyed by the lowercased slug path (its identity, and what the page
+ * filters and selects on), and labelled with the pretty segment from the *first*
+ * document (in list order) to land in it: displayFolders() supplies the typed
+ * casing from the name field, falling back to the path's own casing.
+ *
+ * node paths are owner-relative (`/finance/capital`), because folderOf() drops
+ * the owner segment: it isn't a folder, and an account with no folders at all
+ * should show none rather than one holding everything.
  */
 export function folderTree(list: BackstageDocument[]): FolderNode[] {
 
   const roots: FolderNode[] = [];
-  const index = new Map<string, FolderNode>();
-
-  const ensure = (path: string, depth: number): FolderNode => {
-
-    const existing = index.get(path);
-    if (existing) { return existing; }
-
-    const node: FolderNode = {
-      name: path.slice(path.lastIndexOf('/') + 1),
-      path,
-      depth,
-      count: 0,
-      children: [],
-    };
-
-    index.set(path, node);
-
-    if (depth === 0) {
-      roots.push(node);
-    }
-    else {
-      ensure(path.slice(0, path.lastIndexOf('/')), depth - 1).children.push(node);
-    }
-
-    return node;
-
-  };
+  const index = new Map<string, FolderNode>();   // keyed by the lowercased slug path
 
   for (const doc of list) {
 
     // paths are full, so the folder is everything before the last segment;
     // a root-level document leaves nothing behind
-    const folder = folderOf(doc.path);
-    if (!folder) { continue; }
+    const slugs = folderOf(doc.path).split('/').filter(Boolean);
+    if (!slugs.length) { continue; }
 
-    const segments = folder.split('/').filter(Boolean);
+    const pretty = displayFolders(doc);           // aligned 1:1 with slugs
 
     // walk every ancestor so nested folders get counts too
-    for (let i = 0; i < segments.length; i++) {
-      const path = '/' + segments.slice(0, i + 1).join('/');
-      ensure(path, i).count++;
+    let key = '';
+    let parent: FolderNode | undefined;
+
+    for (let i = 0; i < slugs.length; i++) {
+
+      key += '/' + slugs[i].toLowerCase();
+
+      let node = index.get(key);
+      if (!node) {
+        // first sighting sets the display casing; the path is the lowercased key
+        node = { name: pretty[i] ?? slugs[i], path: key, depth: i, count: 0, children: [] };
+        index.set(key, node);
+        if (parent) { parent.children.push(node); } else { roots.push(node); }
+      }
+
+      node.count++;
+      parent = node;
     }
   }
 

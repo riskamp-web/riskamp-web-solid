@@ -88,6 +88,14 @@ const SEEDS: Seed[] = [
   ['Sensitivity Test Bench',    '/scratch/sensitivity-test-bench',     ACCESS_PUBLIC,  false,   5,  20 * MINUTE, 2],
   ['Correlation Matrix Draft',  '/scratch/correlation-matrix-draft',   ACCESS_PRIVATE, false,   2,   6 * HOUR,   1],
 
+  /* the name column carries the pretty folder ("R&D"), the path stays slugged
+     ("r-d"): the rail shows one "R&D" folder from the first row's casing, both
+     rows consolidate into it (the second's "r&d" folds to the same slug), and
+     the urls stay clean. exercises pretty-folder display + case-insensitive
+     consolidation together. */
+  ['R&D/Signal Study',          '/r-d/signal-study',                   ACCESS_PUBLIC,  false,  30,   4 * HOUR,  2],
+  ['r&d/Correlation Probe',     '/r-d/correlation-probe',              ACCESS_PUBLIC,  false,  20,   9 * HOUR,  1],
+
   ['',                          '/monte-carlo-primer',                 ACCESS_PUBLIC,  false, 700, 300 * DAY,   1],
 ];
 

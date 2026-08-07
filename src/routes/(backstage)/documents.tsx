@@ -257,6 +257,22 @@ export default function Documents() {
 
   const folders = createMemo(() => flattenFolders(folderTree(documents as BackstageDocument[])));
 
+  /* the consolidated display label for each folder, keyed by its lowercased slug
+     path -- so a document's folder renders with the same (first-seen) casing the
+     rail shows, not whatever casing that one document's own name happens to carry */
+  const folderLabels = createMemo(() => new Map(folders().map(node => [node.path, node.name])));
+
+  /* a document's folder as the tree displays it: the canonical pretty segment for
+     each ancestor, joined, leading slash. falls back to the raw segment if a label
+     is somehow missing. '' for a document at the owner's root */
+  const folderLabel = (doc: BackstageDocument): string => {
+    const labels = folderLabels();
+    let key = '';
+    return folderOf(doc.path).split('/').filter(Boolean)
+      .map(segment => { key += '/' + segment.toLowerCase(); return labels.get(key) ?? segment; })
+      .join('/');
+  };
+
   /* a saved folder can outlive the folder itself -- folders are derived from
      paths, so the last document leaving one deletes it. a rail selection that
      matches nothing draws an empty list with no visible cause, so drop it once
@@ -264,7 +280,12 @@ export default function Documents() {
   createEffect(() => {
     const path = folder();
     if (!loaded() || !path) { return; }
-    if (!folders().some(node => node.path === path)) { setFolder(undefined); }
+    // matched case-insensitively -- folders consolidate that way, so a saved
+    // selection with different casing still names a real one -- and snapped to
+    // the node's canonical (lowercased) path so the rail active-state matches
+    const match = folders().find(node => node.path.toLowerCase() === path.toLowerCase());
+    if (!match) { setFolder(undefined); }
+    else if (match.path !== path) { setFolder(match.path); }
   });
 
   const counts = createMemo(() => ({
@@ -300,9 +321,11 @@ export default function Documents() {
       list = list.filter(doc => (displayName(doc) + ' ' + doc.path).toLowerCase().includes(query));
     }
     else if (active_folder) {
-      const folder = active_folder;
+      // folders resolve case-insensitively; the selection is the node's
+      // lowercased path, so fold the document's folder to match
+      const folder = active_folder.toLowerCase();
       list = list.filter(doc => {
-        const own = folderOf(doc.path);
+        const own = folderOf(doc.path).toLowerCase();
         return own === folder || own.startsWith(folder + '/');
       });
     }
@@ -763,7 +786,7 @@ export default function Documents() {
                     <Show when={folderOf(doc.path)} fallback={
                       <span classList={{[shared.pill]: true, [style['owner-tag']]: true}}>{ownerOf(doc.path)}</span>
                     }>
-                      {folderOf(doc.path)}
+                      {'/' + folderLabel(doc)}
                     </Show>
                   </div>
 

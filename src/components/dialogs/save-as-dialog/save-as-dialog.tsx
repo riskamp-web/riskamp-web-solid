@@ -20,7 +20,8 @@ export interface SaveAsResult {
   folder: string;
   /** the normalized last segment */
   slug: string;
-  /** the display name the user typed (leaf, original casing) */
+  /** the pretty full path to store in the document's name field: folder
+   * segments (typed casing) plus the leaf, e.g. "Finance/Reports/My Model" */
   name: string;
 }
 
@@ -94,6 +95,16 @@ export function SaveAsDialog(props: Props) {
 
   const slug = () => slugify(nameLeaf());
   const fullPath = () => pathFor(props.owner(), folder(), nameLeaf());
+
+  // the folder segments as typed -- casing and punctuation preserved -- dropping
+  // any that slug to nothing, so they stay parallel with the slugged path above
+  const prettyFolders = () =>
+    (shadowed() ? nameFolderPart() : fields.folder)
+      .split('/').map(segment => segment.trim()).filter(segment => slugify(segment) !== '');
+
+  // the pretty path persisted in the document's name field: pretty folders plus
+  // the leaf, its typed casing intact. the slugged path above stays the identity
+  const displayPath = () => [...prettyFolders(), nameLeaf().trim()].filter(Boolean).join('/');
   // a matching path no longer blocks saving -- it's a heads-up that Save will
   // overwrite; the caller is expected to confirm before clobbering
   const collision = () => findPathCollision(props.documents(), fullPath(), props.ignoreId);
@@ -110,7 +121,7 @@ export function SaveAsDialog(props: Props) {
       path: fullPath(),
       folder: folder(),
       slug: slug(),
-      name: nameLeaf(),
+      name: displayPath(),
     };
     props.onSave?.(result);
     props.setResult?.(result);
