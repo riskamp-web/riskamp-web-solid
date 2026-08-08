@@ -298,7 +298,7 @@ export function pathOf(path: string): string {
 
 /** assemble a path from an owner, a folder ('' for the owner's root) and a name */
 export function pathFor(owner: string, folder: string, name: string): string {
-  return `${owner}${folder}/${slugify(name)}`;
+  return `${owner}${folder}/${slugSegment(name)}`;
 }
 
 /**
@@ -311,13 +311,13 @@ export function pathFor(owner: string, folder: string, name: string): string {
  * folder's typed casing could otherwise live. every '/' in a name is a folder
  * separator: names are not allowed to contain a literal one.
  *
- * but old data doesn't follow that rule, so the split is *structure-aware*
- * rather than a blind lastIndexOf('/'): the name's leading segments are trusted
- * as folders only when there's exactly one per path folder and each slugs to the
- * matching path folder. otherwise the name is a plain title -- which legitimately
- * contains slashes, "LLM pricing 10/15/2024" is real data -- and is shown whole.
- * a document at the owner's root has no folders, so a name like "Bubbles" is a
- * trivial no-op.
+ * a v2+ document (api_version >= 2) is always split this way -- the name is
+ * authoritative. old data isn't so tidy, so for a legacy document the split is
+ * *structure-aware*: the name's leading segments are trusted as folders only
+ * when there's one per path folder and each slugs to the matching path folder.
+ * otherwise the name is a plain title -- which legitimately contains slashes,
+ * "LLM pricing 10/15/2024" is real data, and a bare "Portfolio VaR" keeps its
+ * folder in the path -- and the folders come from the path instead.
  *
  * when the name doesn't supply folders, they fall back to the path's own
  * segments (with whatever casing the path carries) so folderTree still has a
@@ -328,21 +328,28 @@ function prettyPath(doc: BackstageDocument): { folders: string[]; name: string }
 
   const pathFolders = folderOf(doc.path).split('/').filter(Boolean);
 
-  const named = !isUnnamed(doc);
-  const segments = named ? doc.name.trim().split('/') : [];
+  if (isUnnamed(doc)) {
+    return { folders: pathFolders, name: slugOf(doc.path) };
+  }
+
+  const segments = doc.name.trim().split('/');
   const leading = segments.length - 1;
 
-  const aligned = named
-    && leading === pathFolders.length
-    && pathFolders.every((seg, i) => slugify(segments[i]) === slugify(seg));
+  // v2+ documents store the folder path in the name, so the name is
+  // authoritative -- always split. legacy documents may carry a bare title with
+  // the folder in the path, or a title with non-separator slashes ("LLM pricing
+  // 10/15/2024"), so the split is trusted only when it mirrors the path folders.
+  const trusted = (doc.api_version ?? 0) >= 2
+    || (leading === pathFolders.length
+        && pathFolders.every((seg, i) => slugSegment(segments[i]) === slugSegment(seg)));
 
-  if (aligned) {
-    return { folders: segments.slice(0, leading), name: segments[leading] };
+  if (trusted) {
+    return { folders: segments.slice(0, leading).filter(Boolean), name: segments[leading] || doc.name.trim() };
   }
 
   return {
     folders: pathFolders,                                   // the path's own casing
-    name: isUnnamed(doc) ? slugOf(doc.path) : doc.name.trim(),
+    name: doc.name.trim(),
   };
 
 }
@@ -699,6 +706,34 @@ export function slugify(value: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * encode a segment whose slug would be empty -- all non-ascii or punctuation,
+ * "\u7814\u7a76" or "!!!" -- as its code points in base36, '-' joined. this keeps the
+ * path segment non-empty where slugify() would drop it.
+ *
+ * NFC + lowercase first so equal text produces equal tokens (tagging exact
+ * matches) and casing folds the way the rest of the folder model does. the
+ * output stays inside [0-9a-z-], so re-running slugify() over it is a no-op and
+ * the folder comparison/keying code needs no special case. it's a bijection --
+ * no collisions, and reversible if we ever want to recover the text.
+ */
+function encodeSegment(text: string): string {
+  return Array.from(text.normalize('NFC').toLowerCase())
+    .map(ch => ch.codePointAt(0)!.toString(36))
+    .join('-');
+}
+
+/**
+ * a slug for a single path segment that never collapses to '' for non-empty
+ * input: the normal slug, or the code-point encoding above when the slug would
+ * be empty. '' only when there's nothing but whitespace to begin with.
+ */
+export function slugSegment(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) { return ''; }
+  return slugify(trimmed) || encodeSegment(trimmed);
 }
 
 /** the URL a document lives at is the path */

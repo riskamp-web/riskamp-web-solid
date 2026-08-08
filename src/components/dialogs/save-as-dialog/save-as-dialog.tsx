@@ -5,7 +5,7 @@ import { Dialog, type Props as DialogProps } from '~/components/dialogs/dialog-b
 import { icons } from '~/components/icon-sets';
 import { t } from '~/i18n/i18n';
 import {
-  findPathCollision, flattenFolders, folderTree, pathFor, slugify,
+  findPathCollision, flattenFolders, folderTree, pathFor, slugSegment,
 } from '~/backstage/documents-data';
 import type { BackstageDocument } from '~/backstage/documents-store';
 import style from './save-as-dialog.module.css';
@@ -49,7 +49,7 @@ interface Props extends DialogProps<SaveAsResult | undefined> {
  * path clean and consistent with the slug the user is watching below.
  */
 function normalizeFolder(raw: string): string {
-  const segments = raw.split('/').map(segment => slugify(segment)).filter(Boolean);
+  const segments = raw.split('/').map(segment => slugSegment(segment)).filter(Boolean);
   return segments.length ? '/' + segments.join('/') : '';
 }
 
@@ -93,14 +93,14 @@ export function SaveAsDialog(props: Props) {
   // the effective folder in stored, leading-slash form
   const folder = () => normalizeFolder(shadowed() ? nameFolderPart() : fields.folder);
 
-  const slug = () => slugify(nameLeaf());
+  const slug = () => slugSegment(nameLeaf());
   const fullPath = () => pathFor(props.owner(), folder(), nameLeaf());
 
   // the folder segments as typed -- casing and punctuation preserved -- dropping
   // any that slug to nothing, so they stay parallel with the slugged path above
   const prettyFolders = () =>
     (shadowed() ? nameFolderPart() : fields.folder)
-      .split('/').map(segment => segment.trim()).filter(segment => slugify(segment) !== '');
+      .split('/').map(segment => segment.trim()).filter(segment => slugSegment(segment) !== '');
 
   // the pretty path persisted in the document's name field: pretty folders plus
   // the leaf, its typed casing intact. the slugged path above stays the identity

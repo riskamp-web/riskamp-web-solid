@@ -50,7 +50,7 @@ export function sampleHistory(doc: BackstageDocument): DocumentVersion[] {
 const OWNER = '@sample';
 
 /**
- * [ name, owner-relative path, access, starred, created (days ago), modified (ms ago), version count ]
+ * [ name, owner-relative path, access, starred, created (days ago), modified (ms ago), version count, api_version? ]
  *
  * paths are written without the owner and get it prefixed below, so the folder
  * structure is the readable thing in this table.
@@ -58,8 +58,11 @@ const OWNER = '@sample';
  * an empty name is a legacy document: the old save box only took a slug, so the
  * path is all it has. roughly a third of the set here, which is deliberate --
  * unnamed is the common case in the real data, not the edge case.
+ *
+ * the trailing api_version is optional and omitted (undefined = legacy) on all
+ * but the v2 rows the new folder model is demonstrated against.
  */
-type Seed = [string, string, number, boolean, number, number, number];
+type Seed = [string, string, number, boolean, number, number, number, number?];
 
 /* public is the default access level, so private is the exception here too --
    roughly a quarter of the set */
@@ -96,6 +99,12 @@ const SEEDS: Seed[] = [
   ['R&D/Signal Study',          '/r-d/signal-study',                   ACCESS_PUBLIC,  false,  30,   4 * HOUR,  2],
   ['r&d/Correlation Probe',     '/r-d/correlation-probe',              ACCESS_PUBLIC,  false,  20,   9 * HOUR,  1],
 
+  /* a v2 document whose folder and title are non-ascii: slugify() leaves them
+     empty, so slugSegment() encodes each as its code points in base36. the path
+     column is that encoding -- '研究' -> 'npw-o6u', '季度报告' -> 'i1v-ip2-jhh-gne'
+     -- while the name column keeps the readable text the rail displays. */
+  ['研究/季度报告',              '/npw-o6u/i1v-ip2-jhh-gne',            ACCESS_PUBLIC,  false,  10,   5 * HOUR,  1, 2],
+
   ['',                          '/monte-carlo-primer',                 ACCESS_PUBLIC,  false, 700, 300 * DAY,   1],
 ];
 
@@ -108,7 +117,7 @@ export function sampleDocuments(): BackstageDocument[] {
 
   return SEEDS.map((seed, index) => {
 
-    const [name, path, access, starred, created_days, modified_ago, version_count] = seed;
+    const [name, path, access, starred, created_days, modified_ago, version_count, api_version] = seed;
 
     const created = NOW - (created_days * DAY);
     const modified = NOW - modified_ago;
@@ -124,6 +133,7 @@ export function sampleDocuments(): BackstageDocument[] {
       modified,
       version: version_count,
       starred,
+      api_version,
     };
 
   });

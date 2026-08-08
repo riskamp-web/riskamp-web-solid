@@ -786,7 +786,7 @@ export default function Documents() {
                     <Show when={folderOf(doc.path)} fallback={
                       <span classList={{[shared.pill]: true, [style['owner-tag']]: true}}>{ownerOf(doc.path)}</span>
                     }>
-                      {'/' + folderLabel(doc)}
+                      {folderLabel(doc)}
                     </Show>
                   </div>
 

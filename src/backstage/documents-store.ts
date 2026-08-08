@@ -49,6 +49,12 @@ export interface BackstageDocument {
    */
   starred?: boolean;
 
+  /** 
+   * new field: undefined for legacy documents, set as "2" (as a number)
+   * for documents created under the new API (this app).
+   */
+  api_version?: number;
+
 }
 
 /* ------------------------------------------------------------------ */
