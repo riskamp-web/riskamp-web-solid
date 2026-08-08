@@ -26,7 +26,7 @@ import * as auth from '~/lib/auth';
 import bs from './backstage.module.css';
 import style from './sign-in.module.css';
 
-import { Eye, EyeOff } from './backstage-icons';
+import { Icon } from './backstage-parts';
 
 /** where a successful sign-in lands */
 const DESTINATION = '/';
@@ -209,8 +209,8 @@ export default function SignIn() {
                   aria-pressed={revealed()}
                   disabled={pending()}
                   onclick={() => { setRevealed(shown => !shown); password_input?.focus(); }}>
-                <Show when={revealed()} fallback={<Eye />}>
-                  <EyeOff />
+                <Show when={revealed()} fallback={<Icon name='eye_on' />}>
+                  <Icon name='eye_off' />
                 </Show>
               </button>
             </div>

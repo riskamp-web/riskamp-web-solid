@@ -91,8 +91,7 @@
 /* the app icon set (~/components/icon-sets) ships svg markup as strings, so an
    icon on this page is a span with the markup inside it. the box is fixed at
    the set's 20px and the svg is sized to fill it, so a glyph that arrives at
-   another size can't shift a row -- and the local components in
-   backstage-icons.tsx, which draw at 20px directly, line up with these. */
+   another size can't shift a row. */
 .icon {
   display: inline-flex;
   flex: 0 0 auto;

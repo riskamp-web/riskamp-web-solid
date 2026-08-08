@@ -20,9 +20,8 @@ Within that, on purpose:
 
 - strings are **no longer hardcoded**: both pages are extracted into `~/i18n`, and dates,
   counts, sort order and plural forms follow `currentLocale()` — see "Strings" below
-- glyphs the app icon set lacks live in `backstage-icons.tsx` rather than being added to
-  `~/components/icon-sets` (see "Icons" below — documents now draws from the app set, and
-  what's left local is only what that set has no name for)
+- every glyph comes from the app icon set (`~/components/icon-sets`); the pages hold no
+  local icon components (see "Icons" below)
 
 Promoting either of those out of here is deliberate later work, not cleanup to do in
 passing.
@@ -71,7 +70,6 @@ The pages, in `src/routes/(backstage)/`:
 | `update-password.tsx` | where that link lands: identifier, token, new password, strength meter |
 | `sign-out.tsx` | logs out and leaves |
 | `backstage.module.css` | shared shell: theme tokens, rail/content/panel, control and form primitives, the whole single-column card page, the password field, the strength meter and the confirmation. The consolidation point for the next backstage page |
-| `backstage-icons.tsx` | the few glyphs the app icon set has no name for |
 | `backstage-parts.tsx` | `Icon`, `splice()` and `DevResetLink` — the markup helpers more than one page needs |
 
 What they run on, in `src/backstage/`:
@@ -786,7 +784,7 @@ component:
   another size can't shift a row. The empty states override it to 34px in CSS — there's no
   `size` prop to pass any more.
 - **Selectors have to match the wrapper, not the SVG.** Rules that were `& > svg` are now
-  `& > :is(svg, .icon)`, which covers both the wrapper and the local components. Watch the
+  `& > :is(svg, .icon)`, matching the `.icon` wrapper the set injects markup into. Watch the
   module boundary here: `.icon` is declared in `backstage.module.css`, so writing `.icon` in
   `documents.module.css` silently matches nothing — that's why the sort caret carries its own
   local `.sort-caret` class. There is a sanctioned way across that boundary when the rule is
@@ -797,11 +795,10 @@ component:
   declarations out locally rather than asking every site to remember the recipe.
 - **The star's filled state is CSS**, not a prop: the set's star is an outline, and
   `.starred svg path { fill: currentColor }` beats the `fill="none"` attribute on the path.
-- **What's still local**, in `backstage-icons.tsx`: `Globe` and `Sheet` (plus `Eye`/`EyeOff`
-  for sign-in). The set has no public/private pair — private uses `lock_cells` for now — and
-  its only document glyph is `new_spreadsheet`, whose plus is right for the New document
-  button and wrong for the "All documents" scope and the Open actions. Each is a stand-in: as
-  the set grows a name, the page should switch and the local component should go.
+- **No local icons remain.** The former stand-ins now have set names: public access is
+  `public` (the globe), private stays `lock_cells`; the plain document mark is `insert_table`
+  (the set's `new_spreadsheet` carries a plus — right for the New document button, wrong for
+  the "All documents" scope and the Open actions); the password reveal pair is `eye_on`/`eye_off`.
 
 ## Data model
 

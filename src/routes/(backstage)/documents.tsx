@@ -26,11 +26,6 @@ import bs from './backstage.module.css';
 import style from './documents.module.css';
 import shared from '../../style/shared.module.css';
 
-/* the app set has no public/private pair and no plain document glyph, so those
-   two stay local for now; everything else on this page comes from ~/components/
-   icon-sets. see backstage-icons.tsx */
-import { Globe, Sheet } from './backstage-icons';
-
 import {
   ACCESS_PRIVATE, ACCESS_PUBLIC, BackstageDocument, DocumentScope, NOW, RECENT_WINDOW, SortDirection, SortKey,
   displayName, documentUrl, documents, failed, flattenFolders, folderOf,
@@ -66,7 +61,7 @@ const isStarred = (doc: BackstageDocument) => !!doc.starred;
    tracking scope -- would snapshot english into the array for the life of the
    page. this is the trap command-list.ts fell into. */
 const SCOPES: { key: Scope, label: StringKey, icon: () => JSX.Element }[] = [
-  { key: 'all', label: 'documents-page.scope.all', icon: () => <Sheet /> },
+  { key: 'all', label: 'documents-page.scope.all', icon: () => <Icon name='insert_table' /> },
   { key: 'starred', label: 'documents-page.scope.starred', icon: () => <Icon name='star' /> },
   { key: 'recent', label: 'documents-page.scope.recent', icon: () => <Icon name='recent' /> },
   { key: 'private', label: 'documents-page.scope.private', icon: () => <Icon name='lock_cells' /> },
@@ -503,13 +498,13 @@ export default function Documents() {
     <ActionMenu
         label={format(t('documents-page.row.menu.label'), { name: displayName(props.doc) })}
         class={style['row-menu-button']}>
-      <MenuItem icon={<Sheet />}>{t('documents-page.action.open')}</MenuItem>
+      <MenuItem icon={<Icon name='insert_table' />}>{t('documents-page.action.open')}</MenuItem>
       <MenuItem icon={<Icon name='copy' />}>{t('documents-page.action.duplicate')}</MenuItem>
       <MenuItem>{t('documents-page.action.rename')}</MenuItem>
       <MenuItem icon={<Icon name='folder' />}>{t('documents-page.action.move')}</MenuItem>
       <hr />
       <MenuItem
-          icon={props.doc.access === ACCESS_PUBLIC ? <Icon name='lock_cells' /> : <Globe />}
+          icon={props.doc.access === ACCESS_PUBLIC ? <Icon name='lock_cells' /> : <Icon name='public' />}
           onclick={() => setAccess([props.doc.id], props.doc.access === ACCESS_PUBLIC ? ACCESS_PRIVATE : ACCESS_PUBLIC)}>
         {props.doc.access === ACCESS_PUBLIC
           ? t('documents-page.action.make-private')
@@ -580,7 +575,7 @@ export default function Documents() {
             <button type='button' class={`${bs.button} ${bs['button-quiet']} ${bs['button-collapse']}`}
                 aria-label={t('documents-page.selection.make-public.label')}
                 onclick={() => setAccess([...checked()], ACCESS_PUBLIC)}>
-              <Globe /> <span class={bs['button-label']}>{t('documents-page.action.make-public')}</span>
+              <Icon name='public' /> <span class={bs['button-label']}>{t('documents-page.action.make-public')}</span>
             </button>
             <button type='button' class={`${bs.button} ${bs['button-quiet']} ${bs['button-collapse']}`}
                 aria-label={t('documents-page.selection.make-private.label')}
@@ -703,7 +698,7 @@ export default function Documents() {
 
             <Match when={!documents.length}>
               <div class={`${style['body-full']} ${bs['empty-state']}`}>
-                <Sheet />
+                <Icon name='insert_table' />
                 <div class={bs['empty-title']}>{t('documents-page.empty.title')}</div>
                 <div class={bs['empty-detail']}>
                   {t('documents-page.empty.detail')}
@@ -905,7 +900,7 @@ export default function Documents() {
                     type='button'
                     classList={{ [bs.active]: doc().access === ACCESS_PUBLIC }}
                     onclick={() => setAccess([doc().id], ACCESS_PUBLIC)}>
-                  <Globe /> {t('documents-page.access.public')}
+                  <Icon name='public' /> {t('documents-page.access.public')}
                 </button>
                 <button
                     type='button'
@@ -1000,7 +995,7 @@ export default function Documents() {
                             label={format(t('documents-page.history.menu.label'), { version: version.version })}
                             class={style['version-action']}>
                           <MenuItem onclick={() => navigate(versionUrl(doc(), version.version))}
-                                    icon={<Sheet />}>{t('documents-page.history.open.text')}</MenuItem>
+                                    icon={<Icon name='insert_table' />}>{t('documents-page.history.open.text')}</MenuItem>
                           <MenuItem icon={<Icon name='copy' />}>{t('documents-page.history.duplicate')}</MenuItem>
                           <MenuItem icon={<Icon name='confirm' />}>{t('documents-page.history.restore')}</MenuItem>
                         </ActionMenu>

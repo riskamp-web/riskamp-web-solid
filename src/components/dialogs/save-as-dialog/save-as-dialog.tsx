@@ -198,9 +198,7 @@ export function SaveAsDialog(props: Props) {
         </label>
 
         {/* a button pair isn't labelable, so this row is a div with its own
-            group label rather than the <label> the two fields above use.
-            lock/unlock stand in until the documents page's globe moves into
-            the shared icon set -- then public takes the globe. */}
+            group label rather than the <label> the two fields above use. */}
         <div class={style.field}>
           <span class={style['field-label']}>{t('save-as-dialog.access')}</span>
           <div class={style.segmented} role="group" aria-label={t('save-as-dialog.access')}>
@@ -208,7 +206,7 @@ export function SaveAsDialog(props: Props) {
                     classList={{ [style.active]: fields.access === ACCESS_PUBLIC }}
                     aria-pressed={fields.access === ACCESS_PUBLIC}
                     onclick={() => setFields('access', ACCESS_PUBLIC)}>
-              <span class={style.icon} innerHTML={icons.unlock_cells} />
+              <span class={style.icon} innerHTML={icons.public} />
               {t('save-as-dialog.public')}
             </button>
             <button type="button"

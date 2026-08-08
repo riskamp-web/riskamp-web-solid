@@ -4,6 +4,7 @@
  */
 
 import { ParentProps, JSX, Switch, Match } from 'solid-js';
+import { icons } from '~/components/icon-sets';
 import style from './drop-menu.module.css';
 import shared from '../../style/shared.module.css';
 
@@ -36,8 +37,7 @@ export function DropMenu(props: ParentProps<Props>) {
           <span>
             {props.label}
           </span>
-          <svg fill="currentColor" width="1em" height="1em"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-            <path d="M144 256L320 456L496 256L144 256z"/></svg>
+          <span class={style.caret} innerHTML={icons.caret_down} />
         </Match>
         <Match when={true}>
           {props.label}

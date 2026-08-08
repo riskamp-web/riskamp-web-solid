@@ -13,6 +13,17 @@
   padding: 0;
 }
 
+/* the caret tracks the button's font size, as the inline glyph it replaced did */
+.caret {
+  display: inline-flex;
+  align-items: center;
+}
+.caret svg {
+  width: 1em;
+  height: 1em;
+  display: block;
+}
+
 .menu {
 
   /* this menu's own density: inset, where drop-menu's is flush. */

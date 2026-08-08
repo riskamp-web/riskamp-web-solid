@@ -494,8 +494,7 @@ export function Toolbar(props: ParentProps<Props>) {
                 <span>  
                   {t('status-pill.messages.unsaved-changes')}
                 </span>
-                <svg fill="currentColor" width="1em" height="1em"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-                  <path d="M144 256L320 456L496 256L144 256z"/></svg>
+                <span class={style.caret} innerHTML={icons.caret_down} />
               </div>
             </div>    
           }>

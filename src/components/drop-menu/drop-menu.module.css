@@ -20,6 +20,17 @@ button.disabled {
   pointer-events: none;
 }
 
+/* the caret tracks the label's font size, as the inline glyph it replaced did */
+.caret {
+  display: inline-flex;
+  align-items: center;
+}
+.caret svg {
+  width: 1em;
+  height: 1em;
+  display: block;
+}
+
 .menu {
 
   /* this menu's own density: flush, where menu-button's is inset. */

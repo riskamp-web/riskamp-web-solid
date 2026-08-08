@@ -6,6 +6,7 @@
 
 import { createContext, useContext } from "solid-js";
 import { ParentProps } from 'solid-js';
+import { icons } from '~/components/icon-sets';
 import style from './menu-button.module.css';
 import shared from '../../style/shared.module.css';
 
@@ -75,8 +76,7 @@ MenuButton.Static = (props: ParentProps<{class?: string}>) => {
       <div class={style.composite}>
         <div class={style['static-content']}>{props.children}</div>
         <button classList={{[shared['bare-button']]: true, [style['caret-button']]: true}} popovertarget={ctx?.popover_id}>
-          <svg fill="currentColor" width="1em" height="1em"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-            <path d="M144 256L320 456L496 256L144 256z"/></svg>
+          <span class={style.caret} innerHTML={icons.caret_down} />
         </button>
       </div>
     </>;

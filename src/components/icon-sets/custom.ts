@@ -128,6 +128,9 @@ export const icons: IconSet = {
   overflow:               rai.overflow,
   caret_down:             rai['caret-down'],
   plus:                   rai['plus'],
+  eye_on:                 rai['eye-on'],
+  eye_off:                rai['eye-off'],
+  public:                 rai['public'],
 
   // --- component-specific --------------------------------------------
 

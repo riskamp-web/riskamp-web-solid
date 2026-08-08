@@ -385,8 +385,19 @@ menu.text.overflow {
 }
 
 
+/* the caret tracks the pill's font size, as the inline glyph it replaced did */
+.caret {
+  display: inline-flex;
+  align-items: center;
+}
+.caret svg {
+  width: 1em;
+  height: 1em;
+  display: block;
+}
+
 .status-pill {
-  
+
   height: 22px;
 
   /* derived from --warning rather than respelling it -- see .form-error in backstage.

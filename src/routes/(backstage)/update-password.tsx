@@ -33,7 +33,6 @@ import { updatePasswordMock, type UpdatePasswordResult } from '~/backstage/passw
 
 import bs from './backstage.module.css';
 import { Icon } from './backstage-parts';
-import { Eye, EyeOff } from './backstage-icons';
 
 export default function UpdatePassword() {
 
@@ -296,8 +295,8 @@ export default function UpdatePassword() {
               aria-pressed={revealed()}
               disabled={pending()}
               onclick={() => { setRevealed(shown => !shown); password_input?.focus(); }}>
-            <Show when={revealed()} fallback={<Eye />}>
-              <EyeOff />
+            <Show when={revealed()} fallback={<Icon name='eye_on' />}>
+              <Icon name='eye_off' />
             </Show>
           </button>
         </div>
