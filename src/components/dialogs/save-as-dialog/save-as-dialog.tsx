@@ -5,6 +5,7 @@ import { Dialog, type Props as DialogProps } from '~/components/dialogs/dialog-b
 import { icons } from '~/components/icon-sets';
 import { t } from '~/i18n/i18n';
 import {
+  ACCESS_PRIVATE, ACCESS_PUBLIC,
   findPathCollision, flattenFolders, folderTree, pathFor, slugSegment,
 } from '~/backstage/documents-data';
 import type { BackstageDocument } from '~/backstage/documents-store';
@@ -23,6 +24,10 @@ export interface SaveAsResult {
   /** the pretty full path to store in the document's name field: folder
    * segments (typed casing) plus the leaf, e.g. "Finance/Reports/My Model" */
   name: string;
+  /** ACCESS_PUBLIC | ACCESS_PRIVATE -- the store's numeric form. the api takes
+   * a string, so a caller persisting this maps it the way setAccess() in
+   * documents.tsx does: access === ACCESS_PUBLIC ? 'public' : 'private' */
+  access: number;
 }
 
 interface Props extends DialogProps<SaveAsResult | undefined> {
@@ -34,6 +39,9 @@ interface Props extends DialogProps<SaveAsResult | undefined> {
   initialName?: string;
   /** seed the folder field, leading-slash form or '' (rename / move) */
   initialFolder?: string;
+  /** seed the access control (rename / move, so a private document isn't
+   * silently made public). omitted means ACCESS_PUBLIC, the default level */
+  initialAccess?: number;
   /** a document id to exclude from the collision check (renaming in place) */
   ignoreId?: number;
   /** primary result channel */
@@ -55,8 +63,8 @@ function normalizeFolder(raw: string): string {
 
 export function SaveAsDialog(props: Props) {
 
-  // one store so a single reactive read covers both fields
-  const [fields, setFields] = createStore({ name: '', folder: '' });
+  // one store so a single reactive read covers every field
+  const [fields, setFields] = createStore({ name: '', folder: '', access: ACCESS_PUBLIC });
   const [copied, setCopied] = createSignal(false);
 
   const list_id = createUniqueId();
@@ -69,6 +77,7 @@ export function SaveAsDialog(props: Props) {
         name: props.initialName ?? '',
         // stored folders carry a leading slash; the field shows it without one
         folder: (props.initialFolder ?? '').replace(/^\//, ''),
+        access: props.initialAccess ?? ACCESS_PUBLIC,
       });
     }
   }));
@@ -122,6 +131,7 @@ export function SaveAsDialog(props: Props) {
       folder: folder(),
       slug: slug(),
       name: displayPath(),
+      access: fields.access,
     };
     props.onSave?.(result);
     props.setResult?.(result);
@@ -186,6 +196,30 @@ export function SaveAsDialog(props: Props) {
                  onInput={e => setFields('name', e.currentTarget.value)}
                  onkeydown={InputKeyDown} />
         </label>
+
+        {/* a button pair isn't labelable, so this row is a div with its own
+            group label rather than the <label> the two fields above use.
+            lock/unlock stand in until the documents page's globe moves into
+            the shared icon set -- then public takes the globe. */}
+        <div class={style.field}>
+          <span class={style['field-label']}>{t('save-as-dialog.access')}</span>
+          <div class={style.segmented} role="group" aria-label={t('save-as-dialog.access')}>
+            <button type="button"
+                    classList={{ [style.active]: fields.access === ACCESS_PUBLIC }}
+                    aria-pressed={fields.access === ACCESS_PUBLIC}
+                    onclick={() => setFields('access', ACCESS_PUBLIC)}>
+              <span class={style.icon} innerHTML={icons.unlock_cells} />
+              {t('save-as-dialog.public')}
+            </button>
+            <button type="button"
+                    classList={{ [style.active]: fields.access === ACCESS_PRIVATE }}
+                    aria-pressed={fields.access === ACCESS_PRIVATE}
+                    onclick={() => setFields('access', ACCESS_PRIVATE)}>
+              <span class={style.icon} innerHTML={icons.lock_cells} />
+              {t('save-as-dialog.private')}
+            </button>
+          </div>
+        </div>
 
         <div class={style.preview}>
           <span class={style['preview-label']}>{t('save-as-dialog.preview-label')}</span>

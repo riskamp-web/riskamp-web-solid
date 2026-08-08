@@ -1,6 +1,7 @@
 import { createSignal, For } from 'solid-js';
 import { SaveAsDialog, type SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
 import type { BackstageDocument } from '~/backstage/documents-store';
+import { ACCESS_PRIVATE } from '~/backstage/documents-data';
 
 // TEMPORARY demo route for exercising SaveAsDialog by hand. Delete before commit.
 export default function SaveAsDemo() {
@@ -48,7 +49,7 @@ export default function SaveAsDemo() {
 
       <label style="display: flex; gap: .5rem; align-items: center;">
         <input type="checkbox" checked={rename()} onchange={e => setRename(e.currentTarget.checked)} />
-        rename mode (seed "Portfolio VaR" in /finance, ignoreId = 1)
+        rename mode (seed "Portfolio VaR" in /finance, private, ignoreId = 1)
       </label>
 
       <button class="button-primary" onclick={() => setOpen(true)}>Open dialog</button>
@@ -62,6 +63,7 @@ export default function SaveAsDemo() {
         documents={documents}
         initialName={rename() ? 'Portfolio VaR' : undefined}
         initialFolder={rename() ? '/finance' : undefined}
+        initialAccess={rename() ? ACCESS_PRIVATE : undefined}
         ignoreId={rename() ? 1 : undefined}
         onSave={setResult} />
     </main>

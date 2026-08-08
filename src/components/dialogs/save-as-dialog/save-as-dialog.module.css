@@ -34,6 +34,44 @@
   color: var(--text-faint);
 }
 
+/* segmented control -- public/private. a copy of the one in
+   routes/(backstage)/backstage.module.css: that module is route-scoped, and
+   promoting it to shared.module.css would have to take its .active state class
+   along, which the backstage rail items use too. worth doing once a third
+   caller wants it; two doesn't pay for the churn. */
+.segmented {
+  display: inline-flex;
+  flex-direction: row;
+  align-self: start;
+  width: fit-content;
+  border: 1px solid var(--border-control);
+  border-radius: var(--control-radius);
+  overflow: hidden;
+
+  & button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 30px;
+    padding: 0 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    cursor: pointer;
+    transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
+
+    &:hover {
+      background: var(--hover-strong);
+    }
+
+    &.active {
+      background: var(--accent);
+      color: var(--on-accent);
+    }
+  }
+}
+
 .preview {
   display: flex;
   flex-direction: column;
