@@ -9,6 +9,8 @@ import { sessionData, setSessionData } from '~/lib/app-data';
 
 import { CacheFactory } from '~/docs/local-cache';
 import type { LoadSource, MCTREBDocument } from 'riskamp-web';
+import { toast } from '../toast/toast-control';
+import { t } from '~/i18n/i18n';
 
 /** check if the path is valid for load/save operations */
 export function IsValidPath(path = '') {
@@ -76,6 +78,7 @@ export async function RevertDocument(sheet?: SpreadsheetType, path = '', version
       console.error(err);
       goto('/');
 
+      // toast.error('Load error 1');
     }
 
     // window.dispatchEvent(new CustomEvent('hide-spinner'));
@@ -103,7 +106,7 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
 
       // FIXME: warn?
 
-      console.warn("invalid path");
+      toast.error('Load error 2');
       goto('/');
       return false;
     }
@@ -111,6 +114,7 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
     if (version) {
       if (Array.isArray(version)) {
         console.warn("invalid version");
+        toast.error('Load error 3');
         goto('/');
         return false;
       }
@@ -151,6 +155,7 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
     }
     catch (err) {
       console.error(err);
+      toast.error(t('load-error.loading-document-failed'));
       goto('/');
       spinner.hide();
       return false;

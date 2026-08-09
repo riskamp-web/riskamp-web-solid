@@ -543,6 +543,10 @@ export default {
   'run-simulation-cancel-label': 'Stop',
   'run-simulation-cancel-title': 'Stop simulation',
 
+  'load-error': {
+    'loading-document-failed': 'The requested file could not be loaded',
+  },
+
   'save-as-dialog': {
     title: 'Save As',
     folder: 'Folder',
