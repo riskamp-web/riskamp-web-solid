@@ -11,6 +11,7 @@ import '~/style/utility.css';
 import '~/style/grid-table.css';
 
 import { Spinner } from '~/components/spinner/spinner';
+import { Toaster } from '~/components/toast/toast';
 import { useNavigate } from '@solidjs/router';
 import { setNavigator } from '~/lib/navigate';
 import { InitAppData } from './lib/app-data';
@@ -32,6 +33,7 @@ function Root(props: RouteSectionProps) {
         <Title>RiskAMP Web</Title>
         <Suspense>{props.children}</Suspense>
         <Spinner />
+        <Toaster />
       </MetaProvider>
     </HistoryProvider>
   );

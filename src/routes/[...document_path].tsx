@@ -36,10 +36,12 @@ import { GenerateFilename } from '~/lib/filename-util';
 import { SetTheme } from '~/components/toolbar/theme-selector';
 
 import { SaveAsDialog, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
-import { type BackstageDocument, documents } from '~/backstage/documents-store';
+import { documents } from '~/backstage/documents-store';
 import { loadDocuments } from '~/backstage/documents-data';
 import { session } from '~/lib/auth';
 import { spinner } from '~/components/spinner/spinner-control';
+import { toast } from '~/components/toast/toast-control';
+import { t, format } from '~/i18n/i18n';
 import { StoreDocument } from '~/docs/documents2';
 
 /*
@@ -149,18 +151,22 @@ export default function Page() {
       if (index >= 0) {
         pathname = result.path.substring(index + 1);
       }
-      console.info({pathname});
 
       const success = await StoreDocument(pathname, result.name, JSON.stringify(data), result.access);
 
-      console.info("OK?", success);
-      // TODO: error handling
-
       spinner.hide();
 
-    }
+      if (success) {
+        toast.success(format(t('save-as-dialog.saved'), { name }));
+      }
+      else {
+        // let the user retry the save rather than silently losing their work
+        toast.error(format(t('save-as-dialog.save-failed'), { name }), {
+          action: { label: t('save-as-dialog.retry'), run: () => HandleSaveAs(result) },
+        });
+      }
 
-    console.info('x', {result});
+    }
   }
 
   // FIXME: move this to a lib file, it doesn't need to clog up this file

@@ -73,6 +73,12 @@
      read this, so there is still one value. */
   --warning: light-dark(#c27803, #fbbf24);
 
+  /* the third semantic status color -- confirmation / success. no site needed a
+     green until toast notifications arrived (a successful save has to read as
+     succeeded, not merely finished), so unlike --danger/--warning this one is
+     new rather than promoted. kept in the same saturation family as those two. */
+  --success: light-dark(#1a7f43, #4ade80);
+
   /* translucent hover washes for controls that sit on a transparent background.
      distinct from --toolbar-control-hover-background, which is an opaque grey the
      toolbar's own icon buttons use. */

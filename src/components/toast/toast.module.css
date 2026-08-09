@@ -1,0 +1,97 @@
+
+/* the fixed host: top-right, stacking downward. sits at the app's overlay
+   ceiling (z-index 999, the same as the drag mask) so toasts float above
+   dialogs. the host ignores pointer events so it never blocks clicks in the
+   gaps between toasts; each toast re-enables them for itself. */
+.host {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  width: min(360px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  padding: .625rem .75rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-hairline);
+  /* the variant's color reads on the left edge; the icon echoes it */
+  border-left: 3px solid var(--border-control);
+  border-radius: var(--surface-radius);
+  box-shadow: var(--menu-shadow);
+  font-size: var(--base-font-size);
+  line-height: 1.35;
+  transition: opacity var(--transition-fast) ease, transform var(--transition-fast) ease;
+}
+
+.error   { border-left-color: var(--danger); }
+.success { border-left-color: var(--success); }
+
+.icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  width: 1.15em;
+  height: 1.15em;
+  margin-top: .05em;
+}
+
+.icon svg { width: 100%; height: 100%; }
+
+.error   .icon { color: var(--danger); }
+.success .icon { color: var(--success); }
+
+.message {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.action {
+  flex: 0 0 auto;
+  align-self: center;
+  font: inherit;
+  font-weight: var(--button-font-weight);
+  color: var(--accent);
+  background: transparent;
+  border: 0;
+  padding: .125rem .375rem;
+  border-radius: var(--control-radius);
+  cursor: pointer;
+}
+
+.action:hover { background: var(--hover); }
+
+.dismiss {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35em;
+  height: 1.35em;
+  padding: 0;
+  color: var(--text-faint);
+  background: transparent;
+  border: 0;
+  border-radius: var(--control-radius);
+  cursor: pointer;
+}
+
+.dismiss:hover { color: var(--text); background: var(--hover); }
+.dismiss svg { width: .8em; height: .8em; }
+
+/* animate each toast in as it's added (matches spinner.module.css's approach) */
+@starting-style {
+  .toast {
+    opacity: 0;
+    transform: translateY(-.35rem);
+  }
+}

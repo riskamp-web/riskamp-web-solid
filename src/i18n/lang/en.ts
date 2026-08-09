@@ -559,6 +559,14 @@ export default {
     'copy-link-copied': 'Link copied',
     collision: 'A document already exists at this path.',
     empty: 'Enter a name',
+    saved: 'Saved “{name}”',
+    'save-failed': 'Couldn’t save “{name}”.',
+    retry: 'Retry',
+  },
+
+  toast: {
+    'region-label': 'Notifications',
+    dismiss: 'Dismiss',
   },
 
   'las-vegas-simulation-panel': {
