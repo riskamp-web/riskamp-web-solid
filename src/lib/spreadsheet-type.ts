@@ -28,6 +28,9 @@ interface UserData {
   /** imported from another file, this is the filename */
   imported_from?: string;
 
+  /** folder for tracking on this app */
+  folder?: string;
+
 }
 
 /**

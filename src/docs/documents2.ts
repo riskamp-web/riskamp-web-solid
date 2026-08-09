@@ -98,3 +98,24 @@ export async function UpdateDocument(pathname: string, args: {
 
 }
 
+export async function StoreDocument(
+    pathname: string, 
+    name: string, 
+    document: string, 
+    access: number) {
+  
+  const delay = 1 + Math.random() * 1;
+
+  const result = await auth.AccessResource('/api/store-document', {
+    pathname,
+    name,
+    document,
+    access,
+    api_version: 2,
+  }, delay);
+
+  return result.ok;
+  
+}
+
+

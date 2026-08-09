@@ -35,6 +35,13 @@ import { produce } from 'solid-js/store';
 import { GenerateFilename } from '~/lib/filename-util';
 import { SetTheme } from '~/components/toolbar/theme-selector';
 
+import { SaveAsDialog, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
+import { type BackstageDocument, documents } from '~/backstage/documents-store';
+import { loadDocuments } from '~/backstage/documents-data';
+import { session } from '~/lib/auth';
+import { spinner } from '~/components/spinner/spinner-control';
+import { StoreDocument } from '~/docs/documents2';
+
 /*
 function Spin() {
   spinner.show();
@@ -52,6 +59,8 @@ export default function Page() {
   const [split, setSplit] = createSignal(100);
   const [getSheet, setSheet] = createSignal<SpreadsheetType|undefined>();
   const [sidebar, setSidebar] = createSignal<string|undefined>();
+
+  const [saveAsDialogOpen, setSaveAsDialogOpen] = createSignal(false);
 
   const [runSimulationOpen, setRunSimulationOpen] = createSignal(false);
   const [runSimulationOptions, setRunSimulationOptions] = createSignal<Partial<RunSimulationOptions>>({});
@@ -106,6 +115,54 @@ export default function Page() {
     getSheet()?.Focus();
   }
 
+  async function HandleSaveAs(result: SaveAsResult) {
+
+    const sheet = getSheet();
+    if (sheet) {
+
+      // set the name and folder in the sheet's user data space in
+      // pretty form
+
+      let name = result.name;
+      let folder = '';
+
+      let index = result.name.lastIndexOf('/');
+      if (index >= 0) {
+        name = result.name.substring(index + 1);
+        folder = result.name.substring(0, index);
+      }
+
+      const user_data = sheet.user_data || {};
+      user_data.folder = folder;
+      sheet.user_data = user_data;
+      sheet.document_name = name;
+
+      spinner.show();
+
+      const data = sheet.SerializeDocument({
+        preserve_simulation_data: true,
+        // ?
+      });
+
+      let pathname = result.path;
+      index = result.path.indexOf('/');
+      if (index >= 0) {
+        pathname = result.path.substring(index + 1);
+      }
+      console.info({pathname});
+
+      const success = await StoreDocument(pathname, result.name, JSON.stringify(data), result.access);
+
+      console.info("OK?", success);
+      // TODO: error handling
+
+      spinner.hide();
+
+    }
+
+    console.info('x', {result});
+  }
+
   // FIXME: move this to a lib file, it doesn't need to clog up this file
   function HandleCommand(command: ToolbarCommand) {
 
@@ -141,6 +198,16 @@ export default function Page() {
           sheet.Focus();
         });
         return;
+        break;
+
+      case 'save-as':
+        {
+          // ensure documents are loaded for conflict check
+          loadDocuments();
+
+          setSaveAsDialogOpen(true);
+
+        }
         break;
 
       case 'save-to-desktop':
@@ -529,6 +596,14 @@ export default function Page() {
                            setOpen={setRunSimulationOpen}
                            options={runSimulationOptions}
                            sheet={getSheet} />
+
+
+      <SaveAsDialog
+          open={saveAsDialogOpen}
+          setOpen={setSaveAsDialogOpen}
+          owner={() => '@' + (session().username || '')}
+          documents={() => documents}
+          onSave={HandleSaveAs} />
 
     </main>
   );
