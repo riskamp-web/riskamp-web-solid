@@ -37,7 +37,7 @@ import { SetTheme } from '~/components/toolbar/theme-selector';
 
 import { SaveAsDialog, SaveAsDocument, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
 import { documents } from '~/backstage/documents-store';
-import { folderOf, isValidPath, loadDocuments, ownerOf, pathOf, slugOf } from '~/backstage/documents-data';
+import { folderOf, isValidPath, loadDocuments, ownerOf, pathOf, slugOf, upsertDocument } from '~/backstage/documents-data';
 import { loggedIn, session } from '~/lib/auth';
 import { spinner } from '~/components/spinner/spinner-control';
 import { toast } from '~/components/toast/toast-control';
@@ -48,6 +48,7 @@ import { StoreDocument, UpdateDocument } from '~/docs/documents2';
 // to call it from code
 
 import { useNavigate } from "@solidjs/router";
+import { DocumentsRow } from '~/docs/documents';
 
 /*
 function Spin() {
@@ -178,6 +179,18 @@ export default function Page() {
         }
         else {
 
+          console.info({save_result: result});
+
+          // update the documents list on the documents page (lazy)
+
+          upsertDocument({
+            path: params.document_path,
+            version: result.version || 1,
+            modified: result.modified,
+          }, {
+            history: 'record',
+          })
+
           if (searchParams.version) {
 
             // if there's a version, we can remove the cached entry for 
@@ -206,6 +219,7 @@ export default function Page() {
 
         }
 
+        sheet.Focus();
         return;
 
       } // owner check. if this failed, drop into the save-as flow
@@ -216,6 +230,11 @@ export default function Page() {
     // was a username mismatch. in any event we can start the save-as flow.
     // what changes is how we handle document matching and populating 
     // fields. that also changes based on API version
+
+    // ew're loading the documents list here so we can report collisions. not
+    // sure if we should wait for it...
+
+    loadDocuments();
 
     // note that the ignorePath field should only be used for renaming.
     // we're not using that here in any branch (I think this makes sense?)
@@ -257,6 +276,8 @@ export default function Page() {
 
     setSaveAsDocument(sad);
     setSaveAsDialogOpen(true); // show
+    AwaitSignal(saveAsDialogOpen, open => !open);
+    sheet.Focus();
 
   }
 
@@ -330,11 +351,26 @@ export default function Page() {
         pathname = result.path.substring(index + 1);
       }
 
-      const success = await StoreDocument(pathname, result.name, JSON.stringify(data), result.access);
+      let store_result: Partial<DocumentsRow>|false|undefined;
+
+      if (result.overwrite) {
+        store_result = await UpdateDocument(pathname, {
+          name: result.name,
+          document: JSON.stringify(data),
+          access: result.access === 0 ? 'private' : 'public',
+          // we're not changing `starred` here
+        });
+      }
+      else {
+        store_result = await StoreDocument(pathname, result.name, JSON.stringify(data), result.access);
+      }
 
       spinner.hide();
 
-      if (success) {
+      if (store_result) {
+
+        console.info({store_result});
+
         toast.success(format(t('save-as-dialog.saved'), { name }));
 
         // OK we need to change the active URL. that will trigger a reload,
@@ -407,15 +443,8 @@ export default function Page() {
         break;
 
       case 'save':
-        Save(false);
-        break;
-
       case 'save-as':
-        {
-          // ensure documents are loaded for conflict check
-          loadDocuments();
-          setSaveAsDialogOpen(true);
-        }
+        Save(key === 'save-as');
         break;
 
       case 'save-to-desktop':
