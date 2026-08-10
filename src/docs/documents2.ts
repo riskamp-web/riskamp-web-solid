@@ -1,5 +1,6 @@
 
 import * as auth from '~/lib/auth';
+import { DocumentsRow } from './documents';
 
 export const PushDocument = async (path: string, data: unknown) => {
 
@@ -69,7 +70,7 @@ export async function UpdateDocument(pathname: string, args: {
       document?: string;
       access?: 'public'|'private';
       starred?: boolean;
-    }) {
+    }): Promise<Partial<DocumentsRow>|false> {
   
   const access = (typeof args.access === 'string') ? (args.access === 'public' ? 1 : 0) : undefined;
 
@@ -88,7 +89,10 @@ export async function UpdateDocument(pathname: string, args: {
       starred: args.starred
     });
 
-    return result.ok;
+    if (result.ok) {
+      return await result.json();
+    }
+
   }
   catch {
     // 
@@ -102,19 +106,28 @@ export async function StoreDocument(
     pathname: string, 
     name: string, 
     document: string, 
-    access: number) {
+    access: number): Promise<Partial<DocumentsRow>|false> {
   
   const delay = 1 + Math.random() * 1;
 
-  const result = await auth.AccessResource('/api/store-document', {
-    pathname,
-    name,
-    document,
-    access,
-    api_version: 2,
-  }, delay);
+  try {
+    const result = await auth.AccessResource('/api/store-document', {
+      pathname,
+      name,
+      document,
+      access,
+      api_version: 2,
+    }, delay);
 
-  return result.ok;
+    if (result.ok) {
+      return await result.json();
+    }
+  }
+  catch {
+    // 
+  }
+
+  return false;
   
 }
 
