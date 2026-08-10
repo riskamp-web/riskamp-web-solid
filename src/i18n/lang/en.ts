@@ -531,6 +531,12 @@ export default {
     },
   },
 
+  'confirm-dialog': {
+    title: 'Are you sure?',
+    confirm: 'Confirm',
+    cancel: 'Cancel',
+  },
+
   'run-simulation-dialog-title': 'Monte Carlo Simulation',
   'run-simulation': {
     'number-of-trials': 'Number of trials',
@@ -566,6 +572,8 @@ export default {
     saved: 'Saved “{name}”',
     'save-failed': 'Couldn’t save “{name}”.',
     retry: 'Retry',
+    'overwrite-confirm-title': 'Overwrite document?',
+    'overwrite-confirm-message': 'A document already exists at “{name}”. Overwriting replaces its contents. Are you sure?',
   },
 
   toast: {

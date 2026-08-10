@@ -1,0 +1,11 @@
+
+/* a definite width so a dynamic message wraps to a sensible column instead of
+   stretching the dialog to one long line. not resizable, so no grip overrides it. */
+.dialog-root :global(.frame) {
+  width: 24em;
+  max-width: 90vw;
+}
+
+.message {
+  line-height: 1.45;
+}

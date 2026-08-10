@@ -1,5 +1,5 @@
 
-import { createSignal } from 'solid-js';
+import { createSignal, type JSX } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import en from '~/i18n/lang/en';
 
@@ -128,6 +128,34 @@ function deepMerge<T extends StringTree>(base: T, delta?: unknown): T {
  */
 export function format(text: string, values: Record<string, string | number>): string {
   return text.replace(/\{(\w+)\}/g, (all, key) => key in values ? String(values[key]) : all);
+}
+
+/**
+ * like format(), but values may be JSX -- so a translated string can have part
+ * of a value marked up, e.g. bolding a path inside a sentence:
+ *   formatJSX(t('...{name}...'), { name: <strong>{path}</strong> })
+ *
+ * returns the string split into an array of literal-text and value parts, which
+ * renders directly in JSX. same {name} tokenizing and same "unmatched name is
+ * left as literal {name}" behaviour as format().
+ */
+export function formatJSX(text: string, values: Record<string, string | number | JSX.Element>): (string | JSX.Element)[] {
+  const parts: (string | JSX.Element)[] = [];
+  const regex = /\{(\w+)\}/g;
+  let last = 0;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(text))) {
+    if (match.index > last) {
+      parts.push(text.slice(last, match.index));
+    }
+    const key = match[1];
+    parts.push(key in values ? values[key] : match[0]);
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) {
+    parts.push(text.slice(last));
+  }
+  return parts;
 }
 
 /**
