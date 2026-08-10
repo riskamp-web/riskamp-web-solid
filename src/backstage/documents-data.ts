@@ -268,6 +268,26 @@ async function sample(): Promise<BackstageDocument[]> {
  * and a document directly under the owner has no folder at all.
  */
 
+/**
+ * true when a string is shaped like a document path: an `@owner` segment
+ * followed by at least one more segment -- `@dwerner/bubbles` is the minimum,
+ * `@dwerner/finance/portfolio-var` adds folders. the helpers below all assume
+ * this shape, so this is the gate to put in front of untrusted input (a typed
+ * url, a stored value from an older build).
+ *
+ * shape only: whether the path names a document that exists is a question for
+ * the rows, not for the string. every segment has to be non-empty and free of
+ * whitespace -- '@dwerner/', '@dwerner//model' and a leading slash are all out,
+ * and so is a bare '@dwerner', which is an owner rather than a document.
+ *
+ * casing isn't checked. paths are written slugged (lowercase), but the back end
+ * resolves them case-insensitively and legacy rows carry mixed case, so
+ * '@dwerner/Finance/Model' is a valid path -- see folderTree().
+ */
+export function isValidPath(path: string): boolean {
+  return /^@[^/\s]+(?:\/[^/\s]+)+$/.test(path);
+}
+
 /** the owner segment: @dwerner/finance/portfolio-var -> @dwerner */
 export function ownerOf(path: string): string {
   const cut = path.indexOf('/');
