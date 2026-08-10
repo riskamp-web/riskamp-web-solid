@@ -500,8 +500,10 @@ export default function Documents() {
         class={style['row-menu-button']}>
       <MenuItem icon={<Icon name='insert_table' />}>{t('documents-page.action.open')}</MenuItem>
       <MenuItem icon={<Icon name='copy' />}>{t('documents-page.action.duplicate')}</MenuItem>
+      {/* rename and move are one operation here -- editing the path changes both the
+          folder and the leaf -- so a single entry covers them. no icon: the active
+          set has no rename/pencil glyph, and the menu aligns label-only items */}
       <MenuItem>{t('documents-page.action.rename')}</MenuItem>
-      <MenuItem icon={<Icon name='folder' />}>{t('documents-page.action.move')}</MenuItem>
       <hr />
       <MenuItem
           icon={props.doc.access === ACCESS_PUBLIC ? <Icon name='lock_cells' /> : <Icon name='public' />}
@@ -852,13 +854,20 @@ export default function Documents() {
                 <Show when={doc().starred}>
                   <Icon name='star' class={`${style.star} ${style.starred}`} />
                 </Show>
-                <span classList={{ [style.unnamed]: isUnnamed(doc()) }}>
+                {/* the title is the panel's open affordance -- the footer used to
+                    carry an Open button, but a linked title is the more obvious one
+                    and frees the footer for rename/duplicate/delete */}
+                <A
+                    href={documentUrl(doc())}
+                    classList={{ [style['panel-name-link']]: true, [style.unnamed]: isUnnamed(doc()) }}>
                   {displayName(doc())}
-                </span>
+                </A>
               </div>
 
               <div class={style['panel-path']}>
-                <span classList={{[shared.truncate]: true, [style['panel-uri']]: true}}>{documentUrl(doc())}</span>
+                {/* the path itself, not documentUrl() -- the leading slash it adds
+                    reads as noise here; copyLink() below still builds a full url */}
+                <span classList={{[shared.truncate]: true, [style['panel-uri']]: true}}>{doc().path}</span>
                 <button
                     type='button'
                     class={`${bs['icon-button']} ${style['copy-link']}`}
@@ -1018,16 +1027,30 @@ export default function Documents() {
 
           </div>
 
+          {/* open lives on the linked title above. rename keeps its text -- an
+              icon-only rename would be as non-obvious as the inline edit it
+              replaced -- while duplicate and delete compress to icon buttons so
+              the row survives a long translation at this fixed panel width. both
+              stay labelled in the row menu, and carry title/aria-label here. */}
           <div class={bs['panel-footer']}>
-            <A href={documentUrl(doc())} class={`${bs.button} ${bs['button-primary']}`}>
-              {t('documents-page.action.open')}
-            </A>
             <button type='button' class={bs.button}>
-              <Icon name='copy' /> {t('documents-page.action.duplicate')}
+              {t('documents-page.action.rename')}
             </button>
             <div class={bs.spacer} />
-            <button type='button' class={`${bs.button} ${bs['button-danger']}`} onclick={() => remove([doc().id])}>
-              <Icon name='trash' /> {t('documents-page.action.delete')}
+            <button
+                type='button'
+                class={bs['icon-button']}
+                aria-label={t('documents-page.action.duplicate')}
+                title={t('documents-page.action.duplicate')}>
+              <Icon name='copy' />
+            </button>
+            <button
+                type='button'
+                classList={{ [bs['icon-button']]: true, [style['panel-delete']]: true }}
+                aria-label={t('documents-page.action.delete')}
+                title={t('documents-page.action.delete')}
+                onclick={() => remove([doc().id])}>
+              <Icon name='trash' />
             </button>
           </div>
 

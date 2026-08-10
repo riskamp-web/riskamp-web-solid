@@ -385,6 +385,18 @@
   min-height: 20px;
 }
 
+/* the title doubles as the open link, so it wears the panel-name type rather
+   than link styling -- colour inherited, underline only on hover/focus */
+.panel-name-link {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+  }
+}
+
 /* a document with no name shows its slug. monospace marks it as an address
    rather than a badly-cased name -- and makes the ones needing a name obvious
    without dimming them, which would read as disabled. */
@@ -418,6 +430,17 @@
 
 .copy-confirmed {
   color: var(--accent);
+}
+
+/* the footer delete is an icon button, so it can't wear .button-danger -- give it
+   the same danger colour and hover wash (mirrors that rule in backstage.module.css) */
+.panel-delete {
+  color: var(--danger);
+
+  &:hover {
+    background: light-dark(rgb(from var(--danger) r g b / .09), rgb(from var(--danger) r g b / .15));
+    color: var(--danger);
+  }
 }
 
 .panel-section {

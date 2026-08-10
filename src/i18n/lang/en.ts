@@ -756,7 +756,6 @@ export default {
       open: 'Open',
       duplicate: 'Duplicate',
       rename: 'Rename…',
-      move: 'Move to…',
       'delete': 'Delete',
       cancel: 'Cancel',
       'make-public': 'Make public',
