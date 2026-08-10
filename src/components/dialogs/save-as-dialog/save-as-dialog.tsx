@@ -64,7 +64,7 @@ interface Props extends DialogProps<SaveAsResult | undefined> {
   /** existing documents, for collision checks and folder suggestions */
   documents: Accessor<BackstageDocument[]>;
   /** the document being renamed / moved; omit for a fresh Save As */
-  document?: SaveAsDocument;
+  document: Accessor<SaveAsDocument|undefined>;
   /** primary result channel */
   onSave?: (result: SaveAsResult) => void;
 }
@@ -94,14 +94,18 @@ export function SaveAsDialog(props: Props) {
   // open is the only tracked source: the document's fields are read inside the
   // callback, so they're sampled at the open transition rather than followed --
   // a caller has to have them set before it flips open
+
   createEffect(on(props.open, value => {
     if (value) {
+
+      const document = props.document();
+
       setCopied(false);
       setFields({
-        name: props.document?.name ?? '',
+        name: document?.name ?? '',
         // stored folders carry a leading slash; the field shows it without one
-        folder: (props.document?.folder ?? '').replace(/^\//, ''),
-        access: props.document?.access ?? ACCESS_PUBLIC,
+        folder: (document?.folder ?? '').replace(/^\//, ''),
+        access: document?.access ?? ACCESS_PUBLIC,
       });
     }
   }));
@@ -140,7 +144,7 @@ export function SaveAsDialog(props: Props) {
   const displayPath = () => [...prettyFolders(), nameLeaf().trim()].filter(Boolean).join('/');
   // a matching path no longer blocks saving -- it's a heads-up that Save will
   // overwrite; the caller is expected to confirm before clobbering
-  const collision = () => findPathCollision(props.documents(), fullPath(), props.document?.ignorePath);
+  const collision = () => findPathCollision(props.documents(), fullPath(), props.document()?.ignorePath);
   const valid = () => slug() !== '';
 
   const folderOptions = () =>
