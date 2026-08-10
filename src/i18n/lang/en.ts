@@ -854,6 +854,10 @@ export default {
 
     panel: {
       label: 'Document details',
+      open: {
+        // tooltip on the linked title, which opens the current version
+        title: 'Open document',
+      },
       close: {
         label: 'Close details',
       },

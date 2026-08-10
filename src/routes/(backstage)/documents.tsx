@@ -422,6 +422,16 @@ export default function Documents() {
     });
   };
 
+  // rename and duplicate act on a single document -- unlike remove, they never
+  // fan out over a selection. behaviour is not wired yet.
+  const rename = (_id: number) => {
+    // TODO: rename/move -- editing the path changes both the folder and the leaf.
+  };
+
+  const duplicate = (_id: number) => {
+    // TODO: duplicate the document.
+  };
+
   const toggleChecked = (id: number) => setChecked(previous => {
     const next = new Set(previous);
     if (next.has(id)) { next.delete(id); } else { next.add(id); }
@@ -499,10 +509,10 @@ export default function Documents() {
         label={format(t('documents-page.row.menu.label'), { name: displayName(props.doc) })}
         class={style['row-menu-button']}>
       <MenuItem icon={<Icon name='insert_table' />}>{t('documents-page.action.open')}</MenuItem>
-      <MenuItem icon={<Icon name='copy' />}>{t('documents-page.action.duplicate')}</MenuItem>
+      <MenuItem icon={<Icon name='copy' />} onclick={() => duplicate(props.doc.id)}>{t('documents-page.action.duplicate')}</MenuItem>
       {/* rename and move are one operation here -- editing the path changes both the
           folder and the leaf -- so a single entry covers them */}
-      <MenuItem icon={<Icon name='rename' />}>{t('documents-page.action.rename')}</MenuItem>
+      <MenuItem icon={<Icon name='rename' />} onclick={() => rename(props.doc.id)}>{t('documents-page.action.rename')}</MenuItem>
       <hr />
       <MenuItem
           icon={props.doc.access === ACCESS_PUBLIC ? <Icon name='lock_cells' /> : <Icon name='public' />}
@@ -858,6 +868,7 @@ export default function Documents() {
                     and frees the footer for rename/duplicate/delete */}
                 <A
                     href={documentUrl(doc())}
+                    title={t('documents-page.panel.open.title')}
                     classList={{ [style['panel-name-link']]: true, [style.unnamed]: isUnnamed(doc()) }}>
                   {displayName(doc())}
                 </A>
@@ -995,6 +1006,7 @@ export default function Documents() {
                         <A
                             class={style['version-tag']}
                             href={versionUrl(doc(), version.version)}
+                            title={format(t('documents-page.history.open.label'), { version: version.version })}
                             aria-label={format(t('documents-page.history.open.label'), { version: version.version })}>
                           {format(t('documents-page.version.short'), { version: version.version })}
                         </A>
@@ -1033,7 +1045,7 @@ export default function Documents() {
               this fixed panel width. both stay labelled in the row menu, and
               carry title/aria-label here. */}
           <div class={bs['panel-footer']}>
-            <button type='button' class={bs.button}>
+            <button type='button' class={bs.button} onclick={() => rename(doc().id)}>
               <Icon name='rename' />
               <span>{t('documents-page.action.rename')}</span>
             </button>
@@ -1042,7 +1054,8 @@ export default function Documents() {
                 type='button'
                 class={bs['icon-button']}
                 aria-label={t('documents-page.action.duplicate')}
-                title={t('documents-page.action.duplicate')}>
+                title={t('documents-page.action.duplicate')}
+                onclick={() => duplicate(doc().id)}>
               <Icon name='copy' />
             </button>
             <button
