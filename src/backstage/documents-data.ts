@@ -763,12 +763,22 @@ export function documentUrl(doc: BackstageDocument): string {
 
 /**
  * the path is the identity, so no two documents can share one. paths are
- * matched case-insensitively, the same way the loader resolves them.
+ * matched case-insensitively, the same way the loader resolves them -- which
+ * goes for the exclusion below too, for the same reason historyKey() lowercases.
+ *
+ * ignore_path is a full path to leave out of the match: a document renamed in
+ * place would otherwise collide with itself. a path rather than an id because
+ * that's what callers reliably have -- a loaded document knows where it lives,
+ * but not necessarily which row it came from.
  */
 export function findPathCollision(
     list: BackstageDocument[],
     path: string,
-    ignore_id?: number): BackstageDocument | undefined {
+    ignore_path?: string): BackstageDocument | undefined {
   const target = path.toLowerCase();
-  return list.find(doc => doc.id !== ignore_id && doc.path.toLowerCase() === target);
+  const ignore = ignore_path?.toLowerCase();
+  return list.find(doc => {
+    const candidate = doc.path.toLowerCase();
+    return candidate === target && candidate !== ignore;
+  });
 }

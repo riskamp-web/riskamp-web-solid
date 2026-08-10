@@ -9,7 +9,7 @@ export default function SaveAsDemo() {
   const [open, setOpen] = createSignal(true);
   const [result, setResult] = createSignal<SaveAsResult>();
 
-  // toggle these to try the rename/move seed path (initialName / initialFolder / ignoreId)
+  // toggle this to try the rename/move seed path (the `document` prop)
   const [rename, setRename] = createSignal(false);
 
   const owner = () => '@dwerner';
@@ -42,14 +42,14 @@ export default function SaveAsDemo() {
           normalizes to <code>@dwerner/finance/portfolio-var</code>, which is doc #1's path. The
           path still renders, a warning appears below it, and Save becomes <strong>Overwrite</strong>
           (overwriting is allowed; a confirmation step will come later, in the caller). Turn on
-          rename mode (ignoreId = 1) and the warning disappears — a document never collides with
-          itself.
+          rename mode (ignorePath = that same path) and the warning disappears — a document never
+          collides with itself.
         </p>
       </div>
 
       <label style="display: flex; gap: .5rem; align-items: center;">
         <input type="checkbox" checked={rename()} onchange={e => setRename(e.currentTarget.checked)} />
-        rename mode (seed "Portfolio VaR" in /finance, private, ignoreId = 1)
+        rename mode (seed "Portfolio VaR" in /finance, private, ignoring doc #1's path)
       </label>
 
       <button class="button-primary" onclick={() => setOpen(true)}>Open dialog</button>
@@ -61,10 +61,12 @@ export default function SaveAsDemo() {
         setOpen={setOpen}
         owner={owner}
         documents={documents}
-        initialName={rename() ? 'Portfolio VaR' : undefined}
-        initialFolder={rename() ? '/finance' : undefined}
-        initialAccess={rename() ? ACCESS_PRIVATE : undefined}
-        ignoreId={rename() ? 1 : undefined}
+        document={rename() ? {
+          name: 'Portfolio VaR',
+          folder: '/finance',
+          access: ACCESS_PRIVATE,
+          ignorePath: '@dwerner/finance/portfolio-var',   // doc #1
+        } : undefined}
         onSave={setResult} />
     </main>
   );

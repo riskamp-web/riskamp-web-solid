@@ -30,20 +30,41 @@ export interface SaveAsResult {
   access: number;
 }
 
+/**
+ * the document being saved or renamed -- one value rather than a prop apiece, so
+ * a caller driving the dialog from code has a single thing to build and pass.
+ *
+ * every field is optional: a plain Save As passes nothing and gets an empty form
+ * at the owner's root.
+ *
+ * a plain object is enough, and a store works just as well -- props are lazily
+ * read either way, so an inline literal stays reactive. read it as
+ * props.document?.x and never destructure, the usual rule.
+ */
+export interface SaveAsDocument {
+  /** seed the name field (rename); a pretty path -- 'Finance/My Model' -- is accepted */
+  name?: string;
+  /** seed the folder field, leading-slash form or '' (rename / move) */
+  folder?: string;
+  /** seed the access control (rename / move, so a private document isn't
+   * silently made public). omitted means ACCESS_PUBLIC, the default level */
+  access?: number;
+  /**
+   * a full path to exclude from the collision check -- the document's own current
+   * path when renaming in place, so it doesn't collide with itself. a path rather
+   * than an id because that's what a caller reliably has: a loaded document knows
+   * where it lives, not necessarily what row it came from.
+   */
+  ignorePath?: string;
+}
+
 interface Props extends DialogProps<SaveAsResult | undefined> {
   /** the owner handle, e.g. @dwerner */
   owner: Accessor<string>;
   /** existing documents, for collision checks and folder suggestions */
   documents: Accessor<BackstageDocument[]>;
-  /** seed the name field (rename) */
-  initialName?: string;
-  /** seed the folder field, leading-slash form or '' (rename / move) */
-  initialFolder?: string;
-  /** seed the access control (rename / move, so a private document isn't
-   * silently made public). omitted means ACCESS_PUBLIC, the default level */
-  initialAccess?: number;
-  /** a document id to exclude from the collision check (renaming in place) */
-  ignoreId?: number;
+  /** the document being renamed / moved; omit for a fresh Save As */
+  document?: SaveAsDocument;
   /** primary result channel */
   onSave?: (result: SaveAsResult) => void;
 }
@@ -69,15 +90,18 @@ export function SaveAsDialog(props: Props) {
 
   const list_id = createUniqueId();
 
-  // seed the fields each time the dialog opens (mirrors run-simulation-dialog)
+  // seed the fields each time the dialog opens (mirrors run-simulation-dialog).
+  // open is the only tracked source: the document's fields are read inside the
+  // callback, so they're sampled at the open transition rather than followed --
+  // a caller has to have them set before it flips open
   createEffect(on(props.open, value => {
     if (value) {
       setCopied(false);
       setFields({
-        name: props.initialName ?? '',
+        name: props.document?.name ?? '',
         // stored folders carry a leading slash; the field shows it without one
-        folder: (props.initialFolder ?? '').replace(/^\//, ''),
-        access: props.initialAccess ?? ACCESS_PUBLIC,
+        folder: (props.document?.folder ?? '').replace(/^\//, ''),
+        access: props.document?.access ?? ACCESS_PUBLIC,
       });
     }
   }));
@@ -116,7 +140,7 @@ export function SaveAsDialog(props: Props) {
   const displayPath = () => [...prettyFolders(), nameLeaf().trim()].filter(Boolean).join('/');
   // a matching path no longer blocks saving -- it's a heads-up that Save will
   // overwrite; the caller is expected to confirm before clobbering
-  const collision = () => findPathCollision(props.documents(), fullPath(), props.ignoreId);
+  const collision = () => findPathCollision(props.documents(), fullPath(), props.document?.ignorePath);
   const valid = () => slug() !== '';
 
   const folderOptions = () =>
