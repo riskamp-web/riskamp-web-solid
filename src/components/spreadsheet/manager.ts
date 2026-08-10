@@ -45,6 +45,11 @@ export function CacheCUrrentState(sheet?: SpreadsheetType, document_path = '', v
 
 }
 
+export async function RemoveFromCache(path = '', version: string|string[]|undefined = undefined) {
+  const cache = await CacheFactory.Instance();
+  await cache.Delete(path, typeof version === 'string' ? version : undefined);
+}
+
 export async function RevertDocument(sheet?: SpreadsheetType, path = '', version: string|string[]|undefined = undefined) {
 
   // we should only be called if there's a path, but we might as well check

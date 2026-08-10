@@ -29,20 +29,25 @@ import { RunTrendForecast, trend_forecast_props } from '~/components/dialogs/tre
 import { BorderConstants, EmbeddedSheetEvent } from '@trebco/treb';
 import { sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
 
-import { CacheCUrrentState, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
+import { CacheCUrrentState, RemoveFromCache, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
 import { CheckFunction, CheckFunctionData, RestoreEditor } from '~/components/dialogs/insert-function-dialog/check-function';
 import { produce } from 'solid-js/store';
 import { GenerateFilename } from '~/lib/filename-util';
 import { SetTheme } from '~/components/toolbar/theme-selector';
 
-import { SaveAsDialog, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
+import { SaveAsDialog, SaveAsDocument, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
 import { documents } from '~/backstage/documents-store';
-import { loadDocuments } from '~/backstage/documents-data';
-import { session } from '~/lib/auth';
+import { folderOf, isValidPath, loadDocuments, ownerOf, pathOf, slugOf } from '~/backstage/documents-data';
+import { loggedIn, session } from '~/lib/auth';
 import { spinner } from '~/components/spinner/spinner-control';
 import { toast } from '~/components/toast/toast-control';
 import { t, format } from '~/i18n/i18n';
-import { StoreDocument } from '~/docs/documents2';
+import { StoreDocument, UpdateDocument } from '~/docs/documents2';
+
+// we should drop that old goto utility, unless someone needs
+// to call it from code
+
+import { useNavigate } from "@solidjs/router";
 
 /*
 function Spin() {
@@ -56,13 +61,14 @@ function Spin() {
 export default function Page() {
 
   const params = useParams() as { document_path: string|undefined };
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [split, setSplit] = createSignal(100);
   const [getSheet, setSheet] = createSignal<SpreadsheetType|undefined>();
   const [sidebar, setSidebar] = createSignal<string|undefined>();
 
   const [saveAsDialogOpen, setSaveAsDialogOpen] = createSignal(false);
+  const [saveAsDocument, setSaveAsDocument] = createSignal<SaveAsDocument|undefined>();
 
   const [runSimulationOpen, setRunSimulationOpen] = createSignal(false);
   const [runSimulationOptions, setRunSimulationOptions] = createSignal<Partial<RunSimulationOptions>>({});
@@ -71,6 +77,8 @@ export default function Page() {
   const [functionResult, setFunctionResult] = createSignal<string|undefined>('');
 
   const [pageTitle ] = createSignal('RiskAMP web');
+
+  const navigate = useNavigate();
 
   // const RunSimulationSignal = createSignal(false);
   // const [auto, setAuto] = createSignal(false);
@@ -117,10 +125,162 @@ export default function Page() {
     getSheet()?.Focus();
   }
 
+  /**
+   * run the save or save-as routine. save-as always shows a dialog;
+   * save does not, unless there's no existing file/path, in which case
+   * it's the same as save-as.
+   * 
+   * @param save_as 
+   */
+  async function Save(save_as = false) {
+
+    const sheet = getSheet();
+
+    if (!sheet || !loggedIn()) {
+      return;
+    }
+
+    // regular save. there must already be a path, and the owner
+    // will have to match. if those conditions are met we can save
+    // the document as-is, as an updated version.
+
+    if (!save_as && params.document_path && isValidPath(params.document_path)) {
+
+      // check if the current user owns the document. if not,
+      // we'll need to run the save-as flow (although we can
+      // preserve the path name)
+
+      const owner = ownerOf(params.document_path);
+      if (owner.substring(1) === session().username) {
+
+        // I suppose we should leave the API version and name/file
+        // as is, since this is just updating a saved document...
+        
+        spinner.show();
+
+        const result = await UpdateDocument(pathOf(params.document_path), {
+          document: JSON.stringify(sheet.SerializeDocument({
+            preserve_simulation_data: true,
+          })),
+        }, );
+        
+        // test failure case // const result = false;
+
+        spinner.hide();
+
+        if (!result) {
+
+          // save failed; show error, allow retry
+          toast.error(
+            format(t('save-as-dialog.save-failed'), { name: params.document_path }), {
+              action: { label: t('save-as-dialog.retry'), run: () => Save() }
+            });
+        }
+        else {
+
+          if (searchParams.version) {
+
+            // if there's a version, we can remove the cached entry for 
+            // that version. we're about to dump the parameter, so do that
+            // first
+
+            RemoveFromCache(params.document_path, searchParams.version);
+
+            // remove the tag from the URL. in this operation we want (1) to
+            // prevent any actual navigation, and (2) to ensure we're pushing 
+            // a history entry so the back button returns to the older document.
+
+            setSearchParams(
+              { version: undefined },
+              { resolve: false },
+            );
+
+          }
+
+          // update the canonical version, and update cache
+
+          setSessionData('last_saved_version', sheet.state);
+          CacheCUrrentState(sheet, params.document_path);
+          
+          toast.success(format(t('save-as-dialog.saved'), { name: params.document_path }));
+
+        }
+
+        return;
+
+      } // owner check. if this failed, drop into the save-as flow
+
+    } // path check
+   
+    // either this is an explicit save-as, or there's no path, or there
+    // was a username mismatch. in any event we can start the save-as flow.
+    // what changes is how we handle document matching and populating 
+    // fields. that also changes based on API version
+
+    // note that the ignorePath field should only be used for renaming.
+    // we're not using that here in any branch (I think this makes sense?)
+
+    const user_data = sheet.user_data || {};
+    const sad: SaveAsDocument = {};
+
+    // explicit save-as: no path info, but persist name (if it exists)
+    if (save_as) {
+      if (sheet.document_name) {
+        sad.name = sheet.document_name;
+      }
+    }
+    // otherwise: use as much as we can
+    else {  
+
+      // explicit name and folder. there should never be 
+      // a folder without a name, but we'll handle the edge
+      // case regardless
+
+      if (sheet.document_name) {
+        sad.name = sheet.document_name;
+      }
+      if (user_data.folder) {
+        sad.folder = user_data.folder;
+      }
+
+      // if we have nothing, try to populate based on the 
+      // existing path (if any)
+
+      if (!sad.name && !sad.folder) {
+        if (params.document_path) {
+          sad.name = slugOf(params.document_path);
+          sad.folder = folderOf(params.document_path);
+        }
+      }
+
+    }
+
+    setSaveAsDocument(sad);
+    setSaveAsDialogOpen(true); // show
+
+  }
+
   async function HandleSaveAs(result: SaveAsResult) {
 
     const sheet = getSheet();
     if (sheet) {
+
+      // there's one case where this gets jumpy that we need to resolve.
+      // if you say "save as", on a clean document (perhaps you don't own
+      // it or you want to save a copy), when we update the name/user data
+      // we'll bump the state/version. this will result in the dirty pill
+      // showing in the UI, then disappearing when/if the file is actually
+      // saved.
+
+      // we should be able to handle this by updating the canonical version
+      // now (or immediately after we make changes), and reverting it in the 
+      // event save failed. in fact we should roll back the changes in that
+      // case regardless (maybe? not sure)
+
+      // BUT WAIT -- that should only happen if the current state is clean.
+      // if the current state is dirty, then we want it to stay dirty until
+      // the save is successful, for the same reason (but inverted), it will
+      // be jumpy.
 
       // set the name and folder in the sheet's user data space in
       // pretty form
@@ -136,8 +296,26 @@ export default function Page() {
 
       const user_data = sheet.user_data || {};
       user_data.folder = folder;
-      sheet.user_data = user_data;
-      sheet.document_name = name;
+      user_data.raw_api_version = 2;
+
+      // cache so we can revert if necessary. only do this is the document
+      // is clean, as noted above.
+
+      let cached_version = -1; 
+      if (sessionData.last_saved_version === sheet.state) {
+        cached_version = sessionData.last_saved_version;
+      }
+
+      sheet.Batch(() => {
+        sheet.user_data = user_data;
+        sheet.document_name = name;
+      });
+
+      // update, but only if we need to stay clean
+
+      if (cached_version >= 0) {
+        setSessionData('last_saved_version', sheet.state);
+      }
 
       spinner.show();
 
@@ -158,8 +336,30 @@ export default function Page() {
 
       if (success) {
         toast.success(format(t('save-as-dialog.saved'), { name }));
+
+        // OK we need to change the active URL. that will trigger a reload,
+        // so make sure the updated document and version are in the cache.
+
+        // this is slightly broken, because it implies the last save version
+        // for the _current_ URL. but the CCS method takes a path, so it 
+        // will set it in the right place. hopefully.
+
+        setSessionData('last_saved_version', sheet.state);
+        CacheCUrrentState(sheet, result.path);
+
+        // now we can update the path. resolve:false means don't try to
+        // re-evaluate the path, but it will still push history 
+        
+        navigate(result.path, {
+          resolve: false,
+        });
+        
       }
       else {
+
+        // we should restore state... maybe? not sure. if we do, we should also
+        // undo document changes. right? maybe that's not important
+
         // let the user retry the save rather than silently losing their work
         toast.error(format(t('save-as-dialog.save-failed'), { name }), {
           action: { label: t('save-as-dialog.retry'), run: () => HandleSaveAs(result) },
@@ -206,13 +406,15 @@ export default function Page() {
         return;
         break;
 
+      case 'save':
+        Save(false);
+        break;
+
       case 'save-as':
         {
           // ensure documents are loaded for conflict check
           loadDocuments();
-
           setSaveAsDialogOpen(true);
-
         }
         break;
 
@@ -609,6 +811,7 @@ export default function Page() {
           setOpen={setSaveAsDialogOpen}
           owner={() => '@' + (session().username || '')}
           documents={() => documents}
+          document={saveAsDocument}
           onSave={HandleSaveAs} />
 
     </main>

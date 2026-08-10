@@ -31,6 +31,9 @@ interface UserData {
   /** folder for tracking on this app */
   folder?: string;
 
+  /** indicates we've saved this as a v2 API file */
+  raw_api_version?: number;
+
 }
 
 /**
