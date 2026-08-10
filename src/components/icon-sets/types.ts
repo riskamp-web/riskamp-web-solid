@@ -16,6 +16,7 @@ export const ICON_GROUPS = {
     'sign_out', 'fullscreen', 'new_spreadsheet', 'import_file', 'revert_file',
     'save_to_desktop', 'export_xlsx',
     'trash', 'folder', 'star', 'recent',
+    'rename',
   ],
 
   panels: [

@@ -25,6 +25,7 @@ export const icons: IconSet = {
   folder:                 rai['folder'],
   star:                   rai['star'],
   recent:                 rai['recent'],
+  rename:                 rai['rename-file'],
 
   // --- panels --------------------------------------------------------
 
