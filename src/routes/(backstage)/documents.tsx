@@ -501,9 +501,8 @@ export default function Documents() {
       <MenuItem icon={<Icon name='insert_table' />}>{t('documents-page.action.open')}</MenuItem>
       <MenuItem icon={<Icon name='copy' />}>{t('documents-page.action.duplicate')}</MenuItem>
       {/* rename and move are one operation here -- editing the path changes both the
-          folder and the leaf -- so a single entry covers them. no icon: the active
-          set has no rename/pencil glyph, and the menu aligns label-only items */}
-      <MenuItem>{t('documents-page.action.rename')}</MenuItem>
+          folder and the leaf -- so a single entry covers them */}
+      <MenuItem icon={<Icon name='rename' />}>{t('documents-page.action.rename')}</MenuItem>
       <hr />
       <MenuItem
           icon={props.doc.access === ACCESS_PUBLIC ? <Icon name='lock_cells' /> : <Icon name='public' />}
@@ -1027,14 +1026,16 @@ export default function Documents() {
 
           </div>
 
-          {/* open lives on the linked title above. rename keeps its text -- an
+          {/* open lives on the linked title above. rename keeps its label -- an
               icon-only rename would be as non-obvious as the inline edit it
-              replaced -- while duplicate and delete compress to icon buttons so
-              the row survives a long translation at this fixed panel width. both
-              stay labelled in the row menu, and carry title/aria-label here. */}
+              replaced -- but now carries the pencil, while duplicate and delete
+              compress to icon buttons so the row survives a long translation at
+              this fixed panel width. both stay labelled in the row menu, and
+              carry title/aria-label here. */}
           <div class={bs['panel-footer']}>
             <button type='button' class={bs.button}>
-              {t('documents-page.action.rename')}
+              <Icon name='rename' />
+              <span>{t('documents-page.action.rename')}</span>
             </button>
             <div class={bs.spacer} />
             <button
