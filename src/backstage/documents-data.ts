@@ -102,6 +102,98 @@ export function refreshDocuments(): Promise<void> {
 }
 
 /* ------------------------------------------------------------------ */
+/* reflecting a save into the store                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * the fields a completed save / save-as reports back to the local store: a
+ * partial BackstageDocument -- the very row it's mirroring -- with path and
+ * version required and everything else optional. derived rather than declared
+ * so it can't drift from the row shape it updates, and so a caller that happens
+ * to hold a full row (a future back end that returns one) can pass it straight
+ * through.
+ *
+ * the back end has already been written by the time this is handed over, so
+ * these are only the values the store needs to reflect it. an omitted field
+ * means "leave the existing row's value alone" on an update -- an in-place save
+ * reports neither name nor access -- and falls back to a default on an insert
+ * (see upsertDocument). path and version are the two a save always knows.
+ */
+export type SavedDocument = Partial<BackstageDocument> & Pick<BackstageDocument, 'path' | 'version'>;
+
+/**
+ * ids for rows we insert locally, before a refetch replaces them with the real
+ * ones. counts down from 0 so it can never collide with a server id (those are
+ * positive), and a refreshDocuments() throws the whole set away regardless -- so
+ * these only have to be unique among the client-inserted rows in one session.
+ */
+let localId = 0;
+function nextLocalId(): number {
+  return --localId;
+}
+
+/**
+ * reflect a completed save / save-as in the store. inserts a row for a path the
+ * store doesn't have, and merges into the row it does -- so a new document,
+ * a save-as to a fresh path, an in-place save and an overwrite (a save-as onto
+ * an existing path) all land correctly off the one rule "does this path exist?".
+ * matched case-insensitively, the way the loader and findPathCollision resolve.
+ *
+ * a no-op until the store has been loaded: an unloaded store isn't missing this
+ * row, it's missing every row, and its first loadDocuments() will fetch the save
+ * along with the rest -- writing here would only mark it loaded with one row in it.
+ *
+ * history is handled per options.history (default 'record' -- see recordVersion);
+ * pass 'invalidate' to drop the cached history instead, or 'none' to leave it.
+ */
+export function upsertDocument(
+    saved: SavedDocument,
+    options?: { history?: 'record' | 'invalidate' | 'none' }): void {
+
+  if (!loaded()) { return; }
+
+  const modified = saved.modified ?? Date.now();
+  const key = saved.path.toLowerCase();
+  const isNew = !documents.some(doc => doc.path.toLowerCase() === key);
+
+  if (isNew) {
+    // honour anything the caller does supply; synthesise the rest a save doesn't
+    // report -- a local negative id (see nextLocalId), the current user, active
+    // status, created == modified, and the redesign's own defaults
+    setDocuments(documents.length, {
+      id: saved.id ?? nextLocalId(),
+      userid: saved.userid ?? documents[0]?.userid ?? 0,
+      name: saved.name ?? '',
+      path: saved.path,
+      status: saved.status ?? STATUS_ACTIVE,
+      access: saved.access ?? ACCESS_PRIVATE,
+      created: saved.created ?? modified,
+      modified,
+      version: saved.version,
+      app: saved.app,
+      api_version: saved.api_version ?? 2,
+      starred: saved.starred ?? false,
+    });
+  }
+  else {
+    // only the provided fields, so an in-place save (which reports neither) can't
+    // wipe the row's name, access, api_version or starred flag
+    const changes: Partial<BackstageDocument> = { version: saved.version, modified };
+    if (saved.name !== undefined) { changes.name = saved.name; }
+    if (saved.access !== undefined) { changes.access = saved.access; }
+    if (saved.api_version !== undefined) { changes.api_version = saved.api_version; }
+    if (saved.starred !== undefined) { changes.starred = saved.starred; }
+
+    setDocuments(doc => doc.path.toLowerCase() === key, prev => ({ ...prev, ...changes }));
+  }
+
+  const history = options?.history ?? 'record';
+  if (history === 'record') { recordVersion(saved.path, saved.version, modified, { seedIfAbsent: isNew }); }
+  else if (history === 'invalidate') { invalidateHistory(saved.path); }
+
+}
+
+/* ------------------------------------------------------------------ */
 /* version history                                                     */
 /* ------------------------------------------------------------------ */
 
@@ -164,6 +256,48 @@ function newestFirst(versions: DocumentVersion[]): DocumentVersion[] {
 export function retryHistory(path: string): void {
   setHistories(historyKey(path), undefined as unknown as DocumentHistory);
   loadHistory(path);
+}
+
+/**
+ * record a just-saved version into the cached history, so the panel stays right
+ * without a refetch. the new version is the newest, so:
+ *
+ *   - a loaded ('ready') list gets it prepended (deduped by number and capped);
+ *   - an absent entry is seeded as a one-version 'ready' list when seedIfAbsent
+ *     (the default) -- correct for a brand-new document, whose only version this
+ *     is. pass false for an existing document whose full history isn't loaded,
+ *     where a one-entry list would hide its older versions: absent is left absent
+ *     so loadHistory() can fetch the real list when the panel next opens;
+ *   - a 'loading' or 'failed' entry is dropped, so that same next open refetches.
+ */
+export function recordVersion(
+    path: string, version: number, modified: number,
+    options?: { seedIfAbsent?: boolean }): void {
+
+  const key = historyKey(path);
+  const entry: DocumentVersion = { version, modified };
+  const current = histories[key];
+
+  if (current?.status === 'ready') {
+    const versions = newestFirst([entry, ...current.versions.filter(v => v.version !== version)])
+      .slice(0, VERSION_CAP);
+    setHistories(key, 'versions', versions);
+  }
+  else if (!current) {
+    if (options?.seedIfAbsent ?? true) {
+      setHistories(key, { status: 'ready', versions: [entry] });
+    }
+  }
+  else {
+    // loading or failed: drop it so the next loadHistory() fetches the real list
+    invalidateHistory(path);
+  }
+
+}
+
+/** drop the cached history for a path so the next loadHistory() refetches it */
+export function invalidateHistory(path: string): void {
+  setHistories(historyKey(path), undefined as unknown as DocumentHistory);
 }
 
 /**
