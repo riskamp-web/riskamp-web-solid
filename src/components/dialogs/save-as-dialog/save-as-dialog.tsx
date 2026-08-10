@@ -28,6 +28,10 @@ export interface SaveAsResult {
    * a string, so a caller persisting this maps it the way setAccess() in
    * documents.tsx does: access === ACCESS_PUBLIC ? 'public' : 'private' */
   access: number;
+  /** true when the chosen path matches an existing document (ignorePath
+   * excluded) -- Save replaces it rather than creating a new one, so the
+   * saving api can branch overwrite vs create. mirrors the button label. */
+  overwrite: boolean;
 }
 
 /**
@@ -160,6 +164,7 @@ export function SaveAsDialog(props: Props) {
       slug: slug(),
       name: displayPath(),
       access: fields.access,
+      overwrite: !!collision(),
     };
     props.onSave?.(result);
     props.setResult?.(result);
