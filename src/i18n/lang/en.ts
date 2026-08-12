@@ -554,7 +554,9 @@ export default {
   },
 
   'save-as-dialog': {
-    title: 'Save As',
+    'default-title': 'Save As',
+    'rename-title': 'Rename',
+    'duplicate-title': 'Duplicate',
     folder: 'Folder',
     name: 'Name',
     access: 'Access',
