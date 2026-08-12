@@ -6,7 +6,8 @@
     "build": "vinxi build",
     "start": "vinxi start",
     "deploy": "wrangler pages deploy dist",
-    "deploy-as-main": "wrangler pages deploy dist --branch=main"
+    "deploy-as-main": "wrangler pages deploy dist --branch=main",
+    "tunnel": "cloudflared tunnel --url http://localhost:5173 --http-host-header \"localhost:5173\""
   },
   "dependencies": {
     "@solidjs/meta": "^0.29.4",
