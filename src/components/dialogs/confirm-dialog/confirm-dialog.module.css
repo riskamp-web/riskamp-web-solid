@@ -6,6 +6,13 @@
   max-width: 90vw;
 }
 
-.message {
+/*
+ the "riskamp dialog" stylesheet defines section as display:flex. that 
+ breaks inlining JSX because <strong/> is turning into a flex block. we
+ _should_ fix at the source, but I don't want to go back and fix all the 
+ other dialogs, so we'll fix this here for now
+ */
+.message.message {
+  display: block;
   line-height: 1.45;
 }
