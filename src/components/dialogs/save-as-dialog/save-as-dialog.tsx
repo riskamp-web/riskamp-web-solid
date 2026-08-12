@@ -1,15 +1,17 @@
 
-import { type Accessor, createEffect, createSignal, createUniqueId, For, on, Show } from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, createUniqueId, For, JSX, on, Show } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { Dialog, type Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
 import { icons } from '~/components/icon-sets';
-import { t } from '~/i18n/i18n';
+import { formatJSX, t, type StringKey } from '~/i18n/i18n';
 import {
   ACCESS_PRIVATE, ACCESS_PUBLIC,
   findPathCollision, flattenFolders, folderTree, pathFor, slugSegment,
 } from '~/backstage/documents-data';
 import type { BackstageDocument } from '~/backstage/documents-store';
 import style from './save-as-dialog.module.css';
+import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
+import { AwaitSignal } from '~/lib/await-signal';
 
 /** left-to-right mark (U+200E): see the .path span below */
 const LRM = String.fromCharCode(0x200e);
@@ -71,6 +73,14 @@ interface Props extends DialogProps<SaveAsResult | undefined> {
   document: Accessor<SaveAsDocument|undefined>;
   /** primary result channel */
   onSave?: (result: SaveAsResult) => void;
+
+  /** 
+   * dialog title. the default is "save as", but this dialog is
+   * also used for "rename" and "duplicate", so we can support different
+   * titles for those operations.
+   */
+  dialogTitle?: StringKey;
+
 }
 
 /**
@@ -154,10 +164,41 @@ export function SaveAsDialog(props: Props) {
   const folderOptions = () =>
     flattenFolders(folderTree(props.documents())).map(node => node.path.replace(/^\//, ''));
 
+  // signals for the confirmation dialog. we're inlining it in this 
+  // component so we can run the confirm flow without closing the 
+  // save-as dialog (and triggering any effects); we'll just hide 
+  // the save-as dialog while the confirm dialog is open.
+
+  const [ confirmDialogOpen, setConfirmDialogOpen ] = createSignal(false);
+  const [ confirmDialogResult, setConfirmDialogResult ] = createSignal<boolean|undefined>(false);
+  const [ confirmDialogMessage, setConfirmDialogMessage] = createSignal<string | JSX.Element>('');
+
+  const dialog_hidden = createMemo(() => {
+    return confirmDialogOpen() ? style.hidden : '';
+  });
+  
   /* ---- actions ---- */
 
-  function save() {
+  async function save() {
     if (!valid()) { return; }
+
+    if (collision()) {
+      setConfirmDialogMessage(formatJSX(t('save-as-dialog.overwrite-confirm-message'), {
+        name: <strong>{displayPath()}</strong>,
+      }));
+      setConfirmDialogOpen(true);
+
+      console.info("wait...");
+
+      await AwaitSignal(confirmDialogOpen, value => !value);
+
+      console.info("waited:", confirmDialogResult());
+
+      if (!confirmDialogResult()) {
+        return;
+      }
+    }
+
     const result: SaveAsResult = {
       path: fullPath(),
       folder: folder(),
@@ -196,10 +237,11 @@ export function SaveAsDialog(props: Props) {
   }
 
   return (
+    <>
     <Dialog modal escape closebox moveable resizeable {...props}
-            class={[style['dialog-root'], props.class].filter(Boolean).join(' ')}>
+            class={[style['dialog-root'], props.class, dialog_hidden()].filter(Boolean).join(' ')}>
       <header>
-        <span>{t('save-as-dialog.title')}</span>
+        <span>{t(props.dialogTitle || 'save-as-dialog.default-title')}</span>
       </header>
       <section class={style.layout}>
 
@@ -289,6 +331,16 @@ export function SaveAsDialog(props: Props) {
         <button onclick={() => props.setOpen(false)}>{t('dialog-close-label')}</button>
       </footer>
     </Dialog>
+
+    <ConfirmDialog
+        open={confirmDialogOpen}
+        setOpen={setConfirmDialogOpen}
+        setResult={setConfirmDialogResult}
+        message={confirmDialogMessage()}
+        title={'save-as-dialog.overwrite-confirm-title'}
+        confirm={'save-as-dialog.overwrite'} />
+
+    </>
   );
 
 }
