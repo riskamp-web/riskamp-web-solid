@@ -189,7 +189,7 @@ export default function Page() {
             modified: result.modified,
           }, {
             history: 'record',
-          })
+          });
 
           if (searchParams.version) {
 
@@ -231,7 +231,7 @@ export default function Page() {
     // what changes is how we handle document matching and populating 
     // fields. that also changes based on API version
 
-    // ew're loading the documents list here so we can report collisions. not
+    // we're loading the documents list here so we can report collisions. not
     // sure if we should wait for it...
 
     loadDocuments();
@@ -276,11 +276,19 @@ export default function Page() {
 
     setSaveAsDocument(sad);
     setSaveAsDialogOpen(true); // show
+
+    // wait for dialog to close, and (always) refocus
+
     AwaitSignal(saveAsDialogOpen, open => !open);
     sheet.Focus();
 
   }
 
+  /**
+   * callback method on successful save-as dialog flow. the user
+   * wants to save the document, and has specified name/folder and
+   * access. we also get a flag if this is an explicit overwrite.
+   */
   async function HandleSaveAs(result: SaveAsResult) {
 
     const sheet = getSheet();
@@ -373,7 +381,23 @@ export default function Page() {
 
         toast.success(format(t('save-as-dialog.saved'), { name }));
 
-        // OK we need to change the active URL. that will trigger a reload,
+        // update the documents list, assuming it has been populated,
+        // to reflect the new document/new version.
+
+        upsertDocument({
+          path: result.path,
+          version: store_result.version || 1,
+          modified: store_result.modified,
+        }, {
+          history: 'record',
+        });
+
+        // next step is remove the current document from cache, whatever
+        // the URL is (meaning include the version, if any)
+
+        RemoveFromCache(params.document_path, searchParams.version);
+
+        // next we need to change the active URL. that will trigger a reload,
         // so make sure the updated document and version are in the cache.
 
         // this is slightly broken, because it implies the last save version
