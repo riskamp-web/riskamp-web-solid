@@ -572,6 +572,7 @@ export default {
     'copy-link': 'Copy link',
     'copy-link-copied': 'Link copied',
     collision: 'A document already exists at this path.',
+    'collision-blocked': 'A document already exists at this path. Choose a different name.',
     empty: 'Enter a name',
     saved: 'Saved “{name}”',
     'save-failed': 'Couldn’t save “{name}”.',

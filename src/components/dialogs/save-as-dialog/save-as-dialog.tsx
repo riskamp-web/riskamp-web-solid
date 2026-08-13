@@ -169,6 +169,12 @@ export function SaveAsDialog(props: Props) {
   const valid = () => {
     return (slug() !== '') && !(collision() && props.allowOverwrite === false);
   };
+  // when overwrite is blocked the collision is a hard error, not a heads-up;
+  // the message depends only on the mode, so it never swaps as collision toggles
+  const collisionMessage = () =>
+    props.allowOverwrite === false
+      ? t('save-as-dialog.collision-blocked')
+      : t('save-as-dialog.collision');
 
   const folderOptions = () =>
     flattenFolders(folderTree(props.documents())).map(node => node.path.replace(/^\//, ''));
@@ -333,8 +339,12 @@ export function SaveAsDialog(props: Props) {
 
         {/* the overwrite warning sits below the box and keeps its space when
             hidden, so showing it never resizes the dialog */}
-        <div classList={{ [style.warning]: true, [style.hidden]: !collision() }}>
-          {t('save-as-dialog.collision')}
+        <div classList={{
+          [style.warning]: props.allowOverwrite !== false,
+          [style.error]: props.allowOverwrite === false,
+          [style.hidden]: !collision(),
+        }}>
+          {collisionMessage()}
         </div>
 
       </section>

@@ -166,6 +166,10 @@
   color: var(--warning);
 }
 
+.error {
+  color: var(--danger);
+}
+
 .hidden {
   visibility: hidden;
 }
