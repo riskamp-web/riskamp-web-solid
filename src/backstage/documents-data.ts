@@ -193,6 +193,71 @@ export function upsertDocument(
 
 }
 
+/**
+ * the values a completed rename / move reports back to the local store. only the
+ * new `path` -- the new identity -- is required; name and access are updated when
+ * provided and left alone when omitted. no `version`: a rename doesn't modify the
+ * document, so the row keeps the version it already had. modified defaults to now.
+ */
+export type RenamedDocument =
+  Pick<BackstageDocument, 'path'> &
+  Partial<Pick<BackstageDocument, 'name' | 'access' | 'modified'>>;
+
+/**
+ * reflect a completed rename / move in the store: relocate the existing row from
+ * `from` to `to.path`, rather than upsertDocument's insert-a-new-row. a rename
+ * changes a document's identity (its path) and pretty name, so feeding it through
+ * upsertDocument would strand the old-path row as a duplicate -- this moves the
+ * one row instead. paths are matched case-insensitively, the way the rest of the
+ * module resolves them.
+ *
+ * unlike a save, a rename leaves the document body untouched: the version does
+ * NOT change (the row keeps its own), and history is migrated to the new key
+ * rather than gaining a version. only path, name, (maybe) access and the modified
+ * time change -- and modified always does, a metadata edit still being an edit.
+ *
+ * name collisions aren't handled here: the app requires the target be deleted
+ * first, so the destination path is always free -- there's no overwrite branch.
+ *
+ * a no-op until the store has been loaded (same reasoning as upsertDocument), and
+ * a no-op when the store doesn't hold the source row: there's nothing on screen
+ * to move, and a later loadDocuments() will fetch it already renamed.
+ */
+export function renameDocument(from: string, to: RenamedDocument): void {
+
+  if (!loaded()) { return; }
+
+  const fromKey = from.toLowerCase();
+  const key = to.path.toLowerCase();
+  const modified = to.modified ?? Date.now();
+
+  if (!documents.some(doc => doc.path.toLowerCase() === fromKey)) { return; }
+
+  // move + merge the existing row, keyed on the still-old path. id, version,
+  // created, starred, api_version, etc. all carry over via ...prev -- a rename
+  // changes only path, name, (maybe) access, and always the modified time
+  setDocuments(doc => doc.path.toLowerCase() === fromKey, prev => ({
+    ...prev,
+    path: to.path,
+    name: to.name ?? prev.name,
+    access: to.access ?? prev.access,
+    modified,
+  }));
+
+  // migrate the version history to the new key -- a rename doesn't add a version,
+  // so the doc's existing history simply moves address. guarded on fromKey !== key
+  // so a case-only rename (same lowercased path) doesn't set then immediately
+  // delete its own entry
+  if (fromKey !== key) {
+    const hist = histories[fromKey];
+    if (hist) {
+      setHistories(key, hist);
+      invalidateHistory(from);
+    }
+  }
+
+}
+
 /* ------------------------------------------------------------------ */
 /* version history                                                     */
 /* ------------------------------------------------------------------ */
