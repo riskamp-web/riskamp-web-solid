@@ -1,7 +1,7 @@
 import { createSignal, type JSX } from 'solid-js';
 import { ConfirmDialog } from '~/components/dialogs/confirm-dialog/confirm-dialog';
 import { AwaitSignal } from '~/lib/await-signal';
-import { formatJSX, t } from '~/i18n/i18n';
+import { formatJSX, t, type StringKey } from '~/i18n/i18n';
 
 // TEMPORARY demo route for exercising ConfirmDialog by hand. Delete before commit.
 export default function ConfirmDemo() {
@@ -13,6 +13,8 @@ export default function ConfirmDemo() {
   // which case to open: the save-as overwrite strings, or the generic defaults.
   const [message, setMessage] = createSignal<string | JSX.Element>('');
   const [overwrite, setOverwrite] = createSignal(true);
+  const [mode, setMode] = createSignal<'confirm' | 'alert'>('confirm');
+  const [dismiss, setDismiss] = createSignal<StringKey>();
 
   const name = '@dwerner/finance/portfolio-var';
 
@@ -25,6 +27,8 @@ export default function ConfirmDemo() {
 
   function openOverwrite() {
     setAnswer(undefined);
+    setMode('confirm');
+    setDismiss(undefined);
     setOverwrite(true);
     // JSX message: bold the path *inside* the translated sentence via formatJSX.
     setMessage(formatJSX(t('save-as-dialog.overwrite-confirm-message'), {
@@ -35,8 +39,30 @@ export default function ConfirmDemo() {
 
   function openGeneric() {
     setAnswer(undefined);
+    setMode('confirm');
+    setDismiss(undefined);
     setOverwrite(false);
     setMessage('Do the thing? This uses the generic title and button defaults.');
+    void run();
+  }
+
+  // alert mode: single acknowledge button; default 'OK' label + 'Alert' title.
+  function openAlert() {
+    setAnswer(undefined);
+    setMode('alert');
+    setDismiss(undefined);
+    setOverwrite(false);
+    setMessage('Heads up -- this is an alert. One button, default "OK", no Cancel.');
+    void run();
+  }
+
+  // alert mode with a custom dismiss-button label (reusing an existing i18n key).
+  function openAlertCustom() {
+    setAnswer(undefined);
+    setMode('alert');
+    setDismiss('dialog-close-label'); // -> "Close"
+    setOverwrite(false);
+    setMessage('Alert with a custom dismiss label (the button reads "Close").');
     void run();
   }
 
@@ -51,9 +77,11 @@ export default function ConfirmDemo() {
         The two buttons open it with different <code>title</code>/<code>confirm</code> keys.
       </p>
 
-      <div style="display: flex; gap: .75rem;">
+      <div style="display: flex; gap: .75rem; flex-wrap: wrap;">
         <button class="button-primary" onclick={openOverwrite}>Open (overwrite case)</button>
         <button onclick={openGeneric}>Open (generic defaults)</button>
+        <button onclick={openAlert}>Open (alert, default OK)</button>
+        <button onclick={openAlertCustom}>Open (alert, custom label)</button>
       </div>
 
       <pre id="result" style="background: #f4f4f4; padding: 1rem; border-radius: 6px;">
@@ -64,6 +92,8 @@ export default function ConfirmDemo() {
         open={open}
         setOpen={setOpen}
         setResult={setResult}
+        mode={mode()}
+        dismiss={dismiss()}
         message={message()}
         title={overwrite() ? 'save-as-dialog.overwrite-confirm-title' : undefined}
         confirm={overwrite() ? 'save-as-dialog.overwrite' : undefined} />
