@@ -35,6 +35,8 @@ import {
 } from '~/backstage/documents-data';
 
 import { UpdateDocument } from '~/docs/documents2';
+import { SaveAsDialog, SaveAsDocument } from '~/components/dialogs/save-as-dialog/save-as-dialog';
+import { session } from '~/lib/auth';
 
 /* the union lives next to the data: the saved view stores a scope, so
    ~/lib/app-data has to be able to type one */
@@ -425,7 +427,7 @@ export default function Documents() {
   // rename and duplicate act on a single document -- unlike remove, they never
   // fan out over a selection. behaviour is not wired yet.
   const rename = (_id: number) => {
-    // TODO: rename/move -- editing the path changes both the folder and the leaf.
+    setSaveAsDialogOpen(true);
   };
 
   const duplicate = (_id: number) => {
@@ -463,6 +465,16 @@ export default function Documents() {
     setScope('all');
     setFolder(current => current === path ? undefined : path);
   };
+
+  /* ---- save as dialog ----*/
+
+  const [saveAsDialogOpen, setSaveAsDialogOpen] = createSignal(false);
+  const [saveAsDocument, setSaveAsDocument] = createSignal<SaveAsDocument|undefined>();
+  
+  function HandleRename() {
+    // ...
+  }
+
 
   /* ---- keyboard ---- */
 
@@ -1072,6 +1084,17 @@ export default function Documents() {
       </aside>
 
     </div>
+
+    <SaveAsDialog
+      dialogTitle='save-as-dialog.rename-title'
+      open={saveAsDialogOpen}
+      setOpen={setSaveAsDialogOpen}
+      owner={() => '@' + (session().username || '')}
+      documents={() => documents}
+      document={saveAsDocument}
+      allowOverwrite={false}
+      onSave={HandleRename} />
+
 
   </div>;
 

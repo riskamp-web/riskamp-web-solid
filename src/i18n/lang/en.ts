@@ -533,8 +533,10 @@ export default {
 
   'confirm-dialog': {
     title: 'Are you sure?',
+    'alert-title': 'Alert',
     confirm: 'Confirm',
     cancel: 'Cancel',
+    ok: 'OK',
   },
 
   'run-simulation-dialog-title': 'Monte Carlo Simulation',
@@ -576,6 +578,10 @@ export default {
     retry: 'Retry',
     'overwrite-confirm-title': 'Overwrite document?',
     'overwrite-confirm-message': 'A document already exists at “{name}”. Overwriting replaces its contents. Are you sure?',
+
+    'path-exists-title': 'Document exists',
+    'path-exists-message': 'A document with that path already exists. Delete that document first if you want to reuse the path.',
+
   },
 
   toast: {

@@ -81,6 +81,13 @@ interface Props extends DialogProps<SaveAsResult | undefined> {
    */
   dialogTitle?: StringKey;
 
+  /** 
+   * whether to allow overwrite. this is disabled for rename. when 
+   * overwrite is disabled, if you try to overwrite we'll show an error.
+   * defaults to true, so must be set explicitly false
+   */
+  allowOverwrite?: false;
+
 }
 
 /**
@@ -159,7 +166,9 @@ export function SaveAsDialog(props: Props) {
   // a matching path no longer blocks saving -- it's a heads-up that Save will
   // overwrite; the caller is expected to confirm before clobbering
   const collision = () => findPathCollision(props.documents(), fullPath(), props.document()?.ignorePath);
-  const valid = () => slug() !== '';
+  const valid = () => {
+    return (slug() !== '') && !(collision() && props.allowOverwrite === false);
+  };
 
   const folderOptions = () =>
     flattenFolders(folderTree(props.documents())).map(node => node.path.replace(/^\//, ''));
@@ -183,20 +192,25 @@ export function SaveAsDialog(props: Props) {
     if (!valid()) { return; }
 
     if (collision()) {
+
+      // we're no longer showing an alert here. we just don't
+      // let you get here. but if you do, we'll exit early
+
+      if (props.allowOverwrite === false) {
+        return; 
+      }
+
       setConfirmDialogMessage(formatJSX(t('save-as-dialog.overwrite-confirm-message'), {
         name: <strong>{displayPath()}</strong>,
       }));
+
       setConfirmDialogOpen(true);
-
-      console.info("wait...");
-
       await AwaitSignal(confirmDialogOpen, value => !value);
-
-      console.info("waited:", confirmDialogResult());
 
       if (!confirmDialogResult()) {
         return;
       }
+
     }
 
     const result: SaveAsResult = {
@@ -338,7 +352,8 @@ export function SaveAsDialog(props: Props) {
         setResult={setConfirmDialogResult}
         message={confirmDialogMessage()}
         title={'save-as-dialog.overwrite-confirm-title'}
-        confirm={'save-as-dialog.overwrite'} />
+        confirm={'save-as-dialog.overwrite'} 
+        />
 
     </>
   );
