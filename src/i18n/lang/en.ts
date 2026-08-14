@@ -842,6 +842,11 @@ export default {
       retry: 'Try again',
     },
 
+    messages: {
+      rename_failed: 'Rename failed. Please try again later.',
+      rename_succeeded: 'Document renamed',
+    },
+
     empty: {
       title: 'No documents yet',
       detail: 'Spreadsheets you create or import will show up here, along with their version history.',

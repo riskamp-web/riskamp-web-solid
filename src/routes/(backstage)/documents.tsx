@@ -32,11 +32,14 @@ import {
   folderTree, formatAbsolute, formatCount, formatNumber, formatRelative, formatStamp, historyOf,
   isUnnamed, loadDocuments, loadHistory, loaded, ownerOf, refreshDocuments, retryHistory,
   savedView, saveView, setDocuments, sortDocuments, pathOf,
+  renameDocument,
 } from '~/backstage/documents-data';
 
 import { UpdateDocument } from '~/docs/documents2';
-import { SaveAsDialog, SaveAsDocument } from '~/components/dialogs/save-as-dialog/save-as-dialog';
+import { SaveAsDialog, SaveAsDocument, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
 import { session } from '~/lib/auth';
+import { AwaitSignal } from '~/lib/await-signal';
+import { toast } from '~/components/toast/toast-control';
 
 /* the union lives next to the data: the saved view stores a scope, so
    ~/lib/app-data has to be able to type one */
@@ -403,6 +406,10 @@ export default function Documents() {
   };
 
   const setAccess = (ids: number[], access: number) => {
+
+    // NOTE: no toast for this? not even on error? (...)
+    // FIXME: we need a bulk op update method
+    
     const set = new Set(ids);
     const docs = documents.filter(test => set.has(test.id));
     for (const doc of docs) {
@@ -414,6 +421,10 @@ export default function Documents() {
   };
 
   const remove = (ids: number[]) => {
+
+    // FIXME: needs back-end, toast
+    // FIXME: we need a bulk op update method
+
     const set = new Set(ids);
     setDocuments(list => list.filter(doc => !set.has(doc.id)));
     if (selected() !== undefined && set.has(selected()!)) { setSelected(undefined); }
@@ -424,10 +435,39 @@ export default function Documents() {
     });
   };
 
-  // rename and duplicate act on a single document -- unlike remove, they never
-  // fan out over a selection. behaviour is not wired yet.
-  const rename = (_id: number) => {
-    setSaveAsDialogOpen(true);
+  const rename = async (id: number) => {
+    
+    // two ways we can do this. either store the id, and 
+    // retrieve it in the callback, or have the callback
+    // store the result, and look for it here. both options
+    // are kind of clunky. let's go with option A for now...
+
+    const sad: SaveAsDocument = {};
+
+    rename_path = '';
+    for (const doc of documents) {
+      if (doc.id === id) {
+
+        // here we're persisting the folder. not sure if this is
+        // useful or not, perhaps we'll find out with some use.
+
+        // eh in practice it doesn't work, it's confusing
+
+        // const name = doc.name;
+        // const index = name.lastIndexOf('/');
+        // sad.folder = index >= 0 ? name.substring(0, index) : '';
+        
+        rename_path = doc.path;
+        sad.access = doc.access;
+        break;
+      }
+    }
+    
+    if (rename_path) {
+      setSaveAsDocument(sad);
+      setSaveAsDialogOpen(true);
+    }
+
   };
 
   const duplicate = (_id: number) => {
@@ -470,9 +510,36 @@ export default function Documents() {
 
   const [saveAsDialogOpen, setSaveAsDialogOpen] = createSignal(false);
   const [saveAsDocument, setSaveAsDocument] = createSignal<SaveAsDocument|undefined>();
-  
-  function HandleRename() {
-    // ...
+
+  // this field will be set when you trigger a rename operation;
+  // we can use it in the callback method 
+
+  let rename_path = '';
+
+  async function HandleRename(result: SaveAsResult) {
+
+    if (rename_path) {
+      const update_result = await UpdateDocument(pathOf(rename_path), { 
+        access: result.access === ACCESS_PRIVATE ? 'private' : 'public',
+        name: result.name,
+        new_path: pathOf(result.path), 
+      });
+
+      if (update_result) {
+
+        // local rename
+        renameDocument(rename_path, result);
+       
+        // toast
+        toast.success(t('documents-page.messages.rename_succeeded'));
+        
+      }
+      else {
+        toast.success(t('documents-page.messages.rename_failed'));
+      }
+
+    }
+
   }
 
 
