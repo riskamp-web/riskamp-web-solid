@@ -96,6 +96,9 @@ export async function RevertDocument(sheet?: SpreadsheetType, path = '', version
 export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: string|string[]|undefined = undefined) {
 
   if (!sheet) {
+
+    // this is just a catastrophic error
+
     console.warn("mising sheet");
     goto('/');
     return false;
@@ -103,30 +106,23 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
 
   if (path.startsWith('@')) {
 
-    console.info(2, {path, version});
+    // console.info(2, {path, version});
 
     const match = path.match(/^(@[^/]+)\/(.+)$/);
 
     if (!match) {
-
-      // FIXME: warn?
-
-      toast.error('Load error 2');
-      goto('/');
+      toast.error(t('load-error.loading-document-failed'));
+      goto('/', { replace: true });
       return false;
     }
 
     if (version) {
       if (Array.isArray(version)) {
-        console.warn("invalid version");
-        toast.error('Load error 3');
-        goto('/');
+        toast.error(t('load-error.loading-document-failed'));
+        goto('/', { replace: true });
         return false;
       }
     }
-
-    // const [_, user, file] = match;
-    // console.info({user, file});
 
     spinner.show();
 
@@ -134,19 +130,18 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
     const data = await cache.Get(path, version);
     if (data?.data) {
 
-      console.info("Returning from cache");
+      // console.info("Returning from cache");
 
       sheet.LoadDocument(data.data, { source: 'cache' as LoadSource });
       setSessionData('last_saved_version', data.canonical_version || 0);
 
       spinner.hide();
       return true;
+
     }
 
     try {
-
       let doc: MCTREBDocument;
-
       if (version) {
         doc = await documents2.GetDocumentVersion(path, version, true);
       }
@@ -159,15 +154,36 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
       return true;
     }
     catch (err) {
+
+      // this error generally means the document doesn't exist, 
+      // or it's private and you don't own it
+
       console.error(err);
       toast.error(t('load-error.loading-document-failed'));
-      goto('/');
+      goto('/', { replace: true });
       spinner.hide();
       return false;
+      
     }
 
   }
+  else if (path) {
+
+    // there's a path, but it doesn't start with an @user,
+    // so it's presumably invalid. we'll replace the URL 
+    // with root and it will pull in the default doc on the 
+    // load pass
+
+    toast.error(t('load-error.loading-document-failed'));
+    goto('/', {
+      replace: true,
+    });
+
+  }
   else {
+
+    // no path, load the default
+
     spinner.show();
 
     const cache = await CacheFactory.Instance();
