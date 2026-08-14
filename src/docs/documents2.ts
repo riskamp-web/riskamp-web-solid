@@ -72,7 +72,7 @@ export async function UpdateDocument(pathname: string, args: {
       starred?: boolean;
       api_version?: number;
       new_path?: string;
-    }): Promise<Partial<DocumentsRow>|false> {
+    }, delay?: number ): Promise<Partial<DocumentsRow>|false> {
   
   const access = (typeof args.access === 'string') ? (args.access === 'public' ? 1 : 0) : undefined;
 
@@ -91,7 +91,7 @@ export async function UpdateDocument(pathname: string, args: {
       starred: args.starred,
       api_version: args.api_version,
       new_path: args.new_path,
-    });
+    }, delay);
 
     if (result.ok) {
       return await result.json();

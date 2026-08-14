@@ -523,7 +523,7 @@ export default function Documents() {
         access: result.access === ACCESS_PRIVATE ? 'private' : 'public',
         name: result.name,
         new_path: pathOf(result.path), 
-      });
+      }, 1 + Math.random());
 
       if (update_result) {
 
