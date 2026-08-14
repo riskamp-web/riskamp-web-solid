@@ -76,6 +76,13 @@
   &.selected {
     background: var(--accent-wash);
   }
+
+  /* while a row's menu is open, highlight it -- same treatment as the version
+     list -- so it's clear which row the menu acts on. matches .selected; the
+     trigger already stays visible via .row-menu-button[aria-expanded] below. */
+  &:has(.row-menu-button[aria-expanded='true']) {
+    background: var(--accent-wash);
+  }
 }
 
 /* ------------------------------------------------------------------ */
