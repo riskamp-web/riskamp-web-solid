@@ -65,9 +65,43 @@ export const GetDocument = async (path: string, cache = true, refresh_cache = fa
 
 };
 
+/**
+ * NO BACKEND API FUNCTION YET
+ */
+export async function DuplicateDocument(pathname: string, args: {
+      name?: string;
+      document?: string;
+      access?: number;
+      api_version?: number;
+      new_path?: string;
+    }, delay?: number ): Promise<Partial<DocumentsRow>|false> {
+
+  try {
+    const result = await auth.AccessResource('/api/duplicate-document', { 
+      pathname,
+      ...args,
+    }, delay);
+    return result.ok;
+  }
+  catch {
+    return false;
+  }
+
+}
+
 export async function DeleteDocuments(ids: number[]) {
   try {
     const result = await auth.AccessResource('/api/delete-documents', { ids });
+    return result.ok;
+  }
+  catch {
+    return false;
+  }
+}
+
+export async function SetAccess(ids: number[], access: number) {
+  try {
+    const result = await auth.AccessResource('/api/set-access', { ids, access });
     return result.ok;
   }
   catch {

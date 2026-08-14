@@ -35,10 +35,9 @@ import {
   renameDocument,
 } from '~/backstage/documents-data';
 
-import { DeleteDocuments, UpdateDocument } from '~/docs/documents2';
+import { DeleteDocuments, SetAccess, UpdateDocument } from '~/docs/documents2';
 import { SaveAsDialog, SaveAsDocument, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
 import { session } from '~/lib/auth';
-import { AwaitSignal } from '~/lib/await-signal';
 import { toast } from '~/components/toast/toast-control';
 import { spinner } from '~/components/spinner/spinner-control';
 
@@ -406,25 +405,23 @@ export default function Documents() {
     }
   };
 
-  const setAccess = (ids: number[], access: number) => {
+  const setAccess = async (ids: number[], access: number) => {
 
-    // NOTE: no toast for this? not even on error? (...)
-    // FIXME: we need a bulk op update method
+    spinner.show();
+    const success = await SetAccess(ids, access);
+    spinner.hide();
     
-    const set = new Set(ids);
-    const docs = documents.filter(test => set.has(test.id));
-    for (const doc of docs) {
-      UpdateDocument(pathOf(doc.path), {
-        access: access === ACCESS_PUBLIC ? 'public' : 'private',
-      });
+    if (success) {
+      const set = new Set(ids);
+      setDocuments(doc => set.has(doc.id), 'access', access);
     }
-    setDocuments(doc => set.has(doc.id), 'access', access);
+    else {
+      toast.error(t('documents-page.messages.update_failed'));
+    }
+
   };
 
   const remove = async (ids: number[]) => {
-
-    // FIXME: needs back-end, toast
-    // FIXME: we need a bulk op update method
 
     spinner.show();
     const success = await DeleteDocuments(ids);

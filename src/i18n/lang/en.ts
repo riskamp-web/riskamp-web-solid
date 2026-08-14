@@ -849,6 +849,9 @@ export default {
       delete_failed: 'Rename failed. Please try again later.',
       one_document_deleted: 'Document deleted',
       multiple_documents_deleted: 'Documents deleted',
+
+      update_failed: 'Update failed. Please try again later.',
+
     },
 
     empty: {
