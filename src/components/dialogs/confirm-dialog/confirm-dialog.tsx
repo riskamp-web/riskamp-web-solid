@@ -1,92 +1,62 @@
 
-import { createEffect, on, Show, type JSX } from 'solid-js';
-import { Dialog, type Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
-import { t, type StringKey } from '~/i18n/i18n';
+import { Show, type Setter } from 'solid-js';
+import { Dialog } from '~/components/dialogs/dialog-base/dialog';
+import { t } from '~/i18n/i18n';
+import { confirmDialog } from './confirm-control';
 import style from './confirm-dialog.module.css';
 
-interface Props extends DialogProps<boolean> {
-  /** the question/body. a plain (already-resolved) string, or JSX when part of
-      the message needs markup -- e.g. formatJSX() to bold a path inside a
-      translated sentence. we control the strings, so raw HTML isn't a concern. */
-  message: string | JSX.Element;
-
-  /** dialog mode. 'confirm' (default) shows a primary + cancel button; 'alert'
-      shows a single acknowledge button. */
-  mode?: 'confirm' | 'alert';
-
-  /** heading label; an i18n key. defaults to a generic 'Are you sure?' in
-      confirm mode, 'Alert' in alert mode. */
-  title?: StringKey;
-
-  /** affirmative button label; an i18n key. defaults to a generic 'Confirm' */
-  confirm?: StringKey;
-
-  /** dismissive button label; an i18n key. defaults to a generic 'Cancel' */
-  cancel?: StringKey;
-
-  /** alert-mode button label; an i18n key. defaults to a generic 'OK'.
-      (ignored in confirm mode, which uses `confirm`/`cancel`) */
-  dismiss?: StringKey;
-
-  /** optional convenience channel, fired alongside setResult (parity with SaveAsDialog's onSave) */
-  onConfirm?: (result: boolean) => void;
-}
-
 /**
- * A generic, reusable confirm/alert dialog: modal, movable, not resizable.
+ * The global confirm/alert dialog host: modal, movable, not resizable. Mounted
+ * once in Root (next to <Spinner/> and <Toaster/>); driven imperatively via the
+ * `confirmDialog` singleton -- callers don't place this component or own its
+ * state, they just `await confirmDialog.confirm({...})`.
  *
- * In the default `confirm` mode it shows a primary + cancel button; Escape (and
- * the close box) resolve to "No" -- callers read the boolean via setResult and
- * treat only `true` as an affirmative.
- *
- * In `alert` mode it shows a single acknowledge button (defaults to "OK"). The
- * button lands `true`, but alert callers typically just await the close and
- * ignore the result. The message is dynamic; button/title labels are
- * configurable i18n keys with sensible defaults.
+ * In `confirm` mode it shows a primary + cancel button; Escape and the close box
+ * resolve to `false` (only the primary button resolves `true`). In `alert` mode
+ * it shows a single acknowledge button (defaults to "OK"); alert callers await
+ * the void resolution and ignore the value. The message is dynamic; button/title
+ * labels are configurable i18n keys with sensible defaults.
  */
-export function ConfirmDialog(props: Props) {
+export function ConfirmDialog() {
 
-  // seed a non-affirmative result on each open, so any dismissal that doesn't set
-  // its own result -- the close box (setOpen only) and Escape (undefined) -- still
-  // reads as "No". Only the primary button lands a `true`. Callers must not rely on
-  // a stale result from a previous open.
-  createEffect(on(props.open, value => {
-    if (value) {
-      props.setResult?.(false);
-    }
-  }));
+  const request = confirmDialog.request;
 
-  function Close(value: boolean) {
-    props.onConfirm?.(value);
-    props.setResult?.(value);
-    props.setOpen(false);
-  }
+  // the base Dialog calls setOpen(false) on both Escape and the close box; route
+  // every such non-affirmative dismissal to settle(false). we only ever receive
+  // `false` here (the base never sets it true), but the base types the prop as a
+  // Setter<boolean>, so present a matching signature.
+  const handleSetOpen = ((value: boolean) => {
+    if (!value) { confirmDialog.settle(false); }
+  }) as Setter<boolean>;
 
   return (
-    <Dialog {...props} modal moveable escape closebox resizeable={false}
-            class={[style['dialog-root'], props.class].filter(Boolean).join(' ')}>
+    <Dialog
+      open={confirmDialog.open}
+      setOpen={handleSetOpen}
+      modal moveable escape closebox resizeable={false}
+      class={style['dialog-root']}>
 
       <header>
-        {t(props.title ?? (props.mode === 'alert' ? 'confirm-dialog.alert-title' : 'confirm-dialog.title'))}
+        {t(request().title ?? (request().mode === 'alert' ? 'confirm-dialog.alert-title' : 'confirm-dialog.title'))}
       </header>
 
-      <section class={style.message}>{props.message}</section>
+      <section class={style.message}>{request().message}</section>
 
       <footer>
         <Show
-          when={props.mode === 'alert'}
+          when={request().mode === 'alert'}
           fallback={
             <>
-              <button class="button-primary" onclick={() => Close(true)}>
-                {t(props.confirm ?? 'confirm-dialog.confirm')}
+              <button class="button-primary" onclick={() => confirmDialog.settle(true)}>
+                {t(request().confirm ?? 'confirm-dialog.confirm')}
               </button>
-              <button onclick={() => Close(false)}>
-                {t(props.cancel ?? 'confirm-dialog.cancel')}
+              <button onclick={() => confirmDialog.settle(false)}>
+                {t(request().cancel ?? 'confirm-dialog.cancel')}
               </button>
             </>
           }>
-          <button class="button-primary" onclick={() => Close(true)}>
-            {t(props.dismiss ?? 'confirm-dialog.ok')}
+          <button class="button-primary" onclick={() => confirmDialog.settle(true)}>
+            {t(request().dismiss ?? 'confirm-dialog.ok')}
           </button>
         </Show>
       </footer>

@@ -1,5 +1,5 @@
 
-import { type Accessor, createEffect, createMemo, createSignal, createUniqueId, For, JSX, on, Show } from 'solid-js';
+import { type Accessor, createEffect, createSignal, createUniqueId, For, on, Show } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { Dialog, type Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
 import { icons } from '~/components/icon-sets';
@@ -10,8 +10,7 @@ import {
 } from '~/backstage/documents-data';
 import type { BackstageDocument } from '~/backstage/documents-store';
 import style from './save-as-dialog.module.css';
-import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
-import { AwaitSignal } from '~/lib/await-signal';
+import { confirmDialog } from '../confirm-dialog/confirm-control';
 
 /** left-to-right mark (U+200E): see the .path span below */
 const LRM = String.fromCharCode(0x200e);
@@ -179,18 +178,12 @@ export function SaveAsDialog(props: Props) {
   const folderOptions = () =>
     flattenFolders(folderTree(props.documents())).map(node => node.path.replace(/^\//, ''));
 
-  // signals for the confirmation dialog. we're inlining it in this 
-  // component so we can run the confirm flow without closing the 
-  // save-as dialog (and triggering any effects); we'll just hide 
-  // the save-as dialog while the confirm dialog is open.
+  // the overwrite confirmation runs on the global confirm dialog. we don't want
+  // to close (and re-trigger the effects on) the save-as dialog while confirming,
+  // so we just hide it locally while the confirm is open -- set `hidden`, await
+  // the confirm, clear it.
 
-  const [ confirmDialogOpen, setConfirmDialogOpen ] = createSignal(false);
-  const [ confirmDialogResult, setConfirmDialogResult ] = createSignal<boolean|undefined>(false);
-  const [ confirmDialogMessage, setConfirmDialogMessage] = createSignal<string | JSX.Element>('');
-
-  const dialog_hidden = createMemo(() => {
-    return confirmDialogOpen() ? style.hidden : '';
-  });
+  const [ hidden, setHidden ] = createSignal(false);
   
   /* ---- actions ---- */
 
@@ -206,14 +199,17 @@ export function SaveAsDialog(props: Props) {
         return; 
       }
 
-      setConfirmDialogMessage(formatJSX(t('save-as-dialog.overwrite-confirm-message'), {
-        name: <strong>{displayPath()}</strong>,
-      }));
+      setHidden(true);
+      const ok = await confirmDialog.confirm({
+        message: formatJSX(t('save-as-dialog.overwrite-confirm-message'), {
+          name: <strong>{displayPath()}</strong>,
+        }),
+        title: 'save-as-dialog.overwrite-confirm-title',
+        confirm: 'save-as-dialog.overwrite',
+      });
+      setHidden(false);
 
-      setConfirmDialogOpen(true);
-      await AwaitSignal(confirmDialogOpen, value => !value);
-
-      if (!confirmDialogResult()) {
+      if (!ok) {
         return;
       }
 
@@ -257,9 +253,8 @@ export function SaveAsDialog(props: Props) {
   }
 
   return (
-    <>
     <Dialog modal escape closebox moveable resizeable {...props}
-            class={[style['dialog-root'], props.class, dialog_hidden()].filter(Boolean).join(' ')}>
+            class={[style['dialog-root'], props.class, hidden() ? style.hidden : ''].filter(Boolean).join(' ')}>
       <header>
         <span>{t(props.dialogTitle || 'save-as-dialog.default-title')}</span>
       </header>
@@ -355,17 +350,6 @@ export function SaveAsDialog(props: Props) {
         <button onclick={() => props.setOpen(false)}>{t('dialog-close-label')}</button>
       </footer>
     </Dialog>
-
-    <ConfirmDialog
-        open={confirmDialogOpen}
-        setOpen={setConfirmDialogOpen}
-        setResult={setConfirmDialogResult}
-        message={confirmDialogMessage()}
-        title={'save-as-dialog.overwrite-confirm-title'}
-        confirm={'save-as-dialog.overwrite'} 
-        />
-
-    </>
   );
 
 }

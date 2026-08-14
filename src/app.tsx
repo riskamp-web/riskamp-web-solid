@@ -12,6 +12,7 @@ import '~/style/grid-table.css';
 
 import { Spinner } from '~/components/spinner/spinner';
 import { Toaster } from '~/components/toast/toast';
+import { ConfirmDialog } from '~/components/dialogs/confirm-dialog/confirm-dialog';
 import { useNavigate } from '@solidjs/router';
 import { setNavigator } from '~/lib/navigate';
 import { InitAppData } from './lib/app-data';
@@ -34,6 +35,7 @@ function Root(props: RouteSectionProps) {
         <Suspense>{props.children}</Suspense>
         <Spinner />
         <Toaster />
+        <ConfirmDialog />
       </MetaProvider>
     </HistoryProvider>
   );
