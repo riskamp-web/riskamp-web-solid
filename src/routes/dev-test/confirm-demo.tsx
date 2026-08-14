@@ -2,8 +2,8 @@ import { createSignal } from 'solid-js';
 import { confirmDialog } from '~/components/dialogs/confirm-dialog/confirm-control';
 import { formatJSX, t } from '~/i18n/i18n';
 
-// TEMPORARY demo route for exercising the global confirm/alert dialog by hand.
-// Delete before commit.
+// Dev-only demo route for exercising the global confirm/alert dialog by hand.
+// Lives under /dev-test, which the dev-test.tsx layout gates to the dev server.
 export default function ConfirmDemo() {
 
   const [answer, setAnswer] = createSignal<boolean>();

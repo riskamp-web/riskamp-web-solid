@@ -3,7 +3,8 @@ import { SaveAsDialog, type SaveAsResult } from '~/components/dialogs/save-as-di
 import type { BackstageDocument } from '~/backstage/documents-store';
 import { ACCESS_PRIVATE } from '~/backstage/documents-data';
 
-// TEMPORARY demo route for exercising SaveAsDialog by hand. Delete before commit.
+// Dev-only demo route for exercising SaveAsDialog by hand. Lives under
+// /dev-test, which the dev-test.tsx layout gates to the dev server.
 export default function SaveAsDemo() {
 
   const [open, setOpen] = createSignal(true);
@@ -61,7 +62,7 @@ export default function SaveAsDemo() {
         setOpen={setOpen}
         owner={owner}
         documents={documents}
-        document={rename() ? {
+        document={() => rename() ? {
           name: 'Portfolio VaR',
           folder: '/finance',
           access: ACCESS_PRIVATE,

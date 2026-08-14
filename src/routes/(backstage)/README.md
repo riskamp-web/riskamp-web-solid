@@ -148,7 +148,7 @@ and a truthiness test would reject the bare form.
 
 - **A production build doesn't contain it.** The check starts at `import.meta.env.DEV`,
   which Vite replaces statically, so the branch — query read and warning text included —
-  is dropped from the bundle. Same mechanism as `src/routes/icons.tsx`. The `DEV` test is
+  is dropped from the bundle. Same mechanism as `src/routes/dev-test/icons.tsx`. The `DEV` test is
   written twice, once inside `devBypass()` and once at the head of the `requireAuth`
   condition: with it only in the callee, the minifier reduces the call to `false` but keeps
   the branch around it, which leaves the bypass unreachable rather than absent. Verified by

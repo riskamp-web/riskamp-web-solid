@@ -1,6 +1,7 @@
 import { toast } from '~/components/toast/toast-control';
 
-// TEMPORARY demo route for exercising the toast system by hand. Delete before commit.
+// Dev-only demo route for exercising the toast system by hand. Lives under
+// /dev-test, which the dev-test.tsx layout gates to the dev server.
 export default function ToastDemo() {
 
   let counter = 0;

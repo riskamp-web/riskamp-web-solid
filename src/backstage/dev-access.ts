@@ -39,7 +39,7 @@ function devFlag(name: string): boolean {
 
   // import.meta.env.DEV is statically replaced, so a production build compiles
   // this to `false` and drops the query read with it -- the same reason
-  // src/routes/icons.tsx can gate a whole page on it
+  // src/routes/dev-test/icons.tsx can gate a whole page on it
   if (!import.meta.env.DEV) { return false; }
   if (typeof window === 'undefined') { return false; }
 
