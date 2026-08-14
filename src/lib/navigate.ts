@@ -1,5 +1,5 @@
 
-import type { Navigator } from "@solidjs/router";
+import type { NavigateOptions, Navigator } from "@solidjs/router";
 
 let navigator: Navigator | undefined;
 
@@ -12,11 +12,11 @@ export function setNavigator(instance: Navigator) {
  * component to hook into solid's router -- could be the very
  * top level. how about using signals for this instead of events?
  */
-export function goto(url: string) {
+export function goto(url: string, options?: Partial<NavigateOptions<unknown>>) {
   if (!navigator) {
     throw new Error('navigator not instantiated');
   }
-  navigator(url);
+  navigator(url, options);
 }
 
 export function OpenExternal(url: string, newTab = true) {
