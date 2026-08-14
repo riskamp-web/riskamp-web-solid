@@ -852,6 +852,9 @@ export default {
 
       update_failed: 'Update failed. Please try again later.',
 
+      duplicate_succeeded: 'Document created',
+      duplicate_failed: 'Duplicate failed. Please try again later.',
+
     },
 
     empty: {

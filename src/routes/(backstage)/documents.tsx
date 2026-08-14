@@ -35,11 +35,12 @@ import {
   renameDocument,
 } from '~/backstage/documents-data';
 
-import { DeleteDocuments, SetAccess, UpdateDocument } from '~/docs/documents2';
+import { DeleteDocuments, DuplicateDocument, SetAccess, UpdateDocument } from '~/docs/documents2';
 import { SaveAsDialog, SaveAsDocument, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
 import { session } from '~/lib/auth';
 import { toast } from '~/components/toast/toast-control';
 import { spinner } from '~/components/spinner/spinner-control';
+import { RemoveFromCache } from '~/components/spreadsheet/manager';
 
 /* the union lives next to the data: the saved view stores a scope, so
    ~/lib/app-data has to be able to type one */
@@ -537,10 +538,41 @@ export default function Documents() {
 
   let rename_path = '';
 
-  async function HandleRenameOrDuplicate(result: SaveAsResult) {
+  async function HandleSaveAs(result: SaveAsResult) {
 
     // temp
     if (saveAsState() === 'duplicate') {
+
+      const duplicate_result = await DuplicateDocument(rename_path, {
+        name: result.name,
+        access: result.access,
+        api_version: 2,
+        new_path: pathOf(result.path),
+      });
+
+      if (duplicate_result) {
+
+        // FIXME: we need store support for this operation (do 
+        // we have that already?)
+
+        if (result.overwrite) {
+
+          // one other thing in this case, we need to flush local cache 
+          // (no version; this will be the new lead document)
+
+          console.info("Calling RFC", result.path);
+          RemoveFromCache(pathOf(result.path));
+
+        }
+        else {
+          // 
+        }
+
+        toast.success(t('documents-page.messages.duplicate_succeeded'));
+      }
+      else {
+        toast.error(t('documents-page.messages.duplicate_failed'));
+      }
       return;
     }
 
@@ -1186,7 +1218,7 @@ export default function Documents() {
       documents={() => documents}
       document={saveAsDocument}
       allowOverwrite={saveAsState() === 'rename' ? false : undefined}
-      onSave={HandleRenameOrDuplicate} />
+      onSave={HandleSaveAs} />
 
 
   </div>;
