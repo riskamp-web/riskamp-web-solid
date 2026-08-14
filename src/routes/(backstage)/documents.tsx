@@ -33,6 +33,7 @@ import {
   isUnnamed, loadDocuments, loadHistory, loaded, ownerOf, refreshDocuments, retryHistory,
   savedView, saveView, setDocuments, sortDocuments, pathOf,
   renameDocument,
+  duplicateDocument,
 } from '~/backstage/documents-data';
 
 import { DeleteDocuments, DuplicateDocument, SetAccess, UpdateDocument } from '~/docs/documents2';
@@ -543,7 +544,7 @@ export default function Documents() {
     // temp
     if (saveAsState() === 'duplicate') {
 
-      const duplicate_result = await DuplicateDocument(rename_path, {
+      const duplicate_result = await DuplicateDocument(pathOf(rename_path), {
         name: result.name,
         access: result.access,
         api_version: 2,
@@ -551,6 +552,10 @@ export default function Documents() {
       });
 
       if (duplicate_result) {
+
+        // unfortunate name collision
+
+        duplicateDocument(rename_path, result);
 
         // FIXME: we need store support for this operation (do 
         // we have that already?)
@@ -563,9 +568,6 @@ export default function Documents() {
           console.info("Calling RFC", result.path);
           RemoveFromCache(pathOf(result.path));
 
-        }
-        else {
-          // 
         }
 
         toast.success(t('documents-page.messages.duplicate_succeeded'));

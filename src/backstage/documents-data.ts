@@ -258,6 +258,65 @@ export function renameDocument(from: string, to: RenamedDocument): void {
 
 }
 
+/**
+ * the values a completed duplicate reports back to the local store. only the new
+ * `path` -- where the copy lands -- is required; name, access and api_version are
+ * applied when provided (and, on an insert, fall back to upsertDocument's defaults).
+ * no `version`: duplicateDocument computes it (fresh 1, or a bump on overwrite).
+ * modified defaults to now.
+ */
+export type DuplicatedDocument =
+  Pick<BackstageDocument, 'path'> &
+  Partial<Pick<BackstageDocument, 'name' | 'access' | 'api_version' | 'modified'>>;
+
+/**
+ * reflect a completed duplicate in the store. a duplicate is an insert-or-update
+ * on `to.path`, so it runs through upsertDocument -- a fresh path inserts a new
+ * row, and an existing path (which, unlike rename, duplicate is allowed to reuse)
+ * merges in as a new lead version. the two extra things a duplicate decides that a
+ * plain save doesn't are handled here before delegating:
+ *
+ *   - the version. a brand-new copy starts fresh at 1 with its own history; a
+ *     duplicate onto an existing document is a new version above the ones already
+ *     there, so version is that row's current (always the latest) + 1. the old
+ *     versions are preserved -- upsertDocument's 'record' prepends this one to a
+ *     loaded history, or leaves an unloaded one absent for loadHistory to fetch in
+ *     full. the back end truly assigns the number; this is the local reflection a
+ *     refetch later corrects, the same bargain nextLocalId makes for ids.
+ *
+ *   - the `app`, copied from the source row. note upsertDocument only sets app when
+ *     inserting, so this default takes effect for a new copy and an overwrite keeps
+ *     the destination's own app -- consistent with how upsertDocument treats app.
+ *
+ * unlike renameDocument this does NOT require the source row to be present: a
+ * duplicate needs only its destination, and reads the source purely for that app
+ * default (hence source?.app). a no-op until the store is loaded, same reasoning
+ * as its siblings.
+ */
+export function duplicateDocument(from: string, to: DuplicatedDocument): void {
+
+  if (!loaded()) { return; }
+
+  const key = to.path.toLowerCase();
+  const source = documents.find(doc => doc.path.toLowerCase() === from.toLowerCase());
+  const existing = documents.find(doc => doc.path.toLowerCase() === key);
+
+  // fresh document -> v1 with its own new history; onto an existing path -> a new
+  // lead version above the ones already there (the row holds the latest, so +1)
+  const version = existing ? existing.version + 1 : 1;
+
+  upsertDocument({
+    path: to.path,
+    version,
+    name: to.name,
+    access: to.access,
+    api_version: to.api_version,
+    app: source?.app,
+    modified: to.modified,
+  }, { history: 'record' });
+
+}
+
 /* ------------------------------------------------------------------ */
 /* version history                                                     */
 /* ------------------------------------------------------------------ */

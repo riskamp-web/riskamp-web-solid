@@ -836,6 +836,11 @@ export default {
       short: 'v{version}',
     },
 
+    confirm: {
+      confirm_delete_document: 'Delete document, are you sure?',
+      confirm_delete_documents: 'Delete documents, are you sure?',
+    },
+
     error: {
       title: 'Couldn’t load your documents',
       detail: 'Loading failed because of an error. Please try again later.',
