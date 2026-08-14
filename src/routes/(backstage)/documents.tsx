@@ -35,11 +35,12 @@ import {
   renameDocument,
 } from '~/backstage/documents-data';
 
-import { UpdateDocument } from '~/docs/documents2';
+import { DeleteDocuments, UpdateDocument } from '~/docs/documents2';
 import { SaveAsDialog, SaveAsDocument, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
 import { session } from '~/lib/auth';
 import { AwaitSignal } from '~/lib/await-signal';
 import { toast } from '~/components/toast/toast-control';
+import { spinner } from '~/components/spinner/spinner-control';
 
 /* the union lives next to the data: the saved view stores a scope, so
    ~/lib/app-data has to be able to type one */
@@ -420,23 +421,41 @@ export default function Documents() {
     setDocuments(doc => set.has(doc.id), 'access', access);
   };
 
-  const remove = (ids: number[]) => {
+  const remove = async (ids: number[]) => {
 
     // FIXME: needs back-end, toast
     // FIXME: we need a bulk op update method
 
-    const set = new Set(ids);
-    setDocuments(list => list.filter(doc => !set.has(doc.id)));
-    if (selected() !== undefined && set.has(selected()!)) { setSelected(undefined); }
-    setChecked(previous => {
-      const next = new Set(previous);
-      ids.forEach(id => next.delete(id));
-      return next;
-    });
+    spinner.show();
+    const success = await DeleteDocuments(ids);
+    spinner.hide();
+
+    if (success) {
+
+      toast.success(ids.length === 1 ? 
+        t('documents-page.messages.one_document_deleted') : 
+        t('documents-page.messages.multiple_documents_deleted'));
+
+      const set = new Set(ids);
+      setDocuments(list => list.filter(doc => !set.has(doc.id)));
+      if (selected() !== undefined && set.has(selected()!)) { setSelected(undefined); }
+      setChecked(previous => {
+        const next = new Set(previous);
+        ids.forEach(id => next.delete(id));
+        return next;
+      });
+
+    }
+    else {
+      toast.error(t('documents-page.messages.delete_failed'));
+    }
+
   };
 
-  const rename = async (id: number) => {
-    
+  const saveAsFlow = async (id: number, state: 'rename'|'duplicate') => {
+
+    setSaveAsState(state);
+
     // two ways we can do this. either store the id, and 
     // retrieve it in the callback, or have the callback
     // store the result, and look for it here. both options
@@ -470,8 +489,12 @@ export default function Documents() {
 
   };
 
-  const duplicate = (_id: number) => {
-    // TODO: duplicate the document.
+  const rename = async (id: number) => {
+    return saveAsFlow(id, 'rename');
+  };
+
+  const duplicate = (id: number) => {
+    return saveAsFlow(id, 'duplicate');
   };
 
   const toggleChecked = (id: number) => setChecked(previous => {
@@ -510,13 +533,19 @@ export default function Documents() {
 
   const [saveAsDialogOpen, setSaveAsDialogOpen] = createSignal(false);
   const [saveAsDocument, setSaveAsDocument] = createSignal<SaveAsDocument|undefined>();
+  const [saveAsState, setSaveAsState] = createSignal<'rename'|'duplicate'>('rename');
 
   // this field will be set when you trigger a rename operation;
   // we can use it in the callback method 
 
   let rename_path = '';
 
-  async function HandleRename(result: SaveAsResult) {
+  async function HandleRenameOrDuplicate(result: SaveAsResult) {
+
+    // temp
+    if (saveAsState() === 'duplicate') {
+      return;
+    }
 
     if (rename_path) {
       const update_result = await UpdateDocument(pathOf(rename_path), { 
@@ -1153,14 +1182,14 @@ export default function Documents() {
     </div>
 
     <SaveAsDialog
-      dialogTitle='save-as-dialog.rename-title'
+      dialogTitle={saveAsState() === 'rename' ? 'save-as-dialog.rename-title' : 'save-as-dialog.duplicate-title'}
       open={saveAsDialogOpen}
       setOpen={setSaveAsDialogOpen}
       owner={() => '@' + (session().username || '')}
       documents={() => documents}
       document={saveAsDocument}
-      allowOverwrite={false}
-      onSave={HandleRename} />
+      allowOverwrite={saveAsState() === 'rename' ? false : undefined}
+      onSave={HandleRenameOrDuplicate} />
 
 
   </div>;

@@ -557,8 +557,8 @@ export default {
 
   'save-as-dialog': {
     'default-title': 'Save As',
-    'rename-title': 'Rename',
-    'duplicate-title': 'Duplicate',
+    'rename-title': 'Rename document',
+    'duplicate-title': 'Duplicate document',
     folder: 'Folder',
     name: 'Name',
     access: 'Access',
@@ -845,6 +845,10 @@ export default {
     messages: {
       rename_failed: 'Rename failed. Please try again later.',
       rename_succeeded: 'Document renamed',
+
+      delete_failed: 'Rename failed. Please try again later.',
+      one_document_deleted: 'Document deleted',
+      multiple_documents_deleted: 'Documents deleted',
     },
 
     empty: {

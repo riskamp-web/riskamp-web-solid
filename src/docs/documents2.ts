@@ -65,6 +65,16 @@ export const GetDocument = async (path: string, cache = true, refresh_cache = fa
 
 };
 
+export async function DeleteDocuments(ids: number[]) {
+  try {
+    const result = await auth.AccessResource('/api/delete-documents', { ids });
+    return result.ok;
+  }
+  catch {
+    return false;
+  }
+}
+
 export async function UpdateDocument(pathname: string, args: {
       name?: string;
       document?: string;
