@@ -21,7 +21,7 @@ import { Dialog as LasVegasDialog, props as las_vegas_props } from '~/components
 
 import { HijackDialog } from '~/lib/hijack-dialog';
 import { ApplyProperty, BooleanKeys } from '~/lib/typescript-magic';
-import { MCEmbeddedSheetEvent, type CellStyle, type Color } from 'riskamp-web';
+import { LoadSource, MCEmbeddedSheetEvent, type CellStyle, type Color } from 'riskamp-web';
 import { AwaitSignal } from '~/lib/await-signal';
 import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline-dialog/sparkline';
 import { TrendForecastingDialog } from '~/components/dialogs/trend-forecasting/trend-forecasting-dialog';
@@ -716,13 +716,41 @@ export default function Page() {
           case 'load':
 
             console.info("LOAD", event.source);
-            if (event.source as string !== 'cache') {
+
+            // so the idea here is if this is a regular load, it can update
+            // the cache, because it'll be the stored version. but we don't 
+            // want to do that for (1) undo; (2) dnd; (3) loading from cache,
+            // which is artificially added to the list.
+
+            // BUT WAIT: what about imports? should they attach to the current
+            // path, or change the path? ditto DND? should they redirect to 
+            // root (/) or some other path like '/import'? actually that wouldn't
+            // work for non-logged in users... although for those users the
+            // path is irrelevant anyway?
+            
+            if (event.source === 'undo') {
+              console.info("undo; don't update cache");
+            }
+            if (event.source === 'drag-and-drop') {
+              console.info("dnd; don't update cache");
+            }
+            if (event.source === 'local-file') {
+              console.info("dnd; don't update cache");
+            }
+            else if (event.source as string !== 'cache') {
               console.info("setting last save version (not from cache) ->", sheet?.state || 0);
               setSessionData('last_saved_version', sheet?.state || 0);
             }
 
+            // if the sheet has notes, show them. if we're currently viewing
+            // the notes pane and the sheet does not have notes, hide the 
+            // sidebar.
+
             if (sheet.user_data?.note) {
               setSidebar('notes');
+            }
+            else if (sidebar() === 'notes') {
+              setSidebar();
             }
 
             // on load, check the workbook for a trials count
