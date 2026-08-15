@@ -283,6 +283,7 @@ export const toolbar_config: ToolbarConfig = {
 
   trailer: [
     // button('quick-view'),
+    button('save'),
     button('run-simulation'),
     button('run-simulation-again'),
     button('recalculate'),

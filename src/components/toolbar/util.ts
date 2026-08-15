@@ -6,6 +6,7 @@ import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { t } from '~/i18n/i18n';
 import { ResolveThemeColor } from '@trebco/treb/treb-base-types';
 import { ToolbarCommand } from './toolbar-commands';
+import { loggedIn } from '~/lib/auth';
 
 // let command_list: [string, ComboBoxControl|ButtonControl|TextButtonControl][]|undefined;
 // let command_list: [string, ToolbarCommand][]|undefined;
@@ -245,6 +246,9 @@ export function UpdateSaveState(sheet: SpreadsheetType, config: typeof toolbar_c
   for (const command of menu_command_list) {
     if (command.state_key === 'revert') {
       command.enabled = dirty && path;
+    }
+    else if (command.state_key === 'save') {
+      command.enabled = dirty && loggedIn();
     }
     else if (command.state_key === 'dirty') {
       command.enabled = dirty;

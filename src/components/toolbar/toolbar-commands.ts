@@ -129,7 +129,9 @@ export const ToolbarCommands = [
 		key: 'save',
     title: 'toolbar.button.save-file',
     enabled: false,
-    state_key: 'dirty',
+    state_key: 'save',
+    icon: icons.save,
+    menuicon: true,
   },
 {
 		key: 'save-as',

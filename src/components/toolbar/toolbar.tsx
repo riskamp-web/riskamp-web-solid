@@ -12,7 +12,7 @@ import { toolbar_config as base_toolbar_config } from './toolbar-config';
 import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, 
     CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl, SteppedGroup, 
     IsToolbarMessage} from './toolbar-utils';
-import { ListCommand, ToolbarCommand, ToolbarCommandMap } from './toolbar-commands';
+import { ListCommand, ToolbarCommand } from './toolbar-commands';
 import { session, loggedIn } from '~/lib/auth';
 
 import { createMutable, produce } from 'solid-js/store';
@@ -24,9 +24,9 @@ import { ResolveColors, UpdateSaveState, UpdateState } from './util';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { ColorButton } from './toolbar-color-picker';
 import { CompositeMenu } from './composite-menu';
-import { A, useSearchParams } from '@solidjs/router';
+import { A } from '@solidjs/router';
 import { CommandPalette } from '../command-palette/command-palette';
-import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
+import { sessionData, setSessionData } from '~/lib/app-data';
 import { CommandPaletteDialog } from '../dialogs/command-palette-dialog/command-palette-dialog';
 import { ThemeSelector } from './theme-selector';
 
@@ -583,6 +583,7 @@ export function Toolbar(props: ParentProps<Props>) {
           <For each={toolbar_config.trailer || []}>
             {item =><>
               <button class={style['toolbar-button']} 
+                      disabled={(item as ButtonControl).command.enabled === false}
                       onclick={e => HandleCommand(e, (item as ButtonControl).command)}
                       title={t((item as ButtonControl).command.title)}
                       ref={(el) => (el.innerHTML = (item as ButtonControl).command.icon || '')} />          

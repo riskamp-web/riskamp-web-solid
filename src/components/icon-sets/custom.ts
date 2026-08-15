@@ -26,6 +26,11 @@ export const icons: IconSet = {
   star:                   rai['star'],
   recent:                 rai['recent'],
   rename:                 rai['rename-file'],
+  save:                   rai.save,
+  cloud:                  rai.cloud,
+  cloud_up:               rai['cloud-up'],
+  cloud_down:             rai['cloud-down'],
+  
 
   // --- panels --------------------------------------------------------
 
