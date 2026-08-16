@@ -1,3 +1,10 @@
+/**
+ * NOTE: this file is for reference only. it comes from an older version
+ * of the app (written against svelte-kit). you can use it to model methods
+ * in the rewrite, but do not use code directly (it probably won't work anyway)
+ */
+
+ERROR; // intentional error
 
 import * as auth from '~/lib/auth';
 

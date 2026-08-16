@@ -143,10 +143,10 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
     try {
       let doc: MCTREBDocument;
       if (version) {
-        doc = await documents2.GetDocumentVersion(path, version, true);
+        doc = await documents2.GetDocumentVersion(path, version, false); // , true);
       }
       else {
-        doc = await documents2.GetDocument(path, true);
+        doc = await documents2.GetDocument(path, false); // , true);
       }
       sheet.LoadDocument(doc);
 

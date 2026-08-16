@@ -87,7 +87,7 @@ export const FormatTime = (seconds: number, precision = 2) => {
 
   const seconds_text = ((seconds < 10) ? '0' : '') + seconds.toFixed(precision);
 
-  let hours = Math.floor(minutes / 60);
+  const hours = Math.floor(minutes / 60);
   minutes = minutes % 60;
 
   const minutes_text = ((minutes < 10) ? '0' : '') + minutes;
@@ -148,7 +148,7 @@ function TryReauth() {
     // we're relying on side-effects of the access method
     // to store updated credentials (if they are provided)
 
-    AccessResource('/api/status', {}).then((result) => {
+    AccessResource('/api/status', {}).then(() => {
       // console.info("X");
     });
 
@@ -178,8 +178,7 @@ function ScheduleSessionUpdate(data: Partial<Claims>) {
   }
 
   refresh_token = window.setTimeout(() => {
-    AccessResource('/api/status', {}).then((result) => {
-      let success = false;
+    AccessResource('/api/status', {}).then(() => {
       try {
 
         const check_token = localStorage.getItem(AUTH_KEY) || '';
@@ -254,7 +253,7 @@ export function Init() {
 /**
  * if we're using cache, we need a method to flush one request. seems to work.
  * UPDATE: call with no URI and we'll flush everything
- */
+ *
 export const FlushCache = async (uri?: string) => {
 
   const cache = await EnsureCache();
@@ -272,11 +271,12 @@ export const FlushCache = async (uri?: string) => {
   }
 
 };
+*/
 
 /**
  * FIXME: make this private, add some save/save-as routines (do they 
  * need to be different? only for parameters)
- */
+ *
 export const PushInNetworkCache = async (url: string, data: any) => {
   const request = new Request(BACKEND + url, {
     method: 'GET'
@@ -287,6 +287,7 @@ export const PushInNetworkCache = async (url: string, data: any) => {
     await cache.put(request, response);
   }
 };
+*/
 
 /** 
  * fetch, but including authentication 
@@ -298,10 +299,10 @@ export const PushInNetworkCache = async (url: string, data: any) => {
  */
 export const AccessResource = async (
       uri: string, 
-      payload?: any, 
+      payload?: unknown, 
       delay = 0, 
       use_cache = false, 
-      refresh_cache = false ): Promise<any> => {
+      refresh_cache = false ): Promise<Response> => {
 
   const auth_token = typeof localStorage === 'undefined' ? undefined : localStorage.getItem(AUTH_KEY);
 
@@ -326,6 +327,9 @@ export const AccessResource = async (
 
   if (use_cache && cache && !refresh_cache) {
 
+    console.trace();
+    throw new Error('do not use this cache');
+
     const result = await cache.match(request);
     if (result) {
 
@@ -338,6 +342,9 @@ export const AccessResource = async (
   let result = await fetch(request);
 
   if (use_cache && cache) {
+
+    console.trace();
+    throw new Error('do not use this cache');
 
     await cache.put(request, result);
     const temp = await cache.match(request);
@@ -388,7 +395,7 @@ export const TestState = async () => {
   const response = await AccessResource('/api/test-state');
   if (response.ok) {
     const json = await response.json();
-    // console.info({json});
+    console.info({json});
   }
 };
 
@@ -507,7 +514,10 @@ export const UpdateAuth = (response: Response) => {
   return false;
 };
 
-export const Login = async (username: string, password: string, remember = false): Promise<boolean> => {
+/**
+ * @param _remember - placeholder, until we actually implement this.
+ */
+export const Login = async (username: string, password: string, _remember = false): Promise<boolean> => {
 
   ClearTokens();
 

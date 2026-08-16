@@ -2,14 +2,14 @@
 import * as auth from '~/lib/auth';
 import { DocumentsRow } from './documents';
 
+/*
 export const PushDocument = async (path: string, data: unknown) => {
-
   if (path.endsWith('/')) {
     path = path.substring(0, path.length - 1)
   }
-
   await auth.PushInNetworkCache('/api/get-document?path=' + path, data);
 };
+*/
 
 export const GetDocumentVersion = async(path: string, version: string, cache = true, refresh_cache = false) => {
 
@@ -17,32 +17,32 @@ export const GetDocumentVersion = async(path: string, version: string, cache = t
     path = path.substring(0, path.length - 1)
   }
 
-  console.info("DHE2", path, version);
-
   // FIXME: use proper query constructor
 
   //const data = await auth.AccessResource('/api/document-history-entry-2', { path, version }, undefined, cache, refresh_cache);
-  const data = await auth.AccessResource('/api/document-history-entry-2?path=' + path + '&version=' + version, undefined, undefined, cache, refresh_cache);
+  const response = await auth.AccessResource('/api/document-history-entry-2?path=' + path + '&version=' + version, undefined, undefined, cache, refresh_cache);
 
-  if (data.ok) {
-
-    const json = await data.json();
-
-    console.info("OK?", json);
-
-    return json;
+  if (response.ok) {
+    return await response.json();
   }
   else {
-    console.info("ERR", data.err());
+    console.info("ERR", response.statusText);
   }
 
   // we should cache this as well (the error)? ...
 
-  throw new Error(data.status?.toString());
+  throw new Error(response.status?.toString());
 
 };
 
-export const GetDocument = async (path: string, cache = true, refresh_cache = false) => {
+/**
+ * removing the cache parameters. this cacched against the implicit
+ * cache, which we don't want to use anymore. cache against the explicit
+ * cache, which is easier to manage, and use that before you call this 
+ * method. OR, switch to just using the implicit cache. that feels like
+ * a heavier lift though.
+ */
+export const GetDocument = async (path: string) => {
 
   // wtf is this -- should we handle server side? (yes?)
 
@@ -52,7 +52,7 @@ export const GetDocument = async (path: string, cache = true, refresh_cache = fa
 
   // FIXME: use proper query constructor
 
-  const data = await auth.AccessResource('/api/get-document?path=' + path, undefined, undefined, cache, refresh_cache);
+  const data = await auth.AccessResource('/api/get-document?path=' + path);
 
   if (data.ok) {
     const json = await data.json();
@@ -83,7 +83,7 @@ export async function DuplicateDocument(pathname: string, args: {
       pathname,
       ...args,
     }, delay);
-    return result.ok;
+    return result.json();
   }
   catch {
     return false;
