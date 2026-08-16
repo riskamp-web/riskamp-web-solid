@@ -154,7 +154,10 @@ export function upsertDocument(
 
   const modified = saved.modified ?? Date.now();
   const key = saved.path.toLowerCase();
-  const isNew = !documents.some(doc => doc.path.toLowerCase() === key);
+  // resolved once: the pre-save row is both the isNew test and, on an existing
+  // document, the version/timestamp that this save supersedes (see below)
+  const existing = documents.find(doc => doc.path.toLowerCase() === key);
+  const isNew = !existing;
 
   if (isNew) {
     // honour anything the caller does supply; synthesise the rest a save doesn't
@@ -188,7 +191,14 @@ export function upsertDocument(
   }
 
   const history = options?.history ?? 'record';
-  if (history === 'record') { recordVersion(saved.path, saved.version, modified, { seedIfAbsent: isNew }); }
+  if (history === 'record') {
+    // history holds only what the current version replaced, so a save records
+    // the version it just superseded -- the row's own prior version and its own
+    // timestamp -- never the new one. a brand-new document (or a save that
+    // didn't advance the version) has nothing to supersede.
+    const superseded = !isNew && saved.version > existing.version ? existing.version : undefined;
+    recordVersion(saved.path, superseded, existing?.modified ?? modified, { seedIfAbsent: isNew });
+  }
   else if (history === 'invalidate') { invalidateHistory(saved.path); }
 
 }
@@ -383,33 +393,41 @@ export function retryHistory(path: string): void {
 }
 
 /**
- * record a just-saved version into the cached history, so the panel stays right
- * without a refetch. the new version is the newest, so:
+ * record a newly-superseded version into the cached history, so the panel stays
+ * right without a refetch. history is superseded-only (the current version lives
+ * on the row, not here), so `superseded` is the version a save just replaced --
+ * never the new current one -- with its own timestamp. it's undefined when a save
+ * had nothing to supersede: a brand-new document, or a save that didn't advance
+ * the version. Then:
  *
- *   - a loaded ('ready') list gets it prepended (deduped by number and capped);
- *   - an absent entry is seeded as a one-version 'ready' list when seedIfAbsent
- *     (the default) -- correct for a brand-new document, whose only version this
- *     is. pass false for an existing document whose full history isn't loaded,
- *     where a one-entry list would hide its older versions: absent is left absent
- *     so loadHistory() can fetch the real list when the panel next opens;
+ *   - a loaded ('ready') list gets the superseded version prepended (deduped by
+ *     number and capped); an undefined superseded leaves it untouched;
+ *   - an absent entry is seeded as a 'ready' list when seedIfAbsent (the
+ *     default) -- empty for a brand-new document (undefined superseded), else a
+ *     one-entry list. pass false for an existing document whose full history
+ *     isn't loaded, where a one-entry list would hide its older versions: absent
+ *     is left absent so loadHistory() can fetch the real list when the panel next
+ *     opens;
  *   - a 'loading' or 'failed' entry is dropped, so that same next open refetches.
  */
 export function recordVersion(
-    path: string, version: number, modified: number,
+    path: string, superseded: number | undefined, modified: number,
     options?: { seedIfAbsent?: boolean }): void {
 
   const key = historyKey(path);
-  const entry: DocumentVersion = { version, modified };
   const current = histories[key];
 
   if (current?.status === 'ready') {
-    const versions = newestFirst([entry, ...current.versions.filter(v => v.version !== version)])
+    if (superseded === undefined) { return; }
+    const entry: DocumentVersion = { version: superseded, modified };
+    const versions = newestFirst([entry, ...current.versions.filter(v => v.version !== superseded)])
       .slice(0, VERSION_CAP);
     setHistories(key, 'versions', versions);
   }
   else if (!current) {
     if (options?.seedIfAbsent ?? true) {
-      setHistories(key, { status: 'ready', versions: [entry] });
+      const versions = superseded === undefined ? [] : [{ version: superseded, modified }];
+      setHistories(key, { status: 'ready', versions });
     }
   }
   else {
