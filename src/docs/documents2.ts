@@ -11,7 +11,7 @@ export const PushDocument = async (path: string, data: unknown) => {
 };
 */
 
-export const GetDocumentVersion = async(path: string, version: string, cache = true, refresh_cache = false) => {
+export const GetDocumentVersion = async(path: string, version: string) => {
 
   if (path.endsWith('/')) {
     path = path.substring(0, path.length - 1)
@@ -20,7 +20,7 @@ export const GetDocumentVersion = async(path: string, version: string, cache = t
   // FIXME: use proper query constructor
 
   //const data = await auth.AccessResource('/api/document-history-entry-2', { path, version }, undefined, cache, refresh_cache);
-  const response = await auth.AccessResource('/api/document-history-entry-2?path=' + path + '&version=' + version, undefined, undefined, cache, refresh_cache);
+  const response = await auth.AccessResource('/api/document-history-entry-2?path=' + path + '&version=' + version);
 
   if (response.ok) {
     return await response.json();
