@@ -489,6 +489,14 @@ export function Toolbar(props: ParentProps<Props>) {
         </div>
 
         <div class={style['status-pill-container']}>
+          {/* 
+          <div>
+            {sessionData.document_version}/
+            {props.sheet()?.state}/
+            {sessionData.last_saved_version}
+          </div>
+          */}
+
           <DropMenu disabled={!spreadsheet_dirty()} label={
             <div classList={{[shared.pill]: true, [style['status-pill']]: true, [style.status_pill_visible]: spreadsheet_dirty()}}>
               <div class="flex-row gap-0_5">

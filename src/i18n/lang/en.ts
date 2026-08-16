@@ -1805,6 +1805,11 @@ export default {
     },
   },
 
+  'new-document': {
+    'discard-changes-message': 'You have unsaved changes. Are you sure?',
+    'discard-changes-confirm': 'New document',
+  },
+
   ///
   'status-pill': {
     messages: {

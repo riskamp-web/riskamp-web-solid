@@ -29,10 +29,15 @@ export function CacheCUrrentState(sheet?: SpreadsheetType, document_path = '', v
     // the old implementation...
 
     CacheFactory.Instance().then(cache => {
-      cache.Set(document_path, typeof version === 'string' ? version : undefined, {
-        data: sheet.SerializeDocument({
+
+      const data = sheet.SerializeDocument({
           preserve_simulation_data: true,
-        }),
+        });
+
+      console.info({cache_data: data});
+
+      cache.Set(document_path, typeof version === 'string' ? version : undefined, {
+        data,
         cached: new Date().getTime(),
         canonical_version: sessionData.last_saved_version || 0,
       });
@@ -139,7 +144,14 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
       // console.info("Returning from cache");
 
       sheet.LoadDocument(data.data, { source: 'cache' as LoadSource });
-      setSessionData('last_saved_version', data.canonical_version || 0);
+
+      // setSessionData('last_saved_version', data.canonical_version || 0);
+      // setSessionData('document_version', sheet.state);
+
+      setSessionData({
+        last_saved_version: data.canonical_version || 0,
+        document_version: sheet.state,
+      });
 
       spinner.hide();
       return true;
@@ -198,7 +210,17 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
       try {
         console.info("Returning from cache (default document)");
         sheet.LoadDocument(data.data, { source: 'cache' as LoadSource });
+
+        /*
         setSessionData('last_saved_version', data.canonical_version || 0);
+        setSessionData('document_version', sheet.state);
+        */
+
+        setSessionData({
+          last_saved_version: data.canonical_version || 0,
+          document_version: sheet.state,
+        });
+
       }
       catch (err) {
         console.error(err);

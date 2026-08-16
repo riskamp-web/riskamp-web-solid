@@ -2,7 +2,7 @@
 
 import { Title } from "@solidjs/meta";
 
-import { useParams } from "@solidjs/router";
+import { useLocation, useParams } from "@solidjs/router";
 import { useSearchParams } from "@solidjs/router";
 
 import { Spreadsheet } from '~/components/spreadsheet/spreadsheet';
@@ -91,10 +91,12 @@ export default function Page() {
    * intiial path when we create the spreadsheet, so this is deferred.
    */
   createEffect(on(() => params.document_path, value => {
+    console.info("TLP2");
     TryLoadPath(getSheet(), value, searchParams.version);
   }, { defer: true }));
 
   createEffect(on(() => searchParams.version, value => {
+    console.info("TLP3");
     TryLoadPath(getSheet(), params.document_path, value);
   }, { defer: true }));
 
@@ -188,6 +190,7 @@ export default function Page() {
             path: params.document_path,
             version: result.version || 1,
             modified: result.modified,
+            access: result.access,
           }, {
             history: 'record',
           });
@@ -389,6 +392,7 @@ export default function Page() {
           path: result.path,
           version: store_result.version || 1,
           modified: store_result.modified,
+          access: store_result.access,
         }, {
           history: 'record',
         });
@@ -712,16 +716,14 @@ export default function Page() {
     }
   }
 
-  /** 
-   * effect on spreadsheet create. set up.
+  /**
+   * subscribe to sheet events. this happens when the sheet is created
+   * and the signal is populated. it's broken out so we can simplify the
+   * effect method
    */
-  createEffect(on(getSheet, sheet => {
-    if (sheet) {
-      HijackDialog(sheet);
+  function SubscribeToSheetEvents(sheet: SpreadsheetType) {
 
-      TryLoadPath(sheet as SpreadsheetType, params.document_path || '', searchParams.version);
-
-      sheet.Subscribe((event: EmbeddedSheetEvent|MCEmbeddedSheetEvent) => {
+    sheet.Subscribe((event: EmbeddedSheetEvent|MCEmbeddedSheetEvent) => {
 
         // store updates in cache
 
@@ -796,7 +798,13 @@ export default function Page() {
           case 'reset':
 
             if (event.type === 'reset') {
-              setSessionData('last_saved_version', 0);
+              // setSessionData('last_saved_version', 0);
+
+              setSessionData({
+                last_saved_version: 0,
+                document_version: 0,
+              });
+
             }
 
             // on reset, we want to clear any saved seed
@@ -820,6 +828,63 @@ export default function Page() {
           
         }
       });
+
+  }
+
+  /** 
+   * effect on spreadsheet create. set up.
+   */
+  createEffect(on(getSheet, sheet => {
+    if (sheet) {
+
+      HijackDialog(sheet);
+      const location_state = useLocation<{operation: string}>().state;
+
+      console.info("TLP 1");
+
+      // OK now we're explicitly doing this _before_ calling TryLoadPath, 
+      // so we get handlers for the various type of load svents.
+
+      SubscribeToSheetEvents(sheet);
+
+      TryLoadPath(sheet as SpreadsheetType, params.document_path || '', searchParams.version).then(async () => {
+
+        // try fix for safari paint issue
+        sheet.UpdateTheme();
+        
+        // in theory we should only see this reset state when the path
+        // is '/', so we don't really have to worry about loading a 
+        // document -- it'll be in cache if it exists. 
+
+        if (location_state?.operation === 'reset') {
+
+          let confirm = true;
+          if (sheet.state > 0) {
+            confirm = await confirmDialog.confirm({
+              message: t('new-document.discard-changes-message'),
+              confirm: 'new-document.discard-changes-confirm'
+            });
+          }
+
+          navigate(location.pathname + location.search, {
+            replace: true,
+            resolve: false,
+            scroll: false,
+            state: undefined // or null / {}
+          });
+
+          if (confirm) {
+            sheet.Reset();
+          }
+
+        }
+
+        console.info("TLP 2");
+
+        sheet.Focus();
+    
+      });
+
     }
   }));
 

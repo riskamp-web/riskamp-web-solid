@@ -451,7 +451,7 @@ export default function Documents() {
 
   };
 
-  const saveAsFlow = async (id: number, state: 'rename'|'duplicate') => {
+  const saveAsFlow = async (id: number, state: 'rename'|'duplicate', version?: number) => {
 
     setSaveAsState(state);
 
@@ -463,6 +463,8 @@ export default function Documents() {
     const sad: SaveAsDocument = {};
 
     rename_path = '';
+    rename_version = version;
+
     for (const doc of documents) {
       if (doc.id === id) {
 
@@ -494,6 +496,10 @@ export default function Documents() {
 
   const duplicate = (id: number) => {
     return saveAsFlow(id, 'duplicate');
+  };
+
+  const duplicateAsNewDocument = (doc: BackstageDocument, version: number) => {
+    return saveAsFlow(doc.id, 'duplicate', version);
   };
 
   const restoreDocument = async (doc: BackstageDocument, version: number) => {
@@ -561,6 +567,7 @@ export default function Documents() {
   // we can use it in the callback method 
 
   let rename_path = '';
+  let rename_version: number|undefined = undefined;
 
   async function HandleSaveAs(result: SaveAsResult) {
 
@@ -571,6 +578,7 @@ export default function Documents() {
         name: result.name,
         access: result.access,
         api_version: 2,
+        historical_version: rename_version,
         new_path: pathOf(result.path),
       });
 
@@ -803,8 +811,13 @@ export default function Documents() {
 
           <div class={bs.spacer} />
 
-          <button type='button' class={`${bs.button} ${bs['button-primary']} ${bs['button-collapse']}`}
-              aria-label={t('documents-page.action.new-document')}>
+          <button type='button' 
+                  onclick={() => navigate('/', { state: {
+                    operation: 'reset',
+                    source: 'documents-page'
+                  }})}
+                  class={`${bs.button} ${bs['button-primary']} ${bs['button-collapse']}`}
+                  aria-label={t('documents-page.action.new-document')}>
             <Icon name='new_spreadsheet' /> <span class={bs['button-label']}>{t('documents-page.action.new-document')}</span>
           </button>
         </Show>
@@ -1178,8 +1191,10 @@ export default function Documents() {
                             class={style['version-action']}>
                           <MenuItem onclick={() => navigate(versionUrl(doc(), version.version))}
                                     icon={<Icon name='insert_table' />}>{t('documents-page.history.open.text')}</MenuItem>
-                          <MenuItem icon={<Icon name='copy' />}>{t('documents-page.history.duplicate')}</MenuItem>
-                          <MenuItem onclick={() => restoreDocument(doc(), version.version)} icon={<Icon name='confirm' />}>{t('documents-page.history.restore')}</MenuItem>
+                          <MenuItem onclick={() => duplicateAsNewDocument(doc(), version.version)}
+                                    icon={<Icon name='copy' />}>{t('documents-page.history.duplicate')}</MenuItem>
+                          <MenuItem onclick={() => restoreDocument(doc(), version.version)} 
+                                    icon={<Icon name='confirm' />}>{t('documents-page.history.restore')}</MenuItem>
                         </ActionMenu>
                       </div>
                     }</For>
