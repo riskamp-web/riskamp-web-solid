@@ -70,12 +70,9 @@ export async function RevertDocument(sheet?: SpreadsheetType, path = '', version
     }
     */
 
-    // flush network cache? (...)
-    const refresh_cache = false;
-
     // there's a possibility this will fail...
     try {
-      const data = await documents2.GetDocument(path, true, refresh_cache);
+      const data = await documents2.GetDocument(path);
       sheet?.LoadDocument(data);
     }
     catch (err) {
@@ -93,6 +90,15 @@ export async function RevertDocument(sheet?: SpreadsheetType, path = '', version
 
 };
 
+/**
+ * load a document, through our local (explicit) cache. the cache is 
+ * used to store local, unsaved changes to documents as well as speed
+ * up re-reads. this cache must be explicitly flushed when you make 
+ * changes, @see RemoveFromCache
+ * 
+ * @param version - we accept any type passed in from a query paramter,
+ * to simplify the call sites, but we will reject it if it's an array
+ */
 export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: string|string[]|undefined = undefined) {
 
   if (!sheet) {
@@ -143,10 +149,10 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
     try {
       let doc: MCTREBDocument;
       if (version) {
-        doc = await documents2.GetDocumentVersion(path, version, false); // , true);
+        doc = await documents2.GetDocumentVersion(path, version);
       }
       else {
-        doc = await documents2.GetDocument(path, false); // , true);
+        doc = await documents2.GetDocument(path);
       }
       sheet.LoadDocument(doc);
 

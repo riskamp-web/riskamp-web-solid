@@ -313,7 +313,7 @@ export function Toolbar(props: ParentProps<Props>) {
     // the dummy text (which is translated) will make this update 
     // on a locale change
 
-    function Reformat(text: string, dummy: string) {
+    function Reformat(text: string, _dummy: string) {
 
       // not great reaching around for Localization here. a better
       // option might be to just format a number and read it.

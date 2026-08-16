@@ -330,6 +330,7 @@ export const AccessResource = async (
     console.trace();
     throw new Error('do not use this cache');
 
+    /*
     const result = await cache.match(request);
     if (result) {
 
@@ -337,15 +338,17 @@ export const AccessResource = async (
 
       return result; // no auth stuff
     }
+    */
   }
 
-  let result = await fetch(request);
+  const result = await fetch(request);
 
   if (use_cache && cache) {
 
     console.trace();
     throw new Error('do not use this cache');
 
+    /*
     await cache.put(request, result);
     const temp = await cache.match(request);
     
@@ -355,6 +358,7 @@ export const AccessResource = async (
     else {
       throw new Error('cache store failed');
     }
+    */
 
   }
 
