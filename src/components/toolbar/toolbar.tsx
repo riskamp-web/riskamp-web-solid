@@ -21,7 +21,6 @@ import { MenuButton } from '../menu-button/menu-button';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { ResolveColors, UpdateSaveState, UpdateState } from './util';
-import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { ColorButton } from './toolbar-color-picker';
 import { CompositeMenu } from './composite-menu';
 import { A } from '@solidjs/router';
@@ -182,10 +181,12 @@ export function Toolbar(props: ParentProps<Props>) {
     }
     else if (event.target instanceof HTMLInputElement) {
 
+      /*
       // what's going on here?? //
 
       const value = 
         NumberFormatCache.SymbolicName(event.target.value || '');
+      */
 
       command.text = command.value = event.target.value || '';
     }

@@ -860,6 +860,9 @@ export default {
       duplicate_succeeded: 'Document created',
       duplicate_failed: 'Duplicate failed. Please try again later.',
 
+      restore_succeeded: 'Document restored',
+      restore_failed: 'Restore failed. Please try again later.',
+
     },
 
     empty: {

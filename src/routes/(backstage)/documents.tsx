@@ -496,6 +496,29 @@ export default function Documents() {
     return saveAsFlow(id, 'duplicate');
   };
 
+  const restoreDocument = async (doc: BackstageDocument, version: number) => {
+
+    // this is a duplicate, but we know the target _and_ we need to pass in
+    // a historical version
+
+    const duplicate_result = await DuplicateDocument(pathOf(doc.path), {
+        api_version: 2,
+        new_path: pathOf(doc.path),
+        historical_version: version,
+      });
+
+    if (duplicate_result) {
+      toast.success(t('documents-page.messages.restore_succeeded'));
+
+      // flush cache so reading the document returns the new (old) version
+      RemoveFromCache(pathOf(doc.path));
+    }
+    else {
+      toast.error(t('documents-page.messages.restore_failed'));
+    }
+
+  };
+
   const toggleChecked = (id: number) => setChecked(previous => {
     const next = new Set(previous);
     if (next.has(id)) { next.delete(id); } else { next.add(id); }
@@ -565,7 +588,7 @@ export default function Documents() {
           // one other thing in this case, we need to flush local cache 
           // (no version; this will be the new lead document)
 
-          console.info("Calling RFC", result.path);
+          // console.info("Calling RFC", result.path);
           RemoveFromCache(pathOf(result.path));
 
         }
@@ -1156,7 +1179,7 @@ export default function Documents() {
                           <MenuItem onclick={() => navigate(versionUrl(doc(), version.version))}
                                     icon={<Icon name='insert_table' />}>{t('documents-page.history.open.text')}</MenuItem>
                           <MenuItem icon={<Icon name='copy' />}>{t('documents-page.history.duplicate')}</MenuItem>
-                          <MenuItem icon={<Icon name='confirm' />}>{t('documents-page.history.restore')}</MenuItem>
+                          <MenuItem onclick={() => restoreDocument(doc(), version.version)} icon={<Icon name='confirm' />}>{t('documents-page.history.restore')}</MenuItem>
                         </ActionMenu>
                       </div>
                     }</For>

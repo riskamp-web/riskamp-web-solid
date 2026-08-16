@@ -21,7 +21,7 @@ import { Dialog as LasVegasDialog, props as las_vegas_props } from '~/components
 
 import { HijackDialog } from '~/lib/hijack-dialog';
 import { ApplyProperty, BooleanKeys } from '~/lib/typescript-magic';
-import { LoadSource, MCEmbeddedSheetEvent, type CellStyle, type Color } from 'riskamp-web';
+import { MCEmbeddedSheetEvent, type CellStyle, type Color } from 'riskamp-web';
 import { AwaitSignal } from '~/lib/await-signal';
 import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline-dialog/sparkline';
 import { TrendForecastingDialog } from '~/components/dialogs/trend-forecasting/trend-forecasting-dialog';
@@ -43,6 +43,7 @@ import { spinner } from '~/components/spinner/spinner-control';
 import { toast } from '~/components/toast/toast-control';
 import { t, format } from '~/i18n/i18n';
 import { StoreDocument, UpdateDocument } from '~/docs/documents2';
+import { confirmDialog } from '~/components/dialogs/confirm-dialog/confirm-control';
 
 // we should drop that old goto utility, unless someone needs
 // to call it from code
@@ -670,12 +671,27 @@ export default function Page() {
         SetTheme(sheet, 'system');
         break;
 
+      case 'about-riskamp':
+        AboutRiskAMP();
+        break;
+
       default:
         console.warn('unhandled', key);
         // setOpen(true);
     }
 
     sheet.Focus();
+
+  }
+
+  async function AboutRiskAMP() {
+
+    await confirmDialog.alert({
+      title: 'toolbar.menu.about-riskamp',
+      message: <>
+        <strong>RiskAMP web version</strong>
+      </>
+    });
 
   }
 

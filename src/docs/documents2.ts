@@ -66,13 +66,15 @@ export const GetDocument = async (path: string, cache = true, refresh_cache = fa
 };
 
 /**
- * NO BACKEND API FUNCTION YET
+ * adding historical_version: lets you duplicate an old version, possibly
+ * onto the same document (as a new version)
  */
 export async function DuplicateDocument(pathname: string, args: {
       name?: string;
       document?: string;
       access?: number;
       api_version?: number;
+      historical_version?: number;
       new_path?: string;
     }, delay?: number ): Promise<Partial<DocumentsRow>|false> {
 
