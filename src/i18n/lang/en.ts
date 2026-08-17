@@ -680,6 +680,14 @@ export default {
       },
       disclaimer: 'The AI interface runs in bring-your-own-key mode. To use it, you must provide an API key for a supported provider/model.\nWe never see your API key. It stays in your browser and only gets sent to the official provider when you send a chat message.\nYou will be charged by your model provider for tokens or under your subscription plan.',
     },
+
+    // transient status shown while the assistant is working; these steps are
+    // never persisted as message blocks (see chat-messages.tsx activity()).
+    activity: {
+      thinking: 'Thinking…',
+      working: 'Working…',
+      running: 'Running {tool}…',
+    },
   },
 
   'developer-panel': {

@@ -2,6 +2,7 @@
 
 import { For, Show, Switch, Match, onMount } from 'solid-js';
 import { InitMessages, messages, streaming } from './util';
+import { t, format } from '~/i18n/i18n';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
 import style from './ai-sidebar.module.css';
 import { Format, AnthropicChatMessages, IsClientSideErrorMessage, IsNotItemReference, GeminiChatMessages, GPTResponsesChatMessages } from '~/lib/raw-llm-support';
@@ -23,6 +24,13 @@ type GPTMessage = Exclude<GPTResponsesChatMessages['messages'][number], ClientSi
  * part of the last message. it clears the moment the model emits answer text
  * or the stream ends.
  */
+/** "Running <tool>…", or a generic "Working…" when the tool is unnamed. */
+function runningLabel(name?: string): string {
+  return name
+    ? format(t('llm-chat.activity.running'), { tool: name })
+    : t('llm-chat.activity.working');
+}
+
 function activity(): string | null {
   if (!streaming()) {
     return null;
@@ -32,10 +40,10 @@ function activity(): string | null {
   const last = list[list.length - 1];
 
   if (!last) {
-    return 'Thinking…';           // stream started, nothing generated yet
+    return t('llm-chat.activity.thinking');   // stream started, nothing generated yet
   }
   if (IsClientSideErrorMessage(last)) {
-    return null;                  // errors are persistent blocks, not activity
+    return null;                              // errors are persistent blocks, not activity
   }
 
   switch (messages.type) {
@@ -43,17 +51,17 @@ function activity(): string | null {
     case 'anthropic': {
       const item = last as AnthropicMessage;
       if (!Array.isArray(item.content)) {
-        return 'Thinking…';       // a bare string is a user message
+        return t('llm-chat.activity.thinking');   // a bare string is a user message
       }
       const part = item.content[item.content.length - 1];
       if (!part) {
-        return 'Thinking…';
+        return t('llm-chat.activity.thinking');
       }
       switch (part.type) {
         case 'text': return null;
-        case 'thinking': return 'Thinking…';
-        case 'tool_use': return `Running ${part.name || 'tool'}…`;
-        default: return 'Working…';
+        case 'thinking': return t('llm-chat.activity.thinking');
+        case 'tool_use': return runningLabel(part.name);
+        default: return t('llm-chat.activity.working');
       }
     }
 
@@ -62,15 +70,15 @@ function activity(): string | null {
       const parts = item.parts;
       const part = parts?.[parts.length - 1];
       if (!part) {
-        return 'Thinking…';
+        return t('llm-chat.activity.thinking');
       }
       if (part.text) {
         return null;
       }
       if (part.functionCall) {
-        return `Running ${part.functionCall.name || 'tool'}…`;
+        return runningLabel(part.functionCall.name);
       }
-      return 'Working…';
+      return t('llm-chat.activity.working');
     }
 
     case 'openai-responses': {
@@ -79,17 +87,17 @@ function activity(): string | null {
         return null;              // answer text (or a reference) -> not activity
       }
       if (item.type === 'reasoning') {
-        return 'Thinking…';
+        return t('llm-chat.activity.thinking');
       }
       if (item.type === 'function_call') {
-        return `Running ${item.name || 'tool'}…`;
+        return runningLabel(item.name);
       }
-      return 'Working…';
+      return t('llm-chat.activity.working');
     }
 
   }
 
-  return 'Working…';
+  return t('llm-chat.activity.working');
 }
 
 export function ChatMessages(props: Props) {
