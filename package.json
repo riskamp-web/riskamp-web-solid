@@ -7,7 +7,8 @@
     "start": "vinxi start",
     "deploy": "wrangler pages deploy dist",
     "deploy-as-main": "wrangler pages deploy dist --branch=main",
-    "tunnel": "cloudflared tunnel --url http://localhost:5173 --http-host-header \"localhost:5173\""
+    "tunnel": "cloudflared tunnel --url http://localhost:5173 --http-host-header \"localhost:5173\"",
+    "convert-policies": "tsx scripts/convert-policy-pages.ts"
   },
   "dependencies": {
     "@solidjs/meta": "^0.29.4",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@trebco/treb": "file:../TREB",
+    "@types/markdown-it": "^14.1.2",
     "@types/node": "^26.0.0",
     "@vscode/markdown-it-katex": "^1.1.2",
     "dompurify": "^3.4.7",
@@ -34,6 +36,7 @@
     "markdown-it": "^14.2.0",
     "markdown-it-link-attributes": "^4.0.1",
     "minisearch": "^7.2.0",
+    "node-html-parser": "^9.0.1",
     "raw-tools": "file:../raw-tools",
     "riskamp-icon-workbench": "file:../icon-workbench",
     "riskamp-web": "file:../RAW",

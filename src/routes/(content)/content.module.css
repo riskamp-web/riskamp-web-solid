@@ -1,0 +1,100 @@
+
+.text-page {
+  margin: 0;
+  width: 100%;
+  flex-grow: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+/*
+ * Prose styling for the static content pages (privacy-policy, terms-of-service).
+ * The markup is injected via innerHTML from Markdown, so we style bare elements
+ * scoped under `.body`. All colours/metrics come from app.css tokens so the
+ * pages track the app theme (light-dark) automatically.
+ */
+.body {
+  margin: 0 auto;
+  width: 90%;
+  max-width: 760px;
+  padding: 2.5rem 0 4rem;
+  color: var(--text);
+  font-family: var(--interface-font);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.body :is(h1, h2, h3) {
+  color: var(--text);
+  font-weight: 600;
+  line-height: 1.25;
+  scroll-margin-top: 1rem;
+}
+
+.body h1 {
+  margin: 0 0 0.25em;
+  font-size: 1.9em;
+}
+
+.body h2 {
+  margin: 2.25em 0 0.75em;
+  padding-top: 1.25em;
+  border-top: 1px solid var(--border-hairline);
+  font-size: 1.35em;
+}
+
+.body h3 {
+  margin: 1.75em 0 0.5em;
+  font-size: 1.1em;
+}
+
+.body p {
+  margin: 0 0 1em;
+}
+
+.body a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.body a:hover {
+  text-decoration: underline;
+}
+
+.body :is(ul, ol) {
+  margin: 0 0 1em;
+  padding-left: 1.5em;
+}
+
+.body li {
+  margin: 0.35em 0;
+}
+
+.body strong {
+  font-weight: 600;
+}
+
+.body hr {
+  margin: 2em 0;
+  border: none;
+  border-top: 1px solid var(--border-hairline);
+}
+
+.body table {
+  width: 100%;
+  margin: 0 0 1.5em;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.body :is(th, td) {
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--border-hairline);
+  text-align: left;
+  vertical-align: top;
+}
+
+.body th {
+  background: var(--accent-wash);
+  font-weight: 600;
+}
