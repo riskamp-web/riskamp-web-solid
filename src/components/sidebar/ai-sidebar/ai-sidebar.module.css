@@ -127,6 +127,8 @@
     width: 90%;
     align-self: flex-end;
     background: var(--sidebar-message-user-background);
+    border-radius: var(--surface-radius);
+    padding: .5em .7em;
   }
 
   /* client-side error messages (IsClientSideErrorMessage). this was undefined too,
@@ -147,12 +149,78 @@
     margin-bottom: 1em;
   }
 
+  /* tighten the browser-default list indentation (~40px) */
+  ul, ol {
+    padding-left: 1.5em;
+  }
+
   p:first-child {
     margin-top: 0;
   }
 
   p:last-child {
     margin-bottom: 0;
+  }
+
+  strong {
+    font-weight: 600;
+  }
+
+  a {
+    color: var(--sidebar-link-color);
+    text-decoration: underline;
+  }
+
+  /* inline code chip. the hairline border keeps it distinct from the user
+     message bubble (a soft accent wash) in light mode. */
+  code {
+    font-family: var(--mono-font-family);
+    font-size: .9em;
+    background: var(--overlay-faint);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--control-radius);
+    padding: .05em .3em;
+  }
+
+  /* fenced code block: plain, always-visible, subtly toned */
+  pre {
+    margin: 1em 0;
+    padding: .7em .8em;
+    font-size: .9em;
+    background: var(--overlay-faint);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--surface-radius);
+    overflow-x: auto;
+
+    code {
+      /* reset the inline-chip styling inside blocks */
+      background: none;
+      border: none;
+      padding: 0;
+      border-radius: 0;
+      font-size: 1em;
+    }
+  }
+
+  /* subtle, app-toned syntax highlighting. the hljs-* token classes come from
+     the sanitized markdown HTML (innerHTML), so they're global -- they must be
+     reached with :global() or the CSS module would hash them and never match.
+     everything not listed inherits --text. */
+  :global(.hljs-keyword),
+  :global(.hljs-built_in) {
+    color: var(--accent);
+  }
+
+  :global(.hljs-number),
+  :global(.hljs-symbol),
+  :global(.hljs-literal),
+  :global(.hljs-string) {
+    color: var(--text-muted);
+  }
+
+  :global(.hljs-comment) {
+    color: var(--text-faint);
+    font-style: italic;
   }
 
 }

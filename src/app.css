@@ -2,6 +2,7 @@
 
 :root {
   --interface-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mono-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --llm-chat-font-size: 16px;
 
   /* ===== Canonical design tokens =====================================
@@ -199,7 +200,7 @@
   --sidebar-row-hover-background:        light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.09));
   --sidebar-row-hover-background-subtle: light-dark(rgba(0, 0, 0, 0.025), rgba(255, 255, 255, 0.035));
   --sidebar-tab-active-color:            var(--accent);        /* active-tab underline; was orange */
-  --sidebar-message-user-background:     light-dark(#f8f8ff, #2f3540);            /* AI user message bubble */
+  --sidebar-message-user-background:     light-dark(rgba(4, 119, 190, .1), #2f3540);  /* AI user message bubble; light value is a soft accent wash so it reads as 'you' and stays distinct from neutral code fills */
   --sidebar-fit-data-color:              light-dark(blue, #6cb6ff);               /* fit chart: empirical line */
   --sidebar-fit-theoretical-color:       light-dark(orange, orange);             /* fit chart: theoretical line */
 

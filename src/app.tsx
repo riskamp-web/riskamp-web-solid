@@ -17,6 +17,13 @@ import { useNavigate } from '@solidjs/router';
 import { setNavigator } from '~/lib/navigate';
 import { InitAppData } from './lib/app-data';
 import { HistoryProvider } from './components/history-context';
+import { formatConfig } from '~/lib/raw-llm-support';
+
+// render markdown fenced code as plain, always-visible blocks app-wide (the AI
+// chat and notes sidebars). the treb-llm-support default keeps the legacy
+// collapsible <details> disclosure for its other clients; this opts this app
+// out of it. see treb-llm-support/src/md.ts (formatConfig).
+formatConfig.collapsibleCodeBlocks = false;
 
 
 
