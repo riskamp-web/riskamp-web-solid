@@ -115,7 +115,7 @@ export function ChatMessages(props: Props) {
               if (IsClientSideErrorMessage(item)) {
                 return <div classList={{ [style.message]: true, [style.error]: true }}>
                     <div class={style.part}>
-                      {item.message || 'unknown error'}
+                      {item.message || t('llm-chat.error.unknown')}
                     </div>
                   </div>;
               }
@@ -156,7 +156,7 @@ export function ChatMessages(props: Props) {
               if (IsClientSideErrorMessage(item)) {
                 return <div classList={{ [style.message]: true, [style.error]: true }}>
                     <div class={style.part}>
-                      {item.message || 'unknown error'}
+                      {item.message || t('llm-chat.error.unknown')}
                     </div>
                   </div>;
               }
@@ -189,7 +189,7 @@ export function ChatMessages(props: Props) {
               if (IsClientSideErrorMessage(item)) {
                 return <div classList={{ [style.message]: true, [style.error]: true }}>
                     <div class={style.part}>
-                      {item.message || 'unknown error'}
+                      {item.message || t('llm-chat.error.unknown')}
                     </div>
                   </div>;
               }
@@ -230,7 +230,7 @@ export function ChatMessages(props: Props) {
         </Match>
 
         <Match when={true}>
-          <div>unknown type</div>
+          <div>{t('llm-chat.error.unknown-type')}</div>
         </Match>
       </Switch>
 

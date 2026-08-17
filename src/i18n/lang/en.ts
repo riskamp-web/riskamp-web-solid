@@ -688,6 +688,11 @@ export default {
       working: 'Working…',
       running: 'Running {tool}…',
     },
+
+    error: {
+      unknown: 'unknown error',
+      'unknown-type': 'unknown type',
+    },
   },
 
   'developer-panel': {
