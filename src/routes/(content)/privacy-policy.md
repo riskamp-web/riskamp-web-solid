@@ -1,6 +1,6 @@
 # PRIVACY POLICY
 
-**Last updated November 15, 2023**
+**Last updated December 3, 2025**
 
 This privacy notice for Structured Data LLC ("**we**," "**us**," or "**our**"), describes how and why we might collect, store, use, and/or share ("**process**") your information when you use our services ("**Services**"), such as when you:
 
@@ -395,15 +395,10 @@ We may update this privacy notice from time to time. The updated version will be
 
 If you have questions or comments about this notice, you may email us at support@riskamp.com or contact us by post at:
 
-Structured Data LLC
-
-1233 Howard Street
-
-3F
-
-San Francisco, CA 94103
-
-United States
+Structured Data LLC  
+1233 Howard Street 3F  
+San Francisco, CA 94103  
+United States  
 
 ## 15. HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM YOU? {#request}
 

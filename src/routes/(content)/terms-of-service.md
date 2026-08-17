@@ -1,6 +1,6 @@
 # TERMS OF SERVICE
 
-**Last updated July 30, 2024**
+**Last updated December 3, 2025**
 
 ## AGREEMENT TO OUR LEGAL TERMS
 
@@ -269,14 +269,11 @@ These Legal Terms and any policies or operating rules posted by us on the Servic
 
 In order to resolve a complaint regarding the Services or to receive further information regarding use of the Services, please contact us at:
 
-**Structured Data LLC**
+Structured Data LLC  
+1233 Howard Street 3F  
+San Francisco, CA 94103  
+United States  
 
-**1233 Howard Street**
+Phone: 1 (800) 573-6559
 
-**San Francisco, CA 94103**
-
-**United States**
-
-**Phone: 1 (800) 573-6559**
-
-**info@riskamp.com**
+info@riskamp.com

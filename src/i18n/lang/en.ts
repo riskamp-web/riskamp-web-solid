@@ -1056,6 +1056,18 @@ export default {
     },
   },
 
+  'privacy-policy': {
+    page: {
+      title: 'Privacy policy',
+    },
+  },
+
+  'terms-of-use': {
+    page: {
+      title: 'Terms of use',
+    },
+  },
+
   'create-account': {
     page: {
       title: 'Create account',
