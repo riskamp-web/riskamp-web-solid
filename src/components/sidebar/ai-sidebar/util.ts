@@ -57,11 +57,16 @@ export function InitMessages(sheet_instance?: SpreadsheetType) {
   }
 
   //
-  // we could maybe toll this somehow to reduce unecessary serialization/writes
+  // persist the transcript, but debounce the write: during a stream the store
+  // mutates rapidly (token by token) and we don't need to touch localStorage on
+  // every change -- coalescing to one write once changes settle for 100ms is
+  // plenty, and keeps the synchronous setItem off the hot path.
   //
+  let persist_timer: ReturnType<typeof setTimeout> | undefined;
   createEffect(
     on(() => JSON.stringify(messages), value => {
-      localStorage.setItem('chat', value);    
+      clearTimeout(persist_timer);
+      persist_timer = setTimeout(() => localStorage.setItem('chat', value), 100);
   }, { defer: true }));
 
   if (!llm_streaming_worker) {
