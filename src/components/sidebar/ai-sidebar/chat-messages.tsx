@@ -1,24 +1,101 @@
 
 
-import { For, Switch, Match, onMount } from 'solid-js';
-import { InitMessages, messages } from './util';
+import { For, Show, Switch, Match, onMount } from 'solid-js';
+import { InitMessages, messages, streaming } from './util';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
 import style from './ai-sidebar.module.css';
 import { Format, AnthropicChatMessages, IsClientSideErrorMessage, IsNotItemReference, GeminiChatMessages, GPTResponsesChatMessages } from '~/lib/raw-llm-support';
+import type { ClientSideErrorMessage } from '~/lib/raw-llm-support';
 import DOMPurify from 'dompurify';
-import { OpenAIResponsesChunkMessage } from 'treb-llm-support/src/llm-worker';
 
 interface Props {
   sheet?: SpreadsheetType;
+}
+
+type AnthropicMessage = Exclude<AnthropicChatMessages['messages'][number], ClientSideErrorMessage>;
+type GeminiMessage = Exclude<GeminiChatMessages['messages'][number], ClientSideErrorMessage>;
+type GPTMessage = Exclude<GPTResponsesChatMessages['messages'][number], ClientSideErrorMessage>;
+
+/**
+ * ephemeral activity label for the in-progress turn. we only persist user /
+ * assistant text blocks; thinking + tool steps are surfaced here as a
+ * transient status ("Thinking…", "Running <tool>…") derived from the last
+ * part of the last message. it clears the moment the model emits answer text
+ * or the stream ends.
+ */
+function activity(): string | null {
+  if (!streaming()) {
+    return null;
+  }
+
+  const list = messages.messages;
+  const last = list[list.length - 1];
+
+  if (!last) {
+    return 'Thinking…';           // stream started, nothing generated yet
+  }
+  if (IsClientSideErrorMessage(last)) {
+    return null;                  // errors are persistent blocks, not activity
+  }
+
+  switch (messages.type) {
+
+    case 'anthropic': {
+      const item = last as AnthropicMessage;
+      if (!Array.isArray(item.content)) {
+        return 'Thinking…';       // a bare string is a user message
+      }
+      const part = item.content[item.content.length - 1];
+      if (!part) {
+        return 'Thinking…';
+      }
+      switch (part.type) {
+        case 'text': return null;
+        case 'thinking': return 'Thinking…';
+        case 'tool_use': return `Running ${part.name || 'tool'}…`;
+        default: return 'Working…';
+      }
+    }
+
+    case 'gemini': {
+      const item = last as GeminiMessage;
+      const parts = item.parts;
+      const part = parts?.[parts.length - 1];
+      if (!part) {
+        return 'Thinking…';
+      }
+      if (part.text) {
+        return null;
+      }
+      if (part.functionCall) {
+        return `Running ${part.functionCall.name || 'tool'}…`;
+      }
+      return 'Working…';
+    }
+
+    case 'openai-responses': {
+      const item = last as GPTMessage;
+      if (!item.type || item.type === 'message') {
+        return null;              // answer text (or a reference) -> not activity
+      }
+      if (item.type === 'reasoning') {
+        return 'Thinking…';
+      }
+      if (item.type === 'function_call') {
+        return `Running ${item.name || 'tool'}…`;
+      }
+      return 'Working…';
+    }
+
+  }
+
+  return 'Working…';
 }
 
 export function ChatMessages(props: Props) {
 
   onMount(() => {
     InitMessages(props.sheet);
-
-    // scroll
-
   });
 
   return <>
@@ -27,16 +104,6 @@ export function ChatMessages(props: Props) {
           <For each={(messages as AnthropicChatMessages).messages}>
             {item => {
 
-              // let's organize these by logical messages, even if 
-              // anthropic can have multiple parts in a message. so
-              // there should always be 
-              //
-              // <div message>
-              //   <div part></div part>
-              //   <div part></div part>
-              //   <div part></div part>
-              // </div message>
-
               if (IsClientSideErrorMessage(item)) {
                 return <div classList={{ [style.message]: true, [style.error]: true }}>
                     <div class={style.part}>
@@ -44,31 +111,27 @@ export function ChatMessages(props: Props) {
                     </div>
                   </div>;
               }
+
               const role = item.role;
+
+              // array content: render only text parts. a message with no text
+              // part (e.g. a lone tool_use) renders nothing -- no empty wrapper.
               if (Array.isArray(item.content)) {
-                return <div classList={{ [style.message]: true, [style[role]]: true, }}><For each={item.content}>
-                  {item => {
-                    if (item.type === 'text') {
-                      return <div classList={{ [style.part]: true, [style.md]: true }} 
-                                  ref={el => el.innerHTML = DOMPurify.sanitize(Format(item.text))} />
-                    }
-                    else if (item.type === 'thinking') {
-                      return <details open={true} classList={{ [style.part]: true, [style[item.type]]: true }}>
-                          <summary>{item.type}</summary>
-                          <div classList={{'display-contents': true, [style.md]: true}} 
-                              ref={el => el.innerHTML = DOMPurify.sanitize(Format(item.thinking))} />
-                        </details>;
-                    }
-                    else {
-                      return <details open={false} classList={{ [style.part]: true, [style[item.type]]: true }}>
-                          <summary>{item.type}</summary>
-                          <pre>{JSON.stringify(item)}</pre>
-                        </details>;
-                    }
-                  }}
-                  </For></div>;
+                const content = item.content;
+                return <Show when={content.some(part => part.type === 'text')}>
+                    <div classList={{ [style.message]: true, [style[role]]: true }}>
+                      <For each={content}>
+                        {part => part.type === 'text'
+                          ? <div classList={{ [style.part]: true, [style.md]: true }}
+                                 innerHTML={DOMPurify.sanitize(Format(part.text))} />
+                          : null}
+                      </For>
+                    </div>
+                  </Show>;
               }
-              return <div classList={{ [style.message]: true, [style[role]]: true, }}>
+
+              // string content: user text
+              return <div classList={{ [style.message]: true, [style[role]]: true }}>
                   <div classList={{ [style.part]: true, [style.text]: true }}>
                     {item.content}
                   </div>
@@ -77,9 +140,11 @@ export function ChatMessages(props: Props) {
             }}
           </For>
         </Match>
+
         <Match when={messages.type === 'gemini'}>
           <For each={(messages as GeminiChatMessages).messages}>
             {item => {
+
               if (IsClientSideErrorMessage(item)) {
                 return <div classList={{ [style.message]: true, [style.error]: true }}>
                     <div class={style.part}>
@@ -92,34 +157,27 @@ export function ChatMessages(props: Props) {
               if (item.role) {
                 classes[style[item.role]] = true;
               }
-              return <div classList={classes}><For each={item.parts}>
-                { part => {
-                  if (part.text) {
-                    return <div classList={{ [style.part]: true, [style.text]: true, [style.md]: true }}
-                      ref={el => el.innerHTML = DOMPurify.sanitize(Format(part.text || ''))} />
-                  }
-                  else if (part.functionCall) {
-                    return <details classList={{ [style.part]: true, [style.functionCall]: true }}>
-                        <summary>functionCall</summary>
-                        <pre>{JSON.stringify(part.functionCall)}</pre>
-                      </details>;
-                  }
-                  else if (part.functionResponse) {
-                    return <details classList={{ [style.part]: true, [style.functionResponse]: true }}>
-                        <summary>functionResponse</summary>
-                        <pre>{JSON.stringify(part.functionResponse)}</pre>
-                      </details>;
-                  }
-                  return <div class={style.part}>unk</div>
-                }}
-              </For></div>;
+
+              const parts = item.parts;
+              return <Show when={parts?.some(part => !!part.text)}>
+                  <div classList={classes}>
+                    <For each={parts}>
+                      {part => part.text
+                        ? <div classList={{ [style.part]: true, [style.text]: true, [style.md]: true }}
+                               innerHTML={DOMPurify.sanitize(Format(part.text || ''))} />
+                        : null}
+                    </For>
+                  </div>
+                </Show>;
 
             }}
           </For>
         </Match>
+
         <Match when={messages.type === 'openai-responses'}>
           <For each={(messages as GPTResponsesChatMessages).messages}>
             {item => {
+
               if (IsClientSideErrorMessage(item)) {
                 return <div classList={{ [style.message]: true, [style.error]: true }}>
                     <div class={style.part}>
@@ -127,6 +185,7 @@ export function ChatMessages(props: Props) {
                     </div>
                   </div>;
               }
+
               if (!item.type || item.type === 'message') {
                 if (IsNotItemReference(item)) {
                   if (typeof item.content === 'string') {
@@ -136,36 +195,40 @@ export function ChatMessages(props: Props) {
                         </div>
                       </div>;
                   }
-                  else {
-                    return <div classList={{ [style.message]: true, [style[item.role]]: true }}>
-                        <For each={item.content}>
-                          {part => {
-                            if (part.type === 'output_text') {
-                              return <div classList={{ [style.part]: true, [style.md]: true }}
-                                ref={el => el.innerHTML = DOMPurify.sanitize(Format(part.text || ''))} />
-                            }
-                          }}
-                        </For>
-                      </div>;
+                  if (Array.isArray(item.content)) {
+                    const content = item.content;
+                    return <Show when={content.some(part => part.type === 'output_text')}>
+                        <div classList={{ [style.message]: true, [style[item.role]]: true }}>
+                          <For each={content}>
+                            {part => part.type === 'output_text'
+                              ? <div classList={{ [style.part]: true, [style.md]: true }}
+                                     innerHTML={DOMPurify.sanitize(Format(part.text || ''))} />
+                              : null}
+                          </For>
+                        </div>
+                      </Show>;
                   }
                 }
-                else {
-                  return <div>(item reference)</div>
-                }
+                // item reference: nothing to persist
+                return null;
               }
-              return <div classList={{ [style.message]: true }}>
-                  <details classList={{ [style.part]: true }}>
-                    <summary>{item.type}</summary>
-                    <pre>{JSON.stringify(item)}</pre>
-                  </details>
-                </div>;
+
+              // non-message items (reasoning / function_call / …) are surfaced
+              // as ephemeral activity, not persistent blocks.
+              return null;
+
             }}
           </For>
         </Match>
+
         <Match when={true}>
-          <div>unknown type</div>        
+          <div>unknown type</div>
         </Match>
       </Switch>
+
+      <Show when={activity()}>
+        {label => <div class={style.activity}>{label()}</div>}
+      </Show>
     </>;
 
 }

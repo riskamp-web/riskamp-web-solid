@@ -53,8 +53,30 @@ export function Sidebar(props: SidebarProps) {
 
   let textarea: HTMLTextAreaElement|undefined;
 
+  let scrollContainer: HTMLDivElement|undefined;
+  let pinnedToBottom = true;
+
+  // keep the transcript pinned to the bottom as messages stream in, unless the
+  // user has scrolled up to read earlier history.
+  function TrackScrollPosition() {
+    const el = scrollContainer;
+    if (el) {
+      pinnedToBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+    }
+  }
+
+  createEffect(on(() => JSON.stringify(messages), () => {
+    const el = scrollContainer;
+    if (el && pinnedToBottom) {
+      requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+    }
+  }));
+
   function LocalSendMessage(event: Event) {
     if (textarea) {
+      // sending a message always re-pins to the bottom, even if the user had
+      // scrolled up to read earlier history.
+      pinnedToBottom = true;
       SendMessage(textarea.value||'');
       textarea.value = '';
     }
@@ -69,6 +91,9 @@ export function Sidebar(props: SidebarProps) {
 
         event.stopPropagation();
         event.preventDefault();
+        // sending a message always re-pins to the bottom, even if the user had
+        // scrolled up to read earlier history.
+        pinnedToBottom = true;
         SendMessage(event.target.value||'');
         event.target.value = '';
       }
@@ -98,8 +123,8 @@ export function Sidebar(props: SidebarProps) {
         </label>
         <div class="tab-content overflow-hidden">
           <Splitter vertical split={split} setSplit={setSplit} splitter-width={17} min={25} max={75}>
-            <div data-top classList={{
-              "flex-grow": true, 
+            <div data-top ref={scrollContainer} onScroll={TrackScrollPosition} classList={{
+              "flex-grow": true,
               "overflow-y-scroll": true,
               [style.messages]: true,
             }}>

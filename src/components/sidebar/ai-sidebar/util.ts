@@ -2,7 +2,7 @@
 import { createMutable, createStore } from 'solid-js/store';
 import { spinner } from '~/components/spinner/spinner-control';
 import { persistentData, sessionData } from '~/lib/app-data';
-import { createEffect, on } from 'solid-js';
+import { createEffect, createSignal, on } from 'solid-js';
 import { GenericToolCall, IndexedToolResult, type TypedChatMessages } from 'treb-llm-support';
 
 import { tools as TREB_tools, raw_tools, Models, Stream, /* ReplayStream, */ Format, /* ExecuteToolCall , type ExternalUI */ RAWExecuteToolCall, 
@@ -25,6 +25,13 @@ export const messages = createMutable<TypedChatMessages>({
   type: 'generic',
   messages: [],
 });
+
+/**
+ * reactive flag: true while a stream (including its tool-call loop) is in
+ * progress. drives the ephemeral activity status in the transcript. kept
+ * separate from the modal spinner so chat rendering isn't coupled to it.
+ */
+export const [streaming, setStreaming] = createSignal(false);
 
 let llm_streaming_worker: Worker|undefined;
 let docs_search_worker: Worker|undefined;
@@ -203,10 +210,11 @@ async function StreamChatMessages() {
       const api_key = persistentData.llm_api_keys[persistentData.llm_model.provider.name] || '';
 
       spinner.show();
+      setStreaming(true);
 
       try {
         await Stream({
-            worker, 
+            worker,
             model: assigned,
             api_key,
             system_prompt,
@@ -221,8 +229,10 @@ async function StreamChatMessages() {
       catch (err) {
         console.error(err);
       }
-
-      spinner.hide();
+      finally {
+        setStreaming(false);
+        spinner.hide();
+      }
 
     }
 

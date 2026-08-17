@@ -123,30 +123,10 @@
     padding: .5em 0 1em .5em;
   }
 
-  details.part:not([open]) {
-    padding-bottom: .5em;
-  }
-
   &.user .text {
     width: 90%;
     align-self: flex-end;
     background: var(--sidebar-message-user-background);
-  }
-
-  .thinking {
-    background: var(--overlay-faint);
-    &[open] summary {
-      margin-bottom: 1em;
-    }
-  }
-
-  /* the two providers name the same thing differently: anthropic sends tool_use /
-     tool_result, gemini sends functionCall / functionResponse. chat-messages.tsx
-     asked for all four, but only the first two were declared here -- so on the
-     gemini path `style.functionCall` was undefined and the <details> element got a
-     literal class="undefined" instead of a style. one rule, all four names. */
-  .tool_use, .tool_result, .functionCall, .functionResponse {
-    background: var(--overlay-faintest);
   }
 
   /* client-side error messages (IsClientSideErrorMessage). this was undefined too,
@@ -175,5 +155,13 @@
     margin-bottom: 0;
   }
 
+}
+
+/* transient "the assistant is working" status (thinking / running a tool).
+   shown only while streaming; never persisted as a message block. */
+.activity {
+  padding: .5em 0 1em .5em;
+  font-style: italic;
+  opacity: .6;
 }
 
