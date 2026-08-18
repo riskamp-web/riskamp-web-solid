@@ -20,7 +20,7 @@ import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
 import { A, useSearchParams } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
-import { t } from '~/i18n/i18n';
+import { t, type StringKey } from '~/i18n/i18n';
 import {
   messageText, scorePassword, strengthKey, validatePassword, type Message,
 } from '~/backstage/account-validation';
@@ -31,10 +31,17 @@ import * as auth from '~/lib/auth';
 import bs from './backstage.module.css';
 import { Icon } from './backstage-parts';
 
-export default function UpdatePassword() {
+export default function UpdatePassword(props: {
+  /* the two labels the create-password flow overrides; everything else on the
+     page is shared verbatim. both default to the update keys, so the default
+     export FileRoutes renders for /update-password (with no props) is unchanged.
+     see create-password.tsx. */
+  titleKey?: StringKey;
+  headingKey?: StringKey;
+} = {}) {
 
   const { setTitle } = useLayoutContext();
-  setTitle('update-password.page.title');
+  setTitle(props.titleKey ?? 'update-password.page.title');
   onCleanup(() => setTitle(undefined));
 
   /* deliberately no setRequires. every other card page is 'signed-out', but the
@@ -196,7 +203,7 @@ export default function UpdatePassword() {
   const form = () => <>
 
     <div class={bs['title-block']}>
-      <h1 class={bs.title}>{t('update-password-page.heading')}</h1>
+      <h1 class={bs.title}>{t(props.headingKey ?? 'update-password-page.heading')}</h1>
       <div class={bs.subtitle}>{t('update-password-page.subtitle')}</div>
     </div>
 

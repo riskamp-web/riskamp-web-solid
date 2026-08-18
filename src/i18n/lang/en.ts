@@ -1073,6 +1073,11 @@ export default {
       title: 'Create account',
     },
   },
+  'create-password': {
+    page: {
+      title: 'Create password',
+    },
+  },
   'update-password': {
     page: {
       title: 'Update password',
@@ -1768,6 +1773,13 @@ export default {
   // the first field takes a username OR an email: the recovery request is keyed
   // by email and the reset is keyed by username, so one link has to satisfy both.
   //
+  // /create-password serves the same page for a brand-new account; only the
+  // heading here (and the toolbar title, 'create-password.page.title' above)
+  // differ from update-password-page. everything else is shared.
+  'create-password-page': {
+    heading: 'Create a password',
+  },
+
   'update-password-page': {
     heading: 'Choose a new password',
     subtitle: 'Enter the token from the link we sent you.',
