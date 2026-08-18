@@ -749,6 +749,13 @@
   padding: 8px 0 4px;
   text-align: center;
 
+  /* focused programmatically (tabindex=-1) only so a screen reader announces
+     the confirmation the vanished form used to hold -- it's never reached by
+     keyboard, so the default focus ring is just visual noise here. */
+  &:focus {
+    outline: none;
+  }
+
   & > .sent-detail {
     max-width: 34ch;
     color: var(--text-muted);

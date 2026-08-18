@@ -90,16 +90,22 @@ export const USERNAME_MIN = 5;
 export const USERNAME_MAX = 30;
 
 /**
- * lowercase, starts with a letter, then letters, digits, hyphen, underscore.
+ * starts with a letter, then letters, digits, hyphen, underscore -- either case.
  *
  * the username isn't only a login: it's the first segment of every document
  * address the account owns -- @dwerner/gort/horn -- and documentUrl() drops it
- * into a url with no encoding step anywhere. so it has to be url-safe without
- * escaping, and it has to be case-stable, or @Duncan and @duncan become two
- * addresses for one account. leading digits are out because a bare @123 reads
- * as an id rather than a handle.
+ * into a url with no encoding step anywhere, so it has to be url-safe without
+ * escaping. every character this allows is, in either case.
+ *
+ * it does NOT have to be case-stable, which is why uppercase is let in: document
+ * lookup normalizes case, so @Duncan/x and @duncan/x resolve to the same
+ * document, and the account itself is compared case-insensitively (the mocks
+ * lowercase before they check). so case carries no identity -- rejecting a name
+ * over it would be friction enforcing a rule the system doesn't have. we accept
+ * whatever's typed and canonicalize to lowercase downstream instead. leading
+ * digits are still out: a bare @123 reads as an id rather than a handle.
  */
-const USERNAME_PATTERN = /^[a-z][a-z0-9_-]*$/;
+const USERNAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
 
 /**
  * what a page can tell about a username without asking.

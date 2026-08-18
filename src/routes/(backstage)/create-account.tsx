@@ -24,13 +24,17 @@
  * which isn't the same string as the heading on the page.)
  */
 
-import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
+import { Match, Show, Switch, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
 import { A } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
+import { AwaitSignal } from '~/lib/await-signal';
 import { format, t } from '~/i18n/i18n';
 import { messageText, validateEmail, validateUsername, type Message } from '~/backstage/account-validation';
 import { createAccountMock, type CreateAccountResult } from '~/backstage/create-account-mock';
+import { createUsernameAvailability } from '~/backstage/username-availability';
+
+import * as auth from '~/lib/auth';
 
 import bs from './backstage.module.css';
 import style from './create-account.module.css';
@@ -78,10 +82,30 @@ export default function CreateAccount() {
   onMount(() => queueMicrotask(() => email_input?.focus()));
   onCleanup(() => { live = false; });
 
-  /** the live handle: what you typed, or the placeholder while the field is empty */
-  const handle = createMemo(() => format(t('create-account-page.handle.example'), {
-    username: username().trim() || t('create-account-page.handle.placeholder'),
-  }));
+  /* the live availability check -- character rules first, then a debounced,
+     cached ping at the mock for a well-formed name. it advises the field slot
+     below; it doesn't gate the button (submit stays the authority, the same as
+     the format rules). see ~/backstage/username-availability. */
+  const availability = createUsernameAvailability(username);
+
+  /* the message the username slot draws, if any. a submit-time verdict outranks
+     the live one -- it's the authority and the freshest thing that happened --
+     and otherwise the live check's own invalid/taken message shows. the positive
+     and in-flight states aren't messages, so they're read off availability()
+     directly where the slot is drawn. */
+  const usernameMessage = createMemo<Message | undefined>(() => {
+    if (usernameError()) { return usernameError(); }
+    const state = availability.state();
+    return (state.status === 'invalid' || state.status === 'taken') ? state.message : undefined;
+  });
+
+  /** the "@name is available" line, resolved only when that's the live state */
+  const availableText = () => {
+    const state = availability.state();
+    return state.status === 'available'
+      ? format(t('create-account-page.username.available'), { username: state.username })
+      : '';
+  };
 
   /* editing a field invalidates the verdict on *that* field, and any form-level
      one. deliberately not sign-in's clear-everything: there both messages are
@@ -110,8 +134,30 @@ export default function CreateAccount() {
     // does nothing doesn't say which field it's waiting on
     setFormError(undefined);
 
+    // the click always works and enters the pending state first thing; the
+    // button never gates on the live check. if a username check is still
+    // settling -- waiting out its debounce, or in flight -- we hold here for it,
+    // so we submit against the verdict the field is about to show rather than
+    // racing it. (the input is disabled while pending, so the name can't change
+    // under us and the check we're waiting on stays the one for this value.)
+    setPending(true);
+
+    if (availability.pending()) {
+      await AwaitSignal(availability.pending, settled => !settled);
+      if (!live) { return; }
+    }
+
     const bad_email = validateEmail(address);
-    const bad_username = validateUsername(name);
+
+    // the username's verdict is whatever the live check just settled on -- its
+    // format rules are the same validateUsername the field ran, so there's
+    // nothing to repeat. only when there's no live verdict to lean on (an empty
+    // field, or a check that fell back on a blip) do we validate here, and a
+    // blip that clears format hands the last word to the server below.
+    const state = availability.state();
+    const bad_username = (state.status === 'invalid' || state.status === 'taken')
+      ? state.message
+      : validateUsername(name);
 
     setEmailError(bad_email);
     setUsernameError(bad_username);
@@ -119,15 +165,41 @@ export default function CreateAccount() {
     // first offender in dom order -- the tab order is the reading order, and
     // jumping to the second makes you scroll back
     if (bad_email || bad_username) {
+      setPending(false);
       (bad_email ? email_input : username_input)?.focus();
       return;
     }
 
-    setPending(true);
+    // check email address 
+
+    const email_check = await auth.CheckAvailability({ email: address });
+    if (email_check && email_check.email) {
+      if (email_check.email.exists) {
+        setEmailError({ key: 'create-account-page.email.taken' });
+        setPending(false);
+        return;
+      }
+    }
+    if (email_check === false) {
+      setPending(false);
+      setFormError({ key: 'create-account-page.error.unreachable' });
+      return;
+    }
+
+    let result: boolean|undefined;
+
+    try {
+      result = await auth.CreateAccount({username: name, email: address});
+    }
+    catch {
+      result = undefined;
+    }
 
     /* undefined is "the request never completed", which is a different problem
        from a rejection and shouldn't read the same -- the split Login makes,
        and the reason sign-in can say "can't reach the server" */
+
+    /*
     let result: CreateAccountResult | undefined;
 
     try {
@@ -136,17 +208,19 @@ export default function CreateAccount() {
     catch {
       result = undefined;
     }
+    */
 
     if (!live) { return; }
 
     setPending(false);
 
-    if (!result) {
+    if (result === undefined) {
       setFormError({ key: 'create-account-page.error.unreachable' });
       return;
     }
 
-    if (result.ok) {
+    // if (result.ok) {
+    if (result) {
       setSent(address);
       // the form this was submitted from has just left the dom, so focus would
       // fall to <body> and a screen reader would announce nothing at all
@@ -158,6 +232,8 @@ export default function CreateAccount() {
        they're alternatives, not additions, and a field can only be wrong one
        way at a time. neither field is cleared: nothing here is a secret, and
        retyping an address you got almost right is pure friction. */
+    
+    /*
     setEmailError(result.email);
     setUsernameError(result.username);
 
@@ -172,6 +248,9 @@ export default function CreateAccount() {
       // button appearing to do nothing
       setFormError({ key: 'create-account-page.error.rejected' });
     }
+    */
+
+    setFormError({ key: 'create-account-page.error.rejected' });
 
   };
 
@@ -228,20 +307,31 @@ export default function CreateAccount() {
             autocapitalize='none'
             spellcheck={false}
             disabled={pending()}
-            aria-invalid={!!usernameError()}
-            aria-describedby={usernameError() ? 'create-account-username-error' : 'create-account-username-handle'}
+            aria-invalid={!!usernameMessage()}
+            aria-describedby={usernameMessage() ? 'create-account-username-error' : 'create-account-username-handle'}
             value={username()}
             oninput={(event) => editUsername(event.currentTarget.value)} />
 
-        {/* the preview and the message share this slot rather than stacking:
-            they answer the same question -- what your handle will be, or why it
-            can't be -- and the message is strictly the more urgent of the two.
-            one slot also means the card doesn't jump as errors come and go. */}
-        <Show
-            when={usernameError()}
-            fallback={<div id='create-account-username-handle' classList={{[shared.truncate]: true, [style['handle-preview']]: true}}>{handle()}</div>}>
-          <div id='create-account-username-error' class={bs['field-message']}>{messageText(usernameError())}</div>
-        </Show>
+        {/* the live availability line and the error message share this one slot,
+            and it reserves a line of height even when it's showing neither -- so
+            the card doesn't jump the first time an answer appears under a field
+            that started out saying nothing. priority order: a message (submit
+            verdict, or a live invalid/taken) wins, then the in-flight and free
+            states. nothing is drawn while the field is empty or too short to ask
+            about, and the slot just holds its space. */}
+        <div class={style['username-slot']}>
+          <Switch>
+            <Match when={usernameMessage()}>
+              {(message) => <div id='create-account-username-error' class={bs['field-message']}>{messageText(message())}</div>}
+            </Match>
+            <Match when={availability.state().status === 'checking'}>
+              <div id='create-account-username-handle' class={style.checking} aria-live='polite'>{t('create-account-page.username.checking')}</div>
+            </Match>
+            <Match when={availability.state().status === 'available'}>
+              <div id='create-account-username-handle' classList={{[shared.truncate]: true, [style.available]: true}} aria-live='polite'>{availableText()}</div>
+            </Match>
+          </Switch>
+        </div>
       </div>
 
       <div class={bs['form-actions']}>
@@ -297,7 +387,10 @@ export default function CreateAccount() {
         the same email as forgot-password's, and both flows end on
         /update-password. dev only, and absent from a production build rather
         than merely hidden in one; see DevResetLink. */}
+
+      {/*
     <DevResetLink email={address()} />
+        */}
 
   </div>;
 

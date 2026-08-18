@@ -5,14 +5,8 @@
  * two halves of one flow: forgot-password asks for a link, update-password
  * spends the token that link carried. neither touches ~/lib/auth yet. the real
  * calls exist -- RecoverAccount({email}) posts to /api/recover-account and
- * ResetPassword({username, password, token}) posts to /api/recover -- so
- * swapping these out means replacing two function bodies.
- *
- * note the mismatch between them, which is why update-password's first field
- * accepts a username *or* an email: the request is keyed by email, because
- * that's the only thing you can mail to, but the reset is keyed by username. a
- * single link has to satisfy both, so the page sends whichever was typed and
- * lets the server resolve it.
+ * ResetPassword({password, token}) posts to /api/recover -- so swapping these
+ * out means replacing two function bodies.
  *
  * the rules the pages check first are in account-validation.ts.
  */
@@ -84,7 +78,6 @@ const WEAK_PASSWORDS = new Set(['password', 'password1', '12345678', 'letmein1',
 export interface UpdatePasswordResult {
   ok: boolean;
   token?: Message;
-  identifier?: Message;
   password?: Message;
 }
 
@@ -97,24 +90,14 @@ export interface UpdatePasswordResult {
  * which is a worse page.
  */
 export async function updatePasswordMock(
-    { identifier, token, password }:
-    { identifier: string, token: string, password: string }): Promise<UpdatePasswordResult> {
+    { token, password }:
+    { token: string, password: string }): Promise<UpdatePasswordResult> {
 
   await new Promise(resolve => setTimeout(resolve, LATENCY));
 
-  const id = identifier.trim().toLowerCase();
   const supplied = token.trim();
 
   const result: UpdatePasswordResult = { ok: false };
-
-  /* the identifier is checked first: a token is only ever valid *for* an
-     account, so a missing identifier makes the token unanswerable rather than
-     wrong -- and reporting the token as invalid there would send you off to
-     re-read a link that was fine. */
-  if (!id) {
-    result.identifier = { key: 'update-password-page.identifier.required' };
-    return result;
-  }
 
   if (!supplied) {
     result.token = { key: 'update-password-page.token.required' };
@@ -132,10 +115,10 @@ export async function updatePasswordMock(
   }
 
   /* anything that isn't the demo token is rejected as invalid. a real service
-     would be checking a signature and an expiry against this identifier, which
-     is also where a token issued for someone else would be caught -- it reads
-     as invalid, deliberately, since "that token belongs to another account"
-     tells an attacker their guess was otherwise well-formed. */
+     would be checking a signature and an expiry carried by the token itself,
+     which is also where a token issued for someone else would be caught -- it
+     reads as invalid, deliberately, since "that token belongs to another
+     account" tells an attacker their guess was otherwise well-formed. */
   if (supplied !== DEMO_TOKEN) {
     result.token = { key: 'update-password-page.token.invalid' };
     return result;

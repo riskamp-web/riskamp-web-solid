@@ -39,6 +39,8 @@ const AUTH_KEY = 'auth';
 // export const BACKEND = 'http://localhost:8787'; 
 export const BACKEND = 'https://auth.riskamp.com';
 
+// console.info("USING BACKEND", BACKEND);
+
 export interface Claims {
   username: string;
   email: string;
@@ -418,7 +420,16 @@ export const Contact = async(message: string) => {
 
 };
 
-export const CheckAvailability = async ({ email, username }: { email?: string, username?: string }) => {
+export const CheckAvailability = async ({ email, username }: { email?: string, username?: string }): Promise<{
+  username?: {
+    value: string;
+    exists?: boolean;
+  },
+  email?: {
+    value: string;
+    exists?: boolean;
+  },
+}|false> => {
 
   if (username && username.length < 5) {
     return false;    
@@ -469,14 +480,13 @@ export const CreateAccount = async ({username, email}: { username: string, email
 
 };
 
-export const ResetPassword = async ({username, password, token}: {username: string, password: string, token: string}) => {
+export const ResetPassword = async ({password, token}: {password: string, token: string}) => {
 
-  if (username && password && token) {
+  if (password && token) {
 
     const delay = 1.7 + Math.random() * 2;
 
     const result = await AccessResource('/api/recover', {
-      username,
       password,
       token,
     }, delay);

@@ -103,3 +103,64 @@ export async function createAccountMock(
   return result;
 
 }
+
+/* ------------------------------------------------------------------ */
+/* live username availability                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * what a live availability check comes back with.
+ *
+ * a single verdict, not the two-field shape createAccountMock returns: the live
+ * check only ever asks about the username, and only once the client has already
+ * ruled the format acceptable -- so the answer is just "is this name free, and
+ * if not, why". `message` reuses the very keys createAccountMock returns for the
+ * same collisions, because a name the live check calls taken has to read
+ * identically when submit rejects it.
+ */
+export interface UsernameAvailability {
+  available: boolean;
+  message?: Message;
+}
+
+/**
+ * shorter than createAccountMock's 700ms: this fires while you type, so it has
+ * to feel like a network check without feeling like a stall. auth.CheckAvailability
+ * uses a 0-500ms jitter for the same reason; a fixed value keeps the mock's
+ * timing legible.
+ */
+const CHECK_LATENCY = 400;
+
+/**
+ * stands in for POST /api/username-exists (auth.CheckAvailability).
+ *
+ * the authority on the one thing the client can't know -- whether a well-formed
+ * name is already spoken for, or reserved. it does *not* re-check the format:
+ * the caller runs validateUsername first and only asks about names that passed,
+ * exactly the arrangement account-validation.ts describes (the client rules out
+ * what it can, the server rules on what it can't). sharing RESERVED and
+ * TAKEN_USERNAMES with createAccountMock above is the point -- a name this call
+ * says is free must not then collide on submit.
+ *
+ * the real CheckAvailability answers with a bare boolean, so the message below
+ * is a shape the backend has to be asked for. until it is, a wired page would
+ * know a name was taken but not whether it was taken or reserved -- the same gap
+ * createAccountMock's header notes.
+ */
+export async function checkUsernameMock(username: string): Promise<UsernameAvailability> {
+
+  await new Promise(resolve => setTimeout(resolve, CHECK_LATENCY));
+
+  const name = username.trim().toLowerCase();
+
+  if (RESERVED.has(name)) {
+    return { available: false, message: { key: 'create-account-page.username.reserved', values: { username: name } } };
+  }
+
+  if (TAKEN_USERNAMES.has(name)) {
+    return { available: false, message: { key: 'create-account-page.username.taken', values: { username: name } } };
+  }
+
+  return { available: true };
+
+}

@@ -11,19 +11,30 @@
  * read from the wrong one resolves to undefined and renders nothing, silently.
  */
 
-/* the live @handle preview under the username field.
+/* the slot under the username field: the live availability line, or the field's
+ * error message, or nothing while the field is empty or too short to ask about.
  *
- * monospace because the documents page already uses it to mark "this is an
- * address, not a name", which is exactly what this is -- an existing convention
- * rather than a new one. 13px, not the 12px documents uses for its unnamed
- * slugs: that's an undocumented exception to the 13px floor and a second one
- * would be worse than obeying the rule.
+ * it reserves one line of height even when empty, so the card doesn't jump the
+ * first time an answer appears under a field that started out silent. a message
+ * that wraps to two lines still grows the slot -- the reserve only buys the
+ * first line, which is all the single-line checking/available/taken answers
+ * need. */
+.username-slot {
+  min-height: 1.4em;
+  line-height: 1.4;
+}
+
+/* the live availability line inside that slot.
  *
- * it shares its slot with the field's error message rather than sitting beside
- * it -- see the <Show> in the page. */
-.handle-preview {
+ * 'checking' is muted -- it's a placeholder for an answer, not the answer -- and
+ * 'available' is the one positive verdict the field has, so it carries the
+ * success colour the way an error carries --danger. */
+.checking {
   color: var(--text-muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.available {
+  color: var(--success);
 }
 
 /* what happens next, and the terms line. under the button, because "and then

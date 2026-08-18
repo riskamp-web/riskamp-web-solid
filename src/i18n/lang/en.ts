@@ -1637,7 +1637,7 @@ export default {
       required: 'Choose a username.',
       'too-short': 'Usernames are at least {min} characters.',
       'too-long': 'Usernames are at most {max} characters.',
-      invalid: 'Use lowercase letters, numbers, hyphens and underscores, starting with a letter.',
+      invalid: 'Use letters, numbers, hyphens and underscores, starting with a letter.',
     },
 
     password: {
@@ -1662,7 +1662,7 @@ export default {
     // about this page, and the reason is that the username isn't only a login --
     // it's the first segment of every document address the account owns. the
     // shape that describes is drawn live under the username field.
-    subtitle: 'We ask for both because your documents are stored under your username, which makes it part of every document’s address.',
+    subtitle: 'We ask for an email address and a username because documents are stored under your username.',
 
     // {link} is the terms of service link, spliced in so a translation can put it
     // where its own grammar needs it
@@ -1680,6 +1680,12 @@ export default {
       label: 'Username',
       taken: '@{username} is already taken.',
       reserved: '@{username} isn’t available.',
+      // the live check under the field: while a well-formed name is being looked
+      // up, and when it comes back free. the taken/reserved verdicts above are
+      // reused for the unavailable answers, so the live check and submit read the
+      // same. 'checking' takes no name -- the field already shows what you typed.
+      checking: 'Checking availability…',
+      available: '@{username} is available.',
     },
 
     // the live preview under the username field -- an address, drawn in
@@ -1689,7 +1695,7 @@ export default {
       placeholder: 'username',
     },
 
-    after: 'We’ll email you a link to confirm your address. Follow it to choose a password and finish setting up your account.',
+    after: 'We’ll email you a link to confirm your address and create a password.',
 
     submit: {
       label: 'Create account',
@@ -1764,7 +1770,7 @@ export default {
   //
   'update-password-page': {
     heading: 'Choose a new password',
-    subtitle: 'Your email address and token come from the link we sent you.',
+    subtitle: 'Enter the token from the link we sent you.',
 
     identifier: {
       label: 'Username or email',
@@ -1820,8 +1826,8 @@ export default {
 
     done: {
       heading: 'Password updated',
-      body: 'You can now sign in with your new password.',
-      'sign-in': 'Sign in',
+      body: 'Your new password has been saved.',
+      'continue': 'Continue to app',
     },
 
     link: {

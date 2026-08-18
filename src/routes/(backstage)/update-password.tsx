@@ -11,11 +11,6 @@
  * uniquely among the card pages, this one declares no auth requirement at all.
  * see the note by the setRequires that isn't there.
  *
- * the first field takes a username *or* an email, as the v1 page did. that isn't
- * indecision: RecoverAccount is keyed by email, because an address is the only
- * thing you can mail to, while ResetPassword is keyed by username -- so a single
- * link has to satisfy both, and the page sends whichever was typed.
- *
  * i18n: extracted, 'update-password-page.*'. error state holds Messages -- a key
  * plus its values -- not text. ('update-password.page.title' is the toolbar
  * title, matching how every other page here is named.)
@@ -29,7 +24,9 @@ import { t } from '~/i18n/i18n';
 import {
   messageText, scorePassword, strengthKey, validatePassword, type Message,
 } from '~/backstage/account-validation';
-import { updatePasswordMock, type UpdatePasswordResult } from '~/backstage/password-reset-mock';
+// import { updatePasswordMock, type UpdatePasswordResult } from '~/backstage/password-reset-mock';
+
+import * as auth from '~/lib/auth';
 
 import bs from './backstage.module.css';
 import { Icon } from './backstage-parts';
@@ -48,11 +45,11 @@ export default function UpdatePassword() {
      nothing is already how the guard says "renders either way" (sign-out.tsx
      does the same), so this needs no cooperation from (backstage).tsx. */
 
-  const [params] = useSearchParams<{ email?: string, token?: string }>();
+  const [params] = useSearchParams<{ token?: string }>();
 
-  /* the parameters *seed* the fields, they don't drive them.
+  /* the token *seeds* the field, it doesn't drive it.
    *
-   * reading them reactively would fight typing, and both fields have to stay
+   * reading it reactively would fight typing, and the field has to stay
    * editable: a link truncated by an email client is exactly the failure someone
    * needs to be able to repair by hand, and hiding a token you can't verify
    * removes the only way to correct it. so this is read once, at construction.
@@ -62,7 +59,6 @@ export default function UpdatePassword() {
   const seed = (value?: string | string[]) =>
     (Array.isArray(value) ? value[0] : value) ?? '';
 
-  const [identifier, setIdentifier] = createSignal(seed(params.email));
   const [password, setPassword] = createSignal('');
   const [token, setToken] = createSignal(seed(params.token));
 
@@ -73,11 +69,9 @@ export default function UpdatePassword() {
   const [done, setDone] = createSignal(false);
 
   const [formError, setFormError] = createSignal<Message | undefined>();
-  const [identifierError, setIdentifierError] = createSignal<Message | undefined>();
   const [tokenError, setTokenError] = createSignal<Message | undefined>();
   const [passwordError, setPasswordError] = createSignal<Message | undefined>();
 
-  let identifier_input: HTMLInputElement | undefined;
   let token_input: HTMLInputElement | undefined;
   let password_input: HTMLInputElement | undefined;
   let done_block: HTMLDivElement | undefined;
@@ -86,10 +80,9 @@ export default function UpdatePassword() {
   onCleanup(() => { live = false; });
 
   /* focus the first thing that still needs filling in: arriving from a link,
-     that's the password, and the two fields above it are already answered */
+     that's the password, and the token above it is already answered */
   onMount(() => queueMicrotask(() => {
-    if (!identifier()) { identifier_input?.focus(); }
-    else if (!token()) { token_input?.focus(); }
+    if (!token()) { token_input?.focus(); }
     else { password_input?.focus(); }
   }));
 
@@ -106,23 +99,11 @@ export default function UpdatePassword() {
      message and the bar comes back. */
   const shown = createMemo(() => passwordError() ? undefined : score());
 
-  /* the identifier and the token clear *each other's* messages, which neither
-     sign-in nor create-account does.
-   *
-     a token verdict is a verdict about the pair -- this token, for this account
-     -- so editing either half invalidates it, and leaving "that token isn't
-     valid" standing under a token you've just re-pointed at a different account
-     is a message about a question nobody asked any more. the password is
-     independent and clears on its own. */
-  const editPair = (setter: (value: string) => void) => (value: string) => {
-    setter(value);
-    setIdentifierError(undefined);
+  const editToken = (value: string) => {
+    setToken(value);
     setTokenError(undefined);
     setFormError(undefined);
   };
-
-  const editIdentifier = editPair(setIdentifier);
-  const editToken = editPair(setToken);
 
   const editPassword = (value: string) => {
     setPassword(value);
@@ -132,36 +113,35 @@ export default function UpdatePassword() {
 
   const submit = async () => {
 
-    const id = identifier().trim();
     const supplied = token().trim();
     const secret = password();
 
     setFormError(undefined);
 
-    /* the identifier and the token are only checked for presence here: whether
-       they're *right* is the server's business, and a client that decided a
-       token looked wrong would reject links it had no way to validate. the
-       password is the one field with a real client-side rule. */
-    const bad_identifier = id ? undefined : { key: 'update-password-page.identifier.required' } as Message;
+    /* the token is only checked for presence here: whether it's *right* is the
+       server's business, and a client that decided a token looked wrong would
+       reject links it had no way to validate. the password is the one field with
+       a real client-side rule. */
     const bad_token = supplied ? undefined : { key: 'update-password-page.token.required' } as Message;
     const bad_password = validatePassword(secret);
 
-    setIdentifierError(bad_identifier);
     setTokenError(bad_token);
     setPasswordError(bad_password);
 
     // first offender in dom order -- the tab order is the reading order
-    if (bad_identifier || bad_token || bad_password) {
-      (bad_identifier ? identifier_input : bad_token ? token_input : password_input)?.focus();
+    if (bad_token || bad_password) {
+      (bad_token ? token_input : password_input)?.focus();
       return;
     }
 
     setPending(true);
 
-    let result: UpdatePasswordResult | undefined;
+    // let result: UpdatePasswordResult | undefined;
+    let result: boolean|undefined;
 
     try {
-      result = await updatePasswordMock({ identifier: id, token: supplied, password: secret });
+      // result = await updatePasswordMock({ token: supplied, password: secret });
+      result = await auth.ResetPassword({ token: supplied, password: secret });
     }
     catch {
       result = undefined;
@@ -171,31 +151,31 @@ export default function UpdatePassword() {
 
     setPending(false);
 
-    if (!result) {
+    if (result === undefined) {
       setFormError({ key: 'update-password-page.error.unreachable' });
       return;
     }
 
-    if (result.ok) {
+    if (result) {
       setDone(true);
       queueMicrotask(() => done_block?.focus());
       return;
     }
 
-    setIdentifierError(result.identifier);
+    /*
     setTokenError(result.token);
     setPasswordError(result.password);
 
-    if (result.identifier) {
-      identifier_input?.focus();
-    }
-    else if (result.token) {
+    if (result.token) {
       token_input?.focus();
     }
     else if (result.password) {
       password_input?.focus();
     }
-    else {
+    else 
+    */
+     
+    {
       setFormError({ key: 'update-password-page.error.rejected' });
     }
 
@@ -226,27 +206,6 @@ export default function UpdatePassword() {
         <div class={bs['form-error']} role='alert'>{messageText(formError())}</div>
       </Show>
 
-      <div class={bs.field}>
-        <label class={bs['field-block-label']} for='update-password-identifier'>{t('update-password-page.identifier.label')}</label>
-        <input
-            ref={identifier_input}
-            id='update-password-identifier'
-            name='username'
-            type='text'
-            class={bs.input}
-            autocomplete='username'
-            autocapitalize='none'
-            spellcheck={false}
-            disabled={pending()}
-            aria-invalid={!!identifierError()}
-            aria-describedby={identifierError() ? 'update-password-identifier-error' : undefined}
-            value={identifier()}
-            oninput={(event) => editIdentifier(event.currentTarget.value)} />
-        <Show when={identifierError()}>
-          <div id='update-password-identifier-error' class={bs['field-message']}>{messageText(identifierError())}</div>
-        </Show>
-      </div>
-
       {/* shown and editable even when the link filled it in: a token truncated
           in transit is otherwise unfixable, and v1 shows it too */}
       <div class={bs.field}>
@@ -257,7 +216,12 @@ export default function UpdatePassword() {
             name='token'
             type='text'
             class={bs.input}
-            autocomplete='off'
+            /* 'one-time-code', not 'off': Chromium ignores autocomplete='off'
+               when saving a password and grabs the nearest text field above the
+               new-password input as the "username" -- which is this token. an
+               OTP field is excluded from that heuristic (and it's what the token
+               genuinely is), so Edge stops filing the token as a username. */
+            autocomplete='one-time-code'
             autocapitalize='none'
             spellcheck={false}
             disabled={pending()}
@@ -364,12 +328,12 @@ export default function UpdatePassword() {
 
     <div class={bs['sent-detail']}>{t('update-password-page.done.body')}</div>
 
-    {/* a link, not an automatic redirect: changing a password doesn't create a
-        session, so signing in is a step you take rather than one that happens */}
+    {/* resetting the password signs you in, so this goes to the app rather than
+        to sign-in: the session already exists and there's nothing to sign into */}
     <A
         class={`${bs.button} ${bs['button-primary']} ${bs['sent-action']}`}
-        href='/sign-in'>
-      {t('update-password-page.done.sign-in')}
+        href='/'>
+      {t('update-password-page.done.continue')}
     </A>
 
   </div>;

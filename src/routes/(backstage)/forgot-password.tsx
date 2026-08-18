@@ -31,10 +31,12 @@ import { A } from '@solidjs/router';
 import { useLayoutContext } from '~/components/layout-context';
 import { t } from '~/i18n/i18n';
 import { messageText, validateEmail, type Message } from '~/backstage/account-validation';
-import { requestResetMock } from '~/backstage/password-reset-mock';
+// import { requestResetMock } from '~/backstage/password-reset-mock';
 
 import bs from './backstage.module.css';
-import { DevResetLink, Icon, splice } from './backstage-parts';
+import { Icon, splice } from './backstage-parts';
+
+import * as auth from '~/lib/auth';
 
 export default function ForgotPassword() {
 
@@ -90,7 +92,8 @@ export default function ForgotPassword() {
     let reached = true;
 
     try {
-      await requestResetMock({ email: address });
+      // await requestResetMock({ email: address });
+      await auth.RecoverAccount({ email: address });
     }
     catch {
       reached = false;
@@ -194,7 +197,10 @@ export default function ForgotPassword() {
     {/* the link the mail would have carried. dev only, and absent from a
         production build rather than merely hidden in one -- see DevResetLink,
         whose shape is what achieves that. */}
+
+    {/*
     <DevResetLink email={address()} />
+      */}
 
   </div>;
 
