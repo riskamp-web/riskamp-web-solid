@@ -12,8 +12,10 @@
  * plural forms follow currentLocale() through intl() in documents-data.ts.
  */
 
-import { For, JSX, Match, ParentProps, Show, Switch, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
-import { A, useNavigate } from '@solidjs/router';
+import { createEffect, onMount, createSignal } from '~/lib/solid-compat';
+import type { JSX } from '@solidjs/web';
+import { For, Match, ParentProps, Show, Switch, createMemo, onCleanup } from 'solid-js';
+import { useNavigate } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
 import { format, t, type StringKey } from '~/i18n/i18n';
@@ -633,7 +635,6 @@ export default function Documents() {
 
   }
 
-
   /* ---- keyboard ---- */
 
   onMount(() => {
@@ -954,13 +955,13 @@ export default function Documents() {
                   </div>
 
                   <div class={`${style.cell} ${style['cell-name']}`} role='cell'>
-                    <A
+                    <a
                         href={documentUrl(doc)}
                         classList={{ [style.unnamed]: isUnnamed(doc) }}
                         title={isUnnamed(doc) ? t('documents-page.row.unnamed.title') : undefined}
                         onclick={(event) => event.stopPropagation()}>
                       {displayName(doc)}
-                    </A>
+                    </a>
                   </div>
 
                   <div class={`${style.cell} ${style['cell-path']}`} role='cell'>
@@ -1041,12 +1042,12 @@ export default function Documents() {
                 {/* the title is the panel's open affordance -- the footer used to
                     carry an Open button, but a linked title is the more obvious one
                     and frees the footer for rename/duplicate/delete */}
-                <A
+                <a
                     href={documentUrl(doc())}
                     title={t('documents-page.panel.open.title')}
                     classList={{ [style['panel-name-link']]: true, [style.unnamed]: isUnnamed(doc()) }}>
                   {displayName(doc())}
-                </A>
+                </a>
               </div>
 
               <div class={style['panel-path']}>
@@ -1178,13 +1179,13 @@ export default function Documents() {
                             version is the row's obvious action, and a link is
                             the thing you can middle-click or copy the address
                             of. the menu keeps its own entry for discoverability */}
-                        <A
+                        <a
                             class={style['version-tag']}
                             href={versionUrl(doc(), version.version)}
                             title={format(t('documents-page.history.open.label'), { version: version.version })}
                             aria-label={format(t('documents-page.history.open.label'), { version: version.version })}>
                           {format(t('documents-page.version.short'), { version: version.version })}
-                        </A>
+                        </a>
                         <span class={style['version-date']}>{formatStamp(version.modified)}</span>
                         <ActionMenu
                             label={format(t('documents-page.history.menu.label'), { version: version.version })}
@@ -1259,7 +1260,6 @@ export default function Documents() {
       document={saveAsDocument}
       allowOverwrite={saveAsState() === 'rename' ? false : undefined}
       onSave={HandleSaveAs} />
-
 
   </div>;
 

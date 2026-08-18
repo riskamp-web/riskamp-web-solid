@@ -24,8 +24,8 @@
  * which isn't the same string as the heading on the page.)
  */
 
-import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
-import { A } from '@solidjs/router';
+import { onMount, createSignal } from '~/lib/solid-compat';
+import { Show, createMemo, onCleanup } from 'solid-js';
 
 import { useLayoutContext } from '~/components/layout-context';
 import { format, t } from '~/i18n/i18n';
@@ -260,7 +260,7 @@ export default function CreateAccount() {
           <div>{t('create-account-page.after')}</div>
           <div>{splice(
             t('create-account-page.terms.text'), 'link',
-            <A class={bs.link} href='/terms-of-service'>{t('create-account-page.terms.link')}</A>)}</div>
+            <a class={bs.link} href='/terms-of-service'>{t('create-account-page.terms.link')}</a>)}</div>
         </div>
       </div>
 
@@ -314,10 +314,10 @@ export default function CreateAccount() {
             moves once the mail has been sent, and keeping them rendered means
             the card doesn't lose its footing when it changes */}
         <div class={bs.links}>
-          <A class={bs.link} href='/forgot-password'>{t('create-account-page.link.forgot-password')}</A>
+          <a class={bs.link} href='/forgot-password'>{t('create-account-page.link.forgot-password')}</a>
           {/* the dot is a separator, not a word -- it stays out of the strings */}
           <span class={bs['links-separator']}>·</span>
-          <A class={bs.link} href='/sign-in'>{t('create-account-page.link.sign-in')}</A>
+          <a class={bs.link} href='/sign-in'>{t('create-account-page.link.sign-in')}</a>
         </div>
 
       </div>

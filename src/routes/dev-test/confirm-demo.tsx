@@ -1,4 +1,5 @@
-import { createSignal } from 'solid-js';
+
+import { createSignal } from '~/lib/solid-compat';
 import { confirmDialog } from '~/components/dialogs/confirm-dialog/confirm-control';
 import { formatJSX, t } from '~/i18n/i18n';
 

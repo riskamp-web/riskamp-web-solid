@@ -1,7 +1,9 @@
-import { MetaProvider, Title } from "@solidjs/meta";
-import { Router, RouteSectionProps } from "@solidjs/router";
-import { FileRoutes } from "@solidjs/start/router";
-import { onMount, Suspense } from "solid-js";
+import { onMount } from '~/lib/solid-compat';
+import { Title } from "@solidjs/meta";
+import { useNavigate } from "@solidjs/router";
+import { Loading, type ParentProps } from 'solid-js';
+
+import { Router } from "./router";
 
 import "./reset.css";
 import "./app.css";
@@ -13,7 +15,6 @@ import '~/style/grid-table.css';
 import { Spinner } from '~/components/spinner/spinner';
 import { Toaster } from '~/components/toast/toast';
 import { ConfirmDialog } from '~/components/dialogs/confirm-dialog/confirm-dialog';
-import { useNavigate } from '@solidjs/router';
 import { setNavigator } from '~/lib/navigate';
 import { InitAppData } from './lib/app-data';
 import { HistoryProvider } from './components/history-context';
@@ -25,10 +26,10 @@ import { formatConfig } from '~/lib/raw-llm-support';
 // out of it. see treb-llm-support/src/md.ts (formatConfig).
 formatConfig.collapsibleCodeBlocks = false;
 
+// The site-wide layout — rendered as the router root. Runs inside router
+// context so it can wire the navigate bridge and boot the app data once.
+function Layout(props: ParentProps) {
 
-
-function Root(props: RouteSectionProps) {
-  
   setNavigator(useNavigate());
 
   onMount(() => {
@@ -37,21 +38,15 @@ function Root(props: RouteSectionProps) {
 
   return (
     <HistoryProvider>
-      <MetaProvider>
-        <Title>RiskAMP Web</Title>
-        <Suspense>{props.children}</Suspense>
-        <Spinner />
-        <Toaster />
-        <ConfirmDialog />
-      </MetaProvider>
+      <Title>RiskAMP Web</Title>
+      <Loading>{props.children}</Loading>
+      <Spinner />
+      <Toaster />
+      <ConfirmDialog />
     </HistoryProvider>
   );
 }
 
 export default function App() {
-  return (
-    <Router root={Root}>
-      <FileRoutes />
-    </Router>
-  );
+  return <Router>{(props) => <Layout>{props.children}</Layout>}</Router>;
 }

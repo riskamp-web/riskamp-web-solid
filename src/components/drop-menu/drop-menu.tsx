@@ -3,7 +3,8 @@
  * to the bottom left of the button. The button has a caret on the right.
  */
 
-import { ParentProps, JSX, Switch, Match } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { ParentProps, Switch, Match } from 'solid-js';
 import { icons } from '~/components/icon-sets';
 import style from './drop-menu.module.css';
 import shared from '../../style/shared.module.css';

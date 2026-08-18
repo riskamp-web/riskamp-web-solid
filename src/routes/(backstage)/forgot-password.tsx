@@ -25,8 +25,8 @@
  * ('forgot-password.page.title' is a separate existing key: the toolbar title.)
  */
 
-import { Show, createSignal, onCleanup, onMount } from 'solid-js';
-import { A } from '@solidjs/router';
+import { onMount, createSignal } from '~/lib/solid-compat';
+import { Show, onCleanup } from 'solid-js';
 
 import { useLayoutContext } from '~/components/layout-context';
 import { t } from '~/i18n/i18n';
@@ -208,10 +208,10 @@ export default function ForgotPassword() {
         </Show>
 
         <div class={bs.links}>
-          <A class={bs.link} href='/sign-in'>{t('forgot-password-page.link.sign-in')}</A>
+          <a class={bs.link} href='/sign-in'>{t('forgot-password-page.link.sign-in')}</a>
           {/* the dot is a separator, not a word -- it stays out of the strings */}
           <span class={bs['links-separator']}>·</span>
-          <A class={bs.link} href='/create-account'>{t('forgot-password-page.link.create-account')}</A>
+          <a class={bs.link} href='/create-account'>{t('forgot-password-page.link.create-account')}</a>
         </div>
 
       </div>

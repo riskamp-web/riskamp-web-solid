@@ -1,10 +1,10 @@
 
-import { Accessor, createSignal, onCleanup, onMount } from 'solid-js';
+import { onMount, createSignal } from '~/lib/solid-compat';
+import { Accessor, onCleanup } from 'solid-js';
 import { CommandPalette } from '~/components/command-palette/command-palette';
 import { Dialog, type Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { UA } from '~/lib/UA';
-
 
 interface Props extends Omit<DialogProps<boolean>, 'open'|'setOpen'> {
   sheet: Accessor<SpreadsheetType|undefined>;

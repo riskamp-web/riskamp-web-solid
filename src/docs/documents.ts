@@ -1,5 +1,6 @@
 
-import { createSignal } from 'solid-js';
+
+import { createSignal } from '~/lib/solid-compat';
 import * as auth from '~/lib/auth';
 
 export interface DocumentsRow {
@@ -77,5 +78,4 @@ export async function ListDocuments(session_first = true) {
   }
   return false;
 };
-
 

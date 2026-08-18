@@ -1,6 +1,7 @@
 
-import { createSignal } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
+import { createStore, createSignal } from '~/lib/solid-compat';
+
+import { reconcile } from 'solid-js';
 
 /** matches HistoryEntry in ~/docs/SVELTE-documents, which is what the service returns */
 export interface DocumentVersion {

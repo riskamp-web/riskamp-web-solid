@@ -1,5 +1,4 @@
 import { For } from 'solid-js';
-import { A } from '@solidjs/router';
 
 // Index for the dev-only test pages. Add a page under src/routes/dev-test/ and
 // give it a line here so it stays discoverable. The dev-test.tsx layout gates
@@ -23,7 +22,7 @@ export default function DevTestIndex() {
       <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .75rem; max-width: 40rem;">
         <For each={PAGES}>{page =>
           <li>
-            <A href={page.href} style="font-size: 1.05rem; font-weight: 600;">{page.title}</A>
+            <a href={page.href} style="font-size: 1.05rem; font-weight: 600;">{page.title}</a>
             <div style="color: #555; margin-top: .15rem;">{page.blurb}</div>
           </li>
         }</For>

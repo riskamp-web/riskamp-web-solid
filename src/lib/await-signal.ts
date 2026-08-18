@@ -1,5 +1,6 @@
 
-import { createRoot, createEffect } from 'solid-js';
+import { createEffect } from '~/lib/solid-compat';
+import { createRoot } from 'solid-js';
 
 /**
  * returns a promise that resolves when the signal is true, or matches a condition. 

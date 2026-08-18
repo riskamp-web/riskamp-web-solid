@@ -1,5 +1,6 @@
 
-import { onMount, Setter } from "solid-js";
+import { onMount } from '~/lib/solid-compat';
+import { Setter } from 'solid-js';
 import { type EmbeddedSpreadsheet, type MCEmbeddedSpreadsheetOptions, RiskAMPWeb } from 'riskamp-web';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 import { ApplyThemeColors } from '../toolbar/theme-selector';

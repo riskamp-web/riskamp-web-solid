@@ -5,7 +5,8 @@
  * page groups, or we could split into focused contexts.
  */
 
-import { Accessor, createContext, createSignal, ParentProps, Setter, useContext } from "solid-js";
+import { createSignal } from '~/lib/solid-compat';
+import { Accessor, createContext, ParentProps, Setter, useContext } from 'solid-js';
 import { useLocation } from "@solidjs/router";
 import { StringKey } from '~/i18n/i18n';
 
@@ -72,9 +73,9 @@ export function LayoutProvider(props: ParentProps) {
   };
 
   return (
-    <LayoutContext.Provider value={{ title, setTitle, requirement, setRequires, userPanel, setUserPanel }}>
+    <LayoutContext value={{ title, setTitle, requirement, setRequires, userPanel, setUserPanel }}>
       {props.children}
-    </LayoutContext.Provider>
+    </LayoutContext>
   );
 
 }

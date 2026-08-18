@@ -1,5 +1,6 @@
 
-import { createEffect } from 'solid-js';
+
+import { createEffect } from '~/lib/solid-compat';
 import { spinner } from './spinner-control';
 
 import styles from "./spinner.module.css";

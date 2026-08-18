@@ -1,8 +1,11 @@
 
-import { createMutable, createStore } from 'solid-js/store';
+import { createStore, createEffect, createSignal } from '~/lib/solid-compat';
+import { createMutable } from '~/lib/solid-compat';
+import { on } from '~/lib/solid-compat';
+
 import { spinner } from '~/components/spinner/spinner-control';
 import { persistentData, sessionData } from '~/lib/app-data';
-import { createEffect, createSignal, on } from 'solid-js';
+
 import { GenericToolCall, IndexedToolResult, type TypedChatMessages } from 'treb-llm-support';
 
 import { tools as TREB_tools, raw_tools, Models, Stream, /* ReplayStream, */ Format, /* ExecuteToolCall , type ExternalUI */ RAWExecuteToolCall, 
@@ -75,7 +78,7 @@ export function InitMessages(sheet_instance?: SpreadsheetType) {
 
   if (!docs_search_worker) {
     docs_search_worker = new Worker(
-      new URL('~/lib/docs-search-worker.ts', import.meta.url), 
+      new URL('../../../lib/docs-search-worker.ts', import.meta.url),
       { type: 'module' }
     );
   }
@@ -90,7 +93,6 @@ export function InitMessages(sheet_instance?: SpreadsheetType) {
       // ...
     };
   }
-
 
 }
 
@@ -204,7 +206,6 @@ async function ProcessToolCalls(tool_calls: GenericToolCall[], partial?: boolean
 
 };
 
-
 async function StreamChatMessages() {
 
   if (messages.messages.length) {
@@ -244,7 +245,6 @@ async function StreamChatMessages() {
   }
   
 }
-
 
 export async function SendMessage(text: string) {
 
@@ -295,6 +295,4 @@ export async function SendMessage(text: string) {
   */
 
 }
-
-
 

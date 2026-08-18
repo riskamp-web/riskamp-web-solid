@@ -1,5 +1,6 @@
 
-import { Accessor, createEffect, createMemo, createSignal, Match, on, onCleanup, onMount, Show, Switch } from 'solid-js';
+import { Accessor, createMemo, Match, onCleanup, Show, Switch } from 'solid-js';
+import { on, createEffect, onMount, createSignal } from '~/lib/solid-compat';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import style from './command-palette.module.css';
 import { currentLocale, t } from '~/i18n/i18n';
@@ -10,7 +11,6 @@ import type { Context, HandleCommandType, Parameter } from './support-functions'
 import { IsHTMLColor, IsThemeColor } from '@trebco/treb/treb-base-types';
 
 import { ListControl, type ListRef } from './list-control';
-
 
 /** one entry from a parameter's choice list -- derived so it can't drift from it. */
 type Choice = NonNullable<Parameter['choices']>[number];

@@ -1,6 +1,7 @@
 
-import { createSignal, type JSX } from 'solid-js';
-import { createStore } from 'solid-js/store';
+import type { JSX } from '@solidjs/web';
+import { createStore, createSignal } from '~/lib/solid-compat';
+
 import en from '~/i18n/lang/en';
 
 export type I18N = typeof en;

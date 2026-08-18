@@ -1,4 +1,5 @@
-import { createSignal, For } from 'solid-js';
+import { createSignal } from '~/lib/solid-compat';
+import { For } from 'solid-js';
 import { SaveAsDialog, type SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
 import type { BackstageDocument } from '~/backstage/documents-store';
 import { ACCESS_PRIVATE } from '~/backstage/documents-data';

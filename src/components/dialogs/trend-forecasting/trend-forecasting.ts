@@ -1,8 +1,9 @@
-import { createSignal } from 'solid-js';
+import { createStore, createSignal } from '~/lib/solid-compat';
+
 import { TrendForecastingDialog } from './trend-forecasting-dialog';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { AwaitSignal } from '~/lib/await-signal';
-import { createStore } from 'solid-js/store';
+
 import { CreateForecastSheet, FindForecastData, ForecastData } from './forecast';
 
 const [open, setOpen] = createSignal(false);

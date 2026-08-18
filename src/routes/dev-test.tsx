@@ -1,6 +1,6 @@
 
+import { Navigate } from '../components/navigate';
 import { ParentProps, Show } from 'solid-js';
-import { Navigate } from '@solidjs/router';
 
 /*
  * layout for the dev-test routes.

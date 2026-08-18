@@ -1,9 +1,10 @@
 
+import { produce } from '~/lib/solid-compat';
 import { Accessor, createMemo } from 'solid-js';
 import style from './toolbar.module.css';
 import { persistentData, setPersistentData } from '~/lib/app-data';
 import { icons } from '~/components/icon-sets';
-import { produce } from 'solid-js/store';
+
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { StringKey, t } from '~/i18n/i18n';
 

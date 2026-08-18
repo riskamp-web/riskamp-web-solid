@@ -50,7 +50,7 @@ export function MenuButton(props: ParentProps<Props>) {
     `left: anchor(--${container_id} left);`,
   ].join(' ');
 
-  return <Context.Provider value={{ 
+  return <Context value={{ 
           popover_id, 
           container_id, 
           inline_style, 
@@ -61,7 +61,7 @@ export function MenuButton(props: ParentProps<Props>) {
       <div class={style.container} 
           id={container_id} 
           style={`anchor-name: --${container_id}`}>{props.children}</div>
-    </Context.Provider> ;
+    </Context> ;
 
 }
 

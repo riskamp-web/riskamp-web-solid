@@ -1,13 +1,15 @@
 
+import { produce, createEffect, createSignal } from '~/lib/solid-compat';
 import { Dialog, type Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { Accessor, createEffect, createSignal, on } from 'solid-js';
+import { Accessor } from 'solid-js';
+import { on } from '~/lib/solid-compat';
 import { t } from '~/i18n/i18n';
 import style from './run-simulation-dialog.module.css';
 import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { persistentData, setPersistentData } from '~/lib/app-data';
-import { produce } from 'solid-js/store';
+
 import { ICellAddress } from '@trebco/treb';
 import { IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 

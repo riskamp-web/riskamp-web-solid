@@ -1,6 +1,8 @@
 
-import { type Accessor, createEffect, createSignal, createUniqueId, For, on, Show } from 'solid-js';
-import { createStore } from 'solid-js/store';
+import { createStore, createEffect, createSignal } from '~/lib/solid-compat';
+import { type Accessor, createUniqueId, For, Show } from 'solid-js';
+import { on } from '~/lib/solid-compat';
+
 import { Dialog, type Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
 import { icons } from '~/components/icon-sets';
 import { formatJSX, t, type StringKey } from '~/i18n/i18n';

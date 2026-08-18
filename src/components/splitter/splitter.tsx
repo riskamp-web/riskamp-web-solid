@@ -1,5 +1,6 @@
 
-import { Accessor, Component, createSignal, mergeProps, onMount, ParentProps, Setter, Signal } from 'solid-js'
+import { mergeProps, onMount, createSignal } from '~/lib/solid-compat';
+import { Accessor, Component, ParentProps, Setter, Signal } from 'solid-js';
 
 // import using css modules, will scope
 import style from "./splitter.module.css";

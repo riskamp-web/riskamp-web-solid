@@ -1,5 +1,6 @@
-import { createStore } from 'solid-js/store';
-import { createEffect } from 'solid-js';
+
+import { createStore, createEffect } from '~/lib/solid-compat';
+
 import { type Model } from 'treb-llm-support';
 import type { DocumentsRow } from '~/docs/documents';
 import type { DocumentScope, SortDirection, SortKey } from '~/backstage/documents-data';
@@ -178,6 +179,5 @@ export function InitAppData() {
     // console.info("set theme:", theme);
     document.documentElement.setAttribute('data-theme', theme);
   });
-
 
 }

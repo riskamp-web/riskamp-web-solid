@@ -12,7 +12,9 @@
  *   await confirmDialog.alert({ message });
  */
 
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal } from '~/lib/solid-compat';
+import type { JSX } from '@solidjs/web';
+
 import type { StringKey } from '~/i18n/i18n';
 
 export interface ConfirmOptions {

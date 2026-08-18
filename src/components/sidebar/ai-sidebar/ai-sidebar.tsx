@@ -1,5 +1,6 @@
 
 
+import { produce, createEffect, onMount, createSignal } from '~/lib/solid-compat';
 import { Register } from '../registry';
 import { t } from '~/i18n/i18n';
 
@@ -7,8 +8,9 @@ import '~/components/tabs.css';
 import style from './ai-sidebar.module.css';
 import { Splitter } from '../../splitter/splitter';
 import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
-import { createEffect, createSignal, For, on, onMount, Show } from 'solid-js';
-import { produce } from 'solid-js/store';
+import { For, Show } from 'solid-js';
+import { on } from '~/lib/solid-compat';
+
 import { Models, provider_list, TypedChatMessages } from '~/lib/raw-llm-support';
 import { messages, SendMessage } from './util';
 import { ChatMessages } from './chat-messages';
@@ -145,7 +147,6 @@ export function Sidebar(props: SidebarProps) {
         </div>
       </div>
 
-
       <div classList={{
         "tab-pane": true,
         [style['tab-pane']]: true,
@@ -205,5 +206,4 @@ export function Sidebar(props: SidebarProps) {
 }
 
 Register('ai', Sidebar);
-
 

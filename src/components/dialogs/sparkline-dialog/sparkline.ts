@@ -1,6 +1,6 @@
 
-import { createSignal } from 'solid-js';
-import { createStore } from 'solid-js/store';
+import { createStore, createSignal } from '~/lib/solid-compat';
+
 import { SparklineData, type SparklineDialog } from '~/components/dialogs/sparkline-dialog/sparkline-dialog';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { Heuristics } from '@trebco/treb/treb-data-model';

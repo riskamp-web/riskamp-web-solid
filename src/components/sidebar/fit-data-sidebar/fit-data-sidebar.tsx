@@ -1,9 +1,11 @@
 
+import { createMutable, createEffect, onMount, createSignal } from '~/lib/solid-compat';
+import { on } from '~/lib/solid-compat';
 import style from '../sidebar.module.css';
 import { Register } from '../registry';
 import { t } from '~/i18n/i18n';
-import { createMutable } from 'solid-js/store';
-import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, ParentProps, Show, Switch } from 'solid-js';
+
+import { createMemo, For, Match, onCleanup, ParentProps, Show, Switch } from 'solid-js';
 
 import FindWorker from './find-worker?worker';
 import { type SidebarProps } from '../sidebar-main';
@@ -91,7 +93,6 @@ export function Sidebar(props: SidebarProps) {
     }
   }));
 
-
   function KeyDown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       event.stopPropagation();
@@ -174,7 +175,6 @@ export function Sidebar(props: SidebarProps) {
 
     const sample = results();
 
-
     if (sample) {
 
     // console.info("R", result);
@@ -225,7 +225,6 @@ export function Sidebar(props: SidebarProps) {
           data_min = -3.5 * sample.parameters.stdev + sample.parameters.mean;
           data_max =  3.5 * sample.parameters.stdev + sample.parameters.mean;
 
-
         }
 
         break;
@@ -256,7 +255,6 @@ export function Sidebar(props: SidebarProps) {
   return { sample_path, data_points };
 
 });
-
 
   /*
   const samplePath = createMemo(() => {
@@ -478,7 +476,6 @@ export function Sidebar(props: SidebarProps) {
       </CopyHeader>
       <input type="text" class="input" disabled value={spreadsheetFunction()} />
     </div>
-
 
     <div class="section flex-column">
       <CopyHeader data={FormatCopyData(errorTable())}>

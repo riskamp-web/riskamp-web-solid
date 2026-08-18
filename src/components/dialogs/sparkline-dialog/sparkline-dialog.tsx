@@ -6,9 +6,10 @@ import { CreateParameters, InteractiveDialog,
          type Props as InteractiveDialogProps } from '~/components/dialogs/interactive-dialog/interactive-dialog';
 import style from './sparkline-dialog.module.css';
 import { t } from '~/i18n/i18n';
-import { createEffect, createSignal, on } from 'solid-js';
+
+import { on, createEffect, createSignal } from '~/lib/solid-compat';
 // import { bootstrap_icons } from 's5-icon-lib';
-import { SetStoreFunction } from 'solid-js/store';
+import { SetStoreFunction } from 'solid-js';
 import { IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 
@@ -80,7 +81,6 @@ export function SparklineDialog(props: InteractiveDialogProps & SparklineProps) 
     props.setResult?.(result);
     props.setOpen(false);
   }
-
 
   return <>
     <InteractiveDialog {...props}>

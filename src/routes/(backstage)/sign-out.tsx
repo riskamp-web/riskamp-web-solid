@@ -1,6 +1,7 @@
 
+import { onMount } from '~/lib/solid-compat';
 import { useNavigate } from "@solidjs/router";
-import { onMount } from "solid-js";
+
 import { flushDocuments } from '~/backstage/documents-store';
 import * as auth from "~/lib/auth";
 

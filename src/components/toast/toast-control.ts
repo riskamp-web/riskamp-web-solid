@@ -12,7 +12,8 @@
  * the store carries no i18n keys.
  */
 
-import { createStore, produce } from "solid-js/store";
+import { createStore } from '~/lib/solid-compat';
+import { produce } from '~/lib/solid-compat';
 
 export type ToastVariant = 'error' | 'success';
 

@@ -1,11 +1,12 @@
 
+import { createMutable, createEffect, onMount, createSignal } from '~/lib/solid-compat';
 import { t } from '~/i18n/i18n';
 import { CreateParameters, InteractiveDialog, Parameter, type ParameterType, type Props as DialogProps, InteractiveDialogRef } from '../interactive-dialog/interactive-dialog';
-import { Accessor, createEffect, createSignal, For, Match, on, onMount, Setter, Show, Switch } from 'solid-js';
+import { Accessor, For, Match, Setter, Show, Switch } from 'solid-js';
+import { on } from '~/lib/solid-compat';
 import { CheckFunctionData } from './check-function';
 import SearchWorker from 'raw-tools/src/insert-function/function-search-worker.ts?worker';
 import { type FunctionData, CreateFunctionLib, type MessageType, type SearchResults } from 'raw-tools';
-import { createMutable } from 'solid-js/store';
 
 import style from './insert-function-dialog.module.css';
 import { Size } from '../dialog-base/dialog';
@@ -423,7 +424,6 @@ export function InsertFunctionDialog(props: Props) {
       setLink(`https://docs.riskamp.com/help/${local.composite().data.canonical_name.toLowerCase()}/`);
 
     }));
-
 
     function ArgumentName(index: number) {
       const composite = local.composite();

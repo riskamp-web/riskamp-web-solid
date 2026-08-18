@@ -1,9 +1,11 @@
 
+import { createMutable, createEffect, onMount, createSignal } from '~/lib/solid-compat';
+import { on } from '~/lib/solid-compat';
 import style from '../sidebar.module.css';
 import { Register } from '../registry';
 import { StringKey, t } from '~/i18n/i18n';
-import { createMutable } from 'solid-js/store';
-import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, Show, Switch } from 'solid-js';
+
+import { createMemo, For, Match, onCleanup, Show, Switch } from 'solid-js';
 
 import FindWorker from './find-worker?worker';
 import { type SidebarProps } from '../sidebar-main';
@@ -47,7 +49,6 @@ function Variance(data: number[], sample = false) {
 }
 
 export function Sidebar(props: SidebarProps) {
-
 
   /*
   const parameters: BaseParameterType[] = CreateParameters([{}]);
@@ -133,7 +134,6 @@ export function Sidebar(props: SidebarProps) {
           break;
       }
     }) || 0;
-
 
   });
 
@@ -268,7 +268,6 @@ function RedrawInternal() {
       }
       break;
   }
-
 
 }
 

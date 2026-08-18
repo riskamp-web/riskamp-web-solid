@@ -3,8 +3,6 @@
  * spinner controller
  */
 
-import { createSignal } from "solid-js";
-
 const [visible, setVisible] = createSignal(false);
 
 type EscapeFunction = () => void;
@@ -35,4 +33,5 @@ export const spinner = {
   visible // Export the getter
 };
 
+import { createSignal } from '~/lib/solid-compat';
 

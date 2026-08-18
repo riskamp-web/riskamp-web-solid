@@ -1,7 +1,9 @@
 
+import { splitProps, createEffect, onMount, createSignal } from '~/lib/solid-compat';
 import { HandleInput, HandleFocusIn, HandleKeyDown, Init, UpdateNodes, UpdateDependencies } from '~/lib/interactive-components';
 import { Dialog, Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
-import { createContext, createEffect, on, ParentProps, type Signal, splitProps, Show, onMount, useContext, onCleanup, createSignal, createRenderEffect, Match, Switch } from 'solid-js';
+import { createContext, ParentProps, type Signal, Show, useContext, onCleanup, createRenderEffect, Match, Switch } from 'solid-js';
+import { on } from '~/lib/solid-compat';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import type { DependencyList } from 'riskamp-web';
 
@@ -313,7 +315,7 @@ export function InteractiveDialog(props: ParentProps<Props>) {
   });
 
   return <>
-    <DialogContext.Provider value={{ 
+    <DialogContext value={{ 
       register: RegisterParameter,
       unregister: UnregisterParameter,
       update: UnifiedUpdate,
@@ -329,7 +331,7 @@ export function InteractiveDialog(props: ParentProps<Props>) {
 
         </div>
       </Dialog>
-    </DialogContext.Provider>
+    </DialogContext>
   </>;
 
 }

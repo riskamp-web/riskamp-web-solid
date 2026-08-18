@@ -1,6 +1,7 @@
 
+import { onMount } from '~/lib/solid-compat';
 import type { DependencyList } from 'riskamp-web';
-import { onCleanup, onMount, ParentProps } from 'solid-js';
+import { onCleanup, ParentProps } from 'solid-js';
 import { HandleInput, HandleFocusIn, HandleKeyDown, Init, UpdateNodes } from '~/lib/interactive-components';
 import type { SidebarProps } from './sidebar-main';
 

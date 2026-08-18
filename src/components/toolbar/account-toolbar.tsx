@@ -10,7 +10,6 @@ import { session, loggedIn } from '~/lib/auth';
 
 import { goto } from '~/lib/navigate';
 import { icons } from '~/components/icon-sets';
-import { A } from '@solidjs/router';
 import { ThemeSelector } from './theme-selector';
 
 export interface Props {
@@ -28,9 +27,9 @@ export function Toolbar(props: Props) {
     }}>
         
         <div class={style.logo}>
-          <A class="display-contents" href='/'>
+          <a class="display-contents" href='/'>
             <Logo/>
-          </A>
+          </a>
         </div>
         
         <div class={style.separator} />
@@ -66,7 +65,7 @@ export function Toolbar(props: Props) {
 
               </Match>
               <Match when={true}>
-                <A href='/sign-in'>Sign in</A>
+                <a href='/sign-in'>Sign in</a>
               </Match>
             </Switch>
           </Show>

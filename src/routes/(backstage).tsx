@@ -1,6 +1,7 @@
 
+import { Navigate } from '../components/navigate';
 import { createMemo, ParentProps, Show } from 'solid-js';
-import { Navigate } from '@solidjs/router';
+
 import { LayoutProvider, useLayoutContext } from '~/components/layout-context';
 
 import { Toolbar } from '~/components/toolbar/account-toolbar';

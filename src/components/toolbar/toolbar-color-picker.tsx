@@ -1,5 +1,6 @@
 
-import { For, Show, createSignal } from 'solid-js';
+import { createSignal } from '~/lib/solid-compat';
+import { For, Show } from 'solid-js';
 import style from './toolbar.module.css';
 import shared from '../../style/shared.module.css';
 import { t } from '~/i18n/i18n';
@@ -36,7 +37,6 @@ function MapColor(color: string) {
   color_map.set(color, mapped);
   return mapped;
 };
-
 
 function IsThemeColor(color: Color): color is ThemeColor {
   return !!color && (typeof (color as ThemeColor).theme !== 'undefined');

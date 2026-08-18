@@ -1,5 +1,7 @@
 
-import { createEffect, createMemo, createSignal, For, Match, on, Switch } from 'solid-js';
+import { produce, createEffect, createSignal } from '~/lib/solid-compat';
+import { createMemo, For, Match, Switch } from 'solid-js';
+import { on } from '~/lib/solid-compat';
 import { CreateParameters, InteractiveDialog, Parameter, type Props } from '../interactive-dialog/interactive-dialog';
 import { StringKey, t } from '~/i18n/i18n';
 import { EmbeddedSheetEvent, ICellAddress, MCEmbeddedSheetEvent } from 'riskamp-web';
@@ -8,7 +10,7 @@ import style from './las-vegas-simulation.module.css';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { IsCellAddress } from '@trebco/treb/treb-base-types';
 import { persistentData, setPersistentData } from '~/lib/app-data';
-import { produce } from 'solid-js/store';
+
 import { info } from 'node:console';
 
 const [open, setOpen] = createSignal(false);
@@ -29,7 +31,6 @@ export function Dialog(props: Props) {
   let subscription = 0;
   const bindsize = createSignal<Size|undefined>({width: 360, height: 420});
   const [running, setRunning] = createSignal(false);
-
 
   function Cancel() {
     if (running()) {

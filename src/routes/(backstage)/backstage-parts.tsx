@@ -9,9 +9,7 @@
  * swept into this pass -- worth deduping next time that page is open.
  */
 
-import { JSX } from 'solid-js';
-import { A } from '@solidjs/router';
-
+import type { JSX } from '@solidjs/web';
 import { IconName, icons } from '~/components/icon-sets';
 import { devResetLink } from '~/backstage/dev-access';
 
@@ -74,8 +72,8 @@ export function DevResetLink(props: { email: string }): JSX.Element {
 
   if (!import.meta.env.DEV) { return null; }
 
-  return <A class={bs.link} href={devResetLink(props.email)}>
+  return <a class={bs.link} href={devResetLink(props.email)}>
     [dev] open the reset link
-  </A>;
+  </a>;
 
 }

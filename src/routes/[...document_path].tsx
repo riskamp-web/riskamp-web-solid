@@ -1,12 +1,14 @@
 
 
+import { produce, createEffect, createSignal } from '~/lib/solid-compat';
 import { Title } from "@solidjs/meta";
 
 import { useLocation, useParams } from "@solidjs/router";
 import { useSearchParams } from "@solidjs/router";
 
 import { Spreadsheet } from '~/components/spreadsheet/spreadsheet';
-import { createEffect, createSignal, on } from 'solid-js';
+
+import { on } from '~/lib/solid-compat';
 import { Splitter } from '~/components/splitter/splitter';
 import { Toolbar } from '~/components/toolbar/toolbar';
 import { ToolbarCommand, ToolbarCommandKey } from '~/components/toolbar/toolbar-commands';
@@ -31,7 +33,7 @@ import { sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
 
 import { CacheCUrrentState, RemoveFromCache, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
 import { CheckFunction, CheckFunctionData, RestoreEditor } from '~/components/dialogs/insert-function-dialog/check-function';
-import { produce } from 'solid-js/store';
+
 import { GenerateFilename } from '~/lib/filename-util';
 import { SetTheme } from '~/components/toolbar/theme-selector';
 
@@ -64,6 +66,9 @@ export default function Page() {
 
   const params = useParams() as { document_path: string|undefined };
   const [searchParams, setSearchParams] = useSearchParams();
+  // hoisted: Solid 2.0 forbids calling router hooks inside effect callbacks
+  // (the effect apply phase has no owner). Read `.state` off this at use sites.
+  const location = useLocation<{operation: string}>();
 
   const [split, setSplit] = createSignal(100);
   const [getSheet, setSheet] = createSignal<SpreadsheetType|undefined>();
@@ -491,8 +496,6 @@ export default function Page() {
         sheet.Export(GenerateFilename(sheet, params.document_path));
         break;
 
-
-
       case 'forecast':
         RunTrendForecast(getSheet());
         break;
@@ -809,8 +812,6 @@ export default function Page() {
 
             // on reset, we want to clear any saved seed
 
-
-
             // MAYBE: reset trials as well? or we can just use
             // the last setting
 
@@ -838,7 +839,7 @@ export default function Page() {
     if (sheet) {
 
       HijackDialog(sheet);
-      const location_state = useLocation<{operation: string}>().state;
+      const location_state = location.state;
 
       console.info("TLP 1");
 
@@ -966,7 +967,6 @@ export default function Page() {
                            setOpen={setRunSimulationOpen}
                            options={runSimulationOptions}
                            sheet={getSheet} />
-
 
       <SaveAsDialog
           open={saveAsDialogOpen}

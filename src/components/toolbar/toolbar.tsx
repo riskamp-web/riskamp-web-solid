@@ -1,5 +1,8 @@
 
-import { ParentProps, Switch, Match, For, Show, onCleanup, createEffect, on, createSignal, createMemo } from 'solid-js';
+import { createMutable, createEffect, createSignal } from '~/lib/solid-compat';
+import { produce } from '~/lib/solid-compat';
+import { ParentProps, Switch, Match, For, Show, onCleanup, createMemo } from 'solid-js';
+import { on } from '~/lib/solid-compat';
 import style from './toolbar.module.css';
 import shared from '../../style/shared.module.css';
 import { Logo } from '../logo';
@@ -15,7 +18,6 @@ import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl,
 import { ListCommand, ToolbarCommand } from './toolbar-commands';
 import { session, loggedIn } from '~/lib/auth';
 
-import { createMutable, produce } from 'solid-js/store';
 import { icons } from '~/components/icon-sets';
 import { MenuButton } from '../menu-button/menu-button';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
@@ -23,7 +25,6 @@ import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { ResolveColors, UpdateSaveState, UpdateState } from './util';
 import { ColorButton } from './toolbar-color-picker';
 import { CompositeMenu } from './composite-menu';
-import { A } from '@solidjs/router';
 import { CommandPalette } from '../command-palette/command-palette';
 import { sessionData, setSessionData } from '~/lib/app-data';
 import { CommandPaletteDialog } from '../dialogs/command-palette-dialog/command-palette-dialog';
@@ -56,7 +57,6 @@ function RenderButton(control: ButtonControl) {
     <button class={style['toolbar-button']} ref={(el) => (el.innerHTML = control.command.icon || '')} />
   </>;
 }
-
 
 function RenderTextButton(control: TextButtonControl) {
   return <>
@@ -107,7 +107,6 @@ export function Toolbar(props: ParentProps<Props>) {
   const spreadsheet_dirty = createMemo(() => sessionData.document_version !== sessionData.last_saved_version);
 
   const status_menu = createMemo(() => loggedIn() ? toolbar_config.status_menu_signed_in : toolbar_config.status_menu_signed_out);
-
 
   createEffect(() => {
     const sheet = props.sheet();
@@ -250,8 +249,6 @@ export function Toolbar(props: ParentProps<Props>) {
       </MenuButton>
     </>;
   }
-
-
 
   function RenderButton(props: {control: ButtonControl}) {
 
@@ -474,7 +471,6 @@ export function Toolbar(props: ParentProps<Props>) {
             </div>}
           </For>
 
-
         <div class={style.separator}></div>
 
         <div class={style['command-palette-container']}>
@@ -543,26 +539,26 @@ export function Toolbar(props: ParentProps<Props>) {
             <Match when={loggedIn()}>
               <DropMenu label={session().email || ''}>
               <menu>
-                <A classList={{[style['menu-item']]: true, [style.disabled]: true }} href='/account'>
+                <a classList={{[style['menu-item']]: true, [style.disabled]: true }} href='/account'>
                   <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.account-page')}</span>
-                </A>
-                <A class={style['menu-item']} href='/documents'>
+                </a>
+                <a class={style['menu-item']} href='/documents'>
                   <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.documents')}</span>
-                </A>
+                </a>
 
                 <hr />
-                <A class={style['menu-item']} href='/sign-out'>
+                <a class={style['menu-item']} href='/sign-out'>
                   <div class='display-contents' innerHTML={icons.sign_out}></div>
                   <span>{t('toolbar.menu-commands.sign-out')}</span>
-                </A>
+                </a>
               </menu>
             </DropMenu>
 
             </Match>
             <Match when={true}>
-              <A href='/sign-in'>Sign in</A>
+              <a href='/sign-in'>Sign in</a>
             </Match>
           </Switch>
         </div>

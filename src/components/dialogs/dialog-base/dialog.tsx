@@ -1,5 +1,7 @@
 
-import { createEffect, onMount, type Setter, ParentProps, JSX, Signal, Show, createSignal, type Accessor } from 'solid-js';
+import { createEffect, onMount, createSignal } from '~/lib/solid-compat';
+import type { JSX } from '@solidjs/web';
+import { type Setter, ParentProps, Signal, Show, type Accessor } from 'solid-js';
 import style from './dialog.module.css';
 import shared from '../../../style/shared.module.css';
 import { icons } from '~/components/icon-sets';

@@ -16,8 +16,9 @@
  * which isn't the same string as the heading on the page.)
  */
 
-import { Show, createSignal, onCleanup, onMount } from 'solid-js';
-import { A, useNavigate } from '@solidjs/router';
+import { onMount, createSignal } from '~/lib/solid-compat';
+import { Show, onCleanup } from 'solid-js';
+import { useNavigate } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
 import { t, type StringKey } from '~/i18n/i18n';
@@ -247,10 +248,10 @@ export default function SignIn() {
         </form>
 
         <div class={bs.links}>
-          <A class={bs.link} href='/forgot-password'>{t('sign-in-page.link.forgot-password')}</A>
+          <a class={bs.link} href='/forgot-password'>{t('sign-in-page.link.forgot-password')}</a>
           {/* the dot is a separator, not a word -- it stays out of the strings */}
           <span class={bs['links-separator']}>·</span>
-          <A class={bs.link} href='/create-account'>{t('sign-in-page.link.create-account')}</A>
+          <a class={bs.link} href='/create-account'>{t('sign-in-page.link.create-account')}</a>
         </div>
 
       </div>

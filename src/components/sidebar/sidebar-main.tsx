@@ -1,5 +1,5 @@
 
-import { Dynamic, Show } from 'solid-js/web';
+import { Dynamic, Show } from '@solidjs/web';
 import { Accessor, Signal, type Component } from 'solid-js';
 
 import { registry } from './registry';

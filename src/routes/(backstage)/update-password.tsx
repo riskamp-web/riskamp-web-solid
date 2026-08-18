@@ -21,8 +21,9 @@
  * title, matching how every other page here is named.)
  */
 
-import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
-import { A, useSearchParams } from '@solidjs/router';
+import { onMount, createSignal } from '~/lib/solid-compat';
+import { Show, createMemo, onCleanup } from 'solid-js';
+import { useSearchParams } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
 import { t } from '~/i18n/i18n';
@@ -366,11 +367,11 @@ export default function UpdatePassword() {
 
     {/* a link, not an automatic redirect: changing a password doesn't create a
         session, so signing in is a step you take rather than one that happens */}
-    <A
+    <a
         class={`${bs.button} ${bs['button-primary']} ${bs['sent-action']}`}
         href='/sign-in'>
       {t('update-password-page.done.sign-in')}
-    </A>
+    </a>
 
   </div>;
 
@@ -388,9 +389,9 @@ export default function UpdatePassword() {
             successful reset reads as a suggestion something went wrong */}
         <Show when={!done()}>
           <div class={bs.links}>
-            <A class={bs.link} href='/sign-in'>{t('update-password-page.link.sign-in')}</A>
+            <a class={bs.link} href='/sign-in'>{t('update-password-page.link.sign-in')}</a>
             <span class={bs['links-separator']}>·</span>
-            <A class={bs.link} href='/forgot-password'>{t('update-password-page.link.forgot-password')}</A>
+            <a class={bs.link} href='/forgot-password'>{t('update-password-page.link.forgot-password')}</a>
           </div>
         </Show>
 

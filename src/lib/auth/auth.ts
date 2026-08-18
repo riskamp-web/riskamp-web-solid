@@ -26,9 +26,9 @@
  * 
  */
 
+import { createSignal } from '~/lib/solid-compat';
 import * as jose from 'jose';
 
-import { createSignal  } from 'solid-js';
 import { goto } from '~/lib/navigate';
 
 const DOCUMENT_CACHE = 'documents';
@@ -125,7 +125,6 @@ function SessionDataFromToken(token: string): { session: Partial<Claims>, expire
       }
 
       return {session: payload};
-
 
     }
     catch (err) {
@@ -557,5 +556,4 @@ export const StoreToken = (jwt: string) => {
   }
 
 };
-
 

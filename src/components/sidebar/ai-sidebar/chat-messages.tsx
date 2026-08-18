@@ -1,6 +1,7 @@
 
 
-import { For, Show, Switch, Match, onMount } from 'solid-js';
+import { onMount } from '~/lib/solid-compat';
+import { For, Show, Switch, Match } from 'solid-js';
 import { InitMessages, messages, streaming } from './util';
 import { t, format } from '~/i18n/i18n';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';

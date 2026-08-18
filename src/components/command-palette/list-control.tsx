@@ -1,5 +1,6 @@
 
-import { Accessor, createEffect, createSignal, For, on, onCleanup, Setter } from 'solid-js';
+import { Accessor, For, onCleanup, Setter } from 'solid-js';
+import { on, createEffect, createSignal } from '~/lib/solid-compat';
 import style from './command-palette.module.css';
 
 export interface ListRef {
