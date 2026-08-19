@@ -296,6 +296,8 @@ export default {
     'notes-panel': {
       title: 'Notes',
       'open-notes-with-spreadsheet': 'Open notes with spreadsheet',
+      edit_markdown: 'Edit markdown',
+      view_formatted: 'View formatted',
     },
     'fit-data-panel': {
       title: 'Fit data',

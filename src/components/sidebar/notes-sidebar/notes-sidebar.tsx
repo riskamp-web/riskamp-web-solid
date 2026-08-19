@@ -14,6 +14,7 @@ import { sessionData, setSessionData } from '~/lib/app-data';
 // TEMP
 
 import { Format } from 'treb-llm-support';
+import { MCEmbeddedSheetEvent } from 'riskamp-web';
 
 const group = crypto.randomUUID();
 
@@ -121,13 +122,72 @@ export function NotesSidebar(props: SidebarProps) {
     }
   }
 
+  function ShowTab(event: Event, index = 0) {
+    event.stopPropagation();
+    event.preventDefault();
+    setSessionData('notes', 'tab', index);
+  }
+
+  const [openNotesChecked, setOpenNotesChecked] = createSignal(true);
+
+  function HandleOpenNotes(event: Event) {
+    const sheet = props.sheet();
+    if (sheet) {
+      if (event.target instanceof HTMLInputElement) {
+        const checked = event.target.checked;
+        const user_data = sheet.user_data || {};
+        user_data.auto_show_notes = checked;
+        sheet.user_data = user_data;
+      }
+    }
+  }
+
+  let subscription = 0;
+
+  onMount(() => {
+
+    // on mount, subscribe to spreadsheet events. we want to update
+    // the checkbox if the sheet changes (FIXME: what about changing
+    // notes as well?)
+
+    const sheet = props.sheet();
+    if (sheet) {
+      subscription = sheet.Subscribe((event: EmbeddedSheetEvent) => {
+        switch(event.type) {
+          case 'load':
+          case 'reset':
+            {
+              const user_data = sheet?.user_data || {};
+              setOpenNotesChecked(user_data.auto_show_notes !== false);
+            }
+            break;
+        }
+      });
+    }
+    const user_data = sheet?.user_data || {};
+    setOpenNotesChecked(user_data.auto_show_notes !== false);
+  });
+
+  onCleanup(() => {
+
+    // clean up subscription
+
+    if (subscription) {
+      const sheet = props.sheet();
+      if (sheet) {
+        sheet.Cancel(subscription);
+        subscription = 0;
+      }
+    }
+  });
+
   //
   // FIXME: instead of saving separate scroll positions, might
   // be interesting to try and sync position in the two renderings.
   // probably best approach is to do that via % of height? 
   //
 
-  return <div class={style['notes-layout']}>
+  return <div class={style['notes-layout2']}>
     <div class={style['tab-layout']}>
       <div class={style.tab}>
         <input data-label="View" 
@@ -135,7 +195,7 @@ export function NotesSidebar(props: SidebarProps) {
                name={group} 
                onclick={e => { if (e.currentTarget.checked) { setSessionData('notes', 'tab', 0)} }}
                checked={sessionData.notes?.tab === 0} />
-        <div classList={{ [style.markdown]: true, markdown: true }} 
+        <div classList={{ [style.markdown]: true, markdown: true, [style['tab-panel']]: true }} 
              ref={markdown}
              onclick={HandleClick}
              onscroll={e => SaveScrollPosition(e, 'view')}
@@ -147,10 +207,30 @@ export function NotesSidebar(props: SidebarProps) {
                name={group} 
                onclick={e => { if (e.currentTarget.checked) { setSessionData('notes', 'tab', 1)} }}
                checked={sessionData.notes?.tab === 1} />
-        <textarea ref={textarea}
+        <textarea classList={{ [style['tab-panel']]: true }} ref={textarea}
                   onchange={e => UpdateNotes(e)}
                   onscroll={e => SaveScrollPosition(e, 'edit')}>{notes()}</textarea>
       </div>
+
+      <div class={style.controls}>
+        <div>
+          <Switch>
+            <Match when={sessionData.notes?.tab === 1}>
+              <a href='#' onclick={e => ShowTab(e, 0)}>{t('sidebar.notes-panel.view_formatted')}</a>
+            </Match>
+            <Match when={true}>
+              <a href='#' onclick={e => ShowTab(e, 1)}>{t('sidebar.notes-panel.edit_markdown')}</a>
+            </Match>
+          </Switch>
+        </div>
+        <div>
+          <label class={style['composite-label']}>
+            <input type="checkbox" checked={openNotesChecked()} onclick={HandleOpenNotes}/>
+            <span>{t('sidebar.notes-panel.open-notes-with-spreadsheet')}</span>
+          </label>
+        </div>
+      </div>
+
     </div>
     {/*
     <div class={style.controls}>

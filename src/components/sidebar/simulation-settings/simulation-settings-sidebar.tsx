@@ -2,17 +2,13 @@
 import style from '../sidebar.module.css';
 import { Register } from '../registry';
 import { t } from '~/i18n/i18n';
-import { createMutable } from 'solid-js/store';
-import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, Switch } from 'solid-js';
 
 import { type SidebarProps } from '../sidebar-main';
-import { EmbeddedSheetEvent } from '@trebco/treb';
-import { Area } from '@trebco/treb/treb-base-types';
-import { icons } from '~/components/icon-sets';
 import { persistentData, setPersistentData } from '~/lib/app-data';
 
 export function Sidebar(props: SidebarProps) {
 
+  // eslint-disable-next-line no-unassigned-vars
   let seed_input: HTMLInputElement|undefined;
 
   function UpdateSeedValue(event: Event, override?: number) {
@@ -93,6 +89,14 @@ export function Sidebar(props: SidebarProps) {
                         placeholder={t('sidebar.simulation_settings.random-seed.enter-seed-value')} />
                 </div>
                 <div class={style.links}>
+                  <a href='#' onclick={e => UpdateSeedValue(e, new Date().getTime())}>
+                    {t('sidebar.simulation_settings.random-seed.time-based-seed')}
+                  </a>
+                  <a href='#' onclick={e => UpdateSeedValue(e, 0)}>
+                    {t('sidebar.simulation_settings.random-seed.reset-seed-value')}
+                  </a>
+
+                  {/* 
                   <button class="control-button flex-row gap-1" onclick={e => UpdateSeedValue(e, new Date().getTime())}>
                     <span innerHTML={icons.seed_time_based} />
                     <span>
@@ -105,6 +109,7 @@ export function Sidebar(props: SidebarProps) {
                       {t('sidebar.simulation_settings.random-seed.reset-seed-value')}
                     </span>
                   </button>
+                  */}
                 </div>
               </div>
             </section>

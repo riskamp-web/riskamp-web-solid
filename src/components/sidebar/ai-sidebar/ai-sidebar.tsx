@@ -7,14 +7,14 @@ import '~/components/tabs.css';
 import style from './ai-sidebar.module.css';
 import { Splitter } from '../../splitter/splitter';
 import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
-import { createEffect, createSignal, For, on, onMount, Show, Switch } from 'solid-js';
+import { createEffect, createSignal, on, Show } from 'solid-js';
 import { produce } from 'solid-js/store';
-import { Models, provider_list, TypedChatMessages } from '~/lib/raw-llm-support';
+import { Models, provider_list } from '~/lib/raw-llm-support';
 import { messages, SendMessage } from './util';
 import { ChatMessages } from './chat-messages';
 import type { SidebarProps } from '../sidebar-main';
 
-type ChatMessage = TypedChatMessages['messages'][number];
+// type ChatMessage = TypedChatMessages['messages'][number];
 
 export function Sidebar(props: SidebarProps) {
 

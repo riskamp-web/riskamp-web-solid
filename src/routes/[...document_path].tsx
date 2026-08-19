@@ -733,7 +733,7 @@ export default function Page() {
         switch (event.type) {
           case 'load':
 
-            console.info("LOAD", event.source);
+            // console.info("LOAD", event.source);
 
             // so the idea here is if this is a regular load, it can update
             // the cache, because it'll be the stored version. but we don't 
@@ -747,30 +747,36 @@ export default function Page() {
             // path is irrelevant anyway?
             
             if (event.source === 'undo') {
-              console.info("undo; don't update cache");
+              // console.info("undo; don't update cache");
             }
             if (event.source === 'drag-and-drop') {
-              console.info("dnd; don't update cache");
+              // console.info("dnd; don't update cache");
             }
             if (event.source === 'local-file') {
-              console.info("dnd; don't update cache");
+              // console.info("dnd; don't update cache");
             }
             else if (event.source as string !== 'cache') {
-              console.info("setting last save version (not from cache) ->", sheet?.state || 0);
+              // console.info("setting last save version (not from cache) ->", sheet?.state || 0);
               setSessionData('last_saved_version', sheet?.state || 0);
             }
 
             // if the sheet has notes, show them. if we're currently viewing
             // the notes pane and the sheet does not have notes, hide the 
-            // sidebar.
+            // sidebar. UPDATE: there's a flag in user data to disable this, 
+            // dont't do anything if that flag is set
 
-            if (sheet.user_data?.note) {
-              setSidebar('notes');
+            if (sheet.user_data?.auto_show_notes === false) {
+              // ... do nothing ...
             }
-            else if (sidebar() === 'notes') {
-              setSidebar();
+            else {
+              if (sheet.user_data?.note) {
+                setSidebar('notes');
+              }
+              else if (sidebar() === 'notes') {
+                setSidebar();
+              }
             }
-
+            
             // on load, check the workbook for a trials count
             // and use that if set
 
@@ -840,7 +846,7 @@ export default function Page() {
       HijackDialog(sheet);
       const location_state = useLocation<{operation: string}>().state;
 
-      console.info("TLP 1");
+      // console.info("TLP 1");
 
       // OK now we're explicitly doing this _before_ calling TryLoadPath, 
       // so we get handlers for the various type of load svents.
@@ -879,7 +885,7 @@ export default function Page() {
 
         }
 
-        console.info("TLP 2");
+        // console.info("TLP 2");
 
         sheet.Focus();
     

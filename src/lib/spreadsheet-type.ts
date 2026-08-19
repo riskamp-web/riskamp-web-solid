@@ -19,6 +19,7 @@ interface UserData {
     seed?: number;
   }
   note?: string;
+  auto_show_notes?: boolean;
   lv?: {
     accept?: string,
     terminate?: string,
