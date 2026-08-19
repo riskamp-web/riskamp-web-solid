@@ -42,9 +42,12 @@
   display: flex;
   justify-content: space-between;
   gap: 1em;
+  white-space: nowrap;
   margin-top: 0.4em;
   padding-top: 0.5em;
+  /*
   border-top: 1px solid var(--dialog-line-color);
+  */
   font-size: 0.85em;
   color: var(--text-faint);
 }

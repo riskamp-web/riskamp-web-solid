@@ -15,22 +15,21 @@ export function AboutContent() {
   return (
     <div class={style.about}>
 
-      <div class={style.title}>RiskAMP Web</div>
+      <div class={style.title}>RiskAMP web</div>
       <div class={style.tagline}>{t('about.tagline')}</div>
       <div class={style.build}>{format(t('about.build'), { commit: __APP_COMMIT__ })}</div>
 
       <dl class={style.versions}>
-        <dt>RAW</dt>
+        <dt>RiskAMP</dt>
         <dd>{__RAW_VERSION__}</dd>
         <dt>TREB</dt>
         <dd>{__TREB_VERSION__}</dd>
       </dl>
 
       <div class={style.footer}>
-        <span>{t('about.copyright')}</span>
-        <a href={`https://${t('about.website')}`} target="_blank" rel="noreferrer">
-          {t('about.website')}
-        </a>
+        <span>{format(t('about.copyright'), { 
+          year: new Date().getUTCFullYear()
+        })}</span>
       </div>
 
     </div>

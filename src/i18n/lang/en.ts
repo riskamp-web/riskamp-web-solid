@@ -11,7 +11,7 @@ export default {
   about: {
     tagline: 'Monte Carlo risk analysis for the web.',
     build: 'Build {commit}',
-    copyright: '© 2026 RiskAMP. All rights reserved.',
+    copyright: '© {year} Structured Data LLC. All rights reserved.',
     website: 'riskamp.com',
   },
 
@@ -41,7 +41,7 @@ export default {
     },
 
     menu: {
-      'about-riskamp': 'About RiskAMP Web',
+      'about-riskamp': 'About RiskAMP web',
       'function-documentation': 'RiskAMP function documentation',
       walkthrough: 'Walkthrough model',
     },
@@ -548,7 +548,7 @@ export default {
     ok: 'OK',
   },
 
-  'run-simulation-dialog-title': 'Monte Carlo Simulation',
+  'run-simulation-dialog-title': 'Monte Carlo simulation',
   'run-simulation': {
     'number-of-trials': 'Number of trials',
     'screen-updates': 'Show screen updates',
