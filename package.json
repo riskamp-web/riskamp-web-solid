@@ -1,5 +1,5 @@
 {
-  "name": "example-basic",
+  "name": "riskamp-web-solid",
   "type": "module",
   "scripts": {
     "dev": "vinxi dev --port 5173",
