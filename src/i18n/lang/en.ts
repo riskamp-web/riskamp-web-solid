@@ -679,6 +679,11 @@ export default {
         important: 'Important',
       },
       disclaimer: 'The AI interface runs in bring-your-own-key mode. To use it, you must provide an API key for a supported provider/model.\nWe never see your API key. It stays in your browser and only gets sent to the official provider when you send a chat message.\nYou will be charged by your model provider for tokens or under your subscription plan.',
+
+      provider_link: 'Provider web page',
+      model_information_link: 'Model information',
+      screenshots_disabled: 'Note: this model does not support screenshots.',
+
     },
 
     // transient status shown while the assistant is working; these steps are

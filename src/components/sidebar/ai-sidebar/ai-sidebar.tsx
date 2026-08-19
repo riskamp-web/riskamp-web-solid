@@ -7,7 +7,7 @@ import '~/components/tabs.css';
 import style from './ai-sidebar.module.css';
 import { Splitter } from '../../splitter/splitter';
 import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
-import { createEffect, createSignal, For, on, onMount, Show } from 'solid-js';
+import { createEffect, createSignal, For, on, onMount, Show, Switch } from 'solid-js';
 import { produce } from 'solid-js/store';
 import { Models, provider_list, TypedChatMessages } from '~/lib/raw-llm-support';
 import { messages, SendMessage } from './util';
@@ -189,6 +189,16 @@ export function Sidebar(props: SidebarProps) {
                      onchange={e => setApiKey(e.currentTarget.value || '')}
                      placeholder={t(persistentData.llm_model ? 'llm-chat.label.api-key' : 'llm-chat.label.choose-a-model')}></input>
             </section>
+            <Show when={persistentData.llm_model}>
+              <Show when={persistentData.llm_model?.provider.website}>
+                <section>
+                  <div class={style['link-entry']}>
+                    <label>{t('llm-chat.label.model_information_link')}</label>
+                    <a href={persistentData.llm_model?.provider.website} target='_blank'>{persistentData.llm_model?.provider.website}</a>
+                  </div>
+                </section>
+              </Show>
+            </Show>
           </div>
 
         </div>

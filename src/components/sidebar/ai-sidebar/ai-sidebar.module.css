@@ -99,6 +99,17 @@
     align-items: flex-start;
   }
 
+  .link-entry {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1em;
+
+    a { 
+      text-decoration: none;
+    }
+
+  }
+
 }
 
 .messages {
