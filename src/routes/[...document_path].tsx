@@ -44,6 +44,7 @@ import { toast } from '~/components/toast/toast-control';
 import { t, format } from '~/i18n/i18n';
 import { StoreDocument, UpdateDocument } from '~/docs/documents2';
 import { confirmDialog } from '~/components/dialogs/confirm-dialog/confirm-control';
+import { AboutContent } from '~/components/about/about-content';
 
 // we should drop that old goto utility, unless someone needs
 // to call it from code
@@ -692,9 +693,7 @@ export default function Page() {
 
     await confirmDialog.alert({
       title: 'toolbar.menu.about-riskamp',
-      message: <>
-        <strong>RiskAMP web version</strong>
-      </>
+      message: <AboutContent />,
     });
 
   }

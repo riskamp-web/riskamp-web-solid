@@ -8,6 +8,13 @@ export default {
     title: 'Update language',
   },
 
+  about: {
+    tagline: 'Monte Carlo risk analysis for the web.',
+    build: 'Build {commit}',
+    copyright: '© 2026 RiskAMP. All rights reserved.',
+    website: 'riskamp.com',
+  },
+
   toolbar: {
     menus: {
       file: 'File',
