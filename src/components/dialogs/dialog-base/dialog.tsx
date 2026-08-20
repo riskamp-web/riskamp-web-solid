@@ -30,6 +30,9 @@ export interface Props<T> {
   resizeable?: boolean;
   closebox?: boolean;
 
+  /** pass through escape */
+  pass_through_escape?: boolean;
+
   /** optional link for help button */
   help?: string;
 
@@ -58,8 +61,10 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
 
   function HandleEscape(event: KeyboardEvent) {
     if (event.key === 'Escape') {
-      event.stopPropagation();
-      event.preventDefault();
+      if (!props.pass_through_escape) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
       if (props.escape) {
         props.setResult?.(undefined);
         props.setOpen(false);

@@ -84,6 +84,11 @@ export const ToolbarCommands = [
   },
 
 {
+  key: 'correlation-matrix',
+  title: 'toolbar.button.correlation-matrix.title',
+},
+
+{
 		key: 'test',
     title: 'test.title',
   },

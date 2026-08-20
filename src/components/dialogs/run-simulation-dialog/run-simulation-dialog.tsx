@@ -88,6 +88,9 @@ export function RunSimulationDialog(props: Props) {
   let subscription = 0;
 
   function HandleEscape(event: KeyboardEvent) {
+
+    console.info("ZOP");
+
     if (event.key === 'Escape') {
       event.stopPropagation();
       event.preventDefault();
@@ -142,6 +145,7 @@ export function RunSimulationDialog(props: Props) {
         subscription = 0;
       }
       window.removeEventListener('keydown', HandleEscape);
+      requestAnimationFrame(() => sheet?.Focus());
     }
   }));
 
@@ -191,7 +195,7 @@ export function RunSimulationDialog(props: Props) {
   }
 
   return <>
-    <Dialog moveable {...props} escape={false}>
+    <Dialog modal moveable {...props} escape={false} pass_through_escape>
       <header>
         <span>{t('run-simulation-dialog-title')}</span>
       </header>

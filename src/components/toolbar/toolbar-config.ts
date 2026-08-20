@@ -67,6 +67,7 @@ export const toolbar_config: ToolbarConfig = {
         'separator',
         'las-vegas-simulation',
         'separator',
+        // 'correlation-matrix',
         'simulation-settings',
       ),
     },

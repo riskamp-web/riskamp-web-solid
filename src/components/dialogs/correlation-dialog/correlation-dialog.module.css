@@ -1,0 +1,26 @@
+
+.dialog-sheet {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.outer-container {
+  flex-grow: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.container-section {
+  min-height: 300px;
+  min-width: 400px;
+  flex-grow: 1;
+  display: flex;
+}
+
+.buttons {
+  gap: .5em;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}

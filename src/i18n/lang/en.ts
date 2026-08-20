@@ -215,6 +215,10 @@ export default {
         title: 'Outside borders',
       },
 
+      'correlation-matrix': {
+        title: 'Correlation matrix',
+      },
+
       sparkline: 'Sparkline',
       'sparkline-column': 'Sparkline column',
       'sparkline-line': 'Sparkline line',

@@ -51,6 +51,7 @@ import { AboutContent } from '~/components/about/about-content';
 
 import { useNavigate } from "@solidjs/router";
 import { DocumentsRow } from '~/docs/documents';
+import { CorrelationDialog } from '~/components/dialogs/correlation-dialog/correlation-dialog';
 
 /*
 function Spin() {
@@ -78,6 +79,8 @@ export default function Page() {
   const [insertFunctionDialogOpen, setInsertFunctionDialogOpen] = createSignal(false);
   const [insertFunctionData, setInsertFunctionData] = createSignal<(CheckFunctionData & { result?: string })|undefined>(undefined);
   const [functionResult, setFunctionResult] = createSignal<string|undefined>('');
+
+  const [correlationDialogOpen, setCorrelationDialogOpen] = createSignal(false);
 
   const [pageTitle ] = createSignal('RiskAMP web');
 
@@ -512,6 +515,10 @@ export default function Page() {
         OpenExternal('https://docs.riskamp.com');
         break;
 
+      case 'correlation-matrix':
+        setCorrelationDialogOpen(true);
+        return;
+      
       case 'run-simulation':
       case 'run-simulation-again':
         {
@@ -523,7 +530,7 @@ export default function Page() {
           setRunSimulationOptions(options);
           setRunSimulationOpen(true);
         }
-        break;
+        return;
 
       case 'recalculate':
         sheet.Recalculate();
@@ -990,6 +997,10 @@ export default function Page() {
                            options={runSimulationOptions}
                            sheet={getSheet} />
 
+
+      <CorrelationDialog open={correlationDialogOpen}
+                         setOpen={setCorrelationDialogOpen}
+                         sheet={getSheet} />
 
       <SaveAsDialog
           open={saveAsDialogOpen}
