@@ -195,7 +195,7 @@ export function NotesSidebar(props: SidebarProps) {
                name={group} 
                onclick={e => { if (e.currentTarget.checked) { setSessionData('notes', 'tab', 0)} }}
                checked={sessionData.notes?.tab === 0} />
-        <div classList={{ [style.markdown]: true, markdown: true, [style['tab-panel']]: true }} 
+        <div classList={{ markdown: true, [style['tab-panel']]: true }}
              ref={markdown}
              onclick={HandleClick}
              onscroll={e => SaveScrollPosition(e, 'view')}

@@ -1,0 +1,128 @@
+/* Shared prose styling for Format() (treb-llm-support / markdown-it) output that
+   is injected via innerHTML. Worn as a plain global `markdown` class by both the
+   notes sidebar and the AI chat sidebar, so the two panels render identically.
+
+   This is a global (non-module) sheet on purpose: the content is element- and
+   .hljs-*-selector driven, and those hljs token classes arrive inside the
+   innerHTML string -- outside a CSS module they need no :global() wrapper.
+
+   Everything below the base font-size is em-relative, so the whole scale follows
+   from --markdown-font-size (see app.css). Colours are app tokens, all
+   light-dark()-themed, so this reads correctly in both light and dark mode. */
+
+.markdown {
+  font-size: var(--markdown-font-size);  /* the em scale below follows from this */
+  color: var(--text);                    /* theme-aware; not the UA default black */
+
+  :first-child { margin-top: 0; }        /* no leading gap at the top of the panel */
+
+  /* headings: a real, confident scale, bound to the text beneath them (more
+     space above than below) */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.25;
+    margin: 1.4em 0 .4em;
+  }
+  h1 { font-size: 1.5em; }
+  h2 { font-size: 1.25em; }
+  h3 { font-size: 1.15em; }
+  h4, h5, h6 { font-size: 1em; }
+
+  p { margin: 1em 0; }
+  p:first-child { margin-top: 0; }
+  p:last-child { margin-bottom: 0; }
+
+  /* tighten the browser-default list indentation (~40px) */
+  ul, ol {
+    padding-left: 1.5em;
+    margin: 1em 0;
+  }
+  li { margin-bottom: .35em; }
+
+  strong { font-weight: 600; }
+
+  a {
+    color: var(--sidebar-link-color);
+    text-decoration: underline;
+
+    /* notes in-sheet navigation links (ref://...) read as a small chip -- a
+       clickable "object" that lives in the spreadsheet, distinct from an
+       external prose link. reuses the accent-wash / code-chip visual language. */
+    &[href^="ref:"] {
+      text-decoration: none;
+      font-weight: 500;
+      white-space: nowrap;
+      background: var(--accent-wash);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--control-radius);
+      padding: .05em .35em;
+
+      &:hover {
+        background: var(--accent-wash-strong);
+      }
+    }
+  }
+
+  /* inline code chip. the hairline border keeps it distinct from a message
+     bubble (a soft accent wash) in light mode. */
+  code {
+    font-family: var(--mono-font-family);
+    font-size: .9em;
+    background: var(--overlay-faint);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--control-radius);
+    padding: .05em .3em;
+  }
+
+  /* fenced code block: plain, always-visible, subtly toned */
+  pre {
+    margin: 1em 0;
+    padding: .7em .8em;
+    font-size: .9em;
+    background: var(--overlay-faint);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--surface-radius);
+    overflow-x: auto;
+
+    code {
+      /* reset the inline-chip styling inside blocks */
+      background: none;
+      border: none;
+      padding: 0;
+      border-radius: 0;
+      font-size: 1em;
+    }
+  }
+
+  blockquote {
+    margin: 1em 0;
+    padding: .1em .9em;
+    border-left: 3px solid var(--border-hairline);
+    color: var(--text-muted);
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border-hairline);
+    margin: 1.5em 0;
+  }
+
+  /* subtle, app-toned syntax highlighting. the hljs-* token classes come from
+     the markdown HTML (innerHTML); everything not listed inherits --text. */
+  .hljs-keyword,
+  .hljs-built_in {
+    color: var(--accent);
+  }
+
+  .hljs-number,
+  .hljs-symbol,
+  .hljs-literal,
+  .hljs-string {
+    color: var(--text-muted);
+  }
+
+  .hljs-comment {
+    color: var(--text-faint);
+    font-style: italic;
+  }
+}

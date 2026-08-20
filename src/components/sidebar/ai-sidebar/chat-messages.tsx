@@ -130,7 +130,7 @@ export function ChatMessages(props: Props) {
                     <div classList={{ [style.message]: true, [style[role]]: true }}>
                       <For each={content}>
                         {part => part.type === 'text'
-                          ? <div classList={{ [style.part]: true, [style.md]: true }}
+                          ? <div classList={{ [style.part]: true, markdown: true }}
                                  innerHTML={DOMPurify.sanitize(Format(part.text))} />
                           : null}
                       </For>
@@ -171,7 +171,7 @@ export function ChatMessages(props: Props) {
                   <div classList={classes}>
                     <For each={parts}>
                       {part => part.text
-                        ? <div classList={{ [style.part]: true, [style.text]: true, [style.md]: true }}
+                        ? <div classList={{ [style.part]: true, [style.text]: true, markdown: true }}
                                innerHTML={DOMPurify.sanitize(Format(part.text || ''))} />
                         : null}
                     </For>
@@ -209,7 +209,7 @@ export function ChatMessages(props: Props) {
                         <div classList={{ [style.message]: true, [style[item.role]]: true }}>
                           <For each={content}>
                             {part => part.type === 'output_text'
-                              ? <div classList={{ [style.part]: true, [style.md]: true }}
+                              ? <div classList={{ [style.part]: true, markdown: true }}
                                      innerHTML={DOMPurify.sanitize(Format(part.text || ''))} />
                               : null}
                           </For>

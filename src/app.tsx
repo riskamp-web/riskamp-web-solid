@@ -5,6 +5,7 @@ import { onMount, Suspense } from "solid-js";
 
 import "./reset.css";
 import "./app.css";
+import '~/style/markdown.css';
 import '~/style/riskamp-dialog.css';
 import '~/style/controls.css';
 import '~/style/utility.css';

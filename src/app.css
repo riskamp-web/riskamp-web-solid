@@ -20,6 +20,8 @@
      considered and rejected, so nothing here should reintroduce it. */
   --accent:      light-dark(#0477BE, #2a91d8);
   --accent-wash: light-dark(rgba(4, 119, 190, .1), rgba(42, 145, 216, .2));  /* selected / toggled-on */
+  --accent-wash-strong: light-dark(rgba(4, 119, 190, .18), rgba(42, 145, 216, .32));  /* hover / deeper wash */
+  --accent-border: light-dark(rgba(4, 119, 190, .25), rgba(42, 145, 216, .4));  /* subtle accent-tinted hairline */
   --on-accent:   #fff;
 
   /* text: secondary is one step down from primary, not three. roughly
@@ -92,6 +94,8 @@
   --base-font-size:    13px;   /* the floor, and the size of every control */
   --prose-font-size:   14px;
   --heading-font-size: 16px;   /* section headings, sentence case */
+  --markdown-font-size: 15px;  /* Format() prose in the notes + AI panels; 16px reads
+                                  chunky in macOS/Safari system-ui, fine on Windows */
 
   /* Each toolbar color is defined once as light-dark(light, dark). Which side is
      used is decided by `color-scheme` (set below): `light dark` auto-follows the

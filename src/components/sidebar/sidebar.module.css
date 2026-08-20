@@ -113,7 +113,7 @@ header.sidebar-header {
       height: 100%;
       resize: none;
       font-family: inherit;
-      font-size: 16px;   /* a writing surface, like the chat -- not a control */
+      font-size: var(--markdown-font-size);   /* a writing surface, like the chat -- not a control */
       overflow: hidden;
       border-radius: var(--control-radius);
       border: 1px solid var(--sidebar-input-border-color);
@@ -126,28 +126,8 @@ header.sidebar-header {
       display: block;
     }
 
-    .markdown {
-      a {
-
-        &[href^="ref:"] {
-          text-decoration: none;
-          color: var(--sidebar-link-color);
-          font-weight: 500;
-        }
-
-        &:not([href^="ref:"]) {
-          text-decoration: underline;
-          color: var(--sidebar-link-color);
-        }
-
-      }
-
-      p {
-        margin-top: 1em;
-        margin-bottom: 1em;
-      }
-
-    }
+    /* markdown prose is styled by the shared global `markdown` class --
+       see src/style/markdown.css */
 
   }
 
@@ -200,7 +180,7 @@ header.sidebar-header {
       height: 100%;
       resize: none;
       font-family: inherit;
-      font-size: 16px;   /* a writing surface, like the chat -- not a control */
+      font-size: var(--markdown-font-size);   /* a writing surface, like the chat -- not a control */
       overflow: hidden;
       border-radius: var(--control-radius);
       border: 1px solid var(--sidebar-input-border-color);
@@ -253,28 +233,8 @@ header.sidebar-header {
       display: block;
     }
 
-    .markdown {
-      a {
-
-        &[href^="ref:"] {
-          text-decoration: none;
-          color: var(--sidebar-link-color);
-          font-weight: 500;
-        }
-
-        &:not([href^="ref:"]) {
-          text-decoration: underline;
-          color: var(--sidebar-link-color);
-        }
-
-      }
-
-      p {
-        margin-top: 1em;
-        margin-bottom: 1em;
-      }
-
-    }
+    /* markdown prose is styled by the shared global `markdown` class --
+       see src/style/markdown.css */
 
   }
 
