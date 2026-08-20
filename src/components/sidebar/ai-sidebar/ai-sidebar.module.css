@@ -7,6 +7,14 @@
   max-height: 100%;
 }
 
+.chat-messages {
+
+  /** add some breathing space to chat messages, especially the first one */
+  padding-top: 1em;
+  padding-bottom: 1em;
+  
+}
+
 .tab-container {
 
   column-gap: 1em;

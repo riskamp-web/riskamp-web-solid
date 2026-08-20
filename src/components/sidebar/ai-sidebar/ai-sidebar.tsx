@@ -124,6 +124,7 @@ export function Sidebar(props: SidebarProps) {
         <div class="tab-content overflow-hidden">
           <Splitter vertical split={split} setSplit={setSplit} splitter-width={17} min={25} max={75}>
             <div data-top ref={scrollContainer} onScroll={TrackScrollPosition} classList={{
+              [style["chat-messages"]]: true,
               "flex-grow": true,
               "overflow-y-scroll": true,
               [style.messages]: true,
