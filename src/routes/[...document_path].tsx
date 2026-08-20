@@ -680,6 +680,18 @@ export default function Page() {
         AboutRiskAMP();
         break;
 
+      case 'create-account':
+        navigate('/create-account');
+        return;
+      
+      case 'sign-in':
+        navigate('/sign-in');
+        return;
+
+      case 'sign-out':
+        navigate('/sign-out');
+        return;
+
       default:
         console.warn('unhandled', key);
         // setOpen(true);
