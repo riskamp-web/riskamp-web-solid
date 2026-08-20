@@ -88,36 +88,90 @@
   display: flex;
   flex-direction: column;
   gap: 1em;
-
-  fieldset {
-    legend {
-      padding: 0 .5em;
-    }
-    p {
-      margin: 1em 0 0 0 ;
-      &:last-child {
-        margin-bottom: 1em;
-      }
-    }
-  }
+  padding-top: 1em;
 
   section {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: .35em;
+
+    & > label {
+      color: var(--text-muted);
+    }
   }
 
   .link-entry {
     display: flex;
     flex-direction: column;
-    margin-bottom: 1em;
+    gap: .35em;
 
-    a { 
+    a {
       text-decoration: none;
+      color: var(--accent);
     }
 
   }
 
+}
+
+/* the api-key field carries a reveal toggle sitting over its right padding, so the
+   input keeps its own border and the focus ring still wraps the whole box.
+   mirrors the .password-field pattern in backstage.module.css (sign-in). */
+.key-field {
+  position: relative;
+  display: flex;
+}
+
+.key-input {
+  padding-right: 34px;
+}
+
+.key-reveal {
+  position: absolute;
+  top: 50%;
+  right: 1px;
+  translate: 0 -50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-button-size);
+  height: var(--icon-button-size);
+  padding: 0;
+  border: none;
+  border-radius: var(--control-radius);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
+
+  &:hover {
+    background: var(--hover-strong);
+    color: var(--text);
+  }
+
+  & > svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* the privacy/billing disclaimer, demoted from the old bordered <fieldset> to
+   quiet muted prose that sits flush below the controls so the actionable fields
+   lead. */
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: .6em;
+  margin: .5em 0 0 0;
+  color: var(--text-muted);
+  font-size: calc(var(--llm-chat-font-size) - 1px);
+  line-height: 1.5;
+}
+
+.note-heading {
+  font-weight: 600;
+  color: var(--text);
 }
 
 .messages {

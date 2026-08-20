@@ -10,6 +10,7 @@ import { persistentData, sessionData, setPersistentData, setSessionData } from '
 import { createEffect, createSignal, on, Show } from 'solid-js';
 import { produce } from 'solid-js/store';
 import { Models, provider_list } from '~/lib/raw-llm-support';
+import { icons } from '~/components/icon-sets';
 import { messages, SendMessage } from './util';
 import { ChatMessages } from './chat-messages';
 import type { SidebarProps } from '../sidebar-main';
@@ -40,6 +41,8 @@ export function Sidebar(props: SidebarProps) {
   }
 
   const [apiKey, setApiKey] = createSignal('');
+  const [revealKey, setRevealKey] = createSignal(false);
+  let apiKeyInput: HTMLInputElement|undefined;
 
   if (persistentData.llm_model) {
     setApiKey(persistentData.llm_api_keys[persistentData.llm_model.provider.name] || '');
@@ -154,7 +157,7 @@ export function Sidebar(props: SidebarProps) {
               <div class={style.buttons}>
                 <button class="control-button"
                         onclick={() => messages.messages = []}>{t('llm-chat.buttons.clear-conversation')}</button>
-                <button class="control-button"
+                <button class="control-button button-primary"
                         onclick={LocalSendMessage}>{t('llm-chat.buttons.send-message')}</button>
               </div>
             </div>
@@ -178,13 +181,9 @@ export function Sidebar(props: SidebarProps) {
         <div class="tab-content">
 
           <div class={style['settings-layout']}>
-            <fieldset>
-              <legend>{t('llm-chat.label.header.important')}</legend>
-              {t('llm-chat.label.disclaimer').split(/\n/).map(paragraph => <p>{paragraph}</p>)}
-            </fieldset>
             <section>
-              <span>{t('llm-chat.label.model')}</span>
-              <select class="select" 
+              <label>{t('llm-chat.label.model')}</label>
+              <select class="select"
                       value={selectedModel()}
                       onchange={SelectModel}>
                 <option value=''>{t('llm-chat.label.choose-a-model')}</option>
@@ -196,26 +195,38 @@ export function Sidebar(props: SidebarProps) {
               </select>
             </section>
             <section>
-              <span>
+              <label>
                 <Show when={persistentData.llm_model}><span>{persistentData.llm_model?.provider.name} </span></Show>
                 {t('llm-chat.label.api-key')}
-              </span>
-              <input type="text" 
-                     class="input width-100 ellipsis" 
-                     value={apiKey()}
-                     onchange={e => setApiKey(e.currentTarget.value || '')}
-                     placeholder={t(persistentData.llm_model ? 'llm-chat.label.api-key' : 'llm-chat.label.choose-a-model')}></input>
+              </label>
+              <div class={style['key-field']}>
+                <input ref={apiKeyInput}
+                       type={revealKey() ? 'text' : 'password'}
+                       class={`input width-100 ellipsis ${style['key-input']}`}
+                       value={apiKey()}
+                       onchange={e => setApiKey(e.currentTarget.value || '')}
+                       placeholder={t(persistentData.llm_model ? 'llm-chat.label.api-key-placeholder' : 'llm-chat.label.choose-a-model')}></input>
+                <button type="button"
+                        class={style['key-reveal']}
+                        aria-label={t(revealKey() ? 'llm-chat.label.hide-api-key' : 'llm-chat.label.reveal-api-key')}
+                        aria-pressed={revealKey()}
+                        onclick={() => { setRevealKey(v => !v); apiKeyInput?.focus(); }}
+                        innerHTML={revealKey() ? icons.eye_off : icons.eye_on}></button>
+              </div>
             </section>
-            <Show when={persistentData.llm_model}>
-              <Show when={persistentData.llm_model?.provider.website}>
-                <section>
-                  <div class={style['link-entry']}>
-                    <label>{t('llm-chat.label.model_information_link')}</label>
-                    <a href={persistentData.llm_model?.provider.website} target='_blank'>{persistentData.llm_model?.provider.website}</a>
-                  </div>
-                </section>
-              </Show>
+            <Show when={persistentData.llm_model?.provider.website}>
+              <section>
+                <div class={style['link-entry']}>
+                  <label>{t('llm-chat.label.model_information_link')}</label>
+                  <a href={persistentData.llm_model?.provider.website} target='_blank' rel='noopener'>{persistentData.llm_model?.provider.name}</a>
+                </div>
+              </section>
             </Show>
+
+            <p class={style.note}>
+              <span class={style['note-heading']}>{t('llm-chat.label.header.important')}</span>
+              {t('llm-chat.label.disclaimer').split(/\n/).map(paragraph => <span>{paragraph}</span>)}
+            </p>
           </div>
 
         </div>

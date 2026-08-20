@@ -681,8 +681,11 @@ export default {
 
     label: {
       'api-key': 'API key',
+      'api-key-placeholder': 'Paste your API key',
+      'reveal-api-key': 'Show API key',
+      'hide-api-key': 'Hide API key',
       model: 'Model',
-      'choose-a-model': 'Chose a model',
+      'choose-a-model': 'Choose a model',
       'select-a-model': 'Select a model',
       header: {
         important: 'Important',
