@@ -1,5 +1,5 @@
 
-import style from '../sidebar.module.css';
+import style from './simulation-settings.module.css';
 import { Register } from '../registry';
 import { t } from '~/i18n/i18n';
 
@@ -49,69 +49,54 @@ export function Sidebar(props: SidebarProps) {
     }
   }
 
-  return  <div class={style['simulation-settings-layout']}>
-            <section>
-              <h1>{t('sidebar.simulation_settings.random-sampling.section-header')}</h1>
-              <div class={style.table}>
+  return  <div class={style.layout}>
+            <section class={style.section}>
+              <span class={style.heading}>{t('sidebar.simulation_settings.random-sampling.section-header')}</span>
+              <div class={style.options}>
                 <label>
-                  <input type='radio' 
-                         name='random-sampling' 
+                  <input type='radio'
+                         name='random-sampling'
                          checked={!!persistentData.lhs}
                          onchange={e => { if(e.currentTarget.checked) setPersistentData({ lhs: true })}}
                          />
                   <span>{t('sidebar.simulation_settings.latin-hypercube-sampling')}</span>
                 </label>
                 <label>
-                  <input type='radio' 
-                         name='random-sampling' 
+                  <input type='radio'
+                         name='random-sampling'
                          checked={!persistentData.lhs}
                          onchange={e => { if(e.currentTarget.checked) setPersistentData({ lhs: false })}}
                          />
                   <span>{t('sidebar.simulation_settings.standard-random-sampling')}</span>
                 </label>
               </div>
+              <p class={style.note}>
+                {t('sidebar.simulation_settings.random-sampling.explanatory-text').split(/\n/).map(para => <span>{para}</span>)}
+              </p>
             </section>
 
-            <section>
-              <h1>{t('sidebar.simulation_settings.random-seed.section-header')}</h1>
-              <div class={style.explainer} innerHTML={t('sidebar.simulation_settings.random-seed.explanatory-text').split(/\n/g).map(para => `<p>${para}</p>`).join('\n')} />
-              <div class={style.table}>
-                <div class="flex-row gap-1">
-                  <span>
-                    {t('sidebar.simulation_settings.random-seed.seed-value')}
-                  </span>
-                  <input type="text" 
-                        style="width: 10em;"
-                        class="input"
-                        ref={seed_input}
-                        value={props.sheet()?.user_data?.simulation?.seed || '0'}
-                        onchange={UpdateSeedValue}
-                        placeholder={t('sidebar.simulation_settings.random-seed.enter-seed-value')} />
-                </div>
-                <div class={style.links}>
-                  <a href='#' onclick={e => UpdateSeedValue(e, new Date().getTime())}>
-                    {t('sidebar.simulation_settings.random-seed.time-based-seed')}
-                  </a>
-                  <a href='#' onclick={e => UpdateSeedValue(e, 0)}>
-                    {t('sidebar.simulation_settings.random-seed.reset-seed-value')}
-                  </a>
-
-                  {/* 
-                  <button class="control-button flex-row gap-1" onclick={e => UpdateSeedValue(e, new Date().getTime())}>
-                    <span innerHTML={icons.seed_time_based} />
-                    <span>
-                      {t('sidebar.simulation_settings.random-seed.time-based-seed')}
-                    </span>
-                  </button>
-                  <button class="control-button flex-row gap-1" onclick={e => UpdateSeedValue(e, 0)}>
-                    <span innerHTML={icons.seed_reset} />
-                    <span>
-                      {t('sidebar.simulation_settings.random-seed.reset-seed-value')}
-                    </span>
-                  </button>
-                  */}
-                </div>
+            <section class={style.section}>
+              <span class={style.heading}>{t('sidebar.simulation_settings.random-seed.section-header')}</span>
+              <div class={style.field}>
+                <label>{t('sidebar.simulation_settings.random-seed.seed-value')}</label>
+                <input type="text"
+                      class="input width-100"
+                      ref={seed_input}
+                      value={props.sheet()?.user_data?.simulation?.seed || '0'}
+                      onchange={UpdateSeedValue}
+                      placeholder={t('sidebar.simulation_settings.random-seed.enter-seed-value')} />
               </div>
+              <div class={style.links}>
+                <a href='#' onclick={e => UpdateSeedValue(e, new Date().getTime())}>
+                  {t('sidebar.simulation_settings.random-seed.time-based-seed')}
+                </a>
+                <a href='#' onclick={e => UpdateSeedValue(e, 0)}>
+                  {t('sidebar.simulation_settings.random-seed.reset-seed-value')}
+                </a>
+              </div>
+              <p class={style.note}>
+                {t('sidebar.simulation_settings.random-seed.explanatory-text').split(/\n/).map(para => <span>{para}</span>)}
+              </p>
             </section>
           </div>;
 }

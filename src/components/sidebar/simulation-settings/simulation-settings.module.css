@@ -1,0 +1,85 @@
+
+/* Simulation-settings sidebar. Mirrors the AI sidebar's settings pane
+   (ai-sidebar.module.css .settings-layout) so the two slide-overs read as the
+   same object: a flat stack of sections, each a muted heading over its control,
+   accent action links, and quiet muted prose for the explanatory copy. */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2.25em;
+  padding: 1em .5em;
+  overflow-y: auto;
+  height: 100%;
+  max-height: 100%;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .85em;
+}
+
+/* section header: a muted label, semibold for a touch of hierarchy over the
+   plain muted field labels below it (mirrors .note-heading's weight). */
+.heading {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* grouped choices (the sampling radios), same row rhythm as the AI panel. */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+
+  label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: .5em;
+  }
+}
+
+/* a labelled control: muted label above, control below -- the Model / API-key
+   field shape from the AI settings pane. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: .35em;
+
+  & > label {
+    color: var(--text-muted);
+  }
+}
+
+/* accent action links, matching .link-entry in the AI settings pane. */
+.links {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .6em;
+
+  a {
+    text-decoration: none;
+    color: var(--accent);
+  }
+}
+
+/* quiet muted prose, matching .note in the AI settings pane. Always the last
+   child of a section, set apart from the controls above it so it reads as a
+   footnote rather than another thing to click. */
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: .6em;
+  margin: .5em 0 0 0;
+  color: var(--text-muted);
+  font-size: var(--prose-font-size);
+  line-height: 1.5;
+
+  p {
+    margin: 0;
+  }
+}
