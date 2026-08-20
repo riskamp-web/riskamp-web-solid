@@ -14,9 +14,15 @@ export const Notify = (data: Record<string, number|string|boolean> = {}) => {
   }
 
   if (!session) {
-    session = Math.round(Math.random() * 1e15).toString(16);
+
     if (window.sessionStorage) {
-      window.sessionStorage.setItem('session-key', session);
+      session = window.sessionStorage.getItem('session-key') || '';
+    }
+    if (!session) {
+      session = Math.round(Math.random() * 1e15).toString(16);
+      if (window.sessionStorage) {
+        window.sessionStorage.setItem('session-key', session);
+      }
     }
   }
 
