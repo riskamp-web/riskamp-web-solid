@@ -100,8 +100,24 @@ export function Sidebar(props: SidebarProps) {
     }
   }
 
+  // the "show settings" determination here is based on heuristics, which
+  // is good for the first display, but after that we want to honor user
+  // behavior, so it the user clicks a tab, we should remember that
+
   const show_settings = !(persistentData.llm_model && persistentData.llm_api_keys[persistentData.llm_model.provider.name || '']);
-  const [tab, setTab] = createSignal(show_settings ? 1 : 0);
+
+  let initial_tab = show_settings? 1 : 0;
+  if (typeof sessionData.llm_tab === 'number') {
+    initial_tab = sessionData.llm_tab;
+  }
+
+  const [tab, setTab] = createSignal(initial_tab);
+
+  createEffect(on(tab, value => {
+    setSessionData('llm_tab', value);
+  }));
+
+  // 
 
   return <div class={style.layout}>
     <div classList={{

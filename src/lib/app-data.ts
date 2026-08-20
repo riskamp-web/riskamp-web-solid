@@ -13,7 +13,8 @@ interface SessionData {
   active_tab: number;
   last_split: number;
   llm_tab_split: number;
-  
+  llm_tab?: number;
+
   // notes_tab: number;
   notes?: {
     tab?: number;
