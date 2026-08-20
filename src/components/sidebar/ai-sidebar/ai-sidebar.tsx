@@ -11,6 +11,7 @@ import { createEffect, createSignal, on, Show } from 'solid-js';
 import { produce } from 'solid-js/store';
 import { Models, provider_list } from '~/lib/raw-llm-support';
 import { icons } from '~/components/icon-sets';
+import { confirmDialog } from '~/components/dialogs/confirm-dialog/confirm-control';
 import { messages, SendMessage } from './util';
 import { ChatMessages } from './chat-messages';
 import type { SidebarProps } from '../sidebar-main';
@@ -27,17 +28,57 @@ export function Sidebar(props: SidebarProps) {
   }));
   
   const [selectedModel, setSelectedModel] = createSignal(persistentData.llm_model?.name || '');
-  function SelectModel(event: Event) {
-    if (event.target instanceof HTMLSelectElement) {
-      for (const model of Models) {
-        if (model.name === event.target.value) {
-          setPersistentData(produce(s => s.llm_model = model));
-          setSelectedModel(model.name);
-          setApiKey(persistentData.llm_api_keys[model.provider.name] || '');
-          break;
-        }
-      }
+  let modelSelect: HTMLSelectElement|undefined;
+
+  function ApplyModel(model: typeof Models[number]) {
+    setPersistentData(produce(s => s.llm_model = model));
+    setSelectedModel(model.name);
+    setApiKey(persistentData.llm_api_keys[model.provider.name] || '');
+  }
+
+  async function SelectModel(event: Event) {
+    if (!(event.target instanceof HTMLSelectElement)) {
+      return;
     }
+
+    // at this point the native select's DOM value has already moved to the new
+    // option, but selectedModel() still holds the previously-applied name.
+    const newName = event.target.value;
+    const previousName = selectedModel();
+    const newModel = Models.find(model => model.name === newName);
+
+    // the empty "Choose a model" placeholder (or any unknown value) is a no-op,
+    // as before -- we never clear an already-chosen model this way.
+    if (!newModel) {
+      return;
+    }
+
+    // the transcript is typed to the provider's API shape, so it only needs
+    // wiping when the provider changes (e.g. Anthropic -> OpenAI); switching
+    // between models of the same provider (Opus <-> Sonnet) keeps it. confirm
+    // first if there is anything to lose; an empty conversation switches silently.
+    const providerChanged = persistentData.llm_model
+      ? persistentData.llm_model.provider.name !== newModel.provider.name
+      : false;
+
+    if (providerChanged && messages.messages.length > 0) {
+      const ok = await confirmDialog.confirm({
+        title: 'llm-chat.change-model.title',
+        message: t('llm-chat.change-model.message'),
+        confirm: 'llm-chat.change-model.confirm',
+      });
+      if (!ok) {
+        // revert the select. the signal already equals previousName, so a signal
+        // write would be a no-op -- reset the DOM value directly to resync.
+        if (modelSelect) {
+          modelSelect.value = previousName;
+        }
+        return;
+      }
+      messages.messages = [];
+    }
+
+    ApplyModel(newModel);
   }
 
   const [apiKey, setApiKey] = createSignal('');
@@ -183,7 +224,8 @@ export function Sidebar(props: SidebarProps) {
           <div class={style['settings-layout']}>
             <section>
               <label>{t('llm-chat.label.model')}</label>
-              <select class="select"
+              <select ref={modelSelect}
+                      class="select"
                       value={selectedModel()}
                       onchange={SelectModel}>
                 <option value=''>{t('llm-chat.label.choose-a-model')}</option>

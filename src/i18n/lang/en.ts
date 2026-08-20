@@ -670,6 +670,11 @@ export default {
     'chat-tab': {
       title: 'Chat',
     },
+    'change-model': {
+      title: 'Change model?',
+      message: 'This model uses a different provider, so the current conversation will be cleared. Continue?',
+      confirm: 'Change model',
+    },
     buttons: {
       'send-message': 'Send',
 
