@@ -20,6 +20,8 @@ import { InitAppData } from './lib/app-data';
 import { HistoryProvider } from './components/history-context';
 import { formatConfig } from '~/lib/raw-llm-support';
 
+import { RouteStats } from './lib/stats';
+
 // render markdown fenced code as plain, always-visible blocks app-wide (the AI
 // chat and notes sidebars). the treb-llm-support default keeps the legacy
 // collapsible <details> disclosure for its other clients; this opts this app
@@ -40,7 +42,10 @@ function Root(props: RouteSectionProps) {
     <HistoryProvider>
       <MetaProvider>
         <Title>RiskAMP Web</Title>
-        <Suspense>{props.children}</Suspense>
+        <Suspense>
+          <RouteStats/>
+          {props.children}
+        </Suspense>
         <Spinner />
         <Toaster />
         <ConfirmDialog />

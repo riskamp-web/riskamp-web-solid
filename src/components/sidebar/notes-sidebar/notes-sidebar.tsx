@@ -2,19 +2,15 @@
 import style from '../sidebar.module.css';
 import { Register } from '../registry';
 import { t } from '~/i18n/i18n';
-import { createMutable } from 'solid-js/store';
-import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, Switch } from 'solid-js';
-
-import FindWorker from './find-worker?worker';
+import { createMemo, createSignal, Match, onCleanup, onMount, Switch } from 'solid-js';
 import { type SidebarProps } from '../sidebar-main';
 import { EmbeddedSheetEvent } from '@trebco/treb';
-import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
+import { IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 import { sessionData, setSessionData } from '~/lib/app-data';
 
 // TEMP
 
 import { Format } from 'treb-llm-support';
-import { MCEmbeddedSheetEvent } from 'riskamp-web';
 
 const group = crypto.randomUUID();
 
@@ -116,7 +112,8 @@ export function NotesSidebar(props: SidebarProps) {
     const sheet = props.sheet();
     if (sheet && event.target instanceof HTMLTextAreaElement) {
       const note = event.target.value || '';
-      const user_data = {...((sheet.user_data || {}) as any), note }
+      const user_data = sheet.user_data || {};
+      user_data.note = note;
       sheet.user_data = user_data;
       setNotes(note);
     }

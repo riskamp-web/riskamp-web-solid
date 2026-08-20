@@ -10,6 +10,7 @@ import { persistentData, setPersistentData } from '~/lib/app-data';
 import { produce } from 'solid-js/store';
 import { ICellAddress } from '@trebco/treb';
 import { IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
+import { Notify } from '~/lib/stats';
 
 export interface Options {
   trials: number;
@@ -70,6 +71,8 @@ export function RunSimulationDialog(props: Props) {
       }
 
       const seed = sheet.user_data?.simulation?.seed || 0;
+
+      Notify({ event: 'run-simulation' });
 
       setRunning(true);
       sheet.RunSimulation(trials(), {
