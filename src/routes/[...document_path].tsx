@@ -495,8 +495,14 @@ export default function Page() {
 
 
       case 'forecast':
+
         RunTrendForecast(getSheet());
-        break;
+
+        // we return here so the dialog keeps focus, otherwise the sheet 
+        // will grab it at the end of this method. this should be the 
+        // pattern for any non-modal dialogs.
+        
+        return; 
 
       case 'sparkline':
         InsertSparkline(getSheet());
