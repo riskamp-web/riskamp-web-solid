@@ -51,7 +51,8 @@ import { AboutContent } from '~/components/about/about-content';
 
 import { useNavigate } from "@solidjs/router";
 import { DocumentsRow } from '~/docs/documents';
-import { CorrelationDialog } from '~/components/dialogs/correlation-dialog/correlation-dialog';
+import { CorrelationDialog, CorrelationDialogData, type Props as CorrelationDialogProp } from '~/components/dialogs/correlation-dialog/correlation-dialog';
+import { CheckCorrelationMatrix } from '~/lib/correlation-matrix';
 
 /*
 function Spin() {
@@ -80,7 +81,9 @@ export default function Page() {
   const [insertFunctionData, setInsertFunctionData] = createSignal<(CheckFunctionData & { result?: string })|undefined>(undefined);
   const [functionResult, setFunctionResult] = createSignal<string|undefined>('');
 
+  const [correlationDialogResult, setCorrelationDialogResult] = createSignal<boolean|undefined>();
   const [correlationDialogOpen, setCorrelationDialogOpen] = createSignal(false);
+  const [correlationDialogData, setCorrelationDialogData] = createSignal<CorrelationDialogData|undefined>();
 
   const [pageTitle ] = createSignal('RiskAMP web');
 
@@ -438,6 +441,24 @@ export default function Page() {
     }
   }
 
+  async function CorrelationMatrixFlow(sheet: SpreadsheetType) {
+
+    const result = await CheckCorrelationMatrix(sheet);
+
+    if (result) {
+      setCorrelationDialogData(result);
+      setCorrelationDialogOpen(true);
+      await AwaitSignal(correlationDialogOpen, value => !value);
+      
+      if (correlationDialogResult()) {
+        sheet.SetRange(undefined, result.adjusted);
+      }
+    }
+
+    sheet.Focus();
+
+  }
+
   // FIXME: move this to a lib file, it doesn't need to clog up this file
   function HandleCommand(command: ToolbarCommand) {
 
@@ -516,7 +537,7 @@ export default function Page() {
         break;
 
       case 'correlation-matrix':
-        setCorrelationDialogOpen(true);
+        CorrelationMatrixFlow(sheet);
         return;
       
       case 'run-simulation':
@@ -1000,6 +1021,8 @@ export default function Page() {
 
       <CorrelationDialog open={correlationDialogOpen}
                          setOpen={setCorrelationDialogOpen}
+                         setResult={setCorrelationDialogResult}
+                         data={correlationDialogData}
                          sheet={getSheet} />
 
       <SaveAsDialog

@@ -1598,6 +1598,10 @@ export default {
     },
   },
 
+  'correlation-matrix': {
+    'title': 'Correlation matrix',
+  },
+
   //
   // sign-in page (the redesigned one -- the sign-in.* and auth.link.* keys
   // above belong to the old page. 'sign-in.page.title' is still live: it's the

@@ -88,9 +88,6 @@ export function RunSimulationDialog(props: Props) {
   let subscription = 0;
 
   function HandleEscape(event: KeyboardEvent) {
-
-    console.info("ZOP");
-
     if (event.key === 'Escape') {
       event.stopPropagation();
       event.preventDefault();
