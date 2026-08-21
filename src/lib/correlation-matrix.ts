@@ -4,6 +4,7 @@ import type { SpreadsheetType } from './spreadsheet-type';
 import { confirmDialog } from '~/components/dialogs/confirm-dialog/confirm-control';
 // import { Accessor, Setter } from 'solid-js';
 import { type CorrelationDialogData } from '~/components/dialogs/correlation-dialog/correlation-dialog';
+import { t, format } from '~/i18n/i18n';
 // import { AwaitSignal } from './await-signal';
 
 // import type CorrelationDialog from './components/correlation-dialog.svelte';
@@ -34,13 +35,12 @@ export const CheckCorrelationMatrix = async (
   let upper_triangular = true;
 
   let rows = 0;
-  let cols = 0;
 
   if (!data || !Array.isArray(data)) {
     valid_matrix = false;
   } else {
     rows = data.length;
-    cols = data[0]?.length;
+    const cols = data[0]?.length;
     if (rows < 2 || rows !== cols) {
       valid_matrix = false;
     }
@@ -83,24 +83,21 @@ export const CheckCorrelationMatrix = async (
       // style: 'info',
       // header: 'Correlation matrix',
       title: 'correlation-matrix.title',
-      message: 'Please select a square matrix of at least 2x2 cells.',
+      message: t('correlation-matrix.invalid-shape'),
     });
   } else if (!unit_diagonal) {
     await confirmDialog.alert({
       // style: 'info',
       // header: 'Correlation matrix',
       title: 'correlation-matrix.title',
-      message: `Your correlation matrix must have a unit diagonal.\nEvery cell on the diagonal must evaluate to ${sheet.FormatNumber(
-        1,
-        '#.0'
-      )}.`,
+      message: format(t('correlation-matrix.invalid-data'), { unit: sheet.FormatNumber(1, '#.0')}),
     });
   } else if (!symmetric && !upper_triangular && !lower_triangular) {
     await confirmDialog.alert({
       // style: 'info',
       // header: 'Correlation matrix',
       title: 'correlation-matrix.title',
-      message: 'Your correlation matrix must be symmetric, or you can ommit the upper- or lower-triangular.',
+      message: 'correlation-matrix.asymmetric',
     });
   } else {
     const pos_def = sheet.Evaluate(`=IsPosDef(${selection_range})`);
@@ -150,6 +147,8 @@ export const CheckCorrelationMatrix = async (
 
       // we already know this... need to convince ts
       if (Array.isArray(adjusted) && (!style || Array.isArray(style))) {
+
+        // console.info("ERR", err);
 
         return { adjusted, style, err };
 

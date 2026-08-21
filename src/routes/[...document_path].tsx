@@ -51,7 +51,7 @@ import { AboutContent } from '~/components/about/about-content';
 
 import { useNavigate } from "@solidjs/router";
 import { DocumentsRow } from '~/docs/documents';
-import { CorrelationDialog, CorrelationDialogData, type Props as CorrelationDialogProp } from '~/components/dialogs/correlation-dialog/correlation-dialog';
+import { CorrelationDialog, CorrelationDialogData } from '~/components/dialogs/correlation-dialog/correlation-dialog';
 import { CheckCorrelationMatrix } from '~/lib/correlation-matrix';
 
 /*

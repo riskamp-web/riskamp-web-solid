@@ -3,8 +3,9 @@ import { Accessor, createEffect, createSignal, on, onCleanup, onMount } from 'so
 import style from './correlation-dialog.module.css';
 import { Dialog, type Size, type Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { type EmbeddedSpreadsheet, type MCEmbeddedSpreadsheetOptions, RiskAMPWeb } from 'riskamp-web';
+import { RiskAMPWeb } from 'riskamp-web';
 import { CellStyle, CellValue } from '@trebco/treb';
+import { format, t } from '~/i18n/i18n';
 
 export interface CorrelationDialogData {
   adjusted: CellValue[][];
@@ -64,10 +65,13 @@ export function CorrelationDialog(props: Props) {
         collapsed: true,
         resizable: false,
         dnd: false,
+        formula_bar: false,
         toolbar: false,
         expand: true,
       }) as SpreadsheetType;
-      (window as any).local_sheet = local_sheet;
+
+      // (window as any).local_sheet = local_sheet; // dev
+
     }
   });
 
@@ -89,14 +93,17 @@ export function CorrelationDialog(props: Props) {
       <div class={style['outer-container']}>
         <div class={style['dialog-sheet']} ref={container}></div>
       </div>
-      <div>
-        Aggregate error {props.sheet()?.FormatNumber(props.data()?.err || 0, 'number')}
+      <div class={style.message}>
+        {format(t('correlation-matrix.solution-text'), {
+          error: props.sheet()?.FormatNumber(props.data()?.err || 0, 'percent') || '??',
+        })}
+
       </div>
     </section>
     <footer>
       <div class={style.buttons}> 
-        <button autofocus class="button-primary" onclick={() => close(true)}>...</button>
-        <button onclick={() => close(false)}>...</button>
+        <button autofocus class="button-primary" onclick={() => close(true)}>{t('correlation-matrix.accept-changes')}</button>
+        <button onclick={() => close(false)}>{t('correlation-matrix.close-dialog')}</button>
 
       </div>
     </footer>
