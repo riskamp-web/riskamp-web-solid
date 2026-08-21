@@ -97,7 +97,7 @@ export const CheckCorrelationMatrix = async (
       // style: 'info',
       // header: 'Correlation matrix',
       title: 'correlation-matrix.title',
-      message: 'correlation-matrix.asymmetric',
+      message: t('correlation-matrix.asymmetric'),
     });
   } else {
     const pos_def = sheet.Evaluate(`=IsPosDef(${selection_range})`);
@@ -106,7 +106,7 @@ export const CheckCorrelationMatrix = async (
         // style: 'info',
         // header: 'Correlation matrix',
         title: 'correlation-matrix.title',
-        message: 'Your matrix is positive-definite.',
+        message: t('correlation-matrix.positive-definite'),
       });
     } else {
       const adjusted = sheet.Evaluate(`=MakePosDef(${selection_range})`);
