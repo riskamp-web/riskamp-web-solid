@@ -23,7 +23,7 @@ export function CacheCUrrentState(sheet?: SpreadsheetType, document_path = '', v
 
   if (sheet && IsValidPath(document_path)) {
 
-    console.info("Calling cache set", {path: document_path, version}, 'cv', sessionData.last_saved_version);
+    // console.info("Calling cache set", {path: document_path, version}, 'cv', sessionData.last_saved_version);
 
     // not sure why this function is not asymc, but matching
     // the old implementation...
@@ -34,7 +34,7 @@ export function CacheCUrrentState(sheet?: SpreadsheetType, document_path = '', v
           preserve_simulation_data: true,
         });
 
-      console.info({cache_data: data});
+      // console.info({cache_data: data});
 
       cache.Set(document_path, typeof version === 'string' ? version : undefined, {
         data,
@@ -208,7 +208,7 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
     const data = await cache.Get('', undefined);
     if (data?.data) {
       try {
-        console.info("Returning from cache (default document)");
+        // console.info("Returning from cache (default document)");
         sheet.LoadDocument(data.data, { source: 'cache' as LoadSource });
 
         /*
