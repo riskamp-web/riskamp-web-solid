@@ -9,7 +9,7 @@ export default {
     title: 'Language settings...',
   },
 
-  'select-language-dualog': {
+  'select-language-dialog': {
     'title': 'Select language',
   },
 

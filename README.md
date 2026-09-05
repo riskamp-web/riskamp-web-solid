@@ -12,6 +12,9 @@ MC and statistical analysis.
 
 # Documentation
 
+Working in the repo? [`CLAUDE.md`](CLAUDE.md) is the operating manual — the
+repo-wide conventions, invariants, and planned work.
+
 The detailed docs live next to the code they describe. This is the map:
 
 | Doc | Covers |

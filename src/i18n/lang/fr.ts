@@ -15,7 +15,11 @@ export default {
     title: 'Test',
   },
   'update-language': {
-    title: 'Changer de langue',
+    title: 'Paramètres de langue...',
+  },
+
+  'select-language-dialog': {
+    'title': 'Sélectionner la langue',
   },
 
   about: {

@@ -31,7 +31,7 @@ export function LanguageDialog(props: Props) {
 
   return <>
     <Dialog {...props} escape modal closebox resizeable moveable>
-      <header>{t('select-language-dualog.title')}</header>
+      <header>{t('select-language-dialog.title')}</header>
       <section>
           <ul classList={{[style.listbox]: true, [style.expanded]: true}}>
             <For each={languages}>
