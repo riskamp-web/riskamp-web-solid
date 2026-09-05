@@ -1604,10 +1604,11 @@ export default {
     'close-dialog': 'Close',
 
     'invalid-shape': 'Please select a square matrix of at least 2x2 cells.',
-    'invalid-data': 'Your correlation matrix must have a unit diagonal.\nEvery cell on the diagonal must evaluate to {unit}.',
-    'asymmetric': 'Your correlation matrix must be symmetric, or you can ommit the upper- or lower-triangular.',
+    'invalid-data': 'The correlation matrix must have a unit diagonal.\nEvery cell on the diagonal must evaluate to {unit}.',
+    'asymmetric': 'The correlation matrix must be symmetric, or you can ommit the upper- or lower-triangular.',
 
-    'solution-text': `Your correlation matrix is not positive-definite. We found a solution by making small adjustments to the values. The aggregate error is {error}.`,
+    'solution-text': `The correlation matrix is not positive-definite. We found a solution by making small adjustments to the values. The aggregate error is {error}.`,
+    'positive-definite': `The correlation matrix is positive-definite.`,
 
   },
 

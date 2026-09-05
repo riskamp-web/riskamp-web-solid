@@ -313,3 +313,28 @@ p {
 .narrow {
   width: 7em;
 }
+
+/* 
+ * globally disable sidebar toggle buttons. fighting specificity here,
+ * since this is intended to be site-global we might as well just use
+ * important? 
+ */
+
+.treb-toggle-sidebar-button.treb-toggle-sidebar-button.treb-toggle-sidebar-button {
+  display: none;
+  pointer-events: none;
+}
+
+/* patch for mouse mask, which uses position:fixed but does not set position; 
+ * this fails in the stacking context created by our dialogs, so we need to
+ * offset
+ */
+.treb-mouse-mask {
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100dvh;
+}
+

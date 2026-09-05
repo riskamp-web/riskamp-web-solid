@@ -88,7 +88,7 @@ export function CorrelationDialog(props: Props) {
 
   return <Dialog modal moveable escape closebox resizeable {...props} bindsize={[size, setSize]} >
 
-    <header>CMAT</header>
+    <header>{t('correlation-matrix.title')}</header>
     <section class={style['container-section']}>
       <div class={style['outer-container']}>
         <div class={style['dialog-sheet']} ref={container}></div>

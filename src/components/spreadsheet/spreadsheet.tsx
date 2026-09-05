@@ -54,16 +54,18 @@ export function Spreadsheet(props: Props) {
 
       (self as ( Window & typeof globalThis & {sheet: SpreadsheetType})).sheet = sheet as SpreadsheetType; // DEV
 
-      // hide sidebar button
+      // hide sidebar button [UPDATE: do this in css]
 
+      /*
       let element = container.querySelector('.treb-toggle-sidebar-button');
       if (element instanceof HTMLElement) {
         element.remove();
       }
+      */
 
       const fx = props['function-handler'];
       if (fx) {
-        element = container.querySelector('.treb-insert-function-button');
+        const element = container.querySelector('.treb-insert-function-button');
         if (element instanceof HTMLElement) {
           element.addEventListener('click', fx);
         }
