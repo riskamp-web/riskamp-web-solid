@@ -162,6 +162,11 @@ export function formatJSX(text: string, values: Record<string, string | number |
  * updating this method to take a proper locale (e.g. en-us). we'll 
  * pull the language based on the first half.
  * 
+ * FIXME/TODO: why is this implemented as an imperative function instead
+ * of listening to the signal? could be because the language might be 
+ * unsupported, in which case we default? or maybe just because it was 
+ * from an older app that didn't use the same signal style
+ * 
  * @param locale 
  */
 export async function UpdateLanguage(locale?: string) {
@@ -236,3 +241,28 @@ type AssertNoDots<T extends never> = T;
  * the constraint 'never'". nest it instead.
  */
 type _NoDottedKeys = AssertNoDots<DottedKeys<I18N>>;
+
+/** 
+ * we're hardcoding the list of languages rather than generating, although
+ * we could switch to generating at complile time
+ */
+export const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'fr', name: 'Français' },
+  { code: 'es', name: 'Español' },
+
+  /*
+  { code: 'pt', name: 'Português' },
+  { code: 'da', name: 'Dansk' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'it', name: 'Italiano' },
+  { code: 'no', name: 'Norsk' },
+  { code: 'sv', name: 'Svenska' },
+  { code: 'pl', name: 'Polski' },
+  { code: 'nl', name: 'Nederlands' },
+   */
+];
+
+languages.sort((a, b) => a.code.localeCompare(b.code));
+
+

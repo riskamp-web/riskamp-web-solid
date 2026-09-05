@@ -562,7 +562,7 @@ export function Toolbar(props: ParentProps<Props>) {
 
             </Match>
             <Match when={true}>
-              <A href='/sign-in'>Sign in</A>
+              <A href='/sign-in'>{t('auth.link.sign-in.text')}</A>
             </Match>
           </Switch>
         </div>

@@ -13,7 +13,7 @@ import { ApplyArgs, CalculateAndRender, FunctionArg, TranslateDescriptor } from 
 import { Calculator, ExtendedFunctionDescriptor } from '@trebco/treb/treb-calculator';
 import { FunctionLibrary } from '@trebco/treb/treb-calculator/src/function-library';
 import { icons } from '~/components/icon-sets';
-import { CellValue } from '@trebco/treb';
+// import { CellValue } from '@trebco/treb';
 
 export interface SearchState {
   results: FunctionData[];

@@ -4,8 +4,13 @@ export default {
   test: {
     title: 'Test',
   },
+
   'update-language': {
-    title: 'Update language',
+    title: 'Language settings...',
+  },
+
+  'select-language-dualog': {
+    'title': 'Select language',
   },
 
   about: {

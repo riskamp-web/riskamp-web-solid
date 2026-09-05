@@ -57,6 +57,8 @@ export const toolbar_config: ToolbarConfig = {
         'separator',
         'export-xlsx',
         'export-csv',
+        'separator',
+        'update-language',
       ),
     },
     {

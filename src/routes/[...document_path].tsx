@@ -53,6 +53,7 @@ import { useNavigate } from "@solidjs/router";
 import { DocumentsRow } from '~/docs/documents';
 import { CorrelationDialog, CorrelationDialogData } from '~/components/dialogs/correlation-dialog/correlation-dialog';
 import { CheckCorrelationMatrix } from '~/lib/correlation-matrix';
+import { LanguageDialog } from '~/components/dialogs/language-dialog/language-dialog';
 
 /*
 function Spin() {
@@ -74,6 +75,8 @@ export default function Page() {
 
   const [saveAsDialogOpen, setSaveAsDialogOpen] = createSignal(false);
   const [saveAsDocument, setSaveAsDocument] = createSignal<SaveAsDocument|undefined>();
+
+  const [languageDialogOpen, setLanguageDialogOpen] = createSignal(false);
 
   const [runSimulationOpen, setRunSimulationOpen] = createSignal(false);
   const [runSimulationOptions, setRunSimulationOptions] = createSignal<Partial<RunSimulationOptions>>({});
@@ -726,6 +729,14 @@ export default function Page() {
         navigate('/sign-out');
         return;
 
+      case 'update-language':
+        setLanguageDialogOpen(true);
+        AwaitSignal(languageDialogOpen, value => !value).then(() => {
+          sheet.Focus();
+        });
+        break;
+
+
       default:
         console.warn('unhandled', key);
         // setOpen(true);
@@ -1032,6 +1043,8 @@ export default function Page() {
           documents={() => documents}
           document={saveAsDocument}
           onSave={HandleSaveAs} />
+
+      <LanguageDialog open={languageDialogOpen} setOpen={setLanguageDialogOpen} sheet={getSheet} />
 
     </main>
   );
