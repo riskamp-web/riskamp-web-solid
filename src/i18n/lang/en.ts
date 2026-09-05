@@ -164,7 +164,7 @@ export default {
         label: 'Toggle underline',
       },
       strikethrough: {
-        label: 'Toggle striketrhough',
+        label: 'Toggle strikethrough',
       },
 
       'insert-row': {
@@ -890,7 +890,7 @@ export default {
       rename_failed: 'Rename failed. Please try again later.',
       rename_succeeded: 'Document renamed',
 
-      delete_failed: 'Rename failed. Please try again later.',
+      delete_failed: 'Delete failed. Please try again later.',
       one_document_deleted: 'Document deleted',
       multiple_documents_deleted: 'Documents deleted',
 
