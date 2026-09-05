@@ -27,6 +27,9 @@ export default {
     build: 'Compilación {commit}',
     copyright: '© {year} Structured Data LLC. Todos los derechos reservados.',
     website: 'riskamp.com',
+    report: 'Informar de un problema',
+    'report-subject': 'RiskAMP web — informe de problema',
+    'report-body': '(describe el problema aquí)\n\n\n---\nRiskAMP: {version}\nTREB: {treb}\nBuild: {commit}\nNavegador: {ua}\nIdioma: {lang}\nURL: {url}',
   },
 
   toolbar: {

@@ -40,8 +40,8 @@
 
 .footer {
   display: flex;
-  justify-content: space-between;
-  gap: 1em;
+  flex-direction: column;
+  gap: 0.3em;
   white-space: nowrap;
   margin-top: 0.4em;
   padding-top: 0.5em;
@@ -50,6 +50,13 @@
   */
   font-size: 0.85em;
   color: var(--text-faint);
+}
+
+/* website (left) / report-an-issue (right) row, under the copyright line. */
+.links {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
 }
 
 .footer a {
