@@ -3,6 +3,7 @@ import { createEffect } from 'solid-js';
 import { type Model } from 'treb-llm-support';
 import type { DocumentsRow } from '~/docs/documents';
 import type { DocumentScope, SortDirection, SortKey } from '~/backstage/documents-data';
+import { languages, UpdateLanguage } from '~/i18n/i18n';
 
 /**
  * FIXME: we should change how this works, make it deeper 
@@ -107,6 +108,9 @@ export interface PersistentData {
   /** explicit light/dark theme. leave undefined to use system theme. */
   explicit_theme?: 'light'|'dark';
 
+  /** explicit language, if it was set */
+  explicit_language?: string;
+
 }
 
 export const [sessionData, setSessionData] = createStore<SessionData>({
@@ -154,6 +158,40 @@ export const [persistentData, setPersistentData] = createStore<PersistentData>({
 
 });
 
+/**
+ * @returns the current selected language, or the browser default, best
+ * as we can determine
+ */
+export function CurrentLanguage() {
+
+  if (persistentData.explicit_language) {
+    return persistentData.explicit_language;
+  }
+  else {
+    
+    for (let lang of navigator.languages) {
+      if (!lang) { 
+        continue; 
+      }
+      lang = lang.substring(0, 2).toLowerCase();
+      for (const compare of languages) {
+        if (lang === compare.code) {
+          return lang;
+        }
+      }
+    }
+
+    const lang = (navigator.language || '').substring(0, 2).toLowerCase();
+    for (const compare of languages) {
+      if (lang === compare.code) {
+        return lang;
+      }
+    }
+
+  }
+
+}
+
 export function InitAppData() {
 
   if (localStorage) {
@@ -167,10 +205,17 @@ export function InitAppData() {
         console.error(err);
       }
     }
+
+    const language = CurrentLanguage();
+    if (language) {
+      UpdateLanguage(language);
+    }
+
   }
 
   createEffect(() => {
     const json = JSON.stringify(persistentData);
+    console.info("SAVE", {json});
     localStorage.setItem('app-data', json);
   });
 

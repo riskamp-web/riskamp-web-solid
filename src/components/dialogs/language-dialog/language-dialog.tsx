@@ -4,6 +4,7 @@ import { Dialog, type Props as DialogProps } from '~/components/dialogs/dialog-b
 import { t, languages, currentLocale, UpdateLanguage } from '~/i18n/i18n';
 import style from './language-dialog.module.css';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
+import { setPersistentData } from '~/lib/app-data';
 
 interface Props extends DialogProps<boolean> {
   sheet: Accessor<SpreadsheetType|undefined>;
@@ -25,6 +26,7 @@ export function LanguageDialog(props: Props) {
   async function Apply() {
     const lang = selectedLanguage();
     await UpdateLanguage(lang);
+    setPersistentData({explicit_language: lang});
     props.sheet()?.LoadLanguage(lang);
     props.setOpen(false);
   }

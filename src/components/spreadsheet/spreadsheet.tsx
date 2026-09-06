@@ -3,6 +3,7 @@ import { onMount, Setter } from "solid-js";
 import { type EmbeddedSpreadsheet, type MCEmbeddedSpreadsheetOptions, RiskAMPWeb } from 'riskamp-web';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 import { ApplyThemeColors } from '../toolbar/theme-selector';
+import { CurrentLanguage, persistentData } from '~/lib/app-data';
 
 interface Props {
   fill?: boolean;
@@ -50,6 +51,10 @@ export function Spreadsheet(props: Props) {
 
       sheet.ready.then(() => {
         props.setSheet(sheet as SpreadsheetType);
+        const language = CurrentLanguage();
+        if (language) {
+          (sheet as SpreadsheetType).LoadLanguage(language);
+        }
       });
 
       (self as ( Window & typeof globalThis & {sheet: SpreadsheetType})).sheet = sheet as SpreadsheetType; // DEV
