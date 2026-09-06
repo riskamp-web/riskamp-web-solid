@@ -187,7 +187,7 @@ export async function UpdateLanguage(locale?: string) {
     if (lang !== 'en') {
 
       const data = (await import(`~/i18n/lang/${lang}.ts`)).default;
-      console.info(`assigning from ${lang}`, { data });
+      // console.info(`assigning from ${lang}`, { data });
 
       // start with the base, in case anything is missing, then apply the deltas
       setI18nInstance('strings', deepMerge(en, data));

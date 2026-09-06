@@ -168,7 +168,7 @@ export function CurrentLanguage() {
     return persistentData.explicit_language;
   }
   else {
-    
+
     for (let lang of navigator.languages) {
       if (!lang) { 
         continue; 
@@ -215,7 +215,6 @@ export function InitAppData() {
 
   createEffect(() => {
     const json = JSON.stringify(persistentData);
-    console.info("SAVE", {json});
     localStorage.setItem('app-data', json);
   });
 
