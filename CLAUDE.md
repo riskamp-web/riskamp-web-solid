@@ -29,8 +29,56 @@ for the full story.
   `/documents?dev&fail-history`). (→ `src/routes/(backstage)/README.md`.)
 - **`src/docs/` is reference dumps, not live code** — the source of truth when
   wiring the real endpoints, wired to nothing itself.
+- **Build — riskamp-web language files are emitted by a plugin; don't remove it.**
+  riskamp-web loads its language catalogues via `import()` of a *computed* path,
+  which Rollup can't analyse, so a plain prod build emits nothing → runtime 404 →
+  silent English fallback. `riskampLanguages()` in `app.config.ts` copies them to
+  `_build/assets/languages/` where that import resolves. Keep it until the
+  upstream fix lands. (→ planned work below; full story in `app.config.ts`.)
 
 ## Planned work
+
+### riskamp-web language loading — static specifiers (upstream, needs a major bump)
+
+**Status:** proposed, deferred. The app-side workaround ships today
+(`riskampLanguages()` in `app.config.ts`); this is the real fix, and it lives in
+riskamp-web itself (`../RAW`, the `file:` dependency). It requires a **major
+version bump there** — other consumers rely on the current output — so it's not
+urgent, but it removes the workaround and makes every Vite consumer "just work".
+
+**Problem.** riskamp-web loads a language catalogue with a dynamic `import()` of a
+*computed* path (`treb-mc/src/embedded-spreadsheet.ts`:
+`const path = \`./languages/riskamp-web-i18n-${language}.mjs\`; mod = await import(path)`).
+The variable is deliberate — it stops esbuild (`bundle: true`) from inlining the
+catalogues, which must ship as separate files (`CopyFilesPlugin` copies
+`i18n/languages` → `dist/languages/`). But the variable also hides the specifier
+from Vite/Rollup's built-in dynamic-import analysis, so a consuming Vite **prod**
+build emits nothing and the runtime `import()` 404s (dev works — Vite serves the
+files straight from `node_modules`). An older riskamp-web wrote the template
+literal *directly inside* `import()`, which Vite's `@rollup/plugin-dynamic-import-vars`
+globbed and bundled automatically — that's why the Svelte-era app needed no config;
+the temporary-variable change (RAW commit `20187e2`) silently regressed it.
+
+**Fix — two coordinated changes in `../RAW`:**
+
+1. **Replace the computed path with a static per-language map of literal
+   `import()` specifiers** (the set is fixed and known, ~10 locales):
+   `{ fr: () => import('./languages/riskamp-web-i18n-fr.mjs'), … }`. Literal
+   specifiers let Vite/Rollup resolve, hash-emit, and rewrite each one — no
+   consumer-side plugin needed. This also gives the "filter list to avoid 404s"
+   the source's own FIXME asks for.
+
+2. **Mark `./languages/*` external in esbuild** (`esbuild-composite.mjs` —
+   add to `external`, or an `onResolve` plugin; cf. the commented-out
+   `RewriteIgnoredImports`) so esbuild leaves the now-literal imports pointing at
+   the copied `dist/languages/*.mjs` instead of inlining them — preserving the
+   separate-files behaviour existing consumers depend on.
+
+**Leave the sibling `treb-i18n-*` import alone** — those files don't ship in the
+package, so converting them to literal specifiers would hard-fail a consumer's
+build (unresolved module); as a variable it stays a harmless 404 → fallback.
+
+When this lands, delete `riskampLanguages()` and its wiring from `app.config.ts`.
 
 ### i18n catalogue scaling — target 1.1 (post-release)
 
