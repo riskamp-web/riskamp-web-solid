@@ -164,7 +164,7 @@ export function RunSimulationDialog(props: Props) {
         if (typeof value === 'number' && value > 0 && !isNaN(value)) {
           const num = value;
 
-          console.info("SPD trials", num);
+          // console.info("SPD trials", num);
 
           setPersistentData(produce(s => { s.trials = num; }));
           const user_data = sheet.user_data || {};

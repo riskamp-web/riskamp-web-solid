@@ -1,9 +1,4 @@
 
-// import { bootstrap_icons as bs, fa_light, fa_regular, fa_sharp_light, fa_sharp_regular } from 's5-icon-lib';
-// import { phosphor_light as phosphor } from 's5-icon-lib';
-// import { lucide } from 's5-icon-lib';
-
-// import { ICONS } from 'riskamp-icons';
 
 import { icons as rai } from 'riskamp-icon-workbench';
 

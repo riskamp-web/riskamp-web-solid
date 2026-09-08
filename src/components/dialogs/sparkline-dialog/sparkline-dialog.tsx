@@ -7,7 +7,6 @@ import { CreateParameters, InteractiveDialog,
 import style from './sparkline-dialog.module.css';
 import { t } from '~/i18n/i18n';
 import { createEffect, createSignal, on } from 'solid-js';
-// import { bootstrap_icons } from 's5-icon-lib';
 import { SetStoreFunction } from 'solid-js/store';
 import { IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
