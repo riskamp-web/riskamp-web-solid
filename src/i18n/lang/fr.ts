@@ -29,7 +29,7 @@ export default {
     website: 'riskamp.com',
     report: 'Signaler un problème',
     'report-subject': 'RiskAMP web — signalement de problème',
-    'report-body': '(décrivez le problème ici)\n\n\n---\nRiskAMP : {version}\nTREB : {treb}\nBuild : {commit}\nNavigateur : {ua}\nLangue : {lang}\nURL : {url}',
+    'report-body': '(décrivez le problème ici)\n\n\n---\nRiskAMP : {version}\nTREB : {treb}\nBuild : {commit}\nNavigateur : {ua}\nLangue : {lang}\nURL : {url}',
   },
 
   toolbar: {
@@ -568,7 +568,7 @@ export default {
   },
 
   'confirm-dialog': {
-    title: 'Êtes-vous sûr ?',
+    title: 'Êtes-vous sûr ?',
     'alert-title': 'Alerte',
     confirm: 'Confirmer',
     cancel: 'Annuler',
@@ -610,11 +610,11 @@ export default {
     collision: 'Un document existe déjà à cet emplacement.',
     'collision-blocked': 'Un document existe déjà à cet emplacement. Choisissez un nom différent.',
     empty: 'Saisissez un nom',
-    saved: 'Enregistré « {name} »',
-    'save-failed': 'Impossible d’enregistrer « {name} ».',
+    saved: 'Enregistré « {name} »',
+    'save-failed': 'Impossible d’enregistrer « {name} ».',
     retry: 'Réessayer',
-    'overwrite-confirm-title': 'Écraser le document ?',
-    'overwrite-confirm-message': 'Un document existe déjà à « {name} ». L’écraser remplace son contenu. Êtes-vous sûr ?',
+    'overwrite-confirm-title': 'Écraser le document ?',
+    'overwrite-confirm-message': 'Un document existe déjà à « {name} ». L’écraser remplace son contenu. Êtes-vous sûr ?',
 
     'path-exists-title': 'Le document existe',
     'path-exists-message': 'Un document ayant ce chemin existe déjà. Supprimez d’abord ce document si vous souhaitez réutiliser le chemin.',
@@ -698,8 +698,8 @@ export default {
       title: 'Chat',
     },
     'change-model': {
-      title: 'Changer de modèle ?',
-      message: 'Ce modèle utilise un fournisseur différent, la conversation actuelle sera donc effacée. Continuer ?',
+      title: 'Changer de modèle ?',
+      message: 'Ce modèle utilise un fournisseur différent, la conversation actuelle sera donc effacée. Continuer ?',
       confirm: 'Changer de modèle',
     },
     buttons: {
@@ -722,11 +722,11 @@ export default {
       header: {
         important: 'Important',
       },
-      disclaimer: 'L’interface IA fonctionne en mode « apportez votre propre clé ». Pour l’utiliser, vous devez fournir une clé d’API pour un fournisseur ou un modèle pris en charge.\nNous ne voyons jamais votre clé d’API. Elle reste dans votre navigateur et n’est envoyée au fournisseur officiel que lorsque vous envoyez un message de chat.\nVotre fournisseur de modèle vous facturera les tokens ou selon votre formule d’abonnement.',
+      disclaimer: 'L’interface IA fonctionne en mode « apportez votre propre clé ». Pour l’utiliser, vous devez fournir une clé d’API pour un fournisseur ou un modèle pris en charge.\nNous ne voyons jamais votre clé d’API. Elle reste dans votre navigateur et n’est envoyée au fournisseur officiel que lorsque vous envoyez un message de chat.\nVotre fournisseur de modèle vous facturera les tokens ou selon votre formule d’abonnement.',
 
       provider_link: 'Page web du fournisseur',
       model_information_link: 'Informations sur le modèle',
-      screenshots_disabled: 'Remarque : ce modèle ne prend pas en charge les captures d’écran.',
+      screenshots_disabled: 'Remarque : ce modèle ne prend pas en charge les captures d’écran.',
 
     },
 
@@ -885,8 +885,8 @@ export default {
     },
 
     confirm: {
-      confirm_delete_document: 'Supprimer le document, êtes-vous sûr ?',
-      confirm_delete_documents: 'Supprimer les documents, êtes-vous sûr ?',
+      confirm_delete_document: 'Supprimer le document, êtes-vous sûr ?',
+      confirm_delete_documents: 'Supprimer les documents, êtes-vous sûr ?',
     },
 
     error: {
@@ -919,7 +919,7 @@ export default {
     },
 
     'no-match': {
-      title: 'Aucun document ne correspond à « {query} »',
+      title: 'Aucun document ne correspond à « {query} »',
       detail: 'La recherche couvre tous les dossiers. Essayez un terme plus court.',
       action: 'Effacer la recherche',
     },
@@ -1203,31 +1203,31 @@ export default {
     },
 
     'borders-clear': {
-      label: 'Bordures : effacer les bordures',
+      label: 'Bordures : effacer les bordures',
     },
     'border-top': {
-      label: 'Bordures : appliquer la bordure supérieure à la sélection',
+      label: 'Bordures : appliquer la bordure supérieure à la sélection',
     },
     'border-bottom': {
-      label: 'Bordures : appliquer la bordure inférieure à la sélection',
+      label: 'Bordures : appliquer la bordure inférieure à la sélection',
     },
     'border-double-bottom': {
-      label: 'Bordures : appliquer la double bordure inférieure à la sélection',
+      label: 'Bordures : appliquer la double bordure inférieure à la sélection',
     },
     'border-left': {
-      label: 'Bordures : appliquer la bordure gauche à la sélection',
+      label: 'Bordures : appliquer la bordure gauche à la sélection',
     },
     'border-right': {
-      label: 'Bordures : appliquer la bordure droite à la sélection',
+      label: 'Bordures : appliquer la bordure droite à la sélection',
     },
 
     'border-outside': {
-      label: 'Bordures : appliquer la bordure extérieure à la sélection',
+      label: 'Bordures : appliquer la bordure extérieure à la sélection',
       alt: 'externe',
     },
 
     'border-all': {
-      label: 'Bordures : appliquer toutes les bordures à la sélection',
+      label: 'Bordures : appliquer toutes les bordures à la sélection',
     },
 
     'reset-font-scale': {
@@ -1236,12 +1236,12 @@ export default {
     },
 
     'font-scale-increase': {
-      label: 'Échelle de police : augmenter de 10 %',
+      label: 'Échelle de police : augmenter de 10 %',
       alt: 'texte taille de police',
     },
 
     'font-scale-decrease': {
-      label: 'Échelle de police : diminuer de 10 %',
+      label: 'Échelle de police : diminuer de 10 %',
       alt: 'texte taille de police',
     },
 
@@ -1280,13 +1280,13 @@ export default {
     },
 
     'cf-gradient-red-green': {
-      label: 'Mise en forme conditionnelle dégradé : rouge-vert',
+      label: 'Mise en forme conditionnelle dégradé : rouge-vert',
     },
     'cf-gradient-green-red': {
-      label: 'Mise en forme conditionnelle dégradé : vert-rouge',
+      label: 'Mise en forme conditionnelle dégradé : vert-rouge',
     },
     'cf-unique-values': {
-      label: 'Mise en forme conditionnelle : valeurs uniques',
+      label: 'Mise en forme conditionnelle : valeurs uniques',
 
       parameter: {
         color: {
@@ -1296,7 +1296,7 @@ export default {
     },
 
     'cf-data-bars': {
-      label: 'Mise en forme conditionnelle : barres de données',
+      label: 'Mise en forme conditionnelle : barres de données',
       alt: 'barre de données',
 
       parameter: {
@@ -1304,7 +1304,7 @@ export default {
           label: 'Sélectionnez la couleur des barres de données',
         },
         'hide-values': {
-          label: 'Masquer les valeurs ?',
+          label: 'Masquer les valeurs ?',
           choice: {
             'true': 'Oui, masquer les valeurs',
             'false': 'Non, afficher les valeurs',
@@ -1314,7 +1314,7 @@ export default {
     },
 
     'cf-duplicate-values': {
-      label: 'Mise en forme conditionnelle : valeurs en double',
+      label: 'Mise en forme conditionnelle : valeurs en double',
 
       parameter: {
         color: {
@@ -1511,12 +1511,12 @@ export default {
     },
 
     'number-format-increase-precision': {
-      label: 'Format de nombre : ajouter une décimale',
+      label: 'Format de nombre : ajouter une décimale',
       alt: 'plus de décimales',
     },
 
     'number-format-decrease-precision': {
-      label: 'Format de nombre : supprimer une décimale',
+      label: 'Format de nombre : supprimer une décimale',
       alt: 'moins de décimales',
     },
 
@@ -1545,32 +1545,32 @@ export default {
     },
 
     'valign-top': {
-      label: 'Mise en forme de la sélection : aligner verticalement en haut',
+      label: 'Mise en forme de la sélection : aligner verticalement en haut',
     },
     'valign-bottom': {
-      label: 'Mise en forme de la sélection : aligner verticalement en bas',
+      label: 'Mise en forme de la sélection : aligner verticalement en bas',
     },
     'valign-middle': {
-      label: 'Mise en forme de la sélection : centrer verticalement',
+      label: 'Mise en forme de la sélection : centrer verticalement',
     },
 
     'align-left': {
-      label: 'Mise en forme de la sélection : aligner le texte à gauche',
+      label: 'Mise en forme de la sélection : aligner le texte à gauche',
       alt: 'alignement horizontal',
     },
 
     'align-right': {
-      label: 'Mise en forme de la sélection : aligner le texte à droite',
+      label: 'Mise en forme de la sélection : aligner le texte à droite',
       alt: 'alignement horizontal',
     },
 
     'align-center': {
-      label: 'Mise en forme de la sélection : centrer le texte',
+      label: 'Mise en forme de la sélection : centrer le texte',
       alt: 'alignement horizontal justifier',
     },
 
     'toggle-word-wrap': {
-      label: 'Mise en forme de la sélection : activer/désactiver le renvoi à la ligne',
+      label: 'Mise en forme de la sélection : activer/désactiver le renvoi à la ligne',
     },
 
     'toggle-gridlines': {
@@ -1584,20 +1584,20 @@ export default {
     },
 
     'toggle-bold': {
-      label: 'Mise en forme de la sélection : activer/désactiver le gras',
+      label: 'Mise en forme de la sélection : activer/désactiver le gras',
     },
     'toggle-italic': {
-      label: 'Mise en forme de la sélection : activer/désactiver l’italique',
+      label: 'Mise en forme de la sélection : activer/désactiver l’italique',
     },
     'toggle-underline': {
-      label: 'Mise en forme de la sélection : activer/désactiver le soulignement',
+      label: 'Mise en forme de la sélection : activer/désactiver le soulignement',
     },
     'toggle-strikethrough': {
-      label: 'Mise en forme de la sélection : activer/désactiver le barré',
+      label: 'Mise en forme de la sélection : activer/désactiver le barré',
     },
 
     'reset-text-formatting': {
-      label: 'Mise en forme de la sélection : réinitialiser la mise en forme du texte',
+      label: 'Mise en forme de la sélection : réinitialiser la mise en forme du texte',
       alt: 'effacer',
     },
   },
@@ -1720,7 +1720,7 @@ export default {
     done: {
       heading: 'Consultez votre messagerie',
       body: 'Nous avons envoyé un lien à {email}. Ouvrez-le pour confirmer votre adresse et choisir un mot de passe.',
-      spam: 'Rien reçu ? Patientez une minute, puis vérifiez votre dossier de spam.',
+      spam: 'Rien reçu ? Patientez une minute, puis vérifiez votre dossier de spam.',
       restart: 'Utiliser une adresse différente',
     },
 
@@ -1750,7 +1750,7 @@ export default {
     done: {
       heading: 'Consultez votre messagerie',
       body: 'S’il existe un compte pour {email}, nous lui avons envoyé un lien. Ouvrez-le pour choisir un nouveau mot de passe.',
-      spam: 'Rien reçu ? Patientez une minute, puis vérifiez votre dossier de spam.',
+      spam: 'Rien reçu ? Patientez une minute, puis vérifiez votre dossier de spam.',
       restart: 'Utiliser une adresse différente',
     },
 
@@ -1826,7 +1826,7 @@ export default {
   },
 
   'new-document': {
-    'discard-changes-message': 'Vous avez des modifications non enregistrées. Êtes-vous sûr ?',
+    'discard-changes-message': 'Vous avez des modifications non enregistrées. Êtes-vous sûr ?',
     'discard-changes-confirm': 'Nouveau document',
   },
 

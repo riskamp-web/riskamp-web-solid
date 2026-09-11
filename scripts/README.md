@@ -1,5 +1,43 @@
 # scripts
 
+## check-fr-typography.ts
+
+Lints — and optionally fixes — French typographic spacing in the French
+translation catalogue, `src/i18n/lang/fr.ts`.
+
+```bash
+npm run check:i18n-fr          # report violations, non-zero exit if any (CI-ready)
+npm run check:i18n-fr -- --fix    # rewrite fr.ts in place, then re-check
+```
+
+### The convention (strict Imprimerie nationale)
+
+French puts a **no-break** space before certain marks, so they never wrap to the
+start of a line and read correctly:
+
+| Position | Character |
+|---|---|
+| before `:` | `U+00A0` NO-BREAK SPACE (full) |
+| before `;` `!` `?` | `U+202F` NARROW NO-BREAK SPACE |
+| after `«` and before `»` | `U+202F` NARROW NO-BREAK SPACE |
+
+Apply this to any **new** French strings; `--fix` will convert an ordinary space
+already in the right position, and `check` will fail CI if one is left behind.
+
+### Why it's safe against the code
+
+The script works on the raw file text and only ever **normalises a space that is
+already present** before the mark — it never inserts one into a glued position.
+That's the whole trick: a French value colon has a space before it
+(`'Remarque : …'`), a key-separator colon does not (`title:`, `about: {`); a
+French `?`/`;`/`!` has a space before it, a TypeScript `;` / `!` / `?.` does not.
+Acting only on the space-preceded case targets French text and never rewrites a
+key or a line of TypeScript. The trade-off: a genuinely *glued* French mark (the
+space forgotten entirely) isn't caught — worth it for zero false positives.
+
+Only `fr.ts` needs this — Spanish and English don't use these spaces. Not wired
+into CI yet (this repo has none); it's ready to drop in when CI arrives.
+
 ## convert-policy-pages.ts
 
 Converts the legal pages (**Privacy Policy**, **Terms of Service**) from their

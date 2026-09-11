@@ -20,6 +20,11 @@ for the full story.
   `satisfies DeepPartial<I18N>` and fall back to English per key. Never break that
   derivation. Missing/stale keys are invisible to the compiler — mirror `en.ts`
   changes into `es.ts`/`fr.ts`. (→ scaling plan below.)
+- **i18n — French uses no-break spaces before `: ; ! ?` and inside `« »`.** Strict
+  Imprimerie nationale: `U+00A0` before `:`, `U+202F` before `; ! ?` and inside
+  guillemets. New/changed French strings must follow it; `npm run check:i18n-fr`
+  enforces it (`--fix` converts a plain space in the right spot). ES/EN don't use
+  these. (→ `scripts/README.md`.)
 - **CSS — `src/app.css` is the single source of every token and colour.** Theme
   colours, metrics, and type all resolve from there. (→ `src/style/README.md`.)
 - **CSS — TREB generates selectors that look like dead code.** Don't delete CSS
@@ -115,7 +120,11 @@ source changed).
    keys and stale keys (English value changed since the locale was generated; the
    `generated <date>` header is a start, but real detection wants per-key
    provenance or a content hash). Wire into CI. A bespoke translation *editor* is
-   high-cost / low-return for a small LLM-assisted team — skip it.
+   high-cost / low-return for a small LLM-assisted team — skip it. **First piece
+   already landed:** `scripts/check-fr-typography.ts` (`npm run check:i18n-fr`)
+   checks French no-break-space typography and is CI-ready — a coverage/staleness
+   check is the natural sibling to add alongside it. (This repo has no CI yet, so
+   neither is wired in; both are just npm scripts today.)
 
 3. **Defer: JSON + codegen.** Only when real human translators or a TMS
    (Crowdin/Lokalise/Weblate) enter the picture — those speak JSON, not TS. It
