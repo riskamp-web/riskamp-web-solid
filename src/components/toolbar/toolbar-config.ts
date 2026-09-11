@@ -91,10 +91,10 @@ export const toolbar_config: ToolbarConfig = {
     {
       label: 'toolbar.menus.help',
       items: menuitems(
-        'about-riskamp',
         'function-docs',
-        'separator',
         'walkthrough',
+        'separator',
+        'about-riskamp',
       ),
     }
   ],
