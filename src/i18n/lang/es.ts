@@ -298,6 +298,12 @@ export default {
     },
 
     simulation_settings: {
+      'parallel-calculation': {
+        'section-header': 'Cálculo en paralelo',
+        'max-workers': 'Número de procesos de trabajo (máximo)',
+        'explanatory-text': `Usar más procesos de trabajo en paralelo mejorará el rendimiento de la simulación en modelos complejos. En la mayoría de los casos recomendamos 4 u 8 procesos de trabajo.`,
+      },
+
       'random-sampling': {
         'section-header': 'Muestreo aleatorio',
         'explanatory-text': 'El método de muestreo se guardará con esta hoja de cálculo.\nEl valor que selecciones aquí también se usará como predeterminado para las nuevas hojas de cálculo.',

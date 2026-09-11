@@ -298,6 +298,12 @@ export default {
     },
 
     simulation_settings: {
+      'parallel-calculation': {
+        'section-header': 'Calcul parallèle',
+        'max-workers': 'Nombre de processus de travail (maximum)',
+        'explanatory-text': `Utiliser davantage de processus de travail en parallèle améliorera les performances de la simulation pour les modèles complexes. Dans la plupart des cas, nous recommandons 4 ou 8 processus de travail.`,
+      },
+
       'random-sampling': {
         'section-header': 'Échantillonnage aléatoire',
         'explanatory-text': 'La méthode d’échantillonnage sera enregistrée avec cette feuille de calcul.\nLa valeur que vous sélectionnez ici servira également de valeur par défaut pour les nouvelles feuilles de calcul.',
