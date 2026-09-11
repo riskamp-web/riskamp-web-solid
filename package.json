@@ -1,6 +1,7 @@
 {
   "name": "riskamp-web-solid",
   "type": "module",
+  "version": "0.12.3",
   "scripts": {
     "dev": "vinxi dev --port 5173",
     "build": "vinxi build",

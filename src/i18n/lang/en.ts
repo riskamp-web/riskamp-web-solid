@@ -289,6 +289,12 @@ export default {
     },
 
     simulation_settings: {
+      'parallel-calculation': { 
+        'section-header': 'Parallel calculation',
+        'max-workers': 'Number of workers (maximum)',
+        'explanatory-text': `Using more workers in parallel will improve simulation performance for complex models. In most cases we recommend 4 or 8 workers.`,
+      },
+
       'random-sampling': {
         'section-header': 'Random sampling',
         'explanatory-text': 'The samping method will be saved with this spreadsheet.\nThe value you select here will also be used as the default for new spreadsheets.',

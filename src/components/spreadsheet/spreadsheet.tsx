@@ -25,6 +25,13 @@ export function Spreadsheet(props: Props) {
   onMount(() => {
     if (container) {
 
+      let max_workers = persistentData.max_workers || 0;
+      if (!max_workers) {
+        const cores = navigator.hardwareConcurrency || 0;
+        const cap = cores ? Math.min(Math.floor(cores/2), 8) : 4;
+        max_workers = Math.min(navigator.hardwareConcurrency || 0, cap);
+      }
+      
       const options: MCEmbeddedSpreadsheetOptions & { insert_function_button?: boolean } = {
         container,
         stats: true,
@@ -44,6 +51,7 @@ export function Spreadsheet(props: Props) {
         lhs: true,
         lv: true,
         toll_initial_load: true,
+        max_workers: max_workers || undefined, // default instead of 0
       };
 
       sheet = RiskAMPWeb.CreateSpreadsheet(options);

@@ -28,6 +28,11 @@ export function RunSimulationDialog(props: Props) {
 
   const [running, setRunning] = createSignal(false);
   const [progress, setProgress] = createSignal(0);
+
+  // why do we have this signal? what's it for? we're duplicating effort 
+  // here, I think. also this caused the error where updating trials would
+  // not affect the immediate run, which was messy (fixed)
+  
   const [trials, setTrials] = createSignal(0);
 
   const number_format = NumberFormatCache.Get('#,##0');
@@ -71,6 +76,7 @@ export function RunSimulationDialog(props: Props) {
       }
 
       const seed = sheet.user_data?.simulation?.seed || 0;
+      const workers = persistentData.max_workers || undefined;
 
       Notify({ event: 'run-simulation' });
 
@@ -80,6 +86,7 @@ export function RunSimulationDialog(props: Props) {
           lhs: persistentData.lhs,
           stepped: persistentData.stepped ? 25 : false,
           additional_cells,
+          workers,
           seed: seed === 0 ? undefined : seed, // this is clunky
         });
     }
@@ -156,6 +163,7 @@ export function RunSimulationDialog(props: Props) {
   };
 
   function UpdateTrials(event: Event) {
+
     if (event.target instanceof HTMLInputElement) {
 
       const sheet = props.sheet();
@@ -164,13 +172,14 @@ export function RunSimulationDialog(props: Props) {
         if (typeof value === 'number' && value > 0 && !isNaN(value)) {
           const num = value;
 
-          // console.info("SPD trials", num);
-
           setPersistentData(produce(s => { s.trials = num; }));
           const user_data = sheet.user_data || {};
           user_data.simulation = user_data.simulation || {};
           user_data.simulation.trials = value;
           sheet.user_data = user_data;
+
+          setTrials(num);
+
         }
         else {
           value = trials();

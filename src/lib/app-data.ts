@@ -84,6 +84,7 @@ export interface DocumentsView {
 export interface PersistentData {
   lhs: boolean;
   stepped: boolean; 
+  max_workers?: number;
   trials: number; // FIXME: should be per-sheet
   llm_model: Model|undefined;
   llm_api_keys: Record<string, string>;

@@ -11,6 +11,31 @@ export function Sidebar(props: SidebarProps) {
   // eslint-disable-next-line no-unassigned-vars
   let seed_input: HTMLInputElement|undefined;
 
+  function UpdateMaxWorkers(event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (event.target instanceof HTMLInputElement) {
+      const workers = Number(event.target.value || '');
+      if (typeof workers === 'number' && !isNaN(workers) && workers > 0 && workers !== Infinity) {
+        console.info("SPD", workers);
+        setPersistentData({max_workers: workers});
+      }
+      else {
+        console.info("SPD", undefined);
+        setPersistentData({max_workers: undefined});
+      }
+    }
+   
+  }
+
+  let max_workers: number;
+  {
+    const cores = navigator.hardwareConcurrency || 0;
+    const cap = cores ? Math.min(Math.floor(cores/2), 8) : 4;
+    max_workers = Math.min(navigator.hardwareConcurrency || 0, cap);
+  }
+
   function UpdateSeedValue(event: Event, override?: number) {
     const sheet = props.sheet();
     if (sheet) {
@@ -72,6 +97,21 @@ export function Sidebar(props: SidebarProps) {
               </div>
               <p class={style.note}>
                 {t('sidebar.simulation_settings.random-sampling.explanatory-text').split(/\n/).map(para => <span>{para}</span>)}
+              </p>
+            </section>
+
+            <section class={style.section}>
+              <span class={style.heading}>{t('sidebar.simulation_settings.parallel-calculation.section-header')}</span>
+              <div class={style.field}>
+                <label>{t('sidebar.simulation_settings.parallel-calculation.max-workers')}</label>
+                <input type="text"
+                      class="input width-100"
+                      value={persistentData.max_workers?.toString() || ''}
+                      onchange={UpdateMaxWorkers}
+                      placeholder={(max_workers || 1).toString()} />
+              </div>
+              <p class={style.note}>
+                {t('sidebar.simulation_settings.parallel-calculation.explanatory-text').split(/\n/).map(para => <span>{para}</span>)}
               </p>
             </section>
 
