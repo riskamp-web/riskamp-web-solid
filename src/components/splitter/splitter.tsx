@@ -1,9 +1,6 @@
 
 import { Accessor, Component, createSignal, mergeProps, ParentProps, Setter } from 'solid-js'
-
-// import using css modules, will scope
 import style from "./splitter.module.css";
-// import shared from "../../style/shared.module.css";
 
 interface Props {
 
@@ -43,8 +40,6 @@ export const Splitter: Component<ParentProps<Props>> = (props) => {
   );
 
   const [dragging, setDragging] = createSignal(false);
-
-  // let mouse_mask: HTMLDivElement|undefined;
 
   // eslint-disable-next-line no-unassigned-vars
   let container: HTMLDivElement|undefined;
@@ -150,21 +145,7 @@ export const Splitter: Component<ParentProps<Props>> = (props) => {
       {resolved.children}
       <div data-splitter 
           onpointerdown={(event) => StartDrag(event)}
-          classList={{
-            hot: dragging()
-          }}
-          >
-      </div>
-      {/*
-      <div classList={{
-        [shared['mouse-mask']]: true,
-        [style['mouse-mask']]: true,
-        [style.visible]: dragging(),
-       }}
-       onmouseup={EndDrag}
-       onmousemove={MouseMove}
-       ref={mouse_mask}></div>
-       */}
+          classList={{ hot: dragging() }} ></div>
     </div>
   </>;
 };
