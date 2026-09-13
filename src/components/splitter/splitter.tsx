@@ -1,9 +1,9 @@
 
-import { Accessor, Component, createSignal, mergeProps, onMount, ParentProps, Setter, Signal } from 'solid-js'
+import { Accessor, Component, createSignal, mergeProps, ParentProps, Setter } from 'solid-js'
 
 // import using css modules, will scope
 import style from "./splitter.module.css";
-import shared from "../../style/shared.module.css";
+// import shared from "../../style/shared.module.css";
 
 interface Props {
 
@@ -44,7 +44,9 @@ export const Splitter: Component<ParentProps<Props>> = (props) => {
 
   const [dragging, setDragging] = createSignal(false);
 
-  let mouse_mask: HTMLDivElement|undefined;
+  // let mouse_mask: HTMLDivElement|undefined;
+
+  // eslint-disable-next-line no-unassigned-vars
   let container: HTMLDivElement|undefined;
 
   const computed_style = () => {
@@ -75,15 +77,24 @@ export const Splitter: Component<ParentProps<Props>> = (props) => {
   const right_hidden = () => (props.split() > resolved.threshold);
   const splitter_hidden = () => right_hidden();
 
-  let container_bounds = {
+  const container_bounds = {
     x: 0, width: 0,
     y: 0, height: 0,
   };
 
   let delta = 0;
 
-  function StartDrag(event: MouseEvent) {
+  function StartDrag(event: PointerEvent) {
+
+    event.stopPropagation();
+    event.preventDefault();
+
     if (container) {
+
+      container.setPointerCapture(event.pointerId);
+      container.addEventListener('pointermove', MouseMove);
+      container.addEventListener('pointerup', EndDrag);
+
       const bounds = container.getBoundingClientRect();
       container_bounds.x = bounds.x;
       container_bounds.y = bounds.y;
@@ -100,11 +111,20 @@ export const Splitter: Component<ParentProps<Props>> = (props) => {
     }
   }
 
-  function EndDrag(event: MouseEvent) {
+  function EndDrag(event: PointerEvent) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (container) {
+      container.releasePointerCapture(event.pointerId);
+      container.removeEventListener('pointermove', MouseMove);
+      container.removeEventListener('pointerup', EndDrag);
+    }
+
     setDragging(false);
   }
 
-  function MouseMove(event: MouseEvent) {
+  function MouseMove(event: PointerEvent) {
     if (dragging()) {    
       if (!event.buttons) {
         EndDrag(event);
@@ -121,18 +141,21 @@ export const Splitter: Component<ParentProps<Props>> = (props) => {
   return <>
     <div classList={{
       [style['splitter-container']]: true,
+      [style['resize-horizontal']]: dragging() && !props.vertical,
+      [style['resize-vertical']]: dragging() && props.vertical,
       [style['right-hidden']]: right_hidden(),
       [style['splitter-hidden']]: splitter_hidden(),
       [style.vertical]: props.vertical,
      }} style={computed_style()} ref={container}>
       {resolved.children}
       <div data-splitter 
-          onMouseDown={(event) => StartDrag(event)}
+          onpointerdown={(event) => StartDrag(event)}
           classList={{
             hot: dragging()
           }}
           >
       </div>
+      {/*
       <div classList={{
         [shared['mouse-mask']]: true,
         [style['mouse-mask']]: true,
@@ -141,6 +164,7 @@ export const Splitter: Component<ParentProps<Props>> = (props) => {
        onmouseup={EndDrag}
        onmousemove={MouseMove}
        ref={mouse_mask}></div>
+       */}
     </div>
   </>;
 };

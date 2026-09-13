@@ -36,6 +36,14 @@
     display: none;
   }
 
+  &.resize-horizontal {
+    cursor: ew-resize;
+  }
+
+  &.resize-vertical {
+    cursor: ns-resize;
+  }
+
   & > [data-splitter] {
     grid-column: 2/3;
     grid-row: 1/2;
