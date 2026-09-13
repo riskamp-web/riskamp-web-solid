@@ -750,7 +750,8 @@ export default function Documents() {
         <Show when={!checkedCount()} fallback={
           <div class={style['selection-bar']}>
             <span class={style['selection-count']}>
-              {format(t('documents-page.selection.count'), { count: formatNumber(checkedCount()) })}
+              {formatCount(checkedCount(),
+                'documents-page.selection.count.one', 'documents-page.selection.count.other')}
             </span>
             <div class={style['selection-divider']} />
             <button type='button' class={`${bs.button} ${bs['button-quiet']} ${bs['button-collapse']}`}

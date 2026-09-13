@@ -297,7 +297,7 @@ export default {
 
       'random-sampling': {
         'section-header': 'Random sampling',
-        'explanatory-text': 'The samping method will be saved with this spreadsheet.\nThe value you select here will also be used as the default for new spreadsheets.',
+        'explanatory-text': 'The sampling method will be saved with this spreadsheet.\nThe value you select here will also be used as the default for new spreadsheets.',
       },
 
       'random-seed': {
@@ -745,7 +745,7 @@ export default {
       label: 'Candidate distributions',
       description: 'Candidates are sorted by closest fit to the theoretical distribution',
     },
-    'log-nomal-graph': {
+    'log-normal-graph': {
       description: 'The log-normal graph is plotted using log scale',
     },
     statistics: {
@@ -839,7 +839,10 @@ export default {
     },
 
     selection: {
-      count: '{count} selected',
+      count: {
+        one: '{count} selected',
+        other: '{count} selected',
+      },
       'make-public': {
         label: 'Make selected documents public',
       },
@@ -1619,7 +1622,7 @@ export default {
 
     'invalid-shape': 'Please select a square matrix of at least 2x2 cells.',
     'invalid-data': 'The correlation matrix must have a unit diagonal.\nEvery cell on the diagonal must evaluate to {unit}.',
-    'asymmetric': 'The correlation matrix must be symmetric, or you can ommit the upper- or lower-triangular.',
+    'asymmetric': 'The correlation matrix must be symmetric, or you can omit the upper- or lower-triangular.',
 
     'solution-text': `The correlation matrix is not positive-definite. We found a solution by making small adjustments to the values. The aggregate error is {error}.`,
     'positive-definite': `The correlation matrix is positive-definite.`,

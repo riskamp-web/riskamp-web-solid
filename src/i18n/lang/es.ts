@@ -64,7 +64,7 @@ export default {
     },
 
     button: {
-      'toggle-fullscreen': 'Pantalla completa',
+      'toggle-fullscreen': 'Alternar pantalla completa',
 
       'new-spreadsheet': 'Nueva hoja de cálculo',
       'import-file': 'Importar archivo',
@@ -131,7 +131,7 @@ export default {
         label: 'Alinear arriba',
       },
       'align-middle': {
-        label: 'Alinear al medio',
+        label: 'Centrar verticalmente',
       },
       'align-bottom': {
         label: 'Alinear abajo',
@@ -300,8 +300,8 @@ export default {
     simulation_settings: {
       'parallel-calculation': {
         'section-header': 'Cálculo en paralelo',
-        'max-workers': 'Número de procesos de trabajo (máximo)',
-        'explanatory-text': `Usar más procesos de trabajo en paralelo mejorará el rendimiento de la simulación en modelos complejos. En la mayoría de los casos recomendamos 4 u 8 procesos de trabajo.`,
+        'max-workers': 'Número de workers (máximo)',
+        'explanatory-text': `Usar más workers en paralelo mejorará el rendimiento de la simulación en modelos complejos. En la mayoría de los casos recomendamos 4 u 8 workers.`,
       },
 
       'random-sampling': {
@@ -507,7 +507,7 @@ export default {
     'histogram-bin-algorithm-long': 'Algoritmo de intervalos',
     'histogram-bin-algorithm-short': 'Intervalos',
     'bin-algorithm-automatic': 'Auto',
-    'box-plot-whisker-type-long': 'Tipo de bigote',
+    'box-plot-whisker-type-long': 'Tipo de bigotes',
     'box-plot-whisker-type-short': 'Bigotes',
     'box-plot-whisker-type-minmax': 'Mín/máx',
     'box-plot-whisker-type-interquartile-range': 'RIC',
@@ -752,7 +752,7 @@ export default {
       label: 'Distribuciones candidatas',
       description: 'Las candidatas se ordenan según su mayor cercanía a la distribución teórica',
     },
-    'log-nomal-graph': {
+    'log-normal-graph': {
       description: 'El gráfico log-normal se traza con escala logarítmica',
     },
     statistics: {
@@ -792,6 +792,9 @@ export default {
   'documents-page': {
     title: 'Documentos',
 
+    // {braces} are placeholders: keep the name spelled as it is and put it
+    // wherever this sentence needs it. keys ending .one/.other are the
+    // singular and plural of the count in them.
     scope: {
       all: 'Todos los documentos',
       starred: 'Destacados',
@@ -834,7 +837,10 @@ export default {
     },
 
     selection: {
-      count: '{count} seleccionados',
+      count: {
+        one: '{count} seleccionado',
+        other: '{count} seleccionados',
+      },
       'make-public': {
         label: 'Hacer públicos los documentos seleccionados',
       },
@@ -1680,11 +1686,11 @@ export default {
   'create-account-page': {
     heading: 'Crear cuenta',
 
-    subtitle: 'Te pedimos una dirección de correo electrónico y un nombre de usuario porque los documentos se almacenan con tu nombre de usuario.',
+    subtitle: 'Te pedimos una dirección de correo electrónico y un nombre de usuario porque los documentos se almacenan bajo tu nombre de usuario.',
 
     terms: {
       text: 'Revisa nuestras {link}.',
-      link: 'condiciones del servicio',
+      link: 'condiciones de uso',
     },
 
     email: {
@@ -1730,6 +1736,9 @@ export default {
     },
   },
 
+  // the confirmation below is worded conditionally on purpose: this page may
+  // not disclose whether an address has an account, so it says the same thing
+  // either way. don't "fix" it into the direct form.
   'forgot-password-page': {
     heading: 'Olvidé mi contraseña',
     subtitle: 'Introduce tu dirección de correo electrónico y te enviaremos un enlace para elegir una nueva contraseña.',

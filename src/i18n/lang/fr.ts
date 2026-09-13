@@ -24,12 +24,12 @@ export default {
 
   about: {
     tagline: 'Analyse de risque Monte Carlo pour le web.',
-    build: 'Build {commit}',
+    build: 'Version {commit}',
     copyright: '© {year} Structured Data LLC. Tous droits réservés.',
     website: 'riskamp.com',
     report: 'Signaler un problème',
     'report-subject': 'RiskAMP web — signalement de problème',
-    'report-body': '(décrivez le problème ici)\n\n\n---\nRiskAMP : {version}\nTREB : {treb}\nBuild : {commit}\nNavigateur : {ua}\nLangue : {lang}\nURL : {url}',
+    'report-body': '(décrivez le problème ici)\n\n\n---\nRiskAMP : {version}\nTREB : {treb}\nVersion : {commit}\nNavigateur : {ua}\nLangue : {lang}\nURL : {url}',
   },
 
   toolbar: {
@@ -64,7 +64,7 @@ export default {
     },
 
     button: {
-      'toggle-fullscreen': 'Plein écran',
+      'toggle-fullscreen': 'Activer/désactiver le plein écran',
 
       'new-spreadsheet': 'Nouvelle feuille de calcul',
       'import-file': 'Importer un fichier',
@@ -300,8 +300,8 @@ export default {
     simulation_settings: {
       'parallel-calculation': {
         'section-header': 'Calcul parallèle',
-        'max-workers': 'Nombre de processus de travail (maximum)',
-        'explanatory-text': `Utiliser davantage de processus de travail en parallèle améliorera les performances de la simulation pour les modèles complexes. Dans la plupart des cas, nous recommandons 4 ou 8 processus de travail.`,
+        'max-workers': 'Nombre de workers (maximum)',
+        'explanatory-text': `Utiliser davantage de workers en parallèle améliorera les performances de la simulation pour les modèles complexes. Dans la plupart des cas, nous recommandons 4 ou 8 workers.`,
       },
 
       'random-sampling': {
@@ -491,7 +491,7 @@ export default {
         title: 'Plage de données source',
       },
     },
-    info: 'Utilisez les couleurs de texte et de fond de la cellule pour styliser le sparkline',
+    info: 'Utilisez les couleurs de texte et de fond de la cellule pour mettre en forme le sparkline',
 
     'sparkline-type': 'Type de sparkline',
     'sparkline-type-line-chart': 'Courbes',
@@ -522,7 +522,7 @@ export default {
       'interquartile-range': 'EIQ',
       mean: 'Moyenne',
       variance: 'Variance',
-      'standard-deviation': 'ÉcT',
+      'standard-deviation': 'Écart-type',
       'number-of-samples': 'n',
     },
   },
@@ -750,9 +750,9 @@ export default {
     'select-range': 'Sélectionner une plage',
     'candidate-distributions': {
       label: 'Distributions candidates',
-      description: 'Les candidates sont triées de la plus proche à la plus éloignée de la distribution théorique',
+      description: 'Les candidates sont classées par ordre de proximité avec la distribution théorique.',
     },
-    'log-nomal-graph': {
+    'log-normal-graph': {
       description: 'Le graphique log-normal est tracé à l’échelle logarithmique',
     },
     statistics: {
@@ -792,6 +792,9 @@ export default {
   'documents-page': {
     title: 'Documents',
 
+    // {braces} are placeholders: keep the name spelled as it is and put it
+    // wherever this sentence needs it. keys ending .one/.other are the
+    // singular and plural of the count in them.
     scope: {
       all: 'Tous les documents',
       starred: 'Favoris',
@@ -834,7 +837,10 @@ export default {
     },
 
     selection: {
-      count: '{count} sélectionné(s)',
+      count: {
+        one: '{count} sélectionné',
+        other: '{count} sélectionnés',
+      },
       'make-public': {
         label: 'Rendre publics les documents sélectionnés',
       },
@@ -1684,7 +1690,7 @@ export default {
 
     terms: {
       text: 'Veuillez consulter nos {link}.',
-      link: 'conditions de service',
+      link: 'conditions d’utilisation',
     },
 
     email: {
@@ -1730,6 +1736,9 @@ export default {
     },
   },
 
+  // the confirmation below is worded conditionally on purpose: this page may
+  // not disclose whether an address has an account, so it says the same thing
+  // either way. don't "fix" it into the direct form.
   'forgot-password-page': {
     heading: 'Mot de passe oublié',
     subtitle: 'Saisissez votre adresse e-mail et nous vous enverrons un lien pour choisir un nouveau mot de passe.',
