@@ -250,16 +250,16 @@ export const languages = [
   { code: 'en', name: 'English' },
   { code: 'fr', name: 'Français' },
   { code: 'es', name: 'Español' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'pt', name: 'Português' },
+  { code: 'nl', name: 'Nederlands' },
 
   /*
-  { code: 'pt', name: 'Português' },
   { code: 'da', name: 'Dansk' },
-  { code: 'de', name: 'Deutsch' },
   { code: 'it', name: 'Italiano' },
   { code: 'no', name: 'Norsk' },
   { code: 'sv', name: 'Svenska' },
   { code: 'pl', name: 'Polski' },
-  { code: 'nl', name: 'Nederlands' },
    */
 ];
 

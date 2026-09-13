@@ -19,7 +19,8 @@ for the full story.
   the entire type system from `export type I18N = typeof en`; translations are
   `satisfies DeepPartial<I18N>` and fall back to English per key. Never break that
   derivation. Missing/stale keys are invisible to the compiler — mirror `en.ts`
-  changes into `es.ts`/`fr.ts`. (→ scaling plan below.)
+  changes into every other catalogue (`es`, `fr`, `de`, `pt`, `nl`);
+  `npm run check:i18n-coverage` reports gaps. (→ scaling plan below.)
 - **i18n — French uses no-break spaces before `: ; ! ?` and inside `« »`.** Strict
   Imprimerie nationale: `U+00A0` before `:`, `U+202F` before `; ! ?` and inside
   guillemets. New/changed French strings must follow it; `npm run check:i18n-fr`
@@ -126,12 +127,15 @@ source changed).
    keys and stale keys (English value changed since the locale was generated; the
    `generated <date>` header is a start, but real detection wants per-key
    provenance or a content hash). Wire into CI. A bespoke translation *editor* is
-   high-cost / low-return for a small LLM-assisted team — skip it. **Two pieces
+   high-cost / low-return for a small LLM-assisted team — skip it. **Three pieces
    already landed:** `scripts/check-fr-typography.ts` (`npm run check:i18n-fr`,
-   French no-break-space typography) and `scripts/check-i18n-scope.ts`
-   (`npm run check:i18n-scope`, module-scope `t()` calls). Both are CI-ready — a
-   coverage/staleness check is the natural third sibling. (This repo has no CI
-   yet, so none of them are wired in; they're just npm scripts today.)
+   French no-break-space typography), `scripts/check-i18n-scope.ts`
+   (`npm run check:i18n-scope`, module-scope `t()` calls) and
+   `scripts/check-i18n-coverage.ts` (`npm run check:i18n-coverage`, per-locale
+   key/placeholder parity plus picker registration). All three are CI-ready; the
+   remaining half is *stale* detection — an English value changed since a locale
+   was generated — which wants per-key provenance or a content hash. (This repo
+   has no CI yet, so none of them are wired in; they're just npm scripts today.)
 
 3. **Defer: JSON + codegen.** Only when real human translators or a TMS
    (Crowdin/Lokalise/Weblate) enter the picture — those speak JSON, not TS. It

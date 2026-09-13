@@ -11,7 +11,8 @@
     "tunnel": "cloudflared tunnel --url http://localhost:5173 --http-host-header \"localhost:5173\"",
     "convert-policies": "tsx scripts/convert-policy-pages.ts",
     "check:i18n-fr": "tsx scripts/check-fr-typography.ts",
-    "check:i18n-scope": "tsx scripts/check-i18n-scope.ts"
+    "check:i18n-scope": "tsx scripts/check-i18n-scope.ts",
+    "check:i18n-coverage": "tsx scripts/check-i18n-coverage.ts"
   },
   "dependencies": {
     "@solidjs/meta": "^0.29.4",

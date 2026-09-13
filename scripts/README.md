@@ -99,6 +99,43 @@ way and handling it would cost more than it's worth.
 Not wired into CI yet (this repo has none); it's ready to drop in when CI
 arrives, alongside `check-fr-typography.ts`.
 
+## check-i18n-coverage.ts
+
+Validates every translation catalogue in `src/i18n/lang/` against the canonical
+English one, `en.ts`.
+
+```bash
+npm run check:i18n-coverage               # all locales, non-zero exit on failure (CI-ready)
+tsx scripts/check-i18n-coverage.ts de pt  # a subset, while translating
+```
+
+### What it checks
+
+| # | Check | Why the compiler doesn't catch it |
+|---|---|---|
+| 1 | **coverage** — every `en.ts` key exists in the locale | a missing key is valid `DeepPartial<I18N>`; the loader falls back to English silently |
+| 2 | **extras** — no key `en.ts` doesn't have | `DeepPartial` keeps a typo'd path inside an otherwise-valid nested object satisfying the type; the key is never read |
+| 3 | **empty** — no leaf is `''` | an empty string is still a string; the ui just goes blank |
+| 4 | **placeholders** — the `{count}`-style names match English exactly | a dropped or renamed name renders literally (`{count}`) or is swallowed by `format()` |
+| 5 | **registration** — every catalogue is in the `languages` array, and every code there has a file | an unregistered catalogue is unreachable from the picker and auto-detect; a file-less code 404s and falls back to English |
+
+A missing key is *allowed* by the loader — the fallback is the design — but a
+complete catalogue is the house standard (`es.ts`, `fr.ts`, `de.ts`, `pt.ts` and
+`nl.ts` are all full 773-string mirrors), so any gap fails the check.
+
+### How it works
+
+Discovers locales from the files in `src/i18n/lang/` (excluding `en.ts`), imports
+each with `tsx` (the `import type` at the top of a catalogue is erased, so there is
+no runtime dependency on `i18n.ts`), flattens both trees to dotted paths, and
+compares key sets and placeholder sets. Registration parses the `languages` array
+out of `i18n.ts` with block comments stripped first, so the deliberately
+commented-out planned locales don't count as registered.
+
+Deliberately **not** included: *stale* detection — an English value edited after
+its translation was generated. That wants per-key provenance or a content hash,
+and is the remaining piece of the scaling plan in `CLAUDE.md`.
+
 ## convert-policy-pages.ts
 
 Converts the legal pages (**Privacy Policy**, **Terms of Service**) from their
