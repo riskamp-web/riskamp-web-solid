@@ -117,8 +117,12 @@ dialog {
     }
   }
 
-  &.moveable > header {
+  &.moving {
     cursor: move;
+  }
+
+  &.resizing {
+    cursor: nwse-resize;
   }
 
   section {

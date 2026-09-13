@@ -1,5 +1,5 @@
 
-import { createEffect, onMount, type Setter, ParentProps, JSX, Signal, Show, createSignal, type Accessor } from 'solid-js';
+import { createEffect, onMount, type Setter, ParentProps, JSX, Signal, Show, createSignal, type Accessor, onCleanup, on } from 'solid-js';
 import style from './dialog.module.css';
 import shared from '../../../style/shared.module.css';
 import { icons } from '~/components/icon-sets';
@@ -101,10 +101,17 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
       const header = frame?.querySelector('header');
       if (header instanceof HTMLElement) {
         // hook up
-        header.addEventListener('mousedown', StartDrag);
+        header.addEventListener('pointerdown', StartDrag);
       }
     }
   }); 
+
+  onCleanup(() => {
+    const header = frame?.querySelector('header');
+    if (header instanceof HTMLElement) {
+      header.removeEventListener('pointerdown', StartDrag);
+    }
+  });
 
   const computed_style = (): JSX.CSSProperties => {
 
@@ -141,14 +148,22 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
     return style;
   };
 
-  let drag_info = {
+  const drag_info = {
     position: { x: 0, y: 0 },
     mouse: { x: 0, y: 0 },
     size: { width: 0, height: 0 },
   };
 
-  function InitDrag(event: MouseEvent) {
+  function InitDrag(event: PointerEvent) {
+
+    event.stopPropagation();
+    event.preventDefault();
+
     if (frame) {
+      frame.setPointerCapture(event.pointerId)
+      frame.addEventListener('pointermove', MouseMove);
+      frame.addEventListener('pointerup', EndDrag);
+
       const bounds = frame.getBoundingClientRect();
       drag_info.position = {x: bounds.x, y: bounds.y};
       drag_info.mouse = {x: event.clientX, y: event.clientY};
@@ -158,21 +173,29 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
     }
   }
 
-  function StartResize(event: MouseEvent) {
+  function StartResize(event: PointerEvent) {
     InitDrag(event);
     setDragging('resize');
   }
   
-  function StartDrag(event: MouseEvent) {
+  function StartDrag(event: PointerEvent) {
     InitDrag(event);
     setDragging('move');
   }
 
-  function EndDrag(event: MouseEvent) {
+  function EndDrag(event: PointerEvent) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (frame) {
+      frame.releasePointerCapture(event.pointerId)
+      frame.removeEventListener('pointermove', MouseMove);
+      frame.removeEventListener('pointerup', EndDrag);
+    }
     setDragging(false);
   }
 
-  function MouseMove(event: MouseEvent) {
+  function MouseMove(event: PointerEvent) {
     const drag = dragging();
     if (drag) {    
       if (!event.buttons) {
@@ -216,7 +239,9 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
         }}>
 
         <div classList={{
-            [style.frame]: true,
+            [style.frame]: true,  
+            [style['moving']]: dragging() === 'move',
+            [style['resizing']]: dragging() === 'resize',
             frame: true,
           }}
           style={computed_style()}
@@ -241,21 +266,10 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
 
           <Show when={props.resizeable}>
             <button class={style['resize-grip']} 
-              onmousedown={StartResize} />
+              onpointerdown={StartResize} />
           </Show>
 
         </div>
-
-        <div classList={{
-            [shared['mouse-mask']]: true,
-            [style['mouse-mask']]: true,
-            [style.visible]: !!dragging(),
-            [style.move]: dragging() === 'move',
-            [style.resize]: dragging() === 'resize',
-          }} 
-          onmouseup={EndDrag}
-          onmousemove={MouseMove}
-          ref={mouse_mask} />
 
       </dialog>
 
