@@ -1615,6 +1615,15 @@ export default {
     },
   },
 
+  'comment-dialog': {
+    'remove-coment-button': {
+      label: 'Remove comment',
+    },
+    'save-button': {
+      label: 'Save',
+    }
+  },
+
   'correlation-matrix': {
     'title': 'Correlation matrix',
     'accept-changes': 'Accept changes',

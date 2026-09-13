@@ -1,0 +1,22 @@
+
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+}
+
+.textarea {
+  flex-grow: 1;
+  min-height: 10em;
+  resize: none;
+  padding: .5em;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: .5em;
+}

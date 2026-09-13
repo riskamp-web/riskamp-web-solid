@@ -54,6 +54,8 @@ import { DocumentsRow } from '~/docs/documents';
 import { CorrelationDialog, CorrelationDialogData } from '~/components/dialogs/correlation-dialog/correlation-dialog';
 import { CheckCorrelationMatrix } from '~/lib/correlation-matrix';
 import { LanguageDialog } from '~/components/dialogs/language-dialog/language-dialog';
+import { CommentDialog } from '~/components/dialogs/comment-dialog/comment-dialog';
+import { Position } from '~/components/dialogs/dialog-base/dialog';
 
 /*
 function Spin() {
@@ -77,6 +79,8 @@ export default function Page() {
   const [saveAsDocument, setSaveAsDocument] = createSignal<SaveAsDocument|undefined>();
 
   const [languageDialogOpen, setLanguageDialogOpen] = createSignal(false);
+  const [commentDialogOpen, setCommentDialogOpen] = createSignal(false);
+  const [commentDialogLayout, setCommentDialogLayout] = createSignal<Position|undefined>();
 
   const [runSimulationOpen, setRunSimulationOpen] = createSignal(false);
   const [runSimulationOptions, setRunSimulationOptions] = createSignal<Partial<RunSimulationOptions>>({});
@@ -736,6 +740,34 @@ export default function Page() {
         });
         break;
 
+      case 'insert-comment':
+        if (sheet.GetSelection()) {
+
+          sheet.ScrollIntoView(sheet.grid.GetSelection().target);
+          requestAnimationFrame(() => {
+            // um we need an API method for this, this is ridiculous
+
+            const layout = (sheet.grid as any).layout;
+            const bounds = layout.scroll_reference_node.getBoundingClientRect();
+            const rect = layout.CellAddressToRectangle(sheet.grid.GetSelection().target);
+            const offset = layout.header_offset;
+
+
+            setCommentDialogLayout({
+              x: rect.left + rect.width + bounds.left + offset.x + 12 - layout.scroll_reference_node.scrollLeft, 
+              y: rect.top + bounds.top + offset.y - 16 - layout.scroll_reference_node.scrollTop,
+            });
+            setCommentDialogOpen(true);
+            AwaitSignal(commentDialogOpen, value => !value).then(() => {
+              sheet.Focus();
+            });
+
+          });
+        }
+        else {
+          sheet.Focus();
+        }
+        break;
 
       default:
         console.warn('unhandled', key);
@@ -1045,6 +1077,11 @@ export default function Page() {
           onSave={HandleSaveAs} />
 
       <LanguageDialog open={languageDialogOpen} setOpen={setLanguageDialogOpen} sheet={getSheet} />
+      <CommentDialog 
+        open={commentDialogOpen} 
+        setOpen={setCommentDialogOpen} 
+        bindlayout={[commentDialogLayout, setCommentDialogLayout]}
+        sheet={getSheet} />
 
     </main>
   );
