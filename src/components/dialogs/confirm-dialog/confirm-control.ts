@@ -12,14 +12,14 @@
  *   await confirmDialog.alert({ message });
  */
 
-import { createSignal, type JSX } from 'solid-js';
+import { Accessor, createSignal, type JSX } from 'solid-js';
 import type { StringKey } from '~/i18n/i18n';
 
 export interface ConfirmOptions {
   /** the question/body. a plain (already-resolved) string, or JSX when part of
       the message needs markup -- e.g. formatJSX() to bold a path inside a
       translated sentence. we control the strings, so raw HTML isn't a concern. */
-  message: string | JSX.Element;
+  message: string | Accessor<JSX.Element>;
 
   /** heading label; an i18n key. defaults to a generic 'Are you sure?'. */
   title?: StringKey;
@@ -33,7 +33,7 @@ export interface ConfirmOptions {
 
 export interface AlertOptions {
   /** the body; see ConfirmOptions.message. */
-  message: string | JSX.Element;
+  message: string | Accessor<JSX.Element>;
 
   /** heading label; an i18n key. defaults to a generic 'Alert'. */
   title?: StringKey;

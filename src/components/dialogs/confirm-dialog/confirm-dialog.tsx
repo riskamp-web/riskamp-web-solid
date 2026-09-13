@@ -29,6 +29,17 @@ export function ConfirmDialog() {
     if (!value) { confirmDialog.settle(false); }
   }) as Setter<boolean>;
 
+  // the message is either an already-resolved string or a thunk that builds JSX.
+  // calling the thunk *here* is the point: it runs inside this dialog's render,
+  // so the component and its effects are created under this dialog's owner and
+  // are disposed with it. built at the call site instead -- in the caller's event
+  // handler -- they'd have no owner at all ("computations created outside a
+  // `createRoot` or `render` will never be disposed").
+  const message = () => {
+    const value = request().message;
+    return typeof value === 'function' ? value() : value;
+  };
+
   return (
     <Dialog
       open={confirmDialog.open}
@@ -40,7 +51,7 @@ export function ConfirmDialog() {
         {t(request().title ?? (request().mode === 'alert' ? 'confirm-dialog.alert-title' : 'confirm-dialog.title'))}
       </header>
 
-      <section class={style.message}>{request().message}</section>
+      <section class={style.message}>{message()}</section>
 
       <footer>
         <Show

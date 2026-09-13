@@ -201,7 +201,7 @@ export function SaveAsDialog(props: Props) {
 
       setHidden(true);
       const ok = await confirmDialog.confirm({
-        message: formatJSX(t('save-as-dialog.overwrite-confirm-message'), {
+        message: () => formatJSX(t('save-as-dialog.overwrite-confirm-message'), {
           name: <strong>{displayPath()}</strong>,
         }),
         title: 'save-as-dialog.overwrite-confirm-title',

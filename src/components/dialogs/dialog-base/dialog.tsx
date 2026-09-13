@@ -1,7 +1,6 @@
 
-import { createEffect, onMount, type Setter, ParentProps, JSX, Signal, Show, createSignal, type Accessor, onCleanup, on } from 'solid-js';
+import { createEffect, onMount, type Setter, ParentProps, JSX, Signal, Show, createSignal, type Accessor, onCleanup } from 'solid-js';
 import style from './dialog.module.css';
-import shared from '../../../style/shared.module.css';
 import { icons } from '~/components/icon-sets';
 import { OpenExternal } from '~/lib/navigate';
 
@@ -46,14 +45,16 @@ export interface Props<T> {
 
 };
 
-const Header = (props: { children: JSX.Element }) => props.children;
-const Body = (props: { children: JSX.Element }) => props.children;
+// const Header = (props: { children: JSX.Element }) => props.children;
+// const Body = (props: { children: JSX.Element }) => props.children;
 
 export function Dialog<T>(props: ParentProps<Props<T>>) {
 
+  // eslint-disable-next-line no-unassigned-vars
   let dialog: HTMLDialogElement|undefined;
+
+  // eslint-disable-next-line no-unassigned-vars
   let frame: HTMLDivElement|undefined;
-  let mouse_mask: HTMLDivElement|undefined;
 
   const [dragging, setDragging] = createSignal<'move'|'resize'|false>(false);
   const [layout, setLayout] = props.bindlayout || createSignal<Position|undefined>(undefined);

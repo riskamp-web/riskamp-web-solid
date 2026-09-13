@@ -750,7 +750,7 @@ export default function Page() {
 
     await confirmDialog.alert({
       title: 'toolbar.menu.about-riskamp',
-      message: <AboutContent />,
+      message: () => <AboutContent />,
     });
 
   }

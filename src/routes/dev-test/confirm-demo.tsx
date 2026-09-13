@@ -15,7 +15,7 @@ export default function ConfirmDemo() {
   async function openOverwrite() {
     setAnswer(undefined);
     const ok = await confirmDialog.confirm({
-      message: formatJSX(t('save-as-dialog.overwrite-confirm-message'), {
+      message: () => formatJSX(t('save-as-dialog.overwrite-confirm-message'), {
         name: <strong>{name}</strong>,
       }),
       title: 'save-as-dialog.overwrite-confirm-title',
