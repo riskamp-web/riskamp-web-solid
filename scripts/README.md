@@ -38,6 +38,67 @@ space forgotten entirely) isn't caught — worth it for zero false positives.
 Only `fr.ts` needs this — Spanish and English don't use these spaces. Not wired
 into CI yet (this repo has none); it's ready to drop in when CI arrives.
 
+## check-i18n-scope.ts
+
+Lints **where** the i18n readers — `t()` and `currentLocale()` — are called.
+Both must be called from inside a function, never from a module body.
+
+```bash
+npm run check:i18n-scope       # report violations, non-zero exit if any (CI-ready)
+tsx scripts/check-i18n-scope.ts [path...]   # check specific dirs/files
+```
+
+### The rule
+
+`t()` resolves its key by walking `i18n_instance.strings`, a Solid store — every
+segment is a tracked property read. That is what makes a language change repaint
+the ui, and it is why *where* the call sits matters:
+
+```ts
+const MESSAGE = t('some.key');    // module scope: runs at import, before any
+                                  // translation loads -> English, forever
+```
+
+Module bodies execute once, at import time. Such a line snapshots English and no
+language change will ever move it — and it is valid TypeScript with the right
+return type, so neither the compiler nor eslint objects.
+
+The same call inside **module-scope JSX** fails differently for the same reason.
+Solid compiles `{t('x')}` into a render effect, so it isn't evaluated at import —
+but the effect is *created* at import, with no owner. Solid's dev build warns
+(*"computations created outside a `createRoot` or `render` will never be
+disposed"*), the effect subscribes to the store, and nothing ever tears it down.
+The script reports the two cases separately (`import-time` / `ownerless-jsx`).
+
+Calls from inside a function are always fine. In a tracking scope the read
+subscribes and live-updates; outside one — an event handler, say — it's a plain
+untracked read returning whatever is current at that moment, which is what a
+transient dialog wants anyway.
+
+### What it looks at
+
+`t` and `currentLocale`, the two exports of `src/i18n/i18n.ts` that read reactive
+state. `format()` / `formatJSX()` only splice into a string they're handed, and
+`K` / `languages` are plain data built at import on purpose, so none of those are
+flagged — but `format(t('key'), ...)` still is, via the `t()` inside it. Named,
+aliased (`{ t as translate }`) and namespace (`import * as i18n`) imports are all
+recognised.
+
+### How it works
+
+Parses every `.ts`/`.tsx` under `src/` with the TypeScript compiler; for each
+call to a reader binding it walks up the parent chain. The first function-like
+ancestor (including a class property initializer, which runs at construction)
+means the call is deferred and fine. Reaching the source file without crossing
+one means the call sits in the module body — a violation.
+
+One blind spot, for the record: a module-scope IIFE reads as deferred because of
+its arrow function, though it does run at import. Nothing here is written that
+way and handling it would cost more than it's worth.
+
+Not wired into CI yet (this repo has none); it's ready to drop in when CI
+arrives, alongside `check-fr-typography.ts`.
+
 ## convert-policy-pages.ts
 
 Converts the legal pages (**Privacy Policy**, **Terms of Service**) from their
