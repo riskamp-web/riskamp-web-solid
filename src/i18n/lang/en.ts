@@ -18,6 +18,7 @@ export default {
     build: 'Build {commit}',
     copyright: '© {year} Structured Data LLC. All rights reserved.',
     website: 'riskamp.com',
+    'old-website-version': 'Looking for the old version of RiskAMP web? Use {link}',
     report: 'Report an issue',
     'report-subject': 'RiskAMP web — issue report',
     'report-body': '(describe the issue here)\n\n\n---\nRiskAMP: {version}\nTREB: {treb}\nBuild: {commit}\nBrowser: {ua}\nLanguage: {lang}\nURL: {url}',
@@ -1616,7 +1617,7 @@ export default {
   },
 
   'comment-dialog': {
-    'remove-coment-button': {
+    'remove-comment-button': {
       label: 'Remove comment',
     },
     'save-button': {

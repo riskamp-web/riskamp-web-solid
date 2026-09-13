@@ -16,31 +16,17 @@ export function CommentDialog(props: Props<boolean>) {
   let textarea: HTMLTextAreaElement|undefined;
 
   const bindLayout = createSignal<Position|undefined>();
-  const setLayout = bindLayout[1];
 
   createEffect(on(props.open, open => {
     if (open) {
       const sheet = props.sheet();
       if (textarea && sheet) {
-
-        /*
-        const rect = (sheet.grid as any).layout.CellAddressToRectangle(sheet.grid.GetSelection().target);
-        console.info({left: rect.left, top: rect.top});
-        setLayout({
-          x: rect.left, y: rect.top,
-        });
-        */
-
         textarea.value = '';
         const sel = sheet.grid.GetSelection();
         sheet.ScrollIntoView(sel.target, false);
-        
         const cell_data = sheet.grid.active_sheet.CellData(sel.target);
         textarea.value = cell_data.note || '';
       }
-    }
-    else {
-      // ...
     }
   }));
 
@@ -71,7 +57,7 @@ export function CommentDialog(props: Props<boolean>) {
         <textarea ref={textarea} class={style.textarea} onkeydown={HandleKey}></textarea>
         <div class={style.buttons}>
           <button class="control-button button-primary" onclick={_ => Save()}>{t('comment-dialog.save-button.label')}</button>
-          <button class="control-button " onclick={_ => Clear()}>{t('comment-dialog.remove-coment-button.label')}</button>
+          <button class="control-button " onclick={_ => Clear()}>{t('comment-dialog.remove-comment-button.label')}</button>
         </div>
       </section>
     </Dialog>;

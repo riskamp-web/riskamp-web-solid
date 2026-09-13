@@ -1,5 +1,5 @@
 
-import { format, t } from '~/i18n/i18n';
+import { format, formatJSX, t } from '~/i18n/i18n';
 import style from './about-content.module.css';
 
 /**
@@ -43,6 +43,12 @@ export function AboutContent() {
         <dt>TREB</dt>
         <dd>{__TREB_VERSION__}</dd>
       </dl>
+
+      <div>
+        {formatJSX(t('about.old-website-version'), {
+          link: <a href="https://v2.web.riskamp.com/">v2.web.riskamp.com/</a>
+        })} 
+      </div>
 
       <div class={style.footer}>
         <span>{format(t('about.copyright'), {

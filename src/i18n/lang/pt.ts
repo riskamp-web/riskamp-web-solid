@@ -28,6 +28,7 @@ export default {
     build: 'Compilação {commit}',
     copyright: '© {year} Structured Data LLC. Todos os direitos reservados.',
     website: 'riskamp.com',
+    'old-website-version': 'Procurando a versão antiga do RiskAMP web? Use {link}',
     report: 'Relatar um problema',
     'report-subject': 'RiskAMP web — relato de problema',
     'report-body': '(descreva o problema aqui)\n\n\n---\nRiskAMP: {version}\nTREB: {treb}\nCompilação: {commit}\nNavegador: {ua}\nIdioma: {lang}\nURL: {url}',
@@ -1605,6 +1606,15 @@ export default {
       label: 'Formatar seleção: redefinir a formatação do texto',
       alt: 'limpar',
     },
+  },
+
+  'comment-dialog': {
+    'remove-comment-button': {
+      label: 'Remover comentário',
+    },
+    'save-button': {
+      label: 'Salvar',
+    }
   },
 
   'correlation-matrix': {
