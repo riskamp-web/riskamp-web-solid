@@ -44,7 +44,7 @@ export function AboutContent() {
         <dd>{__TREB_VERSION__}</dd>
       </dl>
 
-      <div>
+      <div class={style.callout}>
         {formatJSX(t('about.old-website-version'), {
           link: <a href="https://v2.web.riskamp.com/">v2.web.riskamp.com/</a>
         })} 
