@@ -10,7 +10,12 @@ export default {
   },
 
   'select-language-dialog': {
-    'title': 'Select language',
+    'title': 'Language settings',
+    'select-language': 'Select language',
+    'system-setting': 'System setting',
+    'decimal-separator': 'Decimal separator',
+    'decimal-separator-dot': 'Dot',
+    'decimal-separator-comma': 'Comma',
   },
 
   about: {
@@ -538,6 +543,9 @@ export default {
     close: {
       label: 'Close',
       title: 'Close dialog',
+    },
+    apply: {
+      title: 'Apply',
     },
     ok: {
       title: 'OK',

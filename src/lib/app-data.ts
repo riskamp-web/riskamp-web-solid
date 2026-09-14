@@ -3,7 +3,7 @@ import { createEffect } from 'solid-js';
 import { type Model } from 'treb-llm-support';
 import type { DocumentsRow } from '~/docs/documents';
 import type { DocumentScope, SortDirection, SortKey } from '~/backstage/documents-data';
-import { languages, UpdateLanguage } from '~/i18n/i18n';
+import { InitI18N, languages, UpdateLanguage } from '~/i18n/i18n';
 
 /**
  * FIXME: we should change how this works, make it deeper 
@@ -81,6 +81,18 @@ export interface DocumentsView {
   open?: string;
 }
 
+/**
+ * more complex locale options. we don't necessarily offer all these
+ * as options just yet.
+ */
+export interface LocaleSettings {
+  // locale?: string;
+  ui_language?: string;
+  spreadsheet_language?: string;
+  decimal_separator?: ','|'.';
+  grouping_separator?: string;
+}
+
 export interface PersistentData {
   lhs: boolean;
   stepped: boolean; 
@@ -109,8 +121,7 @@ export interface PersistentData {
   /** explicit light/dark theme. leave undefined to use system theme. */
   explicit_theme?: 'light'|'dark';
 
-  /** explicit language, if it was set */
-  explicit_language?: string;
+  locale_settings?: LocaleSettings;
 
 }
 
@@ -159,18 +170,25 @@ export const [persistentData, setPersistentData] = createStore<PersistentData>({
 
 });
 
-/**
- * @returns the current selected language, or the browser default, best
- * as we can determine
- */
+/* *
+ * @returns the current locale, or the browser default, best
+ * as we can determine. this should return the full locale
+ * (e.g. es-mx) if available. 
+ * /
 export function CurrentLanguage() {
 
-  if (persistentData.explicit_language) {
-    return persistentData.explicit_language;
+  if (/locale=/.test(location.search)) {
+    const match = location.search.match(/locale=(.*?)(?:&|$)/);
+    if (match) {
+      return match[1];
+    }
+  }
+  else if (persistentData.explicit_locale) {
+    return persistentData.explicit_locale;
   }
   else {
-
     for (let lang of navigator.languages) {
+
       if (!lang) { 
         continue; 
       }
@@ -182,7 +200,7 @@ export function CurrentLanguage() {
       }
     }
 
-    const lang = (navigator.language || '').substring(0, 2).toLowerCase();
+    const lang = (navigator.language || '').toLowerCase();
     for (const compare of languages) {
       if (lang === compare.code) {
         return lang;
@@ -192,6 +210,7 @@ export function CurrentLanguage() {
   }
 
 }
+*/
 
 export function InitAppData() {
 
@@ -206,12 +225,7 @@ export function InitAppData() {
         console.error(err);
       }
     }
-
-    const language = CurrentLanguage();
-    if (language) {
-      UpdateLanguage(language);
-    }
-
+    InitI18N();
   }
 
   createEffect(() => {

@@ -1,4 +1,22 @@
 
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: .5em;
+  }
+
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+}
+
 /* 
   borrowing from insert function dialog's function search results.
   TODO: unify as a list box style
@@ -6,8 +24,7 @@
 .listbox {
 
   overflow-y: scroll;
-  /* height: 20em; */
-  height: 100%;
+  height: 15em;
 
   font-size: var(--base-font-size);
   border: 1px solid var(--dialog-line-color);
@@ -21,16 +38,24 @@
   li {
 
     user-select: none;
+    padding: 1em .5em 1em 1em;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1em;
 
     .name {
       font-weight: 600;
     }
 
+    .detail {
+      opacity: .6;
+    }
+
     & > * {
       pointer-events: none;
     }
-
-    padding: 1em .5em 1em 1em;
 
     &:hover {
       background-color: rgb(from var(--dialog-border-color) r g b / .07);

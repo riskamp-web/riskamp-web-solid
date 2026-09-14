@@ -1,9 +1,10 @@
 
-import { onMount, Setter } from "solid-js";
+import { createEffect, on, onMount, Setter } from "solid-js";
 import { type EmbeddedSpreadsheet, type MCEmbeddedSpreadsheetOptions, RiskAMPWeb } from 'riskamp-web';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 import { ApplyThemeColors } from '../toolbar/theme-selector';
-import { CurrentLanguage, persistentData } from '~/lib/app-data';
+import { persistentData } from '~/lib/app-data';
+import { SystemLocale } from '~/i18n/i18n';
 
 interface Props {
   fill?: boolean;
@@ -57,12 +58,27 @@ export function Spreadsheet(props: Props) {
       sheet = RiskAMPWeb.CreateSpreadsheet(options);
       sheet.EnsureChartsLib();
 
+      createEffect(on(() => persistentData.locale_settings, value => {
+        if (!/locale=/.test(document.location.search)) { 
+          (sheet as SpreadsheetType).LoadLanguage(value?.spreadsheet_language || SystemLocale(), value?.decimal_separator);
+        }
+      }, { defer: true }));
+
       sheet.ready.then(() => {
         props.setSheet(sheet as SpreadsheetType);
-        const language = CurrentLanguage();
-        if (language) {
-          (sheet as SpreadsheetType).LoadLanguage(language);
+
+        // if there's an explicit spreadsheet language set, use that.
+        // otherwise follow the normal pattern (i.e. let TREB figure it out)
+
+        // I guess allow locale= override? 
+
+        if (persistentData.locale_settings?.spreadsheet_language && 
+            !/locale=/.test(document.location.search)) {
+          (sheet as SpreadsheetType).LoadLanguage(
+            persistentData.locale_settings.spreadsheet_language,
+            persistentData.locale_settings.decimal_separator);
         }
+
       });
 
       (self as ( Window & typeof globalThis & {sheet: SpreadsheetType})).sheet = sheet as SpreadsheetType; // DEV

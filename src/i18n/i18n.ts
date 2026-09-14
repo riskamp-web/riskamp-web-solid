@@ -2,6 +2,7 @@
 import { createSignal, type JSX } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import en from '~/i18n/lang/en';
+import { persistentData } from '~/lib/app-data';
 
 export type I18N = typeof en;
 
@@ -158,6 +159,28 @@ export function formatJSX(text: string, values: Record<string, string | number |
   return parts;
 }
 
+export function SystemLocale() {
+  return navigator.languages?.[0] || navigator.language || '';
+}
+
+/**
+ * if there's an explicit UI language set in preferences, use that.
+ * otherwise, try to set language/locale based on system locale.
+ * allow locale= to override (for now)
+ */
+export function InitI18N() {
+  const match = (location?.search || '').match(/locale=(.*?)(?:$|&)/);
+  if (match) {
+    UpdateLanguage(match[1]);
+  }
+  if (persistentData.locale_settings?.ui_language) {
+    UpdateLanguage(persistentData.locale_settings.ui_language);
+  }
+  else {
+    UpdateLanguage(SystemLocale());
+  }
+}
+
 /**
  * updating this method to take a proper locale (e.g. en-us). we'll 
  * pull the language based on the first half.
@@ -166,6 +189,8 @@ export function formatJSX(text: string, values: Record<string, string | number |
  * of listening to the signal? could be because the language might be 
  * unsupported, in which case we default? or maybe just because it was 
  * from an older app that didn't use the same signal style
+ * 
+ * NOTE: this is for the UI language only. it does not affect TREB.
  * 
  * @param locale 
  */
@@ -247,12 +272,12 @@ type _NoDottedKeys = AssertNoDots<DottedKeys<I18N>>;
  * we could switch to generating at complile time
  */
 export const languages = [
-  { code: 'en', name: 'English' },
-  { code: 'fr', name: 'Français' },
-  { code: 'es', name: 'Español' },
-  { code: 'de', name: 'Deutsch' },
-  { code: 'pt', name: 'Português' },
-  { code: 'nl', name: 'Nederlands' },
+  { code: 'en', name: 'English', decimal_separator: '.' },
+  { code: 'fr', name: 'Français', decimal_separator: ',' },
+  { code: 'es', name: 'Español', decimal_separator: ',' },
+  { code: 'de', name: 'Deutsch', decimal_separator: ',' },
+  { code: 'pt', name: 'Português', decimal_separator: ',' },
+  { code: 'nl', name: 'Nederlands', decimal_separator: ',' },
 
   /*
   { code: 'da', name: 'Dansk' },
@@ -261,7 +286,11 @@ export const languages = [
   { code: 'sv', name: 'Svenska' },
   { code: 'pl', name: 'Polski' },
    */
-];
+] satisfies {
+  code: string;
+  name: string;
+  decimal_separator: ','|'.';
+}[];
 
 languages.sort((a, b) => a.code.localeCompare(b.code));
 
