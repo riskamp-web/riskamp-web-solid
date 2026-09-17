@@ -19,7 +19,12 @@ export default {
   },
 
   'select-language-dialog': {
-    'title': 'Sélectionner la langue',
+    'title': 'Paramètres de langue',
+    'select-language': 'Sélectionner la langue',
+    'system-setting': 'Paramètre système',
+    'decimal-separator': 'Séparateur décimal',
+    'decimal-separator-dot': 'Point',
+    'decimal-separator-comma': 'Virgule',
   },
 
   about: {
@@ -547,6 +552,9 @@ export default {
     close: {
       label: 'Fermer',
       title: 'Fermer la boîte de dialogue',
+    },
+    apply: {
+      title: 'Appliquer',
     },
     ok: {
       title: 'OK',

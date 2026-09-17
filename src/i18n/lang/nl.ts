@@ -20,7 +20,12 @@ export default {
   },
 
   'select-language-dialog': {
-    'title': 'Taal selecteren',
+    'title': 'Taalinstellingen',
+    'select-language': 'Taal selecteren',
+    'system-setting': 'Systeeminstelling',
+    'decimal-separator': 'Decimaalteken',
+    'decimal-separator-dot': 'Punt',
+    'decimal-separator-comma': 'Komma',
   },
 
   about: {
@@ -548,6 +553,9 @@ export default {
     close: {
       label: 'Sluiten',
       title: 'Dialoogvenster sluiten',
+    },
+    apply: {
+      title: 'Toepassen',
     },
     ok: {
       title: 'OK',

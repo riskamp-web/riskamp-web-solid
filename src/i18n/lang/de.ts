@@ -20,7 +20,12 @@ export default {
   },
 
   'select-language-dialog': {
-    'title': 'Sprache auswählen',
+    'title': 'Spracheinstellungen',
+    'select-language': 'Sprache auswählen',
+    'system-setting': 'Systemeinstellung',
+    'decimal-separator': 'Dezimaltrennzeichen',
+    'decimal-separator-dot': 'Punkt',
+    'decimal-separator-comma': 'Komma',
   },
 
   about: {
@@ -548,6 +553,9 @@ export default {
     close: {
       label: 'Schließen',
       title: 'Dialog schließen',
+    },
+    apply: {
+      title: 'Übernehmen',
     },
     ok: {
       title: 'OK',
