@@ -230,8 +230,11 @@ export function ChatMessages(props: Props) {
         </Match>
 
         <Match when={true}>
-          <div>{t('llm-chat.error.unknown-type')}</div>
+          <Show when={messages?.messages.length > 0}>
+            <div>{t('llm-chat.error.unknown-type')} "{messages.type}"</div>
+          </Show>
         </Match>
+        
       </Switch>
 
       <Show when={activity()}>
