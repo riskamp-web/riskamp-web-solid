@@ -18,6 +18,77 @@ type GeminiMessage = Exclude<GeminiChatMessages['messages'][number], ClientSideE
 type GPTMessage = Exclude<GPTResponsesChatMessages['messages'][number], ClientSideErrorMessage>;
 
 /**
+ * a failed block: a client-side error, or a tool call the spreadsheet
+ * refused. these are the only things in the transcript that aren't model or
+ * user text, and without them a failed tool call is completely invisible --
+ * the error goes back to the model as a tool result, and a turn that's only
+ * a tool call renders nothing at all.
+ */
+function ErrorBlock(props: { text?: string }) {
+  return <div classList={{ [style.message]: true, [style.error]: true }}>
+      <div class={style.part}>
+        {props.text || t('llm-chat.error.unknown')}
+      </div>
+    </div>;
+}
+
+/**
+ * tool errors reach the transcript as the payload we sent the model, which
+ * is JSON-encoded and shaped either as a bare string or as
+ * `{ message, detail }`. unwrap it into something readable, and fall back to
+ * the raw text if it isn't a shape we know.
+ */
+function ToolErrorText(raw: unknown): string {
+
+  let value = raw;
+
+  if (typeof value === 'string') {
+    try { value = JSON.parse(value); }
+    catch { return value as string; }
+  }
+
+  if (typeof value === 'string') { return value; }
+
+  if (Array.isArray(value)) {
+    return value.map(entry => ToolErrorText(entry)).filter(text => !!text).join('\n');
+  }
+
+  if (value && typeof value === 'object') {
+    const { message, detail, content, text } = value as Record<string, unknown>;
+    if (message === undefined && content !== undefined) { return ToolErrorText(content); }
+    if (message === undefined && typeof text === 'string') { return text; }
+
+    const parts: string[] = [];
+    if (typeof message === 'string') { parts.push(message); }
+    if (Array.isArray(detail)) { parts.push(detail.join('; ')); }
+    else if (typeof detail === 'string') { parts.push(detail); }
+    if (parts.length) { return parts.join(': '); }
+  }
+
+  return raw === undefined || raw === null ? '' : String(raw);
+
+}
+
+/**
+ * the openai-responses shape has no error flag, so a failed tool call is
+ * identified by the payload we wrote into `output` (see
+ * FormatOpenAIResponsesToolResults). returns undefined for anything else.
+ */
+function OpenAIToolErrorText(output: unknown): string|undefined {
+  if (typeof output !== 'string') { return undefined; }
+  try {
+    const parsed = JSON.parse(output);
+    if (parsed && typeof parsed === 'object' && parsed.type === 'error') {
+      return ToolErrorText(parsed.content);
+    }
+  }
+  catch {
+    // not our payload
+  }
+  return undefined;
+}
+
+/**
  * ephemeral activity label for the in-progress turn. we only persist user /
  * assistant text blocks; thinking + tool steps are surfaced here as a
  * transient status ("Thinking…", "Running <tool>…") derived from the last
@@ -113,11 +184,7 @@ export function ChatMessages(props: Props) {
             {item => {
 
               if (IsClientSideErrorMessage(item)) {
-                return <div classList={{ [style.message]: true, [style.error]: true }}>
-                    <div class={style.part}>
-                      {item.message || t('llm-chat.error.unknown')}
-                    </div>
-                  </div>;
+                return <ErrorBlock text={item.message} />;
               }
 
               const role = item.role;
@@ -126,16 +193,23 @@ export function ChatMessages(props: Props) {
               // part (e.g. a lone tool_use) renders nothing -- no empty wrapper.
               if (Array.isArray(item.content)) {
                 const content = item.content;
-                return <Show when={content.some(part => part.type === 'text')}>
-                    <div classList={{ [style.message]: true, [style[role]]: true }}>
-                      <For each={content}>
-                        {part => part.type === 'text'
-                          ? <div classList={{ [style.part]: true, markdown: true }}
-                                 innerHTML={DOMPurify.sanitize(Format(part.text))} />
-                          : null}
-                      </For>
-                    </div>
-                  </Show>;
+                return <>
+                    <For each={content}>
+                      {part => part.type === 'tool_result' && part.is_error
+                        ? <ErrorBlock text={ToolErrorText(part.content)} />
+                        : null}
+                    </For>
+                    <Show when={content.some(part => part.type === 'text')}>
+                      <div classList={{ [style.message]: true, [style[role]]: true }}>
+                        <For each={content}>
+                          {part => part.type === 'text'
+                            ? <div classList={{ [style.part]: true, markdown: true }}
+                                   innerHTML={DOMPurify.sanitize(Format(part.text))} />
+                            : null}
+                        </For>
+                      </div>
+                    </Show>
+                  </>;
               }
 
               // string content: user text
@@ -154,11 +228,7 @@ export function ChatMessages(props: Props) {
             {item => {
 
               if (IsClientSideErrorMessage(item)) {
-                return <div classList={{ [style.message]: true, [style.error]: true }}>
-                    <div class={style.part}>
-                      {item.message || t('llm-chat.error.unknown')}
-                    </div>
-                  </div>;
+                return <ErrorBlock text={item.message} />;
               }
 
               const classes: Record<string, boolean> = { [style.message]: true };
@@ -167,16 +237,26 @@ export function ChatMessages(props: Props) {
               }
 
               const parts = item.parts;
-              return <Show when={parts?.some(part => !!part.text)}>
-                  <div classList={classes}>
-                    <For each={parts}>
-                      {part => part.text
-                        ? <div classList={{ [style.part]: true, [style.text]: true, markdown: true }}
-                               innerHTML={DOMPurify.sanitize(Format(part.text || ''))} />
-                        : null}
-                    </For>
-                  </div>
-                </Show>;
+              return <>
+                  <For each={parts}>
+                    {part => {
+                      const error = part.functionResponse?.response?.error;
+                      return error === undefined
+                        ? null
+                        : <ErrorBlock text={ToolErrorText(error)} />;
+                    }}
+                  </For>
+                  <Show when={parts?.some(part => !!part.text)}>
+                    <div classList={classes}>
+                      <For each={parts}>
+                        {part => part.text
+                          ? <div classList={{ [style.part]: true, [style.text]: true, markdown: true }}
+                                 innerHTML={DOMPurify.sanitize(Format(part.text || ''))} />
+                          : null}
+                      </For>
+                    </div>
+                  </Show>
+                </>;
 
             }}
           </For>
@@ -187,11 +267,7 @@ export function ChatMessages(props: Props) {
             {item => {
 
               if (IsClientSideErrorMessage(item)) {
-                return <div classList={{ [style.message]: true, [style.error]: true }}>
-                    <div class={style.part}>
-                      {item.message || t('llm-chat.error.unknown')}
-                    </div>
-                  </div>;
+                return <ErrorBlock text={item.message} />;
               }
 
               if (!item.type || item.type === 'message') {
@@ -221,8 +297,13 @@ export function ChatMessages(props: Props) {
                 return null;
               }
 
-              // non-message items (reasoning / function_call / …) are surfaced
-              // as ephemeral activity, not persistent blocks.
+              if (item.type === 'function_call_output') {
+                const error = OpenAIToolErrorText(item.output);
+                return error === undefined ? null : <ErrorBlock text={error} />;
+              }
+
+              // other non-message items (reasoning / function_call / …) are
+              // surfaced as ephemeral activity, not persistent blocks.
               return null;
 
             }}
