@@ -7,7 +7,7 @@ import '~/components/tabs.css';
 import style from './ai-sidebar.module.css';
 import { Splitter } from '../../splitter/splitter';
 import { persistentData, sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
-import { createEffect, createSignal, on, Show } from 'solid-js';
+import { createEffect, createMemo, createSignal, on, Show } from 'solid-js';
 import { produce } from 'solid-js/store';
 import { Models, provider_list } from '~/lib/raw-llm-support';
 import { icons } from '~/components/icon-sets';
@@ -161,8 +161,22 @@ export function Sidebar(props: SidebarProps) {
     setSessionData('llm_tab', value);
   }));
 
+  const controls_disabled = createMemo(() => {
+    return !persistentData.llm_model;
+  });
+
   // 
 
+  const filtered_providers = provider_list.filter(test => !/localhost/i.test(test.provider.name));
+
+  if (import.meta.env.DEV) {
+    for (const test of provider_list) {
+      if (/localhost/i.test(test.provider.name)) {
+        filtered_providers.unshift(test);
+      }
+    }
+  }
+  
   return <div class={style.layout}>
     <div classList={{
       "tab-container": true,
@@ -194,11 +208,11 @@ export function Sidebar(props: SidebarProps) {
 
             </div>
             <div data-bottom class={style.controls}>
-              <textarea ref={textarea} wrap="soft" onkeydown={HandleKey}></textarea>
+              <textarea ref={textarea} wrap="soft" onkeydown={HandleKey} disabled={controls_disabled()}></textarea>
               <div class={style.buttons}>
-                <button class="control-button"
+                <button class="control-button" 
                         onclick={() => messages.messages = []}>{t('llm-chat.buttons.clear-conversation')}</button>
-                <button class="control-button button-primary"
+                <button class="control-button button-primary" disabled={controls_disabled()}
                         onclick={LocalSendMessage}>{t('llm-chat.buttons.send-message')}</button>
               </div>
             </div>
@@ -229,7 +243,7 @@ export function Sidebar(props: SidebarProps) {
                       value={selectedModel()}
                       onchange={SelectModel}>
                 <option value=''>{t('llm-chat.label.choose-a-model')}</option>
-                {provider_list.map(provider => {
+                {filtered_providers.map(provider => {
                   return <optgroup label={provider.provider.name}>
                     {provider.models.map(model => <option value={model.name}>{model.label}</option>)};
                     </optgroup>;
