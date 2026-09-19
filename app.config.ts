@@ -26,7 +26,7 @@ const commitHash = (() => {
 // resolves. The proper fix — static specifiers in riskamp-web itself — is
 // deferred to a major bump there so we don't break other consumers.
 function riskampLanguages(): Plugin {
-  const dir = new URL('./node_modules/riskamp-web/dist/languages/', import.meta.url);
+  const dir = new URL('./node_modules/riskamp-web/dist/i18n/', import.meta.url);
   let emit = false;
   return {
     name: 'riskamp-languages',
@@ -42,7 +42,7 @@ function riskampLanguages(): Plugin {
         if (!file.endsWith('.mjs')) continue;
         this.emitFile({
           type: 'asset',
-          fileName: `assets/languages/${file}`, // relative to the client outDir → _build/assets/languages/
+          fileName: `assets/i18n/${file}`, // relative to the client outDir → _build/assets/languages/
           source: readFileSync(new URL(file, dir)),
         });
       }
