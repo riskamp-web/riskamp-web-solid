@@ -1,6 +1,6 @@
 
 import type { EmbeddedSpreadsheet } from 'riskamp-web';
-// import type InfoDialog from './components/info-dialog.svelte';
+import { toast } from '~/components/toast/toast-control';
 
 /** replacement for TREB enum type */
 export type TREBDialogType = ''|'info'|'error'|'warning'|'success'|'about'|'initial';
@@ -56,8 +56,11 @@ export const HijackDialog = (sheet: EmbeddedSpreadsheet & { dialog?: TREBDialog 
             timeout: options.timeout,
           });
           */
-          console.warn("missing info dialog!");
-          console.info(options.message);
+
+          toast.error(options.message || 'Error');
+          
+          // console.warn("missing info dialog!");
+          // console.info(options.message);
           return Promise.resolve();
         
         case 'about':
