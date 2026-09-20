@@ -105,12 +105,12 @@ export default function Page() {
    * intiial path when we create the spreadsheet, so this is deferred.
    */
   createEffect(on(() => params.document_path, value => {
-    console.info("TLP2");
+    // console.info("TLP2");
     TryLoadPath(getSheet(), value, searchParams.version);
   }, { defer: true }));
 
   createEffect(on(() => searchParams.version, value => {
-    console.info("TLP3");
+    // console.info("TLP3");
     TryLoadPath(getSheet(), params.document_path, value);
   }, { defer: true }));
 
