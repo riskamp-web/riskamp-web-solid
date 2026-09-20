@@ -58,6 +58,7 @@ export default {
       'about-riskamp': 'About RiskAMP web',
       'function-documentation': 'RiskAMP function documentation',
       walkthrough: 'Walkthrough model',
+      contact: 'Contact us',
     },
 
     button: {
@@ -1108,6 +1109,12 @@ export default {
     },
   },
 
+  contact: {
+    page: {
+      title: 'Contact us',
+    },
+  },
+
   'privacy-policy': {
     page: {
       title: 'Privacy policy',
@@ -1837,6 +1844,42 @@ export default {
     link: {
       'sign-in': 'Sign in',
       'create-account': 'Create account',
+    },
+  },
+
+  'contact-page': {
+    eyebrow: 'Contact us',
+    heading: 'Send a message',
+    subtitle: 'We read every message. Send us bugs, ideas, or just tell us what you think.',
+
+    name: {
+      label: 'Name',
+    },
+
+    email: {
+      label: 'Email (optional)',
+    },
+
+    message: {
+      label: 'Message',
+    },
+
+    submit: {
+      label: 'Send',
+      pending: 'Sending…',
+    },
+
+    error: {
+      'name-required': 'Enter your name.',
+      'message-required': 'Enter a message.',
+      unreachable: 'Can’t reach the server. Check your connection and try again.',
+      failed: 'Something went wrong sending your message. Please try again.',
+    },
+
+    done: {
+      heading: 'Thanks for your feedback!',
+      body: 'We will read your message and get back to you as soon as we can.',
+      home: 'Go back home',
     },
   },
 

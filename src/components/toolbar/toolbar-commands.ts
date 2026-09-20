@@ -422,6 +422,12 @@ export const ToolbarCommands = [
     icon: icons.riskamp_documentation,
     menuicon: true,
   },
+{
+		key: 'contact',
+    title: 'toolbar.menu.contact',
+    icon: icons.insert_comment,
+    menuicon: true,
+  },
 
   /*
 {

@@ -68,6 +68,7 @@ export default {
       'about-riskamp': 'Über RiskAMP web',
       'function-documentation': 'RiskAMP-Funktionsdokumentation',
       walkthrough: 'Walkthrough-Modell',
+      contact: 'Kontakt',
     },
 
     button: {
@@ -1102,6 +1103,12 @@ export default {
     },
   },
 
+  contact: {
+    page: {
+      title: 'Kontakt',
+    },
+  },
+
   'privacy-policy': {
     page: {
       title: 'Datenschutzrichtlinie',
@@ -1780,6 +1787,42 @@ export default {
     link: {
       'sign-in': 'Anmelden',
       'create-account': 'Konto erstellen',
+    },
+  },
+
+  'contact-page': {
+    eyebrow: 'Kontakt',
+    heading: 'Nachricht senden',
+    subtitle: 'Wir lesen jede Nachricht. Schicken Sie uns Fehler, Ideen oder sagen Sie uns einfach, was Sie denken.',
+
+    name: {
+      label: 'Name',
+    },
+
+    email: {
+      label: 'E-Mail (optional)',
+    },
+
+    message: {
+      label: 'Nachricht',
+    },
+
+    submit: {
+      label: 'Senden',
+      pending: 'Wird gesendet…',
+    },
+
+    error: {
+      'name-required': 'Geben Sie Ihren Namen ein.',
+      'message-required': 'Geben Sie eine Nachricht ein.',
+      unreachable: 'Der Server ist nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+      failed: 'Beim Senden Ihrer Nachricht ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+    },
+
+    done: {
+      heading: 'Danke für Ihr Feedback!',
+      body: 'Wir lesen Ihre Nachricht und melden uns so schnell wie möglich bei Ihnen.',
+      home: 'Zurück zur Startseite',
     },
   },
 

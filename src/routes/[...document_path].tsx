@@ -705,6 +705,10 @@ export default function Page() {
         goto(`/@riskamp/riskamp-walkthrough`);
         break;
 
+      case 'contact':
+        navigate('/contact');
+        return;
+
       case 'dark-theme':
         SetTheme(sheet, 'dark');
         break;

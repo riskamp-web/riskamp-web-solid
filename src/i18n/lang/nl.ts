@@ -68,6 +68,7 @@ export default {
       'about-riskamp': 'Over RiskAMP web',
       'function-documentation': 'Documentatie van RiskAMP-functies',
       walkthrough: 'Demonstratiemodel',
+      contact: 'Contact',
     },
 
     button: {
@@ -1102,6 +1103,12 @@ export default {
     },
   },
 
+  contact: {
+    page: {
+      title: 'Contact',
+    },
+  },
+
   'privacy-policy': {
     page: {
       title: 'Privacybeleid',
@@ -1780,6 +1787,42 @@ export default {
     link: {
       'sign-in': 'Inloggen',
       'create-account': 'Account aanmaken',
+    },
+  },
+
+  'contact-page': {
+    eyebrow: 'Contact',
+    heading: 'Stuur een bericht',
+    subtitle: 'We lezen elk bericht. Stuur ons bugs, ideeën of laat gewoon weten wat u ervan vindt.',
+
+    name: {
+      label: 'Naam',
+    },
+
+    email: {
+      label: 'E-mail (optioneel)',
+    },
+
+    message: {
+      label: 'Bericht',
+    },
+
+    submit: {
+      label: 'Verzenden',
+      pending: 'Verzenden…',
+    },
+
+    error: {
+      'name-required': 'Voer uw naam in.',
+      'message-required': 'Voer een bericht in.',
+      unreachable: 'Kan de server niet bereiken. Controleer uw verbinding en probeer het opnieuw.',
+      failed: 'Er is iets misgegaan bij het verzenden van uw bericht. Probeer het opnieuw.',
+    },
+
+    done: {
+      heading: 'Bedankt voor uw feedback!',
+      body: 'We lezen uw bericht en nemen zo snel mogelijk contact met u op.',
+      home: 'Terug naar start',
     },
   },
 

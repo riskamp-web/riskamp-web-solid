@@ -94,6 +94,7 @@ export const toolbar_config: ToolbarConfig = {
         'function-docs',
         'walkthrough',
         'separator',
+        'contact',
         'about-riskamp',
       ),
     }

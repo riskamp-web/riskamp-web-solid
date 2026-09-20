@@ -67,6 +67,7 @@ export default {
       'about-riskamp': 'Acerca de RiskAMP web',
       'function-documentation': 'Documentación de funciones de RiskAMP',
       walkthrough: 'Modelo de demostración',
+      contact: 'Contáctanos',
     },
 
     button: {
@@ -1103,6 +1104,12 @@ export default {
     },
   },
 
+  contact: {
+    page: {
+      title: 'Contáctanos',
+    },
+  },
+
   'privacy-policy': {
     page: {
       title: 'Política de privacidad',
@@ -1784,6 +1791,42 @@ export default {
     link: {
       'sign-in': 'Iniciar sesión',
       'create-account': 'Crear cuenta',
+    },
+  },
+
+  'contact-page': {
+    eyebrow: 'Contáctanos',
+    heading: 'Envía un mensaje',
+    subtitle: 'Leemos todos los mensajes. Cuéntanos errores, ideas o simplemente qué te parece.',
+
+    name: {
+      label: 'Nombre',
+    },
+
+    email: {
+      label: 'Correo electrónico (opcional)',
+    },
+
+    message: {
+      label: 'Mensaje',
+    },
+
+    submit: {
+      label: 'Enviar',
+      pending: 'Enviando…',
+    },
+
+    error: {
+      'name-required': 'Introduce tu nombre.',
+      'message-required': 'Escribe un mensaje.',
+      unreachable: 'No se puede conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.',
+      failed: 'Se produjo un error al enviar tu mensaje. Inténtalo de nuevo.',
+    },
+
+    done: {
+      heading: '¡Gracias por tus comentarios!',
+      body: 'Leeremos tu mensaje y te responderemos lo antes posible.',
+      home: 'Volver al inicio',
     },
   },
 

@@ -576,6 +576,30 @@
   }
 }
 
+/* the multiline sibling of .input -- same frame, but it grows and can be
+   dragged taller. no single-line height; a min-height instead, and the padding
+   picks up the vertical it can't inherit from the one-line control. */
+.textarea {
+  width: 100%;
+  min-height: 7.5em;
+  padding: 8px 9px;
+  border: 1px solid var(--border-control);
+  border-radius: var(--control-radius);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  line-height: 1.45;
+  resize: vertical;
+
+  &[aria-invalid='true'] {
+    border-color: var(--danger);
+  }
+
+  &:disabled {
+    opacity: .55;
+  }
+}
+
 .field-message {
   color: var(--danger);
 }
