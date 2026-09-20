@@ -46,7 +46,7 @@ export function LanguageDialog(props: Props) {
     const fmt = new Intl.NumberFormat(lang,
       {minimumFractionDigits: 1}).format(3.3).replace(/\d/g, '');
 
-    console.info("LF", lang, fmt);
+    // console.info("LF", lang, fmt);
 
     if (fmt === '.' || fmt === ',') {
       return fmt;

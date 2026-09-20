@@ -847,6 +847,9 @@ export default function Page() {
             if (event.source === 'local-file') {
               // console.info("dnd; don't update cache");
             }
+            else if (event.source === 'language-change') {
+              // console.info("language change: don't update cache");
+            }
             else if (event.source as string !== 'cache') {
               // console.info("setting last save version (not from cache) ->", sheet?.state || 0);
               setSessionData('last_saved_version', sheet?.state || 0);
