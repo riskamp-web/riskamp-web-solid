@@ -503,6 +503,10 @@ export default function Page() {
         return;
         break;
 
+      case 'open':
+        navigate('/documents');
+        break;
+
       case 'save':
       case 'save-as':
         Save(key === 'save-as');

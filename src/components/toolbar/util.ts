@@ -250,6 +250,12 @@ export function UpdateSaveState(sheet: SpreadsheetType, config: typeof toolbar_c
     else if (command.state_key === 'save') {
       command.enabled = dirty && loggedIn();
     }
+    else if (command.state_key === 'save-as') {
+      command.enabled = loggedIn();
+    }
+    else if (command.state_key === 'logged-in') {
+      command.enabled = loggedIn();
+    }
     else if (command.state_key === 'dirty') {
       command.enabled = dirty;
     }

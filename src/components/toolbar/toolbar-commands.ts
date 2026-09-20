@@ -109,6 +109,8 @@ export const ToolbarCommands = [
 {
 		key: 'open',
     title: 'toolbar.button.open-file',
+    enabled: false,
+    state_key: 'logged-in',
   },
 
 {
@@ -141,6 +143,8 @@ export const ToolbarCommands = [
 {
 		key: 'save-as',
     title: 'toolbar.button.save-file-as',
+    state_key: 'save-as',
+    enabled: false,
   },
 
 {

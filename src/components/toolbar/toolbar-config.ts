@@ -48,6 +48,8 @@ export const toolbar_config: ToolbarConfig = {
       items: menuitems(
         'new',
         'separator',
+        'open',
+        'separator',
         'revert',
         'save',
         'save-as',
