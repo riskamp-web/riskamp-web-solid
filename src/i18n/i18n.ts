@@ -278,14 +278,11 @@ export const languages = [
   { code: 'de', name: 'Deutsch', decimal_separator: ',' },
   { code: 'pt', name: 'Português', decimal_separator: ',' },
   { code: 'nl', name: 'Nederlands', decimal_separator: ',' },
-
-  /*
-  { code: 'da', name: 'Dansk' },
-  { code: 'it', name: 'Italiano' },
-  { code: 'no', name: 'Norsk' },
-  { code: 'sv', name: 'Svenska' },
-  { code: 'pl', name: 'Polski' },
-   */
+  { code: 'da', name: 'Dansk', decimal_separator: ',' },
+  { code: 'it', name: 'Italiano', decimal_separator: ',' },
+  { code: 'no', name: 'Norsk', decimal_separator: ',' },
+  { code: 'sv', name: 'Svenska', decimal_separator: ',' },
+  { code: 'pl', name: 'Polski', decimal_separator: ',' },
 ] satisfies {
   code: string;
   name: string;
