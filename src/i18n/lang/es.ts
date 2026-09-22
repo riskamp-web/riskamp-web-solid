@@ -750,6 +750,8 @@ export default {
       unknown: 'error desconocido',
       'unknown-type': 'tipo desconocido',
     },
+
+    aborted: 'Generación detenida.',
   },
 
   'developer-panel': {

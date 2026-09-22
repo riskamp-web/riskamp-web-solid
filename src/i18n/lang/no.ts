@@ -753,6 +753,8 @@ export default {
       unknown: 'ukjent feil',
       'unknown-type': 'ukjent type',
     },
+
+    aborted: 'Generering stoppet.',
   },
 
   'developer-panel': {

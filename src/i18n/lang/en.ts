@@ -743,6 +743,9 @@ export default {
       unknown: 'unknown error',
       'unknown-type': 'unknown type',
     },
+
+    // shown in the transcript when the user escapes an in-flight generation.
+    aborted: 'Generation stopped.',
   },
 
   'developer-panel': {

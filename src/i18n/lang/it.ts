@@ -753,6 +753,8 @@ export default {
       unknown: 'errore sconosciuto',
       'unknown-type': 'tipo sconosciuto',
     },
+
+    aborted: 'Generazione interrotta.',
   },
 
   'developer-panel': {

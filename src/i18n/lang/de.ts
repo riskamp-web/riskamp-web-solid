@@ -751,6 +751,8 @@ export default {
       unknown: 'unbekannter Fehler',
       'unknown-type': 'unbekannter Typ',
     },
+
+    aborted: 'Generierung gestoppt.',
   },
 
   'developer-panel': {

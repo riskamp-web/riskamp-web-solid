@@ -753,6 +753,8 @@ export default {
       unknown: 'okänt fel',
       'unknown-type': 'okänd typ',
     },
+
+    aborted: 'Generering stoppad.',
   },
 
   'developer-panel': {

@@ -1,6 +1,7 @@
 
 import { createMutable, createStore } from 'solid-js/store';
 import { spinner } from '~/components/spinner/spinner-control';
+import { t } from '~/i18n/i18n';
 import { persistentData, sessionData } from '~/lib/app-data';
 import { createEffect, createSignal, on } from 'solid-js';
 import { GenericToolCall, IndexedToolResult, type TypedChatMessages } from 'treb-llm-support';
@@ -36,6 +37,30 @@ export const [streaming, setStreaming] = createSignal(false);
 let llm_streaming_worker: Worker|undefined;
 let docs_search_worker: Worker|undefined;
 let search_resolver: ((results: SearchResult[]) => void) | undefined;
+
+/**
+ * set by AbortGeneration() so StreamChatMessages' finally knows the turn ended
+ * on a user escape (and should post the "stopped" notice), rather than a normal
+ * completion.
+ */
+let aborted = false;
+
+/**
+ * abort an in-flight generation. wired to the spinner's Escape handler.
+ *
+ * flips the library's interrupt flag -- which unwinds Stream() cleanly within
+ * ~250ms and lets its DropDanglingToolCalls repair the transcript -- and hard-
+ * restarts the streaming worker so the live request is actually dropped now and
+ * the next turn gets a responsive worker (a worker still blocked inside its
+ * previous `for await` would never service the next postMessage). the spinner
+ * is closed by StreamChatMessages' finally, the single unwind path, not here.
+ */
+function AbortGeneration() {
+  aborted = true;
+  AbortStream();
+  llm_streaming_worker?.terminate();
+  llm_streaming_worker = new worker_script();
+}
 
 let sheet: SpreadsheetType|undefined;
 
@@ -214,7 +239,7 @@ async function StreamChatMessages() {
       const assigned = persistentData.llm_model;
       const api_key = persistentData.llm_api_keys[persistentData.llm_model.provider.name] || '';
 
-      spinner.show();
+      spinner.show(AbortGeneration);
       setStreaming(true);
 
       try {
@@ -236,6 +261,21 @@ async function StreamChatMessages() {
       }
       finally {
         setStreaming(false);
+
+        // on a user escape, leave a single local-only notice in the transcript.
+        // the library's DropDanglingToolCalls (in Stream's finally) has already
+        // removed the aborted turn and may have left its transient 'interrupted'
+        // marker as the tail -- collapse that into one localized notice.
+        if (aborted) {
+          const list = messages.messages;
+          const last = list[list.length - 1];
+          if (last && IsClientSideErrorMessage(last) && last.message === 'interrupted') {
+            list.pop();
+          }
+          list.push({ type: 'client-side-error', message: t('llm-chat.aborted') });
+          aborted = false;
+        }
+
         spinner.hide();
       }
 

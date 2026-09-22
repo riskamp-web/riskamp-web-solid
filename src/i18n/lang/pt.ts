@@ -751,6 +751,8 @@ export default {
       unknown: 'erro desconhecido',
       'unknown-type': 'tipo desconhecido',
     },
+
+    aborted: 'Geração interrompida.',
   },
 
   'developer-panel': {
