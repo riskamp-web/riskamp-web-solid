@@ -36,7 +36,17 @@ export const [streaming, setStreaming] = createSignal(false);
 
 let llm_streaming_worker: Worker|undefined;
 let docs_search_worker: Worker|undefined;
-let search_resolver: ((results: SearchResult[]) => void) | undefined;
+
+//
+// pending doc-search promises, keyed by a per-request id. tool calls in a turn
+// run concurrently (Promise.all in ProcessToolCalls), so several searches can be
+// in flight at once -- a single shared resolver would let a later search clobber
+// an earlier one's, leaving the earlier promise to hang forever (and, because
+// the main thread is then parked awaiting it, the Escape abort can't unwind
+// either). the id matches each worker response to its own resolver.
+//
+let search_sequence = 0;
+const search_resolvers = new Map<number, (results: SearchResult[]) => void>();
 
 /**
  * set by AbortGeneration() so StreamChatMessages' finally knows the turn ended
@@ -107,12 +117,14 @@ export function InitMessages(sheet_instance?: SpreadsheetType) {
   
   if (docs_search_worker) {
     docs_search_worker.onmessage = (message) => {
-      if (search_resolver) {
-        const temp = search_resolver;
-        search_resolver = undefined;
-        temp((message.data || []) as SearchResult[]);
+      const { id, results } = (message.data || {}) as { id?: number; results?: SearchResult[] };
+      if (typeof id === 'number') {
+        const resolve = search_resolvers.get(id);
+        if (resolve) {
+          search_resolvers.delete(id);
+          resolve((results || []) as SearchResult[]);
+        }
       }
-      // ...
     };
   }
 
@@ -147,8 +159,9 @@ async function SearchDocs(query: string, combine?: 'AND'|'OR') {
   }
 
   return new Promise<SearchResult[]>(resolve => {
-    search_resolver = resolve;
-    worker.postMessage({query, combine});
+    const id = ++search_sequence;
+    search_resolvers.set(id, resolve);
+    worker.postMessage({id, query, combine});
   });
 
 }

@@ -49,13 +49,18 @@ ms.addAll(documents);
 // console.info({documents});
 
 // 3. Handle incoming search requests
+//
+// echo the request `id` back on the response. the main thread runs tool calls
+// concurrently, so more than one search can be in flight at once; the id lets it
+// match each response to the right pending promise instead of relying on a single
+// shared resolver (which two overlapping searches would clobber -> a hang).
 onmessage = (e) => {
-    const { query, combine } = e.data as { query: string; combine?: 'OR'|'AND' };
+    const { id, query, combine } = e.data as { id?: number; query: string; combine?: 'OR'|'AND' };
     const results = ms.search(query || '', {
       combineWith: combine || 'AND',
       boost: { title: 2 },
       fuzzy: (term) => (term.length > 3 ? 0.2 : false), // Only fuzzy for longer words
       prefix: (term) => (term.length > 2)              // Only prefix for 3+ chars
     });
-    postMessage(results);
+    postMessage({ id, results });
 };
