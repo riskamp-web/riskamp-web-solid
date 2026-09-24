@@ -347,6 +347,15 @@
   margin: 0 8px;
 }
 
+/* the star column's stand-in: a short bar centred where the glyph lands.
+   without it the row's first mark is the name bar, and the loaded row -- which
+   starts with a star -- reads as having shifted */
+.skeleton-star {
+  justify-self: center;
+  width: 14px;
+  margin: 0;
+}
+
 /* ------------------------------------------------------------------ */
 /* selection bar (replaces the header controls while selecting)        */
 /* ------------------------------------------------------------------ */

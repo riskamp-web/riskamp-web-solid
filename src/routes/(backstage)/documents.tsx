@@ -872,7 +872,7 @@ export default function Documents() {
               <For each={Array.from({ length: 8 }, (_, index) => index)}>{(index) =>
                 <div class={style['skeleton-row']} aria-hidden='true'>
                   <div />
-                  <div />
+                  <div class={`${bs.skeleton} ${style['skeleton-bar']} ${style['skeleton-star']}`} />
                   <div class={`${bs.skeleton} ${style['skeleton-bar']}`} style={`width: ${52 + ((index * 37) % 46)}%`} />
                   <div class={`${bs.skeleton} ${style['skeleton-bar']} ${style['cell-path']}`} style='width: 45%' />
                   <div class={`${bs.skeleton} ${style['skeleton-bar']} ${style['cell-access']}`} style='width: 60%' />
