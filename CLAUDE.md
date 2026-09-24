@@ -47,6 +47,12 @@ for the full story.
   silent English fallback. `riskampLanguages()` in `app.config.ts` copies them to
   `_build/assets/languages/` where that import resolves. Keep it until the
   upstream fix lands. (→ planned work below; full story in `app.config.ts`.)
+- **Build — SolidStart's route loader is patched; don't drop it.** SolidStart 1.x
+  renders a lazy route before its CSS loads (prod-only pop-in; `cssCodeSplit:
+  false` is *not* a fix — vinxi then links no stylesheet at all).
+  `patches/@solidjs+start+1.3.2.patch` (applied by `postinstall`) holds the route
+  until its stylesheets load. Re-generate it on any `@solidjs/start` bump; delete
+  it with SolidStart at the Solid 2 migration. (→ comments in the patch.)
 
 ## Planned work
 

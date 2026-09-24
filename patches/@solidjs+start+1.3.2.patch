@@ -1,0 +1,78 @@
+diff --git a/node_modules/@solidjs/start/dist/router/lazyRoute.js b/node_modules/@solidjs/start/dist/router/lazyRoute.js
+index 463636a..b0916c7 100644
+--- a/node_modules/@solidjs/start/dist/router/lazyRoute.js
++++ b/node_modules/@solidjs/start/dist/router/lazyRoute.js
+@@ -2,6 +2,49 @@
+ import { createComponent, lazy, onCleanup } from "solid-js";
+ import { appendStyles, cleanupStyles, preloadStyles, updateStyles } from "vinxi/css";
+ import { renderAsset } from "../server/renderAsset";
++// PATCH (riskamp-web-solid): route stylesheets, keyed by href. each one is
++// linked in <head> once and never removed, so it's fetched once. it's switched
++// on (media=all) while at least one route using it is mounted, and off
++// (media="not all") otherwise. that keeps upstream's behaviour of unmounting a
++// route's css when the route unmounts, which matters for the few global
++// (non-module) stylesheets route chunks import. flipping `media` applies
++// synchronously, with no refetch and no flash.
++const routeSheets = new Map();
++function loadRouteStyles(styles) {
++    return Promise.all(styles.map((style) => {
++        const href = style.attrs.href;
++        if (!href)
++            return;
++        let sheet = routeSheets.get(href);
++        if (!sheet) {
++            // already linked by the html shell: always on, nothing to manage
++            if (document.head.querySelector(`link[rel="stylesheet"][href="${href}"]`))
++                return;
++            const link = document.createElement("link");
++            link.rel = "stylesheet";
++            link.href = href;
++            link.media = "not all"; // loads, but doesn't apply until retained
++            // resolve on error too: a failed sheet shouldn't hang the route
++            const ready = new Promise((resolve) => {
++                link.addEventListener("load", resolve, { once: true });
++                link.addEventListener("error", resolve, { once: true });
++            });
++            document.head.appendChild(link);
++            sheet = { link, ready, refs: 0 };
++            routeSheets.set(href, sheet);
++        }
++        return sheet.ready;
++    }));
++}
++function retainRouteStyles(styles, delta) {
++    for (const style of styles) {
++        const sheet = routeSheets.get(style.attrs.href);
++        if (!sheet)
++            continue;
++        sheet.refs += delta;
++        sheet.link.media = sheet.refs > 0 ? "all" : "not all";
++    }
++}
+ export default function lazyRoute(component, clientManifest, serverManifest, exported = "default") {
+     return lazy(async () => {
+         if (import.meta.env.DEV) {
+@@ -42,10 +85,22 @@ export default function lazyRoute(component, clientManifest, serverManifest, exp
+             let assets = await clientManifest.inputs?.[component.src].assets();
+             const styles = assets.filter((asset) => asset.tag === "style" || asset.attrs.rel === "stylesheet");
+             if (typeof window !== "undefined") {
++                // PATCH (riskamp-web-solid): hold the lazy route until its
++                // stylesheets have loaded. upstream only preloads them and then
++                // renders <link>s next to the component, so the route paints
++                // unstyled until the css arrives (fixed in SolidStart 2). the
++                // preload stays: it starts a high-priority fetch that the
++                // inactive stylesheet below reuses.
+                 preloadStyles(styles);
++                await loadRouteStyles(styles);
+             }
+             const Comp = props => {
+-                return [...styles.map((asset) => renderAsset(asset)), createComponent(Component, props)];
++                if (typeof window !== "undefined") {
++                    retainRouteStyles(styles, 1);
++                    onCleanup(() => retainRouteStyles(styles, -1));
++                }
++                // inline <style> assets (no href) render as before
++                return [...styles.filter((asset) => !asset.attrs.href).map((asset) => renderAsset(asset)), createComponent(Component, props)];
+             };
+             return { default: Comp };
+         }

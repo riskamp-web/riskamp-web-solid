@@ -12,7 +12,8 @@
     "convert-policies": "tsx scripts/convert-policy-pages.ts",
     "check:i18n-fr": "tsx scripts/check-fr-typography.ts",
     "check:i18n-scope": "tsx scripts/check-i18n-scope.ts",
-    "check:i18n-coverage": "tsx scripts/check-i18n-coverage.ts"
+    "check:i18n-coverage": "tsx scripts/check-i18n-coverage.ts",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@solidjs/meta": "^0.29.4",
@@ -40,6 +41,7 @@
     "markdown-it-link-attributes": "^4.0.1",
     "minisearch": "^7.2.0",
     "node-html-parser": "^9.0.1",
+    "patch-package": "^8.0.1",
     "raw-tools": "file:../raw-tools",
     "riskamp-icon-workbench": "file:../icon-workbench",
     "riskamp-web": "file:../RAW",
