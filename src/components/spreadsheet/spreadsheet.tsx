@@ -6,6 +6,11 @@ import { ApplyThemeColors } from '../toolbar/theme-selector';
 import { persistentData } from '~/lib/app-data';
 import { SystemLocale } from '~/i18n/i18n';
 
+// import statically. we add some dummy nodes to the page to prevent injection
+
+import 'riskamp-web/treb-bundle.css';
+import 'riskamp-web/riskamp-web-bundle.css';
+
 interface Props {
   fill?: boolean;
 

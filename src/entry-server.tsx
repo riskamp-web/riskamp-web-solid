@@ -55,6 +55,23 @@ export default createHandler(() => {
             <link rel="privacy-policy" href="/privacy-policy" />
             <link rel="terms-of-service" href="/terms-of-service" />
 
+            {/*
+            
+              this is a little hacky. TREB and RAW by default inject 
+              stylesheets when the elements are created. they check if 
+              the stylesheet already exists by testing these nodes
+              (style[treb-stylesheet], style[riskamp-web-stylesheet]).
+
+              we now generate the stylesheets separately on build, so we 
+              can import them statically and they'll be bundled. the 
+              injection logic is still there, but we can block it running
+              by setting these dummy nodes. TODO: make it an option. 
+              
+             */}
+            <style treb-stylesheet />
+            <style riskamp-web-stylesheet />
+
+
             {assets}
           </head>
           <body>
