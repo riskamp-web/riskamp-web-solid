@@ -40,6 +40,12 @@ dialog {
 
   }
 
+  /* lightdismiss: the dialog takes pointer events so a click beside the frame
+     lands on it (and dismisses) instead of falling through to the inert page. */
+  &.lightdismiss {
+    pointer-events: auto;
+  }
+
 }
 
 .frame {

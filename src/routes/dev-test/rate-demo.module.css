@@ -1,0 +1,70 @@
+.dialog-root :global(.frame) {
+  width: 22em;
+  max-width: 90vw;
+}
+
+/* riskamp-dialog.css makes section a flex row; this body stacks. */
+.body.body {
+  display: block;
+  text-align: center;
+  padding-block: 1em;
+}
+
+.prompt {
+  margin: 0 0 .75em;
+}
+
+.stars {
+  display: inline-flex;
+  gap: .25em;
+}
+
+.star {
+  all: unset;
+  cursor: pointer;
+  width: 2em;
+  height: 2em;
+  color: var(--border-control);
+  border-radius: 4px;
+  transition: color .1s, transform .1s;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:focus-visible {
+    outline: auto;
+  }
+}
+
+.lit {
+  color: var(--accent);
+
+  svg {
+    fill: currentColor;
+  }
+}
+
+.followup {
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+  text-align: start;
+  line-height: 1.45;
+}
+
+.comment {
+  min-height: 6em;
+  resize: vertical;
+  padding: .5em;
+  font: inherit;
+}

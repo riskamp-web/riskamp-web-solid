@@ -7,6 +7,7 @@ import { A } from '@solidjs/router';
 const PAGES: { href: string, title: string, blurb: string }[] = [
   { href: '/dev-test/confirm-demo', title: 'Confirm / alert dialog', blurb: 'The global confirmDialog.confirm() / .alert() singleton — every resolution path.' },
   { href: '/dev-test/save-as-demo', title: 'Save As dialog', blurb: 'SaveAsDialog: plain name, full path in the Name field, collision/overwrite, rename-seed mode.' },
+  { href: '/dev-test/rate-demo', title: 'Rate-this-app prompt (mockup)', blurb: 'Star-rating dialog mockup — hover/click rating, dismiss via Not now, Escape, X or outside click.' },
   { href: '/dev-test/toast-demo', title: 'Toast notifications', blurb: 'The toast singleton — success/error variants and the action/Retry button.' },
   { href: '/dev-test/icons', title: 'Icon gallery', blurb: 'Every icon in every set.' },
 ];

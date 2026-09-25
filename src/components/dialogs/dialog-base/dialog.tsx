@@ -29,6 +29,9 @@ export interface Props<T> {
   resizeable?: boolean;
   closebox?: boolean;
 
+  /** dismiss (like escape) on a click outside the frame */
+  lightdismiss?: boolean;
+
   /** pass through escape */
   pass_through_escape?: boolean;
 
@@ -92,6 +95,15 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
       }
     }
   });
+
+  // the <dialog> element covers the viewport behind the frame, so a click that
+  // lands on it directly (not on a descendant) is a click outside the frame.
+  function HandleLightDismiss(event: MouseEvent) {
+    if (props.lightdismiss && event.target === dialog) {
+      props.setResult?.(undefined);
+      props.setOpen(false);
+    }
+  }
 
   function onClose() {
     props.setOpen(false);
@@ -232,8 +244,9 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
 
   return (
     <>
-      <dialog ref={dialog} classList={{
+      <dialog ref={dialog} onclick={HandleLightDismiss} classList={{
           'riskamp-dialog': true,
+          [style['lightdismiss']]: props.lightdismiss,
           [style['moveable']]: props.moveable,
           [style['resizable']]: props.resizeable,
           ...(PropClasses(props.class))
