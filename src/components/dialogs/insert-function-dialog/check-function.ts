@@ -256,11 +256,11 @@ export const CheckFunction = (sheet: SpreadsheetType): CheckFunctionData => {
   // too much reacharound, we need to resolve
   //
 
-  const grid: Grid = (sheet as any).grid;
+  const grid = sheet.grid;
   const formula_bar: FormulaBar = (grid as any)?.formula_bar;
   const overlay_editor: OverlayEditor = (grid as any)?.overlay_editor;
 
-  const parser = (sheet as any)?.parser as Parser;
+  const parser = sheet.parser;
   if (!parser) {
     throw new Error('missing parser');
   }
