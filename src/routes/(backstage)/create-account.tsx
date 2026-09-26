@@ -71,8 +71,11 @@ export default function CreateAccount() {
   const [emailError, setEmailError] = createSignal<Message | undefined>();
   const [usernameError, setUsernameError] = createSignal<Message | undefined>();
 
+  // eslint-disable-next-line no-unassigned-vars
   let email_input: HTMLInputElement | undefined;
+  // eslint-disable-next-line no-unassigned-vars
   let username_input: HTMLInputElement | undefined;
+  // eslint-disable-next-line no-unassigned-vars
   let sent_block: HTMLDivElement | undefined;
 
   /* the request outlives the page if you navigate away mid-flight; nothing
@@ -143,7 +146,7 @@ export default function CreateAccount() {
     setPending(true);
 
     if (availability.pending()) {
-      await AwaitSignal(availability.pending, settled => !settled);
+      await AwaitSignal(() => !availability.pending());
       if (!live) { return; }
     }
 

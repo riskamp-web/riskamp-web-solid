@@ -139,7 +139,7 @@ export default function Page() {
 
   async function LasVegasSimulation() {
     las_vegas_props.setOpen(true);
-    await AwaitSignal(las_vegas_props.open, value => !value);
+    await AwaitSignal(() => !las_vegas_props.open());
     getSheet()?.Focus();
   }
 
@@ -297,7 +297,7 @@ export default function Page() {
 
     // wait for dialog to close, and (always) refocus
 
-    AwaitSignal(saveAsDialogOpen, open => !open);
+    await AwaitSignal(() => !saveAsDialogOpen());
     sheet.Focus();
 
   }
@@ -391,7 +391,11 @@ export default function Page() {
         store_result = await StoreDocument(pathname, result.name, JSON.stringify(data), result.access);
       }
 
+      // the spinner puts focus back where it found it, which here is the
+      // save-as dialog's button -- gone by now. the dialog-close refocus in
+      // Save() ran while the spinner was up, so it didn't take; do it here.
       spinner.hide();
+      sheet.Focus();
 
       if (store_result) {
 
@@ -455,7 +459,7 @@ export default function Page() {
     if (result) {
       setCorrelationDialogData(result);
       setCorrelationDialogOpen(true);
-      await AwaitSignal(correlationDialogOpen, value => !value);
+      await AwaitSignal(() => !correlationDialogOpen());
       
       if (correlationDialogResult()) {
         sheet.SetRange(undefined, result.adjusted);
@@ -743,7 +747,7 @@ export default function Page() {
 
       case 'update-language':
         setLanguageDialogOpen(true);
-        AwaitSignal(languageDialogOpen, value => !value).then(() => {
+        AwaitSignal(() => !languageDialogOpen()).then(() => {
           sheet.Focus();
         });
         break;
@@ -755,6 +759,7 @@ export default function Page() {
           requestAnimationFrame(() => {
             // um we need an API method for this, this is ridiculous
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const layout = (sheet.grid as any).layout;
             const bounds = layout.scroll_reference_node.getBoundingClientRect();
             const rect = layout.CellAddressToRectangle(sheet.grid.GetSelection().target);
@@ -766,7 +771,7 @@ export default function Page() {
               y: rect.top + bounds.top + offset.y - 16 - layout.scroll_reference_node.scrollTop,
             });
             setCommentDialogOpen(true);
-            AwaitSignal(commentDialogOpen, value => !value).then(() => {
+            AwaitSignal(() => !commentDialogOpen()).then(() => {
               sheet.Focus();
             });
 
@@ -806,7 +811,7 @@ export default function Page() {
         setFunctionResult(undefined);
         setInsertFunctionData({...check});
         setInsertFunctionDialogOpen(true);
-        await AwaitSignal(insertFunctionDialogOpen, val => !val);
+        await AwaitSignal(() => !insertFunctionDialogOpen());
         RestoreEditor(sheet, check, functionResult());
       }
     }

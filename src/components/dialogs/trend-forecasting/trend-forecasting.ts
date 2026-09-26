@@ -68,7 +68,7 @@ export async function RunTrendForecast(sheet?: SpreadsheetType) {
   }
   
   setOpen(true);
-  await AwaitSignal(open, (value) => !value);
+  await AwaitSignal(() => !open());
   if (result()) {
     CreateForecastSheet(sheet, data);
   }

@@ -1,15 +1,24 @@
-
 /**
  * spinner controller
+ *
+ * show() and hide() drive the <Spinner /> host's <dialog> directly rather
+ * than through a signal and an effect, so the overlay is up (and gone) by the
+ * time they return. that makes focus deterministic: the spinner is modal, so
+ * it takes focus while it's up; hide() puts focus back where show() found it,
+ * and a caller that wants focus somewhere else can move it right after hide().
  */
-
-import { createSignal } from "solid-js";
-
-const [visible, setVisible] = createSignal(false);
 
 type EscapeFunction = () => void;
 
 let escape_function: EscapeFunction|undefined = undefined;
+
+/** the host's <dialog>, handed over when <Spinner /> mounts */
+let dialog: HTMLDialogElement|undefined;
+
+let visible = false;
+
+/** what had focus when the spinner went up */
+let restore: Element|null = null;
 
 function BlockKeys(event: KeyboardEvent) {
 
@@ -21,18 +30,45 @@ function BlockKeys(event: KeyboardEvent) {
   event.preventDefault();
 }
 
+function Open() {
+  restore = document.activeElement;
+  dialog?.showModal();
+}
+
+function Close() {
+  dialog?.close();
+
+  // focus() is a no-op on something that has since become unfocusable (e.g.
+  // a button in a dialog that closed while we were up)
+  const target = restore;
+  restore = null;
+  if (target instanceof HTMLElement && target.isConnected) {
+    target.focus({ preventScroll: true });
+  }
+}
+
 export const spinner = {
   show: (escape?: EscapeFunction) => {
     escape_function = escape;
-    setVisible(true);
+    if (!visible) {
+      visible = true;
+      Open();
+    }
     window.addEventListener('keydown', BlockKeys)
   },
   hide: () => {
-    setVisible(false);
+    if (visible) {
+      visible = false;
+      Close();
+    }
     escape_function = undefined;
     window.removeEventListener('keydown', BlockKeys)
   },
-  visible // Export the getter
+  /** called by <Spinner /> on mount (and with undefined on cleanup) */
+  attach: (element?: HTMLDialogElement) => {
+    dialog = element;
+    if (dialog && visible) {
+      Open();
+    }
+  },
 };
-
-
