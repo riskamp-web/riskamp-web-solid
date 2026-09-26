@@ -8,19 +8,20 @@ import { t } from '~/i18n/i18n';
 
 import '~/components/tabs.css';
 
-import { toolbar_config as base_toolbar_config } from './toolbar-config';
+import { toolbar_config } from './toolbar-config';
 import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, 
     CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl, SteppedGroup, 
     IsToolbarMessage} from './toolbar-utils';
-import { ListCommand, ToolbarCommand } from './toolbar-commands';
+import { ToolbarCommand } from './toolbar-commands';
 import { session, loggedIn } from '~/lib/auth';
 
-import { createMutable, produce } from 'solid-js/store';
+import { produce } from 'solid-js/store';
 import { icons } from '~/components/icon-sets';
 import { MenuButton } from '../menu-button/menu-button';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { ResolveColors, UpdateSaveState, UpdateState } from './util';
+import { CommandMessage, StateOf, UpdateToolbarState } from './toolbar-store';
 import { ColorButton } from './toolbar-color-picker';
 import { CompositeMenu } from './composite-menu';
 import { A } from '@solidjs/router';
@@ -70,8 +71,6 @@ function RenderTextButton(control: TextButtonControl) {
 
 export function Toolbar(props: ParentProps<Props>) {
 
- 
-  const toolbar_config = createMutable(base_toolbar_config);
  
   let subscription = 0;
 
@@ -147,6 +146,10 @@ export function Toolbar(props: ParentProps<Props>) {
     }
   });
 
+  /**
+   * dispatch a command. callers pass a message built with CommandMessage(),
+   * which carries the command's current state (and anything just chosen).
+   */
   function HandleCommand(event: Event, command: ToolbarCommand) {
     if (event?.target instanceof HTMLElement) {
       CloseContainingPopover(event.target);
@@ -170,14 +173,15 @@ export function Toolbar(props: ParentProps<Props>) {
     if (event.target instanceof HTMLElement) {
       CloseContainingPopover(event.target);
     }
-    props.oncommand?.(command);
+    props.oncommand?.(CommandMessage(command));
   }
 
   function UpdateNumberFormat(event: Event, command: ToolbarCommand, item?: {value: string, label: string}) {
 
+    let chosen: { text: string, value: string }|undefined;
+
     if (item) {
-      command.text = item.label;
-      command.value = item.value;
+      chosen = { text: item.label, value: item.value };
     }
     else if (event.target instanceof HTMLInputElement) {
 
@@ -188,10 +192,20 @@ export function Toolbar(props: ParentProps<Props>) {
         NumberFormatCache.SymbolicName(event.target.value || '');
       */
 
-      command.text = command.value = event.target.value || '';
+      const text = event.target.value || '';
+      chosen = { text, value: text };
     }
 
-    HandleCommand(event, command);
+    if (chosen) {
+      const { text, value } = chosen;
+      UpdateToolbarState(draft => {
+        draft.commands[command.key].text = text;
+        draft.commands[command.key].value = value;
+      });
+    }
+
+    // dispatch what was just chosen, not a read-back of the store
+    HandleCommand(event, CommandMessage(command, chosen));
 
   }
 
@@ -205,13 +219,13 @@ export function Toolbar(props: ParentProps<Props>) {
             <input type="text" 
                    class={["input", props.control.width || '' ].join(' ')} 
                    placeholder={t(props.control.command.title)} 
-                   value={props.control.command.text || ''} 
+                   value={StateOf(props.control.command).text || ''} 
                    onchange={e => UpdateNumberFormat(e, props.control.command)}
                    /> 
           </MenuButton.Static>
           <MenuButton.Menu>
             <menu classList={{ [style.text]: true, [style.overflow]: true }}>
-              <For each={(props.control.command as ListCommand).values || []}>
+              <For each={StateOf(props.control.command).values || []}>
                 {item => <Switch>
                   <Match when={item === 'separator'}>
                     <hr />
@@ -271,7 +285,7 @@ export function Toolbar(props: ParentProps<Props>) {
 
     function title() {
       let title = props.control.command.title;
-      if (props.control.command.type === 'toggle' && props.control.command.value) {
+      if (props.control.command.type === 'toggle' && StateOf(props.control.command).value) {
         title = props.control.command.active?.title || title;
       } 
       return title;
@@ -279,7 +293,7 @@ export function Toolbar(props: ParentProps<Props>) {
 
     function icon() {
       let icon = props.control.command.icon;
-      if (props.control.command.type === 'toggle' && props.control.command.value) {
+      if (props.control.command.type === 'toggle' && StateOf(props.control.command).value) {
         icon = props.control.command.active?.icon || icon;
       } 
       return icon;
@@ -292,9 +306,9 @@ export function Toolbar(props: ParentProps<Props>) {
               <Match when={true}>
                 <button classList={{ 
                           [style['toolbar-button']]: true,
-                          [style.active]: !!props.control.command.value,
+                          [style.active]: !!StateOf(props.control.command).value,
                         }} 
-                        onclick={e => HandleCommand(e, props.control.command)}
+                        onclick={e => HandleCommand(e, CommandMessage(props.control.command))}
                         title={t(title())}
                         ref={(el) => (el.innerHTML = icon() || '')} />
               </Match>
@@ -330,11 +344,11 @@ export function Toolbar(props: ParentProps<Props>) {
 
     return <div class={style['toolbar-split-button']}>
         <button title={t(props.control.commands[0].title)}
-                onclick={e => HandleCommand(e, props.control.commands[0])}>
+                onclick={e => HandleCommand(e, CommandMessage(props.control.commands[0]))}>
           {Reformat(props.control.commands[0].text || '', t(props.control.commands[0].title))}
         </button>
         <button title={t(props.control.commands[1].title)}
-                onclick={e => HandleCommand(e, props.control.commands[1])}>
+                onclick={e => HandleCommand(e, CommandMessage(props.control.commands[1]))}>
           {Reformat(props.control.commands[1].text || '', t(props.control.commands[1].title))}
         </button>
       </div>;
@@ -354,7 +368,7 @@ export function Toolbar(props: ParentProps<Props>) {
             </Match>
             <Match when={item.type === 'text-button'}>
               <button classList={{[style['toolbar-button']]: true, [style['text-button']]: true }}
-                      onclick={e => HandleCommand(e, (item as TextButtonControl).command)}>
+                      onclick={e => HandleCommand(e, CommandMessage((item as TextButtonControl).command))}>
                 <span ref={(el) => (el.innerHTML = (item as TextButtonControl).command.icon || '')} />
                 <span>{t((item as TextButtonControl).command.title)}</span>
               </button>
@@ -418,7 +432,7 @@ export function Toolbar(props: ParentProps<Props>) {
                   <For each={menu.items || []}>
                     {item => <li>
                       {item === 'separator' ? <hr/> :
-                        <button class={style['menu-item']} disabled={item.enabled === false} onclick={event => HandleMenuItem(event, item)}>
+                        <button class={style['menu-item']} disabled={StateOf(item).enabled === false} onclick={event => HandleMenuItem(event, item)}>
                           <Switch>
                             <Match when={item.menuicon && item.icon}>
                               <div class='display-contents' innerHTML={item.icon || ''} />
@@ -516,7 +530,7 @@ export function Toolbar(props: ParentProps<Props>) {
                          }}>
                         {t(item.text)}</div>
                       :
-                        <button class={style['menu-item']} disabled={item.enabled === false} onclick={event => HandleMenuItem(event, item)}>
+                        <button class={style['menu-item']} disabled={StateOf(item).enabled === false} onclick={event => HandleMenuItem(event, item)}>
                           <Switch>
                             <Match when={item.menuicon && item.icon}>
                               <div class='display-contents' innerHTML={item.icon || ''} />
@@ -592,8 +606,8 @@ export function Toolbar(props: ParentProps<Props>) {
           <For each={toolbar_config.trailer || []}>
             {item =><>
               <button class={style['toolbar-button']} 
-                      disabled={(item as ButtonControl).command.enabled === false}
-                      onclick={e => HandleCommand(e, (item as ButtonControl).command)}
+                      disabled={StateOf((item as ButtonControl).command).enabled === false}
+                      onclick={e => HandleCommand(e, CommandMessage((item as ButtonControl).command))}
                       title={t((item as ButtonControl).command.title)}
                       ref={(el) => (el.innerHTML = (item as ButtonControl).command.icon || '')} />          
             </>}

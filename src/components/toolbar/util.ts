@@ -7,6 +7,7 @@ import { t } from '~/i18n/i18n';
 import { ResolveThemeColor } from '@trebco/treb/treb-base-types';
 import { ToolbarCommand } from './toolbar-commands';
 import { loggedIn } from '~/lib/auth';
+import { UpdateToolbarState } from './toolbar-store';
 
 // let command_list: [string, ComboBoxControl|ButtonControl|TextButtonControl][]|undefined;
 // let command_list: [string, ToolbarCommand][]|undefined;
@@ -139,14 +140,14 @@ export function ResolveColors(sheet: SpreadsheetType, config: typeof toolbar_con
     color_list = GenerateColorList(config);
   }
 
-  for (const control of color_list) {
-    if (control.command.active_color) {
-      control.command.value = ResolveThemeColor(sheet.grid.theme, control.command.active_color, 0);
+  const list = color_list;
+
+  UpdateToolbarState(draft => {
+    for (const control of list) {
+      const state = draft.commands[control.command.key];
+      state.value = ResolveThemeColor(sheet.grid.theme, state.active_color || control.command.default_color, 0);
     }
-    else {
-      control.command.value = ResolveThemeColor(sheet.grid.theme, control.command.default_color, 0);
-    }
-  }
+  });
 
   // placeholder
 }
@@ -243,23 +244,29 @@ export function UpdateSaveState(sheet: SpreadsheetType, config: typeof toolbar_c
     }
   }
 
-  for (const command of menu_command_list) {
-    if (command.state_key === 'revert') {
-      command.enabled = dirty && path;
+  const list = menu_command_list;
+  const logged_in = loggedIn();
+
+  UpdateToolbarState(draft => {
+    for (const command of list) {
+      const state = draft.commands[command.key];
+      if (command.state_key === 'revert') {
+        state.enabled = dirty && path;
+      }
+      else if (command.state_key === 'save') {
+        state.enabled = dirty && logged_in;
+      }
+      else if (command.state_key === 'save-as') {
+        state.enabled = logged_in;
+      }
+      else if (command.state_key === 'logged-in') {
+        state.enabled = logged_in;
+      }
+      else if (command.state_key === 'dirty') {
+        state.enabled = dirty;
+      }
     }
-    else if (command.state_key === 'save') {
-      command.enabled = dirty && loggedIn();
-    }
-    else if (command.state_key === 'save-as') {
-      command.enabled = loggedIn();
-    }
-    else if (command.state_key === 'logged-in') {
-      command.enabled = loggedIn();
-    }
-    else if (command.state_key === 'dirty') {
-      command.enabled = dirty;
-    }
-  }
+  });
 
 }
 
@@ -270,77 +277,81 @@ export function UpdateState(sheet: SpreadsheetType, config: typeof toolbar_confi
   }
 
   const selection_state = sheet.selection_state;
+  const list = command_list;
 
-  for (const command of command_list) {
+  UpdateToolbarState(draft => {
+    for (const command of list) {
 
-    const key = command.state_key;
-    // console.info(key);
+      const state = draft.commands[command.key];
+      const key = command.state_key;
+      // console.info(key);
 
-    if (key.startsWith('horizontal_align')) {
-      command.value = (selection_state.style?.horizontal_align === key.substring(17)); // includes '-'
-    }
-    else if (key.startsWith('vertical_align')) {
-      command.value = (selection_state.style?.vertical_align === key.substring(15)); // includes '-'
-    }
-    else {
-      switch (key) {
-        case 'font_scale':
-          if (sheet && command?.type === 'list') {
-            command.values = [0.5, 0.75, 0.9, 1, 1.25, 1.5, 2].map(value => {
-              return {
-                value: value.toString(), 
-                label: sheet.FormatNumber(value, '0%'),
-              }
-            });
+      if (key.startsWith('horizontal_align')) {
+        state.value = (selection_state.style?.horizontal_align === key.substring(17)); // includes '-'
+      }
+      else if (key.startsWith('vertical_align')) {
+        state.value = (selection_state.style?.vertical_align === key.substring(15)); // includes '-'
+      }
+      else {
+        switch (key) {
+          case 'font_scale':
+            if (sheet && command?.type === 'list') {
+              state.values = [0.5, 0.75, 0.9, 1, 1.25, 1.5, 2].map(value => {
+                return {
+                  value: value.toString(), 
+                  label: sheet.FormatNumber(value, '0%'),
+                }
+              });
 
-            let text = '';
-            if (selection_state.style?.font_size) {
-              if (selection_state.style.font_size.unit === '%') {
-                if (selection_state.style.font_size.value !== 100) {
-                  text = sheet.FormatNumber(selection_state.style.font_size.value / 100, '0%');
+              let text = '';
+              if (selection_state.style?.font_size) {
+                if (selection_state.style.font_size.unit === '%') {
+                  if (selection_state.style.font_size.value !== 100) {
+                    text = sheet.FormatNumber(selection_state.style.font_size.value / 100, '0%');
+                  }
+                }
+                else if (selection_state.style.font_size.unit === 'em') {
+                  if (selection_state.style.font_size.value !== 1) {
+                    text = sheet.FormatNumber(selection_state.style.font_size.value, '0%');
+                  }
                 }
               }
-              else if (selection_state.style.font_size.unit === 'em') {
-                if (selection_state.style.font_size.value !== 1) {
-                  text = sheet.FormatNumber(selection_state.style.font_size.value, '0%');
+              state.value = state.text = text;
+
+            }
+            break;
+
+          case 'number_format':
+            if (command?.type === 'list') {
+              state.values = ListNumberFormats(sheet);
+              const nf = selection_state.style?.number_format;
+              if (nf) {
+                const symbolic_name = NumberFormatCache.SymbolicName(nf);
+                if (symbolic_name) {
+                  state.value = symbolic_name;
+                  state.text = symbolic_name; // FIXME: i18n
+                }
+                else {
+                  state.value = state.text = nf;
                 }
               }
             }
-            command.value = command.text = text;
+            break;
 
-          }
-          break;
+          case 'merge':
+            state.value = !!selection_state.merge;
+            break;
 
-        case 'number_format':
-          if (command?.type === 'list') {
-            command.values = ListNumberFormats(sheet);
-            const nf = selection_state.style?.number_format;
-            if (nf) {
-              const symbolic_name = NumberFormatCache.SymbolicName(nf);
-              if (symbolic_name) {
-                command.value = symbolic_name;
-                command.text = symbolic_name; // FIXME: i18n
-              }
-              else {
-                command.value = command.text = nf;
-              }
-            }
-          }
-          break;
+          case 'fullscreen':
+            state.value = !!(document.fullscreenElement);
+            break;
 
-        case 'merge':
-          command.value = !!selection_state.merge;
-          break;
+          default:
+            state.value = !!(selection_state.style as any)?.[key];
+            break;
 
-        case 'fullscreen':
-          command.value = !!(document.fullscreenElement);
-          break;
-
-        default:
-          command.value = !!(selection_state.style as any)?.[key];
-          break;
-
+        }
       }
     }
-  }
+  });
 }

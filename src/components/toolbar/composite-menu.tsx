@@ -8,11 +8,28 @@ import '~/components/tabs.css';
 import { CompositeMenuControl } from './toolbar-utils';
 import { ToolbarCommand } from './toolbar-commands';
 import { MenuButton } from '../menu-button/menu-button';
+import { CommandMessage, CompositeKey, StateOf, toolbarState, UpdateToolbarState } from './toolbar-store';
 
 export function CompositeMenu(props: {
   item: CompositeMenuControl,
   HandleCommand: (event: Event, command: ToolbarCommand) => void|Promise<void>,
 }) {
+
+  // the active (last used) entry lives in the store, not on the control, so
+  // it survives this component remounting (stepped groups swap controls as
+  // the toolbar width changes).
+
+  const key = CompositeKey(props.item);
+  const activeIndex = () => toolbarState.composite[key] ?? props.item.active;
+  const active = () => props.item.commands[activeIndex()];
+
+  function Select(event: Event, command: ToolbarCommand, index: number) {
+    UpdateToolbarState(draft => {
+      draft.composite[key] = index;
+    });
+    props.HandleCommand(event, CommandMessage(command));
+  }
+
   return <>
     <MenuButton>
       <MenuButton.Static>
@@ -21,18 +38,18 @@ export function CompositeMenu(props: {
             <div innerHTML={props.item.group_icon}></div> 
           </Show>
           <button class={
-                    props.item.commands[props.item.active].icon ?
+                    active().icon ?
                       style['toolbar-button'] :
                       [style['text-button'], style['toolbar-button'], style['composite-label']].join(' ')
                   } 
-                  title={props.item.commands[props.item.active].icon ? t(props.item.commands[props.item.active].title) : undefined }
-                  onclick={e => props.HandleCommand(e, props.item.commands[props.item.active])}>
+                  title={active().icon ? t(active().title) : undefined }
+                  onclick={e => props.HandleCommand(e, CommandMessage(active()))}>
             <Switch>
-              <Match when={props.item.commands[props.item.active].icon}>
-                <span innerHTML={props.item.commands[props.item.active].icon || ''} />
+              <Match when={active().icon}>
+                <span innerHTML={active().icon || ''} />
               </Match>
               <Match when={true}>
-                <span>{t(props.item.commands[props.item.active].title)}</span>
+                <span>{t(active().title)}</span>
               </Match>
             </Switch>
           </button>
@@ -49,10 +66,7 @@ export function CompositeMenu(props: {
                 <For each={props.item.commands}>
                   {(subitem, index) => <li>
                     <button classList={{ [style['menu-item']]: true, [style['composite']]: true }} 
-                            onclick={e => {
-                              props.item.active = index();
-                              props.HandleCommand(e, subitem);
-                            }}>
+                            onclick={e => Select(e, subitem, index())}>
                       <div innerHTML={subitem.icon || ''} />
                       <div>{t(subitem.title)}</div>
                     </button>
@@ -66,10 +80,7 @@ export function CompositeMenu(props: {
                 <For each={props.item.commands}>
                   {(subitem, index) => <li>
                     <button class={style['menu-item']} 
-                            onclick={e => {
-                              props.item.active = index();
-                              props.HandleCommand(e, subitem);
-                            }}>
+                            onclick={e => Select(e, subitem, index())}>
                       {t(subitem.title)}
                     </button>
                   </li>}
@@ -82,13 +93,10 @@ export function CompositeMenu(props: {
                 {(subitem, index) => <li>
                   <button classList={{
                             [style['toolbar-button']]: true,
-                            [style.active]: !!subitem.value,
+                            [style.active]: !!StateOf(subitem).value,
                           }} 
                           title={t(subitem.title)}
-                          onclick={e => {
-                            props.item.active = index();
-                            props.HandleCommand(e, subitem);
-                          }}
+                          onclick={e => Select(e, subitem, index())}
                           innerHTML={subitem.icon || ''} />
                 </li>}
               </For>

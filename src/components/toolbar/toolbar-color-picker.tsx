@@ -8,6 +8,7 @@ import '~/components/tabs.css';
 
 import { ColorButtonControl } from './toolbar-utils';
 import { ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
+import { CommandMessage, StateOf, UpdateToolbarState } from './toolbar-store';
 
 import { icons } from '~/components/icon-sets';
 import { MenuButton } from '../menu-button/menu-button';
@@ -133,16 +134,29 @@ export function ColorButton(props: {
 
     let native_color_chooser: HTMLInputElement|undefined;
 
+    /**
+     * remember the chosen color (so the main button re-applies it), and
+     * dispatch it. the dispatch carries the color itself rather than
+     * reading it back from the store.
+     */
+    function ApplyColor(event: Event, active_color: Color|undefined) {
+      const key = props.control.command.key;
+      UpdateToolbarState(draft => {
+        draft.commands[key].active_color = active_color;
+      });
+      props.HandleCommand(event, CommandMessage(props.control.command, { active_color }));
+    }
+
     return <>
         <MenuButton onbeforetoggle={BeforeToggle}>
           <MenuButton.Static>
-            <button style={`--applied-color: ${props.control.command.value || '#fff'};`}
+            <button style={`--applied-color: ${StateOf(props.control.command).value || '#fff'};`}
                     classList={{ 
                       [style['toolbar-button']]: true, 
                       [style['color-button']]: true,
                     }}
                     title={t(props.control.command.title)}
-                    onclick={e => props.HandleCommand(e, props.control.command)}
+                    onclick={e => props.HandleCommand(e, CommandMessage(props.control.command))}
                     innerHTML={props.control.command.icon || ''} 
             ></button>
                   
@@ -159,10 +173,7 @@ export function ColorButton(props: {
                   {row => <div class="display-contents">
                     <For each={row}>
                       {color => <button class={style.swatch} 
-                                        onclick={e => {
-                                          props.control.command.active_color = color.color;
-                                          props.HandleCommand(e, props.control.command);
-                                        }}
+                                        onclick={e => ApplyColor(e, color.color)}
                                         title={ThemeColorTitle(props.sheet(), color.color)}
                                         style={`--swatch-color: ${color.resolved};`}
                                       />}
@@ -177,15 +188,9 @@ export function ColorButton(props: {
                 <div class={style.swatches}>
                   <div class="flex-row gap-1">
                     <button class={style.swatch} 
-                            onclick={e => {
-                              props.control.command.active_color = undefined;
-                              props.HandleCommand(e, props.control.command);
-                            }}
+                            onclick={e => ApplyColor(e, undefined)}
                             innerHTML={icons.close} />
-                    <button onclick={e => {
-                              props.control.command.active_color = undefined;
-                              props.HandleCommand(e, props.control.command);
-                            }} 
+                    <button onclick={e => ApplyColor(e, undefined)} 
                             classList={{[shared['bare-button']]: true, [style['plaintext-button']]: true}}>{t(props.control.command.default_color_text)}</button>
                   </div>
                 </div>
@@ -197,10 +202,7 @@ export function ColorButton(props: {
 
                   <For each={otherColors()}>
                     {color => <button class={style.swatch} 
-                                      onclick={e => {
-                                        props.control.command.active_color = color.color;
-                                        props.HandleCommand(e, props.control.command);
-                                      }}
+                                      onclick={e => ApplyColor(e, color.color)}
                                       title={color.resolved}
                                       style={`--swatch-color: ${color.resolved};`}
                                     />}
@@ -218,12 +220,7 @@ export function ColorButton(props: {
                             onclick={() => native_color_chooser?.click()}>{t('color-picker.choose_color')}</button>
                     <div class="flex-grow"></div>
                     <button disabled={!newColorSelected()}
-                            onclick={e => {
-                              props.control.command.active_color = {
-                                text: newColorSelected(),
-                              };
-                              props.HandleCommand(e, props.control.command);
-                            }}
+                            onclick={e => ApplyColor(e, { text: newColorSelected() })}
                             class={style.swatch} 
                             title={t('color-picker.use_selected_color')}
                             innerHTML={icons.confirm} />
