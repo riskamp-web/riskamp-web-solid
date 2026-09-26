@@ -21,9 +21,9 @@
  *        typeof window !== 'undefined' &&
  *        new URLSearchParams(window.location.search).has('ai-sample');
  *      if (useDevSample) {
- *        import('./dev-sample-chat').then(m => Object.assign(messages, m.sampleChat));
+ *        import('./dev-sample-chat').then(m => ReplaceMessages(m.sampleChat));
  *      } else {
- *        // ...existing localStorage load + persistence effect...
+ *        // ...existing localStorage load...
  *      }
  *
  * 2. in src/routes/[...document_path].tsx, auto-open the panel on mount

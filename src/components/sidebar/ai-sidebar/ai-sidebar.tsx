@@ -12,7 +12,7 @@ import { produce } from 'solid-js/store';
 import { Models, provider_list } from '~/lib/raw-llm-support';
 import { icons } from '~/components/icon-sets';
 import { confirmDialog } from '~/components/dialogs/confirm-dialog/confirm-control';
-import { messages, SendMessage } from './util';
+import { messages, revision, SendMessage, UpdateMessages } from './util';
 import { ChatMessages } from './chat-messages';
 import type { SidebarProps } from '../sidebar-main';
 
@@ -75,7 +75,7 @@ export function Sidebar(props: SidebarProps) {
         }
         return;
       }
-      messages.messages = [];
+      UpdateMessages(draft => { draft.messages = []; });
     }
 
     ApplyModel(newModel);
@@ -109,7 +109,7 @@ export function Sidebar(props: SidebarProps) {
     }
   }
 
-  createEffect(on(() => JSON.stringify(messages), () => {
+  createEffect(on(revision, () => {
     const el = scrollContainer;
     if (el && pinnedToBottom) {
       requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
@@ -211,7 +211,7 @@ export function Sidebar(props: SidebarProps) {
               <textarea ref={textarea} wrap="soft" onkeydown={HandleKey} disabled={controls_disabled()}></textarea>
               <div class={style.buttons}>
                 <button class="control-button" 
-                        onclick={() => messages.messages = []}>{t('llm-chat.buttons.clear-conversation')}</button>
+                        onclick={() => UpdateMessages(draft => { draft.messages = []; })}>{t('llm-chat.buttons.clear-conversation')}</button>
                 <button class="control-button button-primary" disabled={controls_disabled()}
                         onclick={LocalSendMessage}>{t('llm-chat.buttons.send-message')}</button>
               </div>

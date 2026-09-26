@@ -1,9 +1,9 @@
 
-import { createMutable, createStore } from 'solid-js/store';
+import { createStore, produce, reconcile, unwrap } from 'solid-js/store';
 import { spinner } from '~/components/spinner/spinner-control';
 import { t } from '~/i18n/i18n';
 import { persistentData, sessionData } from '~/lib/app-data';
-import { createEffect, createSignal, on } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { GenericToolCall, IndexedToolResult, type TypedChatMessages } from 'treb-llm-support';
 
 import { tools as TREB_tools, raw_tools, Models, Stream, /* ReplayStream, */ Format, /* ExecuteToolCall , type ExternalUI */ RAWExecuteToolCall, 
@@ -15,17 +15,46 @@ import system_prompt from '~/lib/raw-llm-support/system-prompt.md?raw';
 import type { SearchResult } from 'minisearch';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 
-/*
 export const [messages, setMessages] = createStore<TypedChatMessages>({
   type: 'generic',
   messages: [],
 });
-*/
 
-export const messages = createMutable<TypedChatMessages>({
-  type: 'generic',
-  messages: [],
-});
+/**
+ * bumps on every transcript change. for code that needs "the transcript
+ * changed" (autoscroll) without deep-tracking the whole store.
+ */
+export const [revision, setRevision] = createSignal(0);
+
+let persist_timer: ReturnType<typeof setTimeout> | undefined;
+
+/**
+ * every transcript write ends here: bump the revision and persist. the write
+ * is debounced -- during a stream the transcript changes every ~100ms, and
+ * one localStorage write once changes settle for 100ms is plenty, and keeps
+ * the synchronous setItem (and its stringify) off the hot path.
+ */
+function Changed() {
+  setRevision(value => value + 1);
+  clearTimeout(persist_timer);
+  persist_timer = setTimeout(() => localStorage.setItem('chat', JSON.stringify(unwrap(messages))), 100);
+}
+
+/** edit the transcript in place. the draft is a produce() draft. */
+export function UpdateMessages(fn: (draft: TypedChatMessages) => void) {
+  setMessages(produce(fn));
+  Changed();
+}
+
+/**
+ * replace the transcript wholesale, diffing into the store so only what
+ * actually changed updates (a streamed delta touches one text node). keyed
+ * by index: the transcript is append-mostly, and entries have no common id.
+ */
+export function ReplaceMessages(next: TypedChatMessages) {
+  setMessages(reconcile(next, { key: null }));
+  Changed();
+}
 
 /**
  * reactive flag: true while a stream (including its tool-call loop) is in
@@ -83,26 +112,12 @@ export function InitMessages(sheet_instance?: SpreadsheetType) {
   const json = localStorage.getItem('chat');
   if (json) {
     try {
-      const parsed = JSON.parse(json);
-      Object.assign(messages, parsed);
+      ReplaceMessages(JSON.parse(json));
     }
     catch {
       //
     }
   }
-
-  //
-  // persist the transcript, but debounce the write: during a stream the store
-  // mutates rapidly (token by token) and we don't need to touch localStorage on
-  // every change -- coalescing to one write once changes settle for 100ms is
-  // plenty, and keeps the synchronous setItem off the hot path.
-  //
-  let persist_timer: ReturnType<typeof setTimeout> | undefined;
-  createEffect(
-    on(() => JSON.stringify(messages), value => {
-      clearTimeout(persist_timer);
-      persist_timer = setTimeout(() => localStorage.setItem('chat', value), 100);
-  }, { defer: true }));
 
   if (!llm_streaming_worker) {
     llm_streaming_worker = new worker_script();
@@ -256,12 +271,19 @@ async function StreamChatMessages() {
       setStreaming(true);
 
       try {
+
+        // Stream() edits the transcript in place, which a store won't take.
+        // hand it a plain working copy, and copy that back into the store on
+        // each change. the copy back has to be a copy too: Stream() keeps
+        // editing the working copy, and the store must not share its objects.
+
         await Stream({
             worker,
             model: assigned,
             api_key,
             system_prompt,
-            messages,
+            messages: structuredClone(unwrap(messages)),
+            changed: working => ReplaceMessages(structuredClone(working)),
             tools: [
               ...raw_tools,
               ...TREB_tools,
@@ -280,12 +302,14 @@ async function StreamChatMessages() {
         // removed the aborted turn and may have left its transient 'interrupted'
         // marker as the tail -- collapse that into one localized notice.
         if (aborted) {
-          const list = messages.messages;
-          const last = list[list.length - 1];
-          if (last && IsClientSideErrorMessage(last) && last.message === 'interrupted') {
-            list.pop();
-          }
-          list.push({ type: 'client-side-error', message: t('llm-chat.aborted') });
+          UpdateMessages(draft => {
+            const list = draft.messages;
+            const last = list[list.length - 1];
+            if (last && IsClientSideErrorMessage(last) && last.message === 'interrupted') {
+              list.pop();
+            }
+            list.push({ type: 'client-side-error', message: t('llm-chat.aborted') });
+          });
           aborted = false;
         }
 
@@ -316,20 +340,24 @@ export async function SendMessage(text: string) {
     return;
   }
 
-  // make sure the store is the correct type, and if not, flush it
+  UpdateMessages(draft => {
 
-  if (model.provider.api !== messages.type) {
-    const api = model.provider.api === 'openai-chat-completion' ? 'generic' : model.provider.api;
+    // make sure the store is the correct type, and if not, flush it
 
-    // flush
-    const replacement: TypedChatMessages = {
-      type: api, messages: [],
-    };
-    Object.assign(messages, replacement);
-    
-  }
+    if (model.provider.api !== draft.type) {
+      const api = model.provider.api === 'openai-chat-completion' ? 'generic' : model.provider.api;
 
-  AddUserChatMessage(messages, text);
+      // flush
+      const replacement: TypedChatMessages = {
+        type: api, messages: [],
+      };
+      Object.assign(draft, replacement);
+
+    }
+
+    AddUserChatMessage(draft, text);
+
+  });
 
   return StreamChatMessages();
 
