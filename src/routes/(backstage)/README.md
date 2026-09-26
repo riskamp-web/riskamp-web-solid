@@ -726,7 +726,7 @@ history is fetched per document when something asks for it.
 histories                // path -> { status, versions }
 historyOf(path)          // the entry, or undefined if nobody has asked
 loadHistory(path)        // fetch it, unless it's there or already on its way
-retryHistory(path)       // drop the entry and fetch again
+retryHistory(path)       // fetch again, whatever the entry holds
 flushHistories()         // drop them all
 ```
 

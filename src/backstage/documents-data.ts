@@ -364,6 +364,17 @@ export function loadHistory(path: string): void {
   // silent refetch every time the panel reopens
   if (histories[key]) { return; }
 
+  fetchHistory(key, path);
+
+}
+
+/**
+ * start the fetch unconditionally. overwriting the entry with 'loading' is what
+ * clears a failed one, so a retry never has to empty the entry first and read it
+ * back -- a store read after a write is stale until flush (Solid 2).
+ */
+function fetchHistory(key: string, path: string): void {
+
   setHistories(key, { status: 'loading', versions: [] });
 
   historySource(path)
@@ -386,10 +397,9 @@ function newestFirst(versions: DocumentVersion[]): DocumentVersion[] {
   return [...versions].sort((a, b) => b.version - a.version);
 }
 
-/** drop a failed (or stale) entry so the next loadHistory() fetches again */
+/** replace a failed (or stale) entry with a fresh fetch */
 export function retryHistory(path: string): void {
-  setHistories(historyKey(path), undefined as unknown as DocumentHistory);
-  loadHistory(path);
+  fetchHistory(historyKey(path), path);
 }
 
 /**

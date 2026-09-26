@@ -56,9 +56,9 @@ export function LanguageDialog(props: Props) {
 
   });
 
-  async function Apply() {
-
-    const lang = selectedLanguage();
+  // a caller that has just set the selection passes it in: the signal reads
+  // stale until flush (Solid 2)
+  async function Apply(lang = selectedLanguage()) {
 
     // call update language method (sets UI lang)
     await UpdateLanguage(lang||SystemLocale());
@@ -117,7 +117,7 @@ export function LanguageDialog(props: Props) {
                   setSelectedLanguage(entry.code);
                   setAcceptEnabled(true);
                   setDecimalSeparator(entry.decimal_separator);
-                  Apply();
+                  Apply(entry.code);
                 }}
                 classList={{ [style.selected]: entry.code === selectedLanguage() }}>
                 <div>

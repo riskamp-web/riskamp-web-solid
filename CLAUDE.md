@@ -36,8 +36,8 @@ for the full story.
   `set(produce(draft => …))` form; no `createMutable`.** Those are the only forms
   Solid 2 keeps (it drops path/merge setters, `produce` becomes the default, and
   writes outside a setter are silently lost). A handler that writes state and then
-  dispatches passes the chosen value *in the message* rather than reading the store
-  back — Solid 2 reads are stale until flush. (→ `CommandMessage` in
+  dispatches (or calls something that reads it) passes the chosen value *in* rather
+  than reading it back — Solid 2 reads of signals *and* stores are stale until flush. (→ `CommandMessage` in
   `src/components/toolbar/toolbar-store.ts`.)
 - **Solid — non-component PascalCase functions go in `.ts`, not `.tsx`.**
   solid-refresh wraps every exported PascalCase `.tsx` function as a component in

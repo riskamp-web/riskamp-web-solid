@@ -56,7 +56,9 @@ export function RunSimulationDialog(props: Props) {
     }
   }
 
-  function Start() {
+  // callers that have just set trials pass the count in: the signal reads
+  // stale until flush (Solid 2)
+  function Start(count = trials()) {
     const sheet = props.sheet();
     if (sheet) {
 
@@ -81,7 +83,7 @@ export function RunSimulationDialog(props: Props) {
       Notify({ event: 'run-simulation' });
 
       setRunning(true);
-      sheet.RunSimulation(trials(), {
+      sheet.RunSimulation(count, {
           abort_on_dialog_close: false,
           lhs: persistentData.lhs,
           stepped: persistentData.stepped ? 25 : false,
@@ -111,7 +113,8 @@ export function RunSimulationDialog(props: Props) {
 
       if (sheet) {
 
-        setTrials(sheet.user_data?.simulation?.trials || persistentData.trials);
+        const count = sheet.user_data?.simulation?.trials || persistentData.trials;
+        setTrials(count);
 
         subscription = sheet.Subscribe((event: MCEmbeddedSheetEvent|EmbeddedSheetEvent) => {
           switch (event.type) {
@@ -137,7 +140,7 @@ export function RunSimulationDialog(props: Props) {
         });
 
         if (props.options()?.auto) {
-          queueMicrotask(() => Start());
+          queueMicrotask(() => Start(count));
         }
 
       }
@@ -163,30 +166,41 @@ export function RunSimulationDialog(props: Props) {
   };
 
   function UpdateTrials(event: Event) {
-
     if (event.target instanceof HTMLInputElement) {
-
-      const sheet = props.sheet();
-      if (sheet) {
-        let value = sheet.ParseNumber(event.target.value || '');
-        if (typeof value === 'number' && value > 0 && !isNaN(value)) {
-          const num = value;
-
-          setPersistentData(produce(s => { s.trials = num; }));
-          const user_data = sheet.user_data || {};
-          user_data.simulation = user_data.simulation || {};
-          user_data.simulation.trials = value;
-          sheet.user_data = user_data;
-
-          setTrials(num);
-
-        }
-        else {
-          value = trials();
-        }
-        event.target.value = number_format.Format(value);
-      }
+      CommitTrials(event.target);
     }
+  }
+
+  /**
+   * parse the input and store it if it's a valid count; returns the count now in
+   * effect (the new one, or the previous one when the input was rejected)
+   */
+  function CommitTrials(input: HTMLInputElement): number {
+
+    const sheet = props.sheet();
+    if (!sheet) {
+      return trials();
+    }
+
+    let value = sheet.ParseNumber(input.value || '');
+    if (typeof value === 'number' && value > 0 && !isNaN(value)) {
+      const num = value;
+
+      setPersistentData(produce(s => { s.trials = num; }));
+      const user_data = sheet.user_data || {};
+      user_data.simulation = user_data.simulation || {};
+      user_data.simulation.trials = value;
+      sheet.user_data = user_data;
+
+      setTrials(num);
+
+    }
+    else {
+      value = trials();
+    }
+    input.value = number_format.Format(value);
+    return value;
+
   }
 
   function InputKeyDown(event: KeyboardEvent) {
@@ -194,8 +208,9 @@ export function RunSimulationDialog(props: Props) {
       if (event.key === 'Enter') {
         event.stopPropagation();
         event.preventDefault();
+        const count = CommitTrials(event.target);
         event.target.blur();
-        queueMicrotask(() => Start());
+        queueMicrotask(() => Start(count));
       }
     }
   }
@@ -235,7 +250,7 @@ export function RunSimulationDialog(props: Props) {
       </section>
       <footer>
         <div class={style.buttons}> 
-          <button autofocus class="button-primary" onclick={Start} disabled={running()}>{t('run-simulation-start-label')}</button>
+          <button autofocus class="button-primary" onclick={() => Start()} disabled={running()}>{t('run-simulation-start-label')}</button>
           <button onClick={Stop} >{close_label()}</button>
         </div>
       </footer>
