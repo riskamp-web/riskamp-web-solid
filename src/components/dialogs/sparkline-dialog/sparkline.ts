@@ -31,12 +31,12 @@ export async function InsertSparkline(sheet?: SpreadsheetType) {
 
   // check the selected cell. we'll use heuristics here (are they exported)?
 
-  let data: SparklineData = {};
+  const data: SparklineData = {};
 
   const sel = sheet.grid.GetSelection();
   if (!sel.empty) {
 
-    let area = sel.area.Clone();
+    const area = sel.area.Clone();
     const cell_data = sheet.grid.active_sheet.CellData(area.start);
 
     if (area.count === 1) {

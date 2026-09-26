@@ -2,18 +2,11 @@
 import style from '../sidebar.module.css';
 import { Register } from '../registry';
 import { StringKey, t } from '~/i18n/i18n';
-import { createMutable } from 'solid-js/store';
-import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, Show, Switch } from 'solid-js';
+import { createEffect, createSignal, For, Match, on, onCleanup, onMount, Switch } from 'solid-js';
 
-import FindWorker from './find-worker?worker';
 import { type SidebarProps } from '../sidebar-main';
 import { EmbeddedSheetEvent } from '@trebco/treb';
-import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
-
-import { CreateParameters, 
-         type ParameterType as BaseParameterType } from '~/components/dialogs/interactive-dialog/parameters';
-import { Parameter } from '~/components/dialogs/interactive-dialog/interactive-dialog';
-import { HandleInput, HandleFocusIn, HandleKeyDown, Init, UpdateNodes, UpdateDependencies } from '~/lib/interactive-components';
+import { IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 
 import { InteractiveSidebar } from '../interactive-sidebar';
 import { PersistentData, persistentData, setPersistentData } from '~/lib/app-data';
@@ -24,7 +17,7 @@ import * as ChartUtils from '@trebco/treb/treb-charts/src/chart-utils';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 
 import './quickview-charts.css';
-import { ToolbarCommandMap, ToolbarCommands } from '~/components/toolbar/toolbar-commands';
+import { ToolbarCommandMap } from '~/components/toolbar/toolbar-commands';
 import { MCEmbeddedSheetEvent } from 'riskamp-web';
 import { icons } from '~/components/icon-sets';
 
@@ -106,9 +99,14 @@ export function Sidebar(props: SidebarProps) {
     charts.boxplot.Update();
   }
 
+  // eslint-disable-next-line no-unassigned-vars
   let parameter_element: HTMLDivElement|undefined;
-  let initial_value = props.sheet()?.GetSelection(true) || '';
+
+  const initial_value = props.sheet()?.GetSelection(true) || '';
+
+  // eslint-disable-next-line prefer-const
   let chart_containers: HTMLDivElement[] = [];
+
   let subscription = 0;
 
   onMount(() => {
@@ -150,7 +148,7 @@ export function Sidebar(props: SidebarProps) {
   /////////
 
   let number_format = 'General';
-  let number_format_general = false;
+  // let number_format_general = false;
 
   // let no_data = false;
 
@@ -183,7 +181,7 @@ function RedrawInternal() {
   }
   number_format = style?.number_format || 'General';
 
-  number_format_general = (number_format === 'General');
+  // number_format_general = (number_format === 'General');
   const format = NumberFormatCache.Get(number_format);
 
   // FIXME: there's a difference between drawing and redrawing, right?
@@ -282,7 +280,7 @@ function RedrawInternal() {
     }
   }
 
-  function FocusIn(event: FocusEvent) {
+  function FocusIn(_: FocusEvent) {
     const address = parameter_element?.textContent || '';
     const sheet = props.sheet();
     if (address && sheet) {
@@ -299,7 +297,7 @@ function RedrawInternal() {
     }
   }
 
-  function FocusOut(Event: FocusEvent) {
+  function FocusOut(_: FocusEvent) {
     requestAnimationFrame(() => {
       if (parameter_element) {
         props.sheet()?.Select(parameter_element.textContent || '');
@@ -328,7 +326,7 @@ function RedrawInternal() {
   createEffect(on([
       () => persistentData.quickview_tab, 
       () => persistentData.quickview_minmax, 
-      () => persistentData.quickview_bin_algorithm ], values => {
+      () => persistentData.quickview_bin_algorithm ], _ => {
         RedrawInternal();
   }));
 
@@ -371,7 +369,7 @@ function RedrawInternal() {
                 ref={parameter_element}>{initial_value}</div>
           <div class={style.lock}>
             <span innerHTML={icons.lock_cells} title={t('quick-view.panel.label.selection-locked')}
-                  onclick={e => parameter_element?.focus()}/>
+                  onclick={_ => parameter_element?.focus()}/>
           </div>
         </div>
       </div>

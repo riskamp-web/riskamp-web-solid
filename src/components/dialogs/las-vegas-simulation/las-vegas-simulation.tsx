@@ -1,5 +1,5 @@
 
-import { createEffect, createMemo, createSignal, For, Match, on, Switch } from 'solid-js';
+import { createEffect, createMemo, createSignal, For, on } from 'solid-js';
 import { CreateParameters } from '../interactive-dialog/parameters';
 import { InteractiveDialog, Parameter, type Props } from '../interactive-dialog/interactive-dialog';
 import { StringKey, t } from '~/i18n/i18n';
@@ -10,7 +10,6 @@ import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { IsCellAddress } from '@trebco/treb/treb-base-types';
 import { persistentData, setPersistentData } from '~/lib/app-data';
 import { produce } from 'solid-js/store';
-import { info } from 'node:console';
 
 const [open, setOpen] = createSignal(false);
 
@@ -215,7 +214,7 @@ export function Dialog(props: Props) {
     }
   }));
 
-  const [failValid, setFailValid] = createSignal('');
+  // const [failValid, setFailValid] = createSignal('');
 
   function Start() {
     if (running()) {
@@ -262,7 +261,9 @@ export function Dialog(props: Props) {
     }
   }
 
-  let [info, setInfo] = createSignal('');
+  const [info, setInfo] = createSignal('');
+  
+  // eslint-disable-next-line no-unassigned-vars
   let start_button: HTMLButtonElement|undefined;
 
   const allValid = createMemo(() => {
@@ -303,8 +304,8 @@ export function Dialog(props: Props) {
                 <div class={style.row}>
                   <div>{t(parameter.label)}</div>
                   <Parameter parameter={parameter} 
-                            focusin={e => UpdateInfo(parameter.info)}
-                            focusout={e => UpdateInfo()}
+                            focusin={_ => UpdateInfo(parameter.info)}
+                            focusout={_ => UpdateInfo()}
                             show-validation />
                 </div>
               }

@@ -6,15 +6,15 @@ import { InteractiveDialog,
          type Props as InteractiveDialogProps } from '~/components/dialogs/interactive-dialog/interactive-dialog';
 import style from './trend-forecasting-dialog.module.css';
 import { t } from '~/i18n/i18n';
-import { createEffect, createSignal, Match, on, onMount, Show, Switch, type Signal } from 'solid-js';
-import { createStore, SetStoreFunction, StoreSetter } from 'solid-js/store';
+import { createEffect, createSignal, on } from 'solid-js';
+import { SetStoreFunction } from 'solid-js/store';
 import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 import type { ForecastData } from './forecast';
 
 import { Chart } from '@trebco/treb/treb-charts';
 import { type ChartData } from '@trebco/treb/treb-charts/src/chart-types';
-import { Scale, type RangeScale } from '@trebco/treb/treb-utils';
+import { Scale } from '@trebco/treb/treb-utils';
 import { Heuristics } from '@trebco/treb/treb-data-model';
 import type { Size } from '~/components/dialogs/dialog-base/dialog';
 
@@ -63,8 +63,11 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
   }
 
   let chart: Chart|undefined;
+
+  // eslint-disable-next-line no-unassigned-vars
   let chart_container: HTMLDivElement|undefined;
-  const [chartError, setChartError] = createSignal(false);
+  
+  const [_chartError, setChartError] = createSignal(false);
 
   function RedrawChart() {
 
@@ -87,12 +90,12 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
       let values_numbers: number[] = [];
       if (IsArea(values_resolved)) {
         const area = new Area(values_resolved.start, values_resolved.end);
-        values_numbers = Heuristics.AllNumeric(area, (sheet as any).grid.active_sheet) || [];
+        values_numbers = Heuristics.AllNumeric(area, sheet.grid.active_sheet) || [];
       } 
 
       // values, timeline, seasonality, fill, aggregation, model type
 
-      let params = sheet.Evaluate(`=RiskAMP.Forecast.Params(${values}, ${dates},${props.data.seasonality === undefined ? '' : props.data.seasonality},${props.data.fill === undefined ? '' : props.data.fill},${props.data.aggregation === undefined ? '' : props.data.aggregation},${props.data.type})`, { argument_separator: ','});
+      const params = sheet.Evaluate(`=RiskAMP.Forecast.Params(${values}, ${dates},${props.data.seasonality === undefined ? '' : props.data.seasonality},${props.data.fill === undefined ? '' : props.data.fill},${props.data.aggregation === undefined ? '' : props.data.aggregation},${props.data.type})`, { argument_separator: ','});
       // console.info({params});
 
       if (!Array.isArray(params)) {
@@ -103,7 +106,7 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
       };
 
       const flat_params = params.flat();
-      const seasonality = (flat_params[4] as number) || 0;
+      // const seasonality = (flat_params[4] as number) || 0;
       const values_count = (flat_params[6] as number) || 0;
 
       const literal_params = `{${ params.flat().join(',') }}`;
@@ -111,7 +114,7 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
 
       // values, timeline, params, fill, aggregation
 
-      let model = sheet.Evaluate(`=RiskAMP.Forecast.Model(${values}, ${dates}, ${literal_params},${props.data.fill === undefined ? '' : props.data.fill},${props.data.aggregation === undefined ? '' : props.data.aggregation})`, { argument_separator: ','});
+      const model = sheet.Evaluate(`=RiskAMP.Forecast.Model(${values}, ${dates}, ${literal_params},${props.data.fill === undefined ? '' : props.data.fill},${props.data.aggregation === undefined ? '' : props.data.aggregation})`, { argument_separator: ','});
       // console.info(model);
 
       if (!Array.isArray(model)) {
@@ -248,7 +251,7 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
 
   }
 
-  createEffect(on(() => JSON.stringify(props.data), value => RedrawChart(), { defer: true }));
+  createEffect(on(() => JSON.stringify(props.data), _ => RedrawChart(), { defer: true }));
 
   createEffect(on([parameters[0].value, parameters[1].value], ([timeline, values]) => {
     props.setData({
@@ -263,7 +266,7 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
   }));
 
   const bindsize = props.bindsize || createSignal<Size|undefined>(undefined);
-  createEffect(on(bindsize[0], value => {
+  createEffect(on(bindsize[0], _ => {
     chart?.Update();
   }));
 

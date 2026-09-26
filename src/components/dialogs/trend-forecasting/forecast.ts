@@ -40,7 +40,7 @@ export function CreateForecastSheet(sheet: SpreadsheetType, data: Partial<Foreca
   }
 
   const resolved_timeline = sheet.Resolve(data.timeline);
-  const resolved_values = sheet.Resolve(data.values);
+  // const resolved_values = sheet.Resolve(data.values);
 
   let timeline_data = sheet.Evaluate(data.timeline);
   let values_data = sheet.Evaluate(data.values);
@@ -52,10 +52,13 @@ export function CreateForecastSheet(sheet: SpreadsheetType, data: Partial<Foreca
   if (Array.isArray(timeline_style)) {
     timeline_style = timeline_style.flat()[0];
   }
+
+  /*
   let values_style = sheet.GetStyle(IsArea(resolved_values) ? resolved_values.start : resolved_values);
   if (Array.isArray(values_style)) {
     values_style = values_style.flat()[0];
   }
+  */
 
   if (Array.isArray(timeline_data)) {
     timeline_data = Transpose(timeline_data);
@@ -284,7 +287,7 @@ export function CreateForecastSheet(sheet: SpreadsheetType, data: Partial<Foreca
           row: values_count + data.periods, column: 2,
         }); 
 
-        const model_address_r1c1 = `R${values_count + 1}C${params_label_column + 2}`;
+        // const model_address_r1c1 = `R${values_count + 1}C${params_label_column + 2}`;
 
         sheet.SetRange(perturb, 
           `=NormalValue(0, sqrt(ChooseCols(${model_address}#, -1)))`, { argument_separator: ',', recycle: true });
