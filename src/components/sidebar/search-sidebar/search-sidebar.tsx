@@ -6,7 +6,7 @@ import { createMutable } from 'solid-js/store';
 import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, Switch } from 'solid-js';
 
 import FindWorker from './find-worker?worker';
-import type { FindResult, FindMessageType, FindType, QueryMessage } from './find-worker';
+import type { FindResult, FindMessageType, QueryMessage } from './find-worker';
 import { type SidebarProps } from '../sidebar-main';
 import { EmbeddedSheetEvent } from '@trebco/treb';
 import { Area } from '@trebco/treb/treb-base-types';
@@ -42,9 +42,10 @@ export function Sidebar(props: SidebarProps) {
 
   const params = InitParams(); // use persistent instance
   
+  // eslint-disable-next-line no-unassigned-vars
   let search: HTMLInputElement|undefined;
 
-  let [normalized, setNormalized] = createSignal('');
+  const [normalized, setNormalized] = createSignal('');
 
   function Search() {
     const query = normalized();    
@@ -69,7 +70,7 @@ export function Sidebar(props: SidebarProps) {
     }
   }
 
-  createEffect(on([normalized, () => JSON.stringify(params)], values => {
+  createEffect(on([normalized, () => JSON.stringify(params)], _ => {
     Search();
   }));
 
@@ -77,7 +78,7 @@ export function Sidebar(props: SidebarProps) {
     worker = new FindWorker();
   }
 
-  let [results, setResults] = createSignal<FindResult[]>([]);
+  const [results, setResults] = createSignal<FindResult[]>([]);
   const [activeSheet, setActiveSheet] = createSignal(0);
   let subscription = 0;
 
