@@ -6,7 +6,7 @@ import { Accessor, createEffect, createSignal, For, Match, on, onMount, Setter, 
 import { CheckFunctionData } from './check-function';
 import SearchWorker from 'raw-tools/src/insert-function/function-search-worker.ts?worker';
 import { type FunctionData, CreateFunctionLib, type MessageType, type SearchResults } from 'raw-tools';
-import { createMutable } from 'solid-js/store';
+import { createStore, produce } from 'solid-js/store';
 
 import style from './insert-function-dialog.module.css';
 import { Size } from '../dialog-base/dialog';
@@ -48,7 +48,7 @@ export function InsertFunctionDialog(props: Props) {
 
   let interactiveDialogRef: InteractiveDialogRef|undefined;
 
-  const search_state = createMutable<SearchState>({
+  const [search_state, setSearchState] = createStore<SearchState>({
     results: [],
     selected_index: -1,
     selected_entry: '',
@@ -57,7 +57,7 @@ export function InsertFunctionDialog(props: Props) {
   
   const ExecSearch = () => {
     if (!search_state.query?.trim()) {
-      search_state.results = [];
+      setSearchState(produce(s => { s.results = []; }));
       return;
     }
     worker?.postMessage({
@@ -67,10 +67,12 @@ export function InsertFunctionDialog(props: Props) {
   };
 
   const ResetSearch = () => {
-    search_state.query = '';
-    search_state.results = [];
-    search_state.selected_entry = '';
-    search_state.selected_index = -1;
+    setSearchState(produce(s => {
+      s.query = '';
+      s.results = [];
+      s.selected_entry = '';
+      s.selected_index = -1;
+    }));
     query_input?.focus();
   };
 
@@ -79,25 +81,29 @@ export function InsertFunctionDialog(props: Props) {
 
       // console.info({results: event.data.results});
 
-      search_state.results = event.data.results;
+      const results = event.data.results;
 
-      if (search_state.selected_entry) {
-        let found = false;
-        for (const [index, entry] of search_state.results.entries()) {
-          if (entry.canonical_name === search_state.selected_entry) {
-            search_state.selected_index = index;
-            found = true;
-            break;
+      setSearchState(produce(s => {
+        s.results = results;
+
+        if (s.selected_entry) {
+          let found = false;
+          for (const [index, entry] of s.results.entries()) {
+            if (entry.canonical_name === s.selected_entry) {
+              s.selected_index = index;
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            s.selected_entry = '';
+            s.selected_index = -1;
+          }
+          else {
+            // refresh_selected_entry = true;
           }
         }
-        if (!found) {
-          search_state.selected_entry = '';
-          search_state.selected_index = -1;
-        }
-        else {
-          // refresh_selected_entry = true;
-        }
-      }
+      }));
     }
   }
 
@@ -144,7 +150,8 @@ export function InsertFunctionDialog(props: Props) {
 
   function UpdateQuery(event: Event) {
     if (event.target instanceof HTMLInputElement) {
-      search_state.query = (event.target.value || '').trim();
+      const query = (event.target.value || '').trim();
+      setSearchState(produce(s => { s.query = query; }));
     }
     ExecSearch();
   }
@@ -157,8 +164,10 @@ export function InsertFunctionDialog(props: Props) {
     event.stopPropagation();
     event.preventDefault();
 
-    search_state.selected_index = index;
-    search_state.selected_entry = result.canonical_name;
+    setSearchState(produce(s => {
+      s.selected_index = index;
+      s.selected_entry = result.canonical_name;
+    }));
   }
 
   function SelectFunction(event?: Event, result?: FunctionData, index = -1) {
@@ -323,11 +332,13 @@ export function InsertFunctionDialog(props: Props) {
       event.preventDefault();
 
       if (delta) {
-        const target = Math.min(Math.max(0, search_state.selected_index + delta), search_state.results.length - 1);
-        if (target !== search_state.selected_index) {
-          search_state.selected_index = target;
-          search_state.selected_entry = search_state.results[target].canonical_name;
-        }
+        setSearchState(produce(s => {
+          const target = Math.min(Math.max(0, s.selected_index + delta), s.results.length - 1);
+          if (target !== s.selected_index) {
+            s.selected_index = target;
+            s.selected_entry = s.results[target].canonical_name;
+          }
+        }));
         results_list?.focus();
       }
 

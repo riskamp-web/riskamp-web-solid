@@ -2,7 +2,7 @@
 import style from '../sidebar.module.css';
 import { Register } from '../registry';
 import { t } from '~/i18n/i18n';
-import { createMutable } from 'solid-js/store';
+import { createStore, produce } from 'solid-js/store';
 import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, Switch } from 'solid-js';
 
 import FindWorker from './find-worker?worker';
@@ -19,18 +19,13 @@ interface Params {
 
 let worker: Worker|undefined;
 let transaction = 1;
-let _params: Params|undefined;
 
-function InitParams() {
-  if (!_params) {
-  _params = createMutable<Params>({
-      type: 'values',
-      scope: 'current',
-      wildcards: false,
-    });
-  }
-  return _params;
-}
+/** module scope, so the search options persist between invocations of the sidebar */
+const [params, setParams] = createStore<Params>({
+  type: 'values',
+  scope: 'current',
+  wildcards: false,
+});
 
 /**
  * we're making the explicit decision to not persist query/results 
@@ -40,8 +35,6 @@ function InitParams() {
  */
 export function Sidebar(props: SidebarProps) {
 
-  const params = InitParams(); // use persistent instance
-  
   // eslint-disable-next-line no-unassigned-vars
   let search: HTMLInputElement|undefined;
 
@@ -70,7 +63,7 @@ export function Sidebar(props: SidebarProps) {
     }
   }
 
-  createEffect(on([normalized, () => JSON.stringify(params)], _ => {
+  createEffect(on([normalized, () => params.type, () => params.scope, () => params.wildcards], _ => {
     Search();
   }));
 
@@ -170,16 +163,16 @@ export function Sidebar(props: SidebarProps) {
           <label>
             {t('search-panel.search-in.text')}
           </label>
-          <select class="select" value={params.type} onchange={e => params.type = e.currentTarget.value as Params['type']}>
+          <select class="select" value={params.type} onchange={e => { const type = e.currentTarget.value as Params['type']; setParams(produce(s => { s.type = type; })); }}>
             <option value='values'>{t('search-panel.search-type.cell-values')}</option>
             <option value='formulas'>{t('search-panel.search-type.cell-formulas')}</option>
           </select>
-          <select class="select" value={params.scope} onchange={e => params.scope = e.currentTarget.value as Params['scope']}>
+          <select class="select" value={params.scope} onchange={e => { const scope = e.currentTarget.value as Params['scope']; setParams(produce(s => { s.scope = scope; })); }}>
             <option value='current'>{t('search-panel.search-scope.current-sheet')}</option>
             <option value='all'>{t('search-panel.search-scope.all-sheets')}</option>
           </select>
           <label class="flex-row gap-0_5">
-            <input type="checkbox" checked={params.wildcards} onchange={e => params.wildcards = e.currentTarget.checked}/>
+            <input type="checkbox" checked={params.wildcards} onchange={e => { const wildcards = e.currentTarget.checked; setParams(produce(s => { s.wildcards = wildcards; })); }}/>
             <span>{t('search-panel.search-type.wildcards')}</span>
           </label>
         </div>
