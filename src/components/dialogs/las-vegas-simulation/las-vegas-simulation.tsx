@@ -1,6 +1,7 @@
 
 import { createEffect, createMemo, createSignal, For, Match, on, Switch } from 'solid-js';
-import { CreateParameters, InteractiveDialog, Parameter, type Props } from '../interactive-dialog/interactive-dialog';
+import { CreateParameters } from '../interactive-dialog/parameters';
+import { InteractiveDialog, Parameter, type Props } from '../interactive-dialog/interactive-dialog';
 import { StringKey, t } from '~/i18n/i18n';
 import { EmbeddedSheetEvent, ICellAddress, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { Size } from '../dialog-base/dialog';

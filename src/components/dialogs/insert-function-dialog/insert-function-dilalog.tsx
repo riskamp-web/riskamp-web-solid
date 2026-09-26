@@ -1,6 +1,7 @@
 
 import { t } from '~/i18n/i18n';
-import { CreateParameters, InteractiveDialog, Parameter, type ParameterType, type Props as DialogProps, InteractiveDialogRef } from '../interactive-dialog/interactive-dialog';
+import { CreateParameters } from '../interactive-dialog/parameters';
+import { InteractiveDialog, Parameter, type ParameterType, type Props as DialogProps, InteractiveDialogRef } from '../interactive-dialog/interactive-dialog';
 import { Accessor, createEffect, createSignal, For, Match, on, onMount, Setter, Show, Switch } from 'solid-js';
 import { CheckFunctionData } from './check-function';
 import SearchWorker from 'raw-tools/src/insert-function/function-search-worker.ts?worker';

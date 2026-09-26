@@ -1,12 +1,15 @@
 
 import { HandleInput, HandleFocusIn, HandleKeyDown, Init, UpdateNodes, UpdateDependencies } from '~/lib/interactive-components';
 import { Dialog, Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
-import { createContext, createEffect, on, ParentProps, type Signal, splitProps, Show, onMount, useContext, onCleanup, createSignal, createRenderEffect, Match, Switch } from 'solid-js';
+import { createContext, createEffect, on, ParentProps, type Signal, splitProps, Show, onMount, useContext, onCleanup, createRenderEffect, Match, Switch } from 'solid-js';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import type { DependencyList } from 'riskamp-web';
 
 import { icons } from '~/components/icon-sets';
 import style from './interactive-dialog.module.css';
+import type { ParameterType } from './parameters';
+
+export type { ParameterType };
 
 export interface InteractiveDialogRef {
   Update: () => void;
@@ -20,28 +23,6 @@ export interface Props extends DialogProps<boolean> {
   'update-parameter'?: (parameter: ParameterType) => void|Promise<void>;
 
   ref?: (ref: InteractiveDialogRef) => void;
-
-}
-
-/**
- * base parameter type. you can extend with any other data.
- */
-export interface ParameterType {
-
-  element?: HTMLDivElement;
-  validate?: (value: string) => boolean;
-
-  // now required
-  valid: () => boolean;
-  setValid: (value: boolean) => void;
-
-  // new, value as string
-  value: () => string;
-  setValue: (value: string) => void;
-
-  // initial value
-  initialValue: () => string;
-  setInitialValue: (value: string) => void;
 
 }
 
@@ -132,30 +113,6 @@ export function Parameter(props: ParameterProps) {
     </div>
   </>;
 
-}
-
-/**
- * utility to create parameters, atm just adds signal for valid
- * @param source 
- * @returns 
- */
-export function CreateParameters<T = unknown>(source: T[]): (T & ParameterType)[] {
-  return source.map(entry => {
-
-    const [valid, setValid] = createSignal<boolean>(false);
-    const [value, setValue] = createSignal<string>('');
-    const [initialValue, setInitialValue] = createSignal<string>('');
-
-    const composite: T & ParameterType = {
-      valid, setValid, 
-      value, setValue,
-      initialValue, setInitialValue,
-      ...entry,
-    };
-
-    return composite;
-
-  });
 }
 
 export function InteractiveDialog(props: ParentProps<Props>) {

@@ -1,5 +1,6 @@
 
-import { CreateParameters, InteractiveDialog, 
+import { CreateParameters } from '~/components/dialogs/interactive-dialog/parameters';
+import { InteractiveDialog, 
          Parameter,
          type ParameterType as BaseParameterType,
          type Props as InteractiveDialogProps } from '~/components/dialogs/interactive-dialog/interactive-dialog';

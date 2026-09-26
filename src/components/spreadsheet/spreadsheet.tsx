@@ -2,7 +2,7 @@
 import { createEffect, on, onMount, Setter } from "solid-js";
 import { type EmbeddedSpreadsheet, type MCEmbeddedSpreadsheetOptions, RiskAMPWeb } from 'riskamp-web';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
-import { ApplyThemeColors } from '../toolbar/theme-selector';
+import { ApplyThemeColors } from '../toolbar/theme';
 import { persistentData } from '~/lib/app-data';
 import { SystemLocale } from '~/i18n/i18n';
 

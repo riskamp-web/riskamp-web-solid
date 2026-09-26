@@ -33,7 +33,7 @@ import { CacheCUrrentState, RemoveFromCache, RevertDocument, TryLoadPath } from 
 import { CheckFunction, CheckFunctionData, RestoreEditor } from '~/components/dialogs/insert-function-dialog/check-function';
 import { produce } from 'solid-js/store';
 import { GenerateFilename } from '~/lib/filename-util';
-import { SetTheme } from '~/components/toolbar/theme-selector';
+import { SetTheme } from '~/components/toolbar/theme';
 
 import { SaveAsDialog, SaveAsDocument, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
 import { documents } from '~/backstage/documents-store';

@@ -10,9 +10,9 @@ import { type SidebarProps } from '../sidebar-main';
 import { EmbeddedSheetEvent } from '@trebco/treb';
 import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 
-import { CreateParameters,  
-         Parameter,
-         type ParameterType as BaseParameterType } from '~/components/interactive-dialog/interactive-dialog';
+import { CreateParameters, 
+         type ParameterType as BaseParameterType } from '~/components/dialogs/interactive-dialog/parameters';
+import { Parameter } from '~/components/dialogs/interactive-dialog/interactive-dialog';
 import { HandleInput, HandleFocusIn, HandleKeyDown, Init, UpdateNodes, UpdateDependencies } from '~/lib/interactive-components';
 
 import { InteractiveSidebar } from '../interactive-sidebar';
