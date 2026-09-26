@@ -32,6 +32,17 @@ for the full story.
   creates an ownerless render effect that is never disposed. Config tables hold
   *keys* (`label: 'toolbar.menus.file'`), resolved where they're drawn.
   `npm run check:i18n-scope` enforces it. (→ `scripts/README.md`.)
+- **Solid — stores are written only through their setter, in the
+  `set(produce(draft => …))` form; no `createMutable`.** Those are the only forms
+  Solid 2 keeps (it drops path/merge setters, `produce` becomes the default, and
+  writes outside a setter are silently lost). A handler that writes state and then
+  dispatches passes the chosen value *in the message* rather than reading the store
+  back — Solid 2 reads are stale until flush. (→ `CommandMessage` in
+  `src/components/toolbar/toolbar-store.ts`.)
+- **Solid — non-component PascalCase functions go in `.ts`, not `.tsx`.**
+  solid-refresh wraps every exported PascalCase `.tsx` function as a component in
+  dev; called from an effect, that breaks reactivity under Solid 2.
+  (e.g. `toolbar/theme.ts`, `dialogs/interactive-dialog/parameters.ts`.)
 - **CSS — `src/app.css` is the single source of every token and colour.** Theme
   colours, metrics, and type all resolve from there. (→ `src/style/README.md`.)
 - **CSS — TREB generates selectors that look like dead code.** Don't delete CSS
