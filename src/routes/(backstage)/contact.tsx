@@ -140,7 +140,7 @@ export default function Contact() {
       <p class={styles.lede}>{t('contact-page.subtitle')}</p>
     </div>
 
-    <form class={styles.form} novalidate onsubmit={(event) => { event.preventDefault(); void submit(); }}>
+    <form class={styles.form} novalidate onSubmit={(event) => { event.preventDefault(); void submit(); }}>
 
       <Show when={formError()}>
         <div class={bs['form-error']} role='alert'>{messageText(formError())}</div>
@@ -159,7 +159,7 @@ export default function Contact() {
             aria-invalid={!!nameError()}
             aria-describedby={nameError() ? 'contact-name-error' : undefined}
             value={name()}
-            oninput={(event) => { setName(event.currentTarget.value); setNameError(undefined); setFormError(undefined); }} />
+            onInput={(event) => { setName(event.currentTarget.value); setNameError(undefined); setFormError(undefined); }} />
         <Show when={nameError()}>
           <div id='contact-name-error' class={bs['field-message']}>{messageText(nameError())}</div>
         </Show>
@@ -181,7 +181,7 @@ export default function Contact() {
             aria-invalid={!!emailError()}
             aria-describedby={emailError() ? 'contact-email-error' : undefined}
             value={email()}
-            oninput={(event) => { setEmail(event.currentTarget.value); setEmailError(undefined); setFormError(undefined); }} />
+            onInput={(event) => { setEmail(event.currentTarget.value); setEmailError(undefined); setFormError(undefined); }} />
         <Show when={emailError()}>
           <div id='contact-email-error' class={bs['field-message']}>{messageText(emailError())}</div>
         </Show>
@@ -199,7 +199,7 @@ export default function Contact() {
             aria-invalid={!!messageError()}
             aria-describedby={messageError() ? 'contact-message-error' : undefined}
             value={message()}
-            oninput={(event) => { setMessage(event.currentTarget.value); setMessageError(undefined); setFormError(undefined); }} />
+            onInput={(event) => { setMessage(event.currentTarget.value); setMessageError(undefined); setFormError(undefined); }} />
         <Show when={messageError()}>
           <div id='contact-message-error' class={bs['field-message']}>{messageText(messageError())}</div>
         </Show>

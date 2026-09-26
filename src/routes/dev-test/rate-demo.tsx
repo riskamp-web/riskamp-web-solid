@@ -88,12 +88,12 @@ function RateDialog(props: {
               ref={el => queueMicrotask(() => el.focus())}
               placeholder="What's working, what isn't, what you'd like to see…"
               value={comment()}
-              oninput={e => setComment(e.currentTarget.value)} />
+              onInput={e => setComment(e.currentTarget.value)} />
           </div>
         }>
           <p class={style.prompt}>How are you finding RiskAMP so far?</p>
           <div class={style.stars} role="radiogroup" aria-label="Rating"
-               onpointerleave={() => setHover(0)}>
+               onPointerLeave={() => setHover(0)}>
             <For each={[1, 2, 3, 4, 5]}>{n =>
               <button
                 type="button"
@@ -101,10 +101,10 @@ function RateDialog(props: {
                 aria-checked={rating() === n}
                 aria-label={n === 1 ? '1 star' : `${n} stars`}
                 tabindex={(rating() || 1) === n ? 0 : -1}
-                classList={{ [style.star]: true, [style.lit]: n <= lit() }}
-                onpointerenter={() => setHover(n)}
-                onkeydown={e => handleKey(e, n)}
-                onclick={() => rate(n)}>
+                class={{ [style.star]: true, [style.lit]: n <= lit() }}
+                onPointerEnter={() => setHover(n)}
+                onKeyDown={e => handleKey(e, n)}
+                onClick={() => rate(n)}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d={STAR_PATH} /></svg>
               </button>
             }</For>
@@ -114,10 +114,10 @@ function RateDialog(props: {
 
       <footer>
         <Show when={thanked()} fallback={
-          <button onclick={() => dismiss('Not now')}>Not now</button>
+          <button onClick={() => dismiss('Not now')}>Not now</button>
         }>
-          <button class="button-primary" disabled={!comment().trim()} onclick={send}>Send</button>
-          <button onclick={() => dismiss('No thanks')}>No thanks</button>
+          <button class="button-primary" disabled={!comment().trim()} onClick={send}>Send</button>
+          <button onClick={() => dismiss('No thanks')}>No thanks</button>
         </Show>
       </footer>
 
@@ -158,7 +158,7 @@ export default function RateDemo() {
         rating is kept even if the comment is skipped.
       </p>
 
-      <button class="button-primary" onclick={openPrompt}>Open rating prompt</button>
+      <button class="button-primary" onClick={openPrompt}>Open rating prompt</button>
 
       <pre id="result" style="background: #f4f4f4; padding: 1rem; border-radius: 6px;">{describe()}</pre>
 

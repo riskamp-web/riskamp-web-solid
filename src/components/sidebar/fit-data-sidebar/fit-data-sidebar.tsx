@@ -396,7 +396,7 @@ export function Sidebar(props: SidebarProps) {
                   t('ui-interaction.copy-to-clipboard.copied') :
                   t('ui-interaction.copy-to-clipboard.label')
                 }
-              onclick={() => CopyData(props.data)}
+              onClick={() => CopyData(props.data)}
               innerHTML={
                 copiedData() === props.data ?
                 icons.copy_confirmed :
@@ -419,12 +419,12 @@ export function Sidebar(props: SidebarProps) {
                 role="textbox" 
                 spellcheck="false"
                 contenteditable="true"
-                onfocusout={FocusOut}
-                onfocusin={FocusIn}
-                onkeydown={KeyDown}
+                onFocusOut={FocusOut}
+                onFocusIn={FocusIn}
+                onKeyDown={KeyDown}
                 data-placeholder={t('fit-data-panel.select-range')}
-                oninput={e => TollUpdate()}
-                onchange={e => TollUpdate()}
+                onInput={e => TollUpdate()}
+                onChange={e => TollUpdate()}
                 ref={parameter_element}>{initial_value}</div>
         </div>
       <hr />
@@ -433,7 +433,7 @@ export function Sidebar(props: SidebarProps) {
     <div class="section flex-column">
       <h1>
         <span>{t('fit-data-panel.candidate-distributions.label')}</span>
-        <select class="select" onchange={e => setSelectedIndex(Number(e.currentTarget.value) || 0)}>
+        <select class="select" onChange={e => setSelectedIndex(Number(e.currentTarget.value) || 0)}>
           <For each={fitResults()}>
             {(result, index) => <option value={index()}>{result.distribution}</option>}
           </For>

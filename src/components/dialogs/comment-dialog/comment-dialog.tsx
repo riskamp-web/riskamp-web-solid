@@ -54,10 +54,10 @@ export function CommentDialog(props: Props<boolean>) {
 
   return <Dialog {...props} moveable escape modal resizeable {...bindLayout}>
       <section class={style.layout}> 
-        <textarea ref={textarea} class={style.textarea} onkeydown={HandleKey}></textarea>
+        <textarea ref={textarea} class={style.textarea} onKeyDown={HandleKey}></textarea>
         <div class={style.buttons}>
-          <button class="control-button button-primary" onclick={_ => Save()}>{t('comment-dialog.save-button.label')}</button>
-          <button class="control-button " onclick={_ => Clear()}>{t('comment-dialog.remove-comment-button.label')}</button>
+          <button class="control-button button-primary" onClick={_ => Save()}>{t('comment-dialog.save-button.label')}</button>
+          <button class="control-button " onClick={_ => Clear()}>{t('comment-dialog.remove-comment-button.label')}</button>
         </div>
       </section>
     </Dialog>;

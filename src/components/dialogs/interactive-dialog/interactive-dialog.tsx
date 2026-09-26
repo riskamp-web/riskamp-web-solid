@@ -97,7 +97,7 @@ export function Parameter(props: ParameterProps) {
   onCleanup(() => context.unregister?.(props.parameter));
 
   function ValidationIcon(props: {valid: boolean}) {
-    return <div classList={{
+    return <div class={{
         [style['validation-icon']]: true,
         [style.valid]: props.valid,
       }}
@@ -115,8 +115,8 @@ export function Parameter(props: ParameterProps) {
       <div class="reference-editor tc flex-grow" 
             data-selection-target 
             tabindex="0"
-            onfocusin={props.focusin}
-            onfocusout={props.focusout}
+            onFocusIn={props.focusin}
+            onFocusOut={props.focusout}
             role="textbox" 
             spellcheck="false"
             contenteditable="true"
@@ -320,9 +320,9 @@ export function InteractiveDialog(props: ParentProps<Props>) {
      }}>
       <Dialog {...base_props}>
         <div ref={root_node} 
-              oninput={e => HandleInput(e, root_node as HTMLElement, local.sheet(), local.update)} 
-              onfocusin={HandleFocusIn} 
-              onkeydown={e => HandleKeyDown(e, root_node as HTMLElement)} 
+              onInput={e => HandleInput(e, root_node as HTMLElement, local.sheet(), local.update)} 
+              onFocusIn={HandleFocusIn} 
+              onKeyDown={e => HandleKeyDown(e, root_node as HTMLElement)} 
               class="display-contents">
 
           {local.children}

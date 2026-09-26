@@ -8,6 +8,7 @@ import '~/components/tabs.css';
 import { CompositeMenuControl } from './toolbar-utils';
 import { ToolbarCommand } from './toolbar-commands';
 import { MenuButton } from '../menu-button/menu-button';
+import { UpdateToolbarConfig } from './toolbar-store';
 
 export function CompositeMenu(props: {
   item: CompositeMenuControl,
@@ -26,7 +27,7 @@ export function CompositeMenu(props: {
                       [style['text-button'], style['toolbar-button'], style['composite-label']].join(' ')
                   } 
                   title={props.item.commands[props.item.active].icon ? t(props.item.commands[props.item.active].title) : undefined }
-                  onclick={e => props.HandleCommand(e, props.item.commands[props.item.active])}>
+                  onClick={e => props.HandleCommand(e, props.item.commands[props.item.active])}>
             <Switch>
               <Match when={props.item.commands[props.item.active].icon}>
                 <span innerHTML={props.item.commands[props.item.active].icon || ''} />
@@ -39,18 +40,18 @@ export function CompositeMenu(props: {
         </div>
       </MenuButton.Static>
       <MenuButton.Menu>
-        <menu classList={{
-                [style.horizontal]: props.item.horizontal,
+        <menu class={{
+                [style.horizontal]: !!props.item.horizontal,
               }}>
           <Switch>
             
             <Match when={props.item.icons && props.item.text}>
-              <menu classList={{ [style.text]: true, [style.overflow]: true }}>
+              <menu class={{ [style.text]: true, [style.overflow]: true }}>
                 <For each={props.item.commands}>
                   {(subitem, index) => <li>
-                    <button classList={{ [style['menu-item']]: true, [style['composite']]: true }} 
-                            onclick={e => {
-                              props.item.active = index();
+                    <button class={{ [style['menu-item']]: true, [style['composite']]: true }} 
+                            onClick={e => {
+                              UpdateToolbarConfig(() => { props.item.active = index(); });
                               props.HandleCommand(e, subitem);
                             }}>
                       <div innerHTML={subitem.icon || ''} />
@@ -62,12 +63,12 @@ export function CompositeMenu(props: {
             </Match>
 
             <Match when={props.item.text}>
-              <menu classList={{ [style.text]: true, [style.overflow]: true }}>
+              <menu class={{ [style.text]: true, [style.overflow]: true }}>
                 <For each={props.item.commands}>
                   {(subitem, index) => <li>
                     <button class={style['menu-item']} 
-                            onclick={e => {
-                              props.item.active = index();
+                            onClick={e => {
+                              UpdateToolbarConfig(() => { props.item.active = index(); });
                               props.HandleCommand(e, subitem);
                             }}>
                       {t(subitem.title)}
@@ -80,13 +81,13 @@ export function CompositeMenu(props: {
             <Match when={props.item.icons}>
               <For each={props.item.commands}>
                 {(subitem, index) => <li>
-                  <button classList={{
+                  <button class={{
                             [style['toolbar-button']]: true,
                             [style.active]: !!subitem.value,
                           }} 
                           title={t(subitem.title)}
-                          onclick={e => {
-                            props.item.active = index();
+                          onClick={e => {
+                            UpdateToolbarConfig(() => { props.item.active = index(); });
                             props.HandleCommand(e, subitem);
                           }}
                           innerHTML={subitem.icon || ''} />

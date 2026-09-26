@@ -12,7 +12,7 @@
  * the store carries no i18n keys.
  */
 
-import { createStore, produce } from "solid-js/store";
+import { createStore } from "solid-js";
 
 export type ToastVariant = 'error' | 'success';
 
@@ -54,15 +54,23 @@ function dismiss(id: number) {
     clearTimeout(timer);
     timers.delete(id);
   }
-  setItems(list => list.filter(toast => toast.id !== id));
+  // splice the draft rather than returning a filtered copy: a returned array
+  // is reconciled by index, which would shift the survivors' contents up
+  // through the (keyed) rows instead of removing this one.
+  setItems(list => {
+    const index = list.findIndex(toast => toast.id === id);
+    if (index >= 0) {
+      list.splice(index, 1);
+    }
+  });
 }
 
 function push(variant: ToastVariant, message: string, options?: ToastOptions): number {
   const id = ++seq;
 
-  setItems(produce(list => {
+  setItems(list => {
     list.push({ id, variant, message, action: options?.action });
-  }));
+  });
 
   // errors persist (duration 0); success auto-dismisses. an explicit duration
   // overrides either default.

@@ -1,4 +1,5 @@
-import { createContext, useContext, createEffect, createSignal, JSX } from "solid-js";
+import { createContext, useContext, createEffect, createSignal } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { useLocation } from "@solidjs/router";
 
 const HistoryContext = createContext<{ getReferrer: () => string | null }>();
@@ -7,9 +8,7 @@ export function HistoryProvider(props: { children: JSX.Element }) {
   const location = useLocation();
   const [history, setHistory] = createSignal<string[]>([]);
 
-  createEffect(() => {
-    const currentPath = location.pathname;
-    
+  createEffect(() => location.pathname, (currentPath) => {
     setHistory((prev) => {
       // Keep track of the last 2 paths
       const newHistory = [...prev, currentPath];
@@ -24,9 +23,9 @@ export function HistoryProvider(props: { children: JSX.Element }) {
   };
 
   return (
-    <HistoryContext.Provider value={{ getReferrer }}>
+    <HistoryContext value={{ getReferrer }}>
       {props.children}
-    </HistoryContext.Provider>
+    </HistoryContext>
   );
 }
 

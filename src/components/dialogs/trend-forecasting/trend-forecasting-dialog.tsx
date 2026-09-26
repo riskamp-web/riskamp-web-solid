@@ -288,11 +288,11 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
 
               <div class={style.group}>
                 <label>{t('forecast-dialog.settings')}</label>
-                <div classList={{"simple-grid-table": true, [style.table]: true }}>
+                <div class={{"simple-grid-table": true, [style.table]: true }}>
 
                   <div class="row">
                     <div>{t('forecast-dialog.options.forecast-type')}</div>
-                    <select class="select" value={props.data.forecast_type} onchange={
+                    <select class="select" value={props.data.forecast_type} onChange={
                         e => {
                           const update: Partial<ForecastData> = { 
                             forecast_type: e.currentTarget.value as typeof props.data.forecast_type,
@@ -311,7 +311,7 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
 
                   <div class="row">
                     <div>{t('forecast-dialog.options.model-type')}</div>
-                      <select class="select" value={props.data.type} onchange={e => props.setData({ type: Number(e.currentTarget.value) as 0|1|2 })}>
+                      <select class="select" value={props.data.type} onChange={e => props.setData({ type: Number(e.currentTarget.value) as 0|1|2 })}>
                         <option value={0}>AAA</option>
                         <option value={1} disabled={props.data.forecast_type === 'excel-compatible'}>MAM</option>
                         <option value={2} disabled={props.data.forecast_type === 'excel-compatible'}>MAdM</option>
@@ -324,7 +324,7 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
                            type="text" 
                            value={props.data.seasonality || ''}
                            placeholder={t('forecast-dialog.seasonality.auto-detect')} 
-                           onchange={e => {
+                           onChange={e => {
                             if (!e.currentTarget.value) {
                               props.setData({ seasonality: undefined });
                             }
@@ -337,7 +337,7 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
 
                   <div class="row">
                     <div>{t("forecast-dialog.parameters.fill-empty")}</div>
-                    <select class="select" value={props.data.fill} onchange={
+                    <select class="select" value={props.data.fill} onChange={
                         e => props.setData({ fill: (Number(e.currentTarget.value) || 0) as typeof props.data.fill }) }>
                       <option value={0}>{t('forecast-dialog.fill-options.interpolate')}</option>
                       <option value={1}>{t('forecast-dialog.fill-options.zeros')}</option>
@@ -346,7 +346,7 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
 
                   <div class="row">
                     <div>{t("forecast-dialog.parameters.aggregate-multiple")}</div>
-                    <select class="select" value={props.data.aggregation} onchange={
+                    <select class="select" value={props.data.aggregation} onChange={
                         e => props.setData({ aggregation: (Number(e.currentTarget.value) || 0) as typeof props.data.aggregation})
                       }>
                       <option value={0}>{t('forecast-dialog.aggregate-options.average')}</option>
@@ -360,14 +360,14 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
 
                   <div class="row">
                     <div>{t('forecast-dialog.parameters.project-forward-periods')}</div>
-                    <input class="input" type="text" value={props.data.periods} onchange={
+                    <input class="input" type="text" value={props.data.periods} onChange={
                       e => props.setData({periods: Number(e.currentTarget.value)})
                     }/>
                   </div>
 
                   <div class="row">
                     <div>{t("forecast-dialog.parameters.chart-type.label")}</div>
-                    <select class="select" value={props.data.chart_type} onchange={
+                    <select class="select" value={props.data.chart_type} onChange={
                           e => props.setData({chart_type: e.currentTarget.value as typeof props.data.chart_type})}>
                       <option value='line'>{t('forecast-dialog.parameters.chart-type-line-chart')}</option>
                       <option value='column'>{t('forecast-dialog.parameters.chart-type-column-chart')}</option>
@@ -384,8 +384,8 @@ export function TrendForecastingDialog(props: InteractiveDialogProps & ForecastP
         </section>
 
         <footer>
-          <button onclick={() => Close(true)} class="button-primary">{t('forecast-dialog.create-forecast-sheet')}</button>
-          <button onclick={() => Close(false)}>{t('standard-buttons.cancel.title')}</button>
+          <button onClick={() => Close(true)} class="button-primary">{t('forecast-dialog.create-forecast-sheet')}</button>
+          <button onClick={() => Close(false)}>{t('standard-buttons.cancel.title')}</button>
         </footer>
 
       </InteractiveDialog>

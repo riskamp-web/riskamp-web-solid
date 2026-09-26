@@ -6,37 +6,31 @@ import { useLocation, useParams } from "@solidjs/router";
 import { useSearchParams } from "@solidjs/router";
 
 import { Spreadsheet } from '~/components/spreadsheet/spreadsheet';
-import { createEffect, createSignal, on } from 'solid-js';
+import { createEffect, createSignal, untrack } from 'solid-js';
 import { Splitter } from '~/components/splitter/splitter';
 import { Toolbar } from '~/components/toolbar/toolbar';
 import { ToolbarCommand, ToolbarCommandKey } from '~/components/toolbar/toolbar-commands';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { Sidebar } from '~/components/sidebar/sidebar-main';
 import { goto, OpenExternal } from '~/lib/navigate';
 
-import { RunSimulationDialog, type Options as RunSimulationOptions } from '~/components/dialogs/run-simulation-dialog/run-simulation-dialog';
-import { SparklineDialog } from '~/components/dialogs/sparkline-dialog/sparkline-dialog';
-import { InsertFunctionDialog } from '~/components/dialogs/insert-function-dialog/insert-function-dilalog';
-import { Dialog as LasVegasDialog, props as las_vegas_props } from '~/components/dialogs/las-vegas-simulation/las-vegas-simulation';
+// SOLID2: dialogs stage -- the route's dialogs (and the sidebar) aren't ported
+// yet, so they're not imported: a module still using a removed 1.x export
+// fails to link at load. type-only imports are erased, so those stay.
+import type { Options as RunSimulationOptions } from '~/components/dialogs/run-simulation-dialog/run-simulation-dialog';
 
 import { HijackDialog } from '~/lib/hijack-dialog';
 import { ApplyProperty, BooleanKeys } from '~/lib/typescript-magic';
 import { MCEmbeddedSheetEvent, type CellStyle, type Color } from 'riskamp-web';
 import { AwaitSignal } from '~/lib/await-signal';
-import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline-dialog/sparkline';
-import { TrendForecastingDialog } from '~/components/dialogs/trend-forecasting/trend-forecasting-dialog';
-import { RunTrendForecast, trend_forecast_props } from '~/components/dialogs/trend-forecasting/trend-forecasting';
 import { BorderConstants, EmbeddedSheetEvent } from '@trebco/treb';
 import { sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
 
 import { CacheCUrrentState, RemoveFromCache, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
 import { CheckFunction, CheckFunctionData, RestoreEditor } from '~/components/dialogs/insert-function-dialog/check-function';
-import { produce } from 'solid-js/store';
 import { GenerateFilename } from '~/lib/filename-util';
-import { SetTheme } from '~/components/toolbar/theme-selector';
+import { SetTheme } from '~/components/toolbar/theme';
 
-import { SaveAsDialog, SaveAsDocument, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
-import { documents } from '~/backstage/documents-store';
+import type { SaveAsDocument, SaveAsResult } from '~/components/dialogs/save-as-dialog/save-as-dialog';
 import { folderOf, isValidPath, loadDocuments, ownerOf, pathOf, slugOf, upsertDocument } from '~/backstage/documents-data';
 import { loggedIn, session } from '~/lib/auth';
 import { spinner } from '~/components/spinner/spinner-control';
@@ -51,11 +45,17 @@ import { AboutContent } from '~/components/about/about-content';
 
 import { useNavigate } from "@solidjs/router";
 import { DocumentsRow } from '~/docs/documents';
-import { CorrelationDialog, CorrelationDialogData } from '~/components/dialogs/correlation-dialog/correlation-dialog';
+import type { CorrelationDialogData } from '~/components/dialogs/correlation-dialog/correlation-dialog';
 import { CheckCorrelationMatrix } from '~/lib/correlation-matrix';
-import { LanguageDialog } from '~/components/dialogs/language-dialog/language-dialog';
-import { CommentDialog } from '~/components/dialogs/comment-dialog/comment-dialog';
-import { Position } from '~/components/dialogs/dialog-base/dialog';
+import type { Position } from '~/components/dialogs/dialog-base/dialog';
+
+/**
+ * SOLID2: dialogs stage -- stands in for every command that opens a dialog or
+ * a sidebar until those are ported. dev scaffolding, deliberately not i18n.
+ */
+function NotYetPorted(what: string) {
+  toast.error(`${what} isn't ported to Solid 2 yet`);
+}
 
 /*
 function Spin() {
@@ -95,6 +95,7 @@ export default function Page() {
   const [pageTitle ] = createSignal('RiskAMP web');
 
   const navigate = useNavigate();
+  const route_location = useLocation<{operation: string}>();
 
   // const RunSimulationSignal = createSignal(false);
   // const [auto, setAuto] = createSignal(false);
@@ -104,15 +105,10 @@ export default function Page() {
    * listen for path changes, and (try to) load. we'll handle the 
    * intiial path when we create the spreadsheet, so this is deferred.
    */
-  createEffect(on(() => params.document_path, value => {
+  createEffect(() => ({ path: params.document_path, version: searchParams.version }), ({ path, version }) => {
     // console.info("TLP2");
-    TryLoadPath(getSheet(), value, searchParams.version);
-  }, { defer: true }));
-
-  createEffect(on(() => searchParams.version, value => {
-    // console.info("TLP3");
-    TryLoadPath(getSheet(), params.document_path, value);
-  }, { defer: true }));
+    TryLoadPath(untrack(getSheet), path, version);
+  }, { defer: true });
 
   function ToggleStyle(sheet: SpreadsheetType, name: BooleanKeys<CellStyle>) {
     let value = false;
@@ -138,8 +134,9 @@ export default function Page() {
   }
 
   async function LasVegasSimulation() {
-    las_vegas_props.setOpen(true);
-    await AwaitSignal(las_vegas_props.open, value => !value);
+    NotYetPorted('Las Vegas simulation'); // SOLID2: dialogs stage
+    // las_vegas_props.setOpen(true);
+    // await AwaitSignal(las_vegas_props.open, value => !value);
     getSheet()?.Focus();
   }
 
@@ -230,7 +227,7 @@ export default function Page() {
 
           // update the canonical version, and update cache
 
-          setSessionData('last_saved_version', sheet.state);
+          setSessionData(state => { state.last_saved_version = sheet.state; });
           CacheCUrrentState(sheet, params.document_path);
           
           toast.success(format(t('save-as-dialog.saved'), { name: params.document_path }));
@@ -293,11 +290,12 @@ export default function Page() {
     }
 
     setSaveAsDocument(sad);
-    setSaveAsDialogOpen(true); // show
+    NotYetPorted('Save As'); // SOLID2: dialogs stage
+    // setSaveAsDialogOpen(true); // show
 
     // wait for dialog to close, and (always) refocus
 
-    AwaitSignal(saveAsDialogOpen, open => !open);
+    // AwaitSignal(saveAsDialogOpen, open => !open);
     sheet.Focus();
 
   }
@@ -361,7 +359,7 @@ export default function Page() {
       // update, but only if we need to stay clean
 
       if (cached_version >= 0) {
-        setSessionData('last_saved_version', sheet.state);
+        setSessionData(state => { state.last_saved_version = sheet.state; });
       }
 
       spinner.show();
@@ -423,7 +421,7 @@ export default function Page() {
         // for the _current_ URL. but the CCS method takes a path, so it 
         // will set it in the right place. hopefully.
 
-        setSessionData('last_saved_version', sheet.state);
+        setSessionData(state => { state.last_saved_version = sheet.state; });
         CacheCUrrentState(sheet, result.path);
 
         // now we can update the path. resolve:false means don't try to
@@ -454,7 +452,7 @@ export default function Page() {
 
     if (result) {
       setCorrelationDialogData(result);
-      setCorrelationDialogOpen(true);
+      NotYetPorted('Correlation dialog'); // SOLID2: dialogs stage
       await AwaitSignal(correlationDialogOpen, value => !value);
       
       if (correlationDialogResult()) {
@@ -531,7 +529,8 @@ export default function Page() {
 
       case 'forecast':
 
-        RunTrendForecast(getSheet());
+        NotYetPorted('Trend forecast'); // SOLID2: dialogs stage
+        // RunTrendForecast(getSheet());
 
         // we return here so the dialog keeps focus, otherwise the sheet 
         // will grab it at the end of this method. this should be the 
@@ -540,7 +539,8 @@ export default function Page() {
         return; 
 
       case 'sparkline':
-        InsertSparkline(getSheet());
+        NotYetPorted('Sparkline'); // SOLID2: dialogs stage
+        // InsertSparkline(getSheet());
         break;
 
       case 'function-docs':
@@ -560,7 +560,8 @@ export default function Page() {
           }
           options.auto = (key === 'run-simulation-again');
           setRunSimulationOptions(options);
-          setRunSimulationOpen(true);
+          NotYetPorted('Run simulation'); // SOLID2: dialogs stage
+          // setRunSimulationOpen(true);
         }
         return;
 
@@ -693,6 +694,8 @@ export default function Page() {
       case 'notes':
       case 'fit-data':  
       case 'simulation-settings':
+        NotYetPorted('Sidebars'); // SOLID2: sidebars stage
+        break;
         if (active_sidebar() === key) {
           setSidebar(undefined);
         }
@@ -742,7 +745,7 @@ export default function Page() {
         return;
 
       case 'update-language':
-        setLanguageDialogOpen(true);
+        NotYetPorted('Language dialog'); // SOLID2: dialogs stage
         AwaitSignal(languageDialogOpen, value => !value).then(() => {
           sheet.Focus();
         });
@@ -765,7 +768,7 @@ export default function Page() {
               x: rect.left + rect.width + bounds.left + offset.x + 12 - layout.scroll_reference_node.scrollLeft, 
               y: rect.top + bounds.top + offset.y - 16 - layout.scroll_reference_node.scrollTop,
             });
-            setCommentDialogOpen(true);
+            NotYetPorted('Comment dialog'); // SOLID2: dialogs stage
             AwaitSignal(commentDialogOpen, value => !value).then(() => {
               sheet.Focus();
             });
@@ -805,7 +808,7 @@ export default function Page() {
       else {
         setFunctionResult(undefined);
         setInsertFunctionData({...check});
-        setInsertFunctionDialogOpen(true);
+        NotYetPorted('Insert function'); // SOLID2: dialogs stage
         await AwaitSignal(insertFunctionDialogOpen, val => !val);
         RestoreEditor(sheet, check, functionResult());
       }
@@ -856,7 +859,7 @@ export default function Page() {
             }
             else if (event.source as string !== 'cache') {
               // console.info("setting last save version (not from cache) ->", sheet?.state || 0);
-              setSessionData('last_saved_version', sheet?.state || 0);
+              setSessionData(state => { state.last_saved_version = sheet?.state || 0; });
             }
 
             // if the sheet has notes, show them. if we're currently viewing
@@ -883,7 +886,7 @@ export default function Page() {
               const user_data = sheet.user_data || {};
               if (user_data.simulation?.trials) {
                 const trials = user_data.simulation.trials;
-                setPersistentData(produce(s => { s.trials = trials; }));
+                setPersistentData(s => { s.trials = trials; });
               }
 
               if (event.path && (event.source === 'drag-and-drop' || event.source === 'local-file')) {
@@ -905,9 +908,9 @@ export default function Page() {
             if (event.type === 'reset') {
               // setSessionData('last_saved_version', 0);
 
-              setSessionData({
-                last_saved_version: 0,
-                document_version: 0,
+              setSessionData(state => {
+                state.last_saved_version = 0;
+                state.document_version = 0;
               });
 
             }
@@ -939,11 +942,11 @@ export default function Page() {
   /** 
    * effect on spreadsheet create. set up.
    */
-  createEffect(on(getSheet, sheet => {
+  createEffect(getSheet, sheet => {
     if (sheet) {
 
       HijackDialog(sheet);
-      const location_state = useLocation<{operation: string}>().state;
+      const location_state = untrack(() => route_location.state);
 
       // console.info("TLP 1");
 
@@ -952,7 +955,9 @@ export default function Page() {
 
       SubscribeToSheetEvents(sheet);
 
-      TryLoadPath(sheet as SpreadsheetType, params.document_path || '', searchParams.version).then(async () => {
+      // the path at creation, once; later changes are the effect above
+      const { path, version } = untrack(() => ({ path: params.document_path, version: searchParams.version }));
+      TryLoadPath(sheet as SpreadsheetType, path || '', version).then(async () => {
 
         // try fix for safari paint issue
         sheet.UpdateTheme();
@@ -991,31 +996,31 @@ export default function Page() {
       });
 
     }
-  }));
+  });
 
   /** show the sidebar when you select one (if it's hidden) */
-  createEffect(on(sidebar, (value) => {
+  createEffect(sidebar, (value) => {
     if (value) {
-      if (split() >= 90) {
-        setSplit(sessionData.last_split); 
+      if (untrack(split) >= 90) {
+        setSplit(untrack(() => sessionData.last_split)); 
       }
     }
     else {
       setSplit(100);
     }
-  }));
+  });
 
   /** FIXME: this should be part of a larger app state */
-  createEffect(on(split, value => {
+  createEffect(split, value => {
       if (value >= 90) {
         // setSidebar(undefined);
       }
       else {
-        setSessionData({ last_split: value });
+        setSessionData(state => { state.last_split = value; });
       }
     }, 
     { defer: true }
-  ));
+  );
 
   function active_sidebar() {
 
@@ -1048,51 +1053,15 @@ export default function Page() {
                          function-handler={() => InsertFunction()}/>
           </div>
           <div data-right>
-            <Sidebar bind={[sidebar, setSidebar]} 
-                     sheet={getSheet} 
-                     oncommand={HandleCommand} 
-                     split={split} ></Sidebar>
+            {/* SOLID2: sidebars stage -- <Sidebar bind={[sidebar, setSidebar]} sheet={getSheet} oncommand={HandleCommand} split={split} /> */}
           </div>
         </Splitter>
       </div>  
 
-      <LasVegasDialog {...las_vegas_props} sheet={getSheet} />
-      <SparklineDialog {...sparkline_props} sheet={getSheet} />
-      <TrendForecastingDialog {...trend_forecast_props} sheet={getSheet} />
-
-      <InsertFunctionDialog sheet={getSheet}
-                            open={insertFunctionDialogOpen} 
-                            setOpen={setInsertFunctionDialogOpen} 
-                            data={insertFunctionData}
-                            setFunctionResult={setFunctionResult}
-                            />
-
-      <RunSimulationDialog open={runSimulationOpen} 
-                           setOpen={setRunSimulationOpen}
-                           options={runSimulationOptions}
-                           sheet={getSheet} />
-
-
-      <CorrelationDialog open={correlationDialogOpen}
-                         setOpen={setCorrelationDialogOpen}
-                         setResult={setCorrelationDialogResult}
-                         data={correlationDialogData}
-                         sheet={getSheet} />
-
-      <SaveAsDialog
-          open={saveAsDialogOpen}
-          setOpen={setSaveAsDialogOpen}
-          owner={() => '@' + (session().username || '')}
-          documents={() => documents}
-          document={saveAsDocument}
-          onSave={HandleSaveAs} />
-
-      <LanguageDialog open={languageDialogOpen} setOpen={setLanguageDialogOpen} sheet={getSheet} />
-      <CommentDialog 
-        open={commentDialogOpen} 
-        setOpen={setCommentDialogOpen} 
-        bindlayout={[commentDialogLayout, setCommentDialogLayout]}
-        sheet={getSheet} />
+      {/* SOLID2: dialogs stage -- LasVegasDialog, SparklineDialog,
+          TrendForecastingDialog, InsertFunctionDialog, RunSimulationDialog,
+          CorrelationDialog, SaveAsDialog, LanguageDialog, CommentDialog.
+          see git history (main) for their props. */}
 
     </main>
   );

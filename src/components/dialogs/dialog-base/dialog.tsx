@@ -1,5 +1,6 @@
 
-import { createEffect, onMount, type Setter, ParentProps, JSX, Signal, Show, createSignal, type Accessor, onCleanup } from 'solid-js';
+import { createEffect, onSettled, type Setter, ParentProps, Signal, Show, createSignal, type Accessor } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import style from './dialog.module.css';
 import { icons } from '~/components/icon-sets';
 import { OpenExternal } from '~/lib/navigate';
@@ -76,8 +77,8 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
     }
   }
 
-  createEffect(() => {
-    if (props.open()) {
+  createEffect(() => props.open(), (open) => {
+    if (open) {
       if (dialog) {
         if (props.modal) {
           dialog.showModal();
@@ -109,20 +110,14 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
     props.setOpen(false);
   };
 
-  onMount(() => {
+  onSettled(() => {
     if (props.moveable) {
       const header = frame?.querySelector('header');
       if (header instanceof HTMLElement) {
         // hook up
         header.addEventListener('pointerdown', StartDrag);
+        return () => header.removeEventListener('pointerdown', StartDrag);
       }
-    }
-  }); 
-
-  onCleanup(() => {
-    const header = frame?.querySelector('header');
-    if (header instanceof HTMLElement) {
-      header.removeEventListener('pointerdown', StartDrag);
     }
   });
 
@@ -244,15 +239,15 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
 
   return (
     <>
-      <dialog ref={dialog} onclick={HandleLightDismiss} classList={{
+      <dialog ref={dialog} onClick={HandleLightDismiss} class={{
           'riskamp-dialog': true,
-          [style['lightdismiss']]: props.lightdismiss,
-          [style['moveable']]: props.moveable,
-          [style['resizable']]: props.resizeable,
+          [style['lightdismiss']]: !!props.lightdismiss,
+          [style['moveable']]: !!props.moveable,
+          [style['resizable']]: !!props.resizeable,
           ...(PropClasses(props.class))
         }}>
 
-        <div classList={{
+        <div class={{
             [style.frame]: true,  
             [style['moving']]: dragging() === 'move',
             [style['resizing']]: dragging() === 'resize',
@@ -260,27 +255,27 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
           }}
           style={computed_style()}
           ref={frame} 
-          onclose={onClose} >
+          onClose={onClose} >
           {props.children}
 
           {/* close box and help button, both optional */}
-          <div classList={{
+          <div class={{
             [style['dialog-buttons']]: true,
             'dialog-buttons': true,
             }}>
             <Show when={props.help}>
-              <button class={style['help-button']} onclick={() => OpenExternal(props.help as string)}
+              <button class={style['help-button']} onClick={() => OpenExternal(props.help as string)}
                       ref={(el) => (el.innerHTML = icons.help || '')}/>
             </Show>
             <Show when={props.closebox}>
-              <button class={style['close-box']} onclick={() => props.setOpen(false)} 
+              <button class={style['close-box']} onClick={() => props.setOpen(false)} 
                       ref={(el) => (el.innerHTML = icons.close || '')}/>
             </Show>
           </div>
 
           <Show when={props.resizeable}>
             <button class={style['resize-grip']} 
-              onpointerdown={StartResize} />
+              onPointerDown={StartResize} />
           </Show>
 
         </div>

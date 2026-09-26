@@ -64,10 +64,10 @@ export default function ConfirmDemo() {
       </p>
 
       <div style="display: flex; gap: .75rem; flex-wrap: wrap;">
-        <button class="button-primary" onclick={openOverwrite}>Open (overwrite case)</button>
-        <button onclick={openGeneric}>Open (generic defaults)</button>
-        <button onclick={openAlert}>Open (alert, default OK)</button>
-        <button onclick={openAlertCustom}>Open (alert, custom label)</button>
+        <button class="button-primary" onClick={openOverwrite}>Open (overwrite case)</button>
+        <button onClick={openGeneric}>Open (generic defaults)</button>
+        <button onClick={openAlert}>Open (alert, default OK)</button>
+        <button onClick={openAlertCustom}>Open (alert, custom label)</button>
       </div>
 
       <pre id="result" style="background: #f4f4f4; padding: 1rem; border-radius: 6px;">

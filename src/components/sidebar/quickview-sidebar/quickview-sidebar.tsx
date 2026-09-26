@@ -345,13 +345,13 @@ function RedrawInternal() {
   }
 
   return <InteractiveSidebar {...props}>
-    <div classList={{
+    <div class={{
         [style['quick-view-layout']]: true,
         'quick-view': true,
       }}>
       <div class="flex-row">
         <div class={style['composite-container']}>
-          <div classList={{
+          <div class={{
                   'reference-editor': true,
                   tc: true,
                   'contenteditable-placeholder': true,
@@ -362,16 +362,16 @@ function RedrawInternal() {
                 role="textbox" 
                 spellcheck="false"
                 contenteditable="true"
-                onfocusout={FocusOut}
-                onfocusin={FocusIn}
-                onkeydown={KeyDown}
+                onFocusOut={FocusOut}
+                onFocusIn={FocusIn}
+                onKeyDown={KeyDown}
                 data-placeholder={t('quick-view-dialog.select-cell')}
-                oninput={() => TollRedraw()}
-                onchange={() => TollRedraw()}
+                onInput={() => TollRedraw()}
+                onChange={() => TollRedraw()}
                 ref={parameter_element}>{initial_value}</div>
           <div class={style.lock}>
             <span innerHTML={icons.lock_cells} title={t('quick-view.panel.label.selection-locked')}
-                  onclick={e => parameter_element?.focus()}/>
+                  onClick={e => parameter_element?.focus()}/>
           </div>
         </div>
       </div>
@@ -383,11 +383,11 @@ function RedrawInternal() {
                      data-label={t('quick-view-dialog.tab-histogram')} 
                      name={tab_group_name} 
                      checked={persistentData.quickview_tab === 0} 
-                     onchange={e => {if (e.currentTarget.checked){ 
+                     onChange={e => {if (e.currentTarget.checked){ 
                         setPersistentData({ quickview_tab: 0 })}}} />
             </label>
             <div class="tab-content">
-              <div classList={{[style['chart-container']]: true }}
+              <div class={{[style['chart-container']]: true }}
                    ref={chart_containers[0]} />
             </div>
           </div>
@@ -397,11 +397,11 @@ function RedrawInternal() {
                      data-label={t('quick-view-dialog.tab-box-plot')} 
                      name={tab_group_name} 
                      checked={persistentData.quickview_tab === 1} 
-                     onchange={e => {if (e.currentTarget.checked){ 
+                     onChange={e => {if (e.currentTarget.checked){ 
                         setPersistentData({ quickview_tab: 1 })}}} />
             </label>
             <div class="tab-content">
-              <div classList={{[style['chart-container']]: true }}
+              <div class={{[style['chart-container']]: true }}
                    ref={chart_containers[1]} />
             </div>
           </div>
@@ -410,7 +410,7 @@ function RedrawInternal() {
               <Match when={persistentData.quickview_tab === 0}>
                 <select class="select" 
                         value={persistentData.quickview_bin_algorithm}
-                        onchange={
+                        onChange={
                           e => setPersistentData({
                             quickview_bin_algorithm: e.currentTarget.value as PersistentData['quickview_bin_algorithm'] 
                           })}>
@@ -422,7 +422,7 @@ function RedrawInternal() {
               </Match>
               <Match when={persistentData.quickview_tab === 1}>
                 <select class="select" 
-                        onchange={
+                        onChange={
                           e => setPersistentData({
                             quickview_minmax: e.currentTarget.value as PersistentData['quickview_minmax']
                           })}
@@ -436,11 +436,11 @@ function RedrawInternal() {
             </Switch>
           </div>
 
-          <div classList={{ [style.visible]: noData(), [style['no-data']]: true }}>
+          <div class={{ [style.visible]: noData(), [style['no-data']]: true }}>
             <div innerHTML={
               t('quick-view-dialog.no-data').split(/\n/g).map(para => `<p>${para}</p>`).join('\n')
             } />
-            <button onclick={() => RunSimulation()}>
+            <button onClick={() => RunSimulation()}>
               <span innerHTML={ToolbarCommandMap['run-simulation'].icon} />
               <span>{t(ToolbarCommandMap['run-simulation'].title)}</span>
             </button>

@@ -49,11 +49,11 @@ export default function SaveAsDemo() {
       </div>
 
       <label style="display: flex; gap: .5rem; align-items: center;">
-        <input type="checkbox" checked={rename()} onchange={e => setRename(e.currentTarget.checked)} />
+        <input type="checkbox" checked={rename()} onChange={e => setRename(e.currentTarget.checked)} />
         rename mode (seed "Portfolio VaR" in /finance, private, ignoring doc #1's path)
       </label>
 
-      <button class="button-primary" onclick={() => setOpen(true)}>Open dialog</button>
+      <button class="button-primary" onClick={() => setOpen(true)}>Open dialog</button>
 
       <pre id="result" style="background: #f4f4f4; padding: 1rem; border-radius: 6px;">{result() ? JSON.stringify(result(), null, 2) : '(no result yet)'}</pre>
 

@@ -157,7 +157,7 @@ export default function SignIn() {
           <div class={bs.subtitle}>{t('sign-in-page.subtitle')}</div>
         </div>
 
-        <form class={bs.form} novalidate onsubmit={(event) => { event.preventDefault(); void submit(); }}>
+        <form class={bs.form} novalidate onSubmit={(event) => { event.preventDefault(); void submit(); }}>
 
           <Show when={formError()}>
             <div class={bs['form-error']} role='alert'>{t(formError())}</div>
@@ -178,7 +178,7 @@ export default function SignIn() {
                 aria-invalid={!!usernameError()}
                 aria-describedby={usernameError() ? 'sign-in-username-error' : undefined}
                 value={username()}
-                oninput={(event) => { setUsername(event.currentTarget.value); clearErrors(); }} />
+                onInput={(event) => { setUsername(event.currentTarget.value); clearErrors(); }} />
             <Show when={usernameError()}>
               <div id='sign-in-username-error' class={bs['field-message']}>{t(usernameError())}</div>
             </Show>
@@ -198,17 +198,17 @@ export default function SignIn() {
                   aria-invalid={!!passwordError()}
                   aria-describedby={passwordError() ? 'sign-in-password-error' : undefined}
                   value={password()}
-                  oninput={(event) => { setPassword(event.currentTarget.value); clearErrors(); }}
-                  onkeydown={trackCapsLock}
-                  onkeyup={trackCapsLock}
-                  onblur={() => setCapsLock(false)} />
+                  onInput={(event) => { setPassword(event.currentTarget.value); clearErrors(); }}
+                  onKeyDown={trackCapsLock}
+                  onKeyUp={trackCapsLock}
+                  onBlur={() => setCapsLock(false)} />
               <button
                   type='button'
                   class={`${bs['icon-button']} ${bs['password-reveal']}`}
                   aria-label={t(revealed() ? 'sign-in-page.password.hide.label' : 'sign-in-page.password.show.label')}
                   aria-pressed={revealed()}
                   disabled={pending()}
-                  onclick={() => { setRevealed(shown => !shown); password_input?.focus(); }}>
+                  onClick={() => { setRevealed(shown => !shown); password_input?.focus(); }}>
                 <Show when={revealed()} fallback={<Icon name='eye_on' />}>
                   <Icon name='eye_off' />
                 </Show>
@@ -230,7 +230,7 @@ export default function SignIn() {
                 type='checkbox'
                 disabled={pending()}
                 checked={remember()}
-                onchange={(event) => setRemember(event.currentTarget.checked)} />
+                onChange={(event) => setRemember(event.currentTarget.checked)} />
             <label for='sign-in-remember'>{t('sign-in-page.remember.label')}</label>
           </div>
 

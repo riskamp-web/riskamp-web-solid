@@ -1,8 +1,8 @@
 
-import { createEffect, on, onMount, Setter } from "solid-js";
+import { createEffect, onSettled, Setter } from "solid-js";
 import { type EmbeddedSpreadsheet, type MCEmbeddedSpreadsheetOptions, RiskAMPWeb } from 'riskamp-web';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
-import { ApplyThemeColors } from '../toolbar/theme-selector';
+import { ApplyThemeColors } from '../toolbar/theme';
 import { persistentData } from '~/lib/app-data';
 import { SystemLocale } from '~/i18n/i18n';
 
@@ -26,9 +26,18 @@ export function Spreadsheet(props: Props) {
 
   // eslint-disable-next-line no-unassigned-vars
   let container: HTMLDivElement|undefined;
-  let sheet: EmbeddedSpreadsheet;
+  let sheet: EmbeddedSpreadsheet|undefined;
 
-  onMount(() => {
+  // follow spreadsheet-language changes from settings. deferred: the initial
+  // language is applied once the sheet is ready (below), and the sheet
+  // doesn't exist until the component has settled anyway.
+  createEffect(() => persistentData.locale_settings, value => {
+    if (sheet && !/locale=/.test(document.location.search)) { 
+      (sheet as SpreadsheetType).LoadLanguage(value?.spreadsheet_language || SystemLocale(), value?.decimal_separator);
+    }
+  }, { defer: true });
+
+  onSettled(() => {
     if (container) {
 
       let max_workers = persistentData.max_workers || 0;
@@ -60,17 +69,12 @@ export function Spreadsheet(props: Props) {
         max_workers: max_workers || undefined, // default instead of 0
       };
 
-      sheet = RiskAMPWeb.CreateSpreadsheet(options);
-      sheet.EnsureChartsLib();
+      const created = RiskAMPWeb.CreateSpreadsheet(options);
+      sheet = created;
+      created.EnsureChartsLib();
 
-      createEffect(on(() => persistentData.locale_settings, value => {
-        if (!/locale=/.test(document.location.search)) { 
-          (sheet as SpreadsheetType).LoadLanguage(value?.spreadsheet_language || SystemLocale(), value?.decimal_separator);
-        }
-      }, { defer: true }));
-
-      sheet.ready.then(() => {
-        props.setSheet(sheet as SpreadsheetType);
+      created.ready.then(() => {
+        props.setSheet(created as SpreadsheetType);
 
         // if there's an explicit spreadsheet language set, use that.
         // otherwise follow the normal pattern (i.e. let TREB figure it out)
@@ -79,14 +83,14 @@ export function Spreadsheet(props: Props) {
 
         if (persistentData.locale_settings?.spreadsheet_language && 
             !/locale=/.test(document.location.search)) {
-          (sheet as SpreadsheetType).LoadLanguage(
+          (created as SpreadsheetType).LoadLanguage(
             persistentData.locale_settings.spreadsheet_language,
             persistentData.locale_settings.decimal_separator);
         }
 
       });
 
-      (self as ( Window & typeof globalThis & {sheet: SpreadsheetType})).sheet = sheet as SpreadsheetType; // DEV
+      (self as ( Window & typeof globalThis & {sheet: SpreadsheetType})).sheet = created as SpreadsheetType; // DEV
 
       // hide sidebar button [UPDATE: do this in css]
 
@@ -98,11 +102,9 @@ export function Spreadsheet(props: Props) {
       */
 
       const fx = props['function-handler'];
-      if (fx) {
-        const element = container.querySelector('.treb-insert-function-button');
-        if (element instanceof HTMLElement) {
-          element.addEventListener('click', fx);
-        }
+      const insert_function_button = fx ? container.querySelector('.treb-insert-function-button') : null;
+      if (fx && insert_function_button instanceof HTMLElement) {
+        insert_function_button.addEventListener('click', fx);
       }
 
       // listener for system changes. here, we're not setting or
@@ -111,20 +113,28 @@ export function Spreadsheet(props: Props) {
       // elsewhere.
 
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
-      mq.addEventListener('change', () => {
+      const SystemThemeChange = () => {
         requestAnimationFrame(() => {
-          sheet.UpdateTheme();
+          created.UpdateTheme();
           ApplyThemeColors();
         });
-      });
+      };
+      mq.addEventListener('change', SystemThemeChange);
 
       ApplyThemeColors();
+
+      return () => {
+        mq.removeEventListener('change', SystemThemeChange);
+        if (fx && insert_function_button instanceof HTMLElement) {
+          insert_function_button.removeEventListener('click', fx);
+        }
+      };
 
     }
   });
 
   return (
-    <div classList={{
+    <div class={{
       'spreadsheet-container-fill': !!props.fill,
       'spreadsheet-container': !props.fill,
     }} ref={container}></div>

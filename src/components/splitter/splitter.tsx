@@ -1,5 +1,5 @@
 
-import { Accessor, Component, createSignal, mergeProps, ParentProps, Setter } from 'solid-js'
+import { Accessor, Component, createSignal, merge, ParentProps, Setter } from 'solid-js'
 import style from "./splitter.module.css";
 
 interface Props {
@@ -34,7 +34,7 @@ const default_props = {
 
 export const Splitter: Component<ParentProps<Props>> = (props) => {
 
-  const resolved = mergeProps(
+  const resolved = merge(
     default_props, 
     props,
   );
@@ -134,18 +134,18 @@ export const Splitter: Component<ParentProps<Props>> = (props) => {
   }
 
   return <>
-    <div classList={{
+    <div class={{
       [style['splitter-container']]: true,
       [style['resize-horizontal']]: dragging() && !props.vertical,
-      [style['resize-vertical']]: dragging() && props.vertical,
+      [style['resize-vertical']]: dragging() && !!props.vertical,
       [style['right-hidden']]: right_hidden(),
       [style['splitter-hidden']]: splitter_hidden(),
-      [style.vertical]: props.vertical,
+      [style.vertical]: !!props.vertical,
      }} style={computed_style()} ref={container}>
       {resolved.children}
       <div data-splitter 
-          onpointerdown={(event) => StartDrag(event)}
-          classList={{ hot: dragging() }} ></div>
+          onPointerDown={(event) => StartDrag(event)}
+          class={{ hot: dragging() }} ></div>
     </div>
   </>;
 };

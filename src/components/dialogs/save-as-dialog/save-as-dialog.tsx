@@ -263,14 +263,13 @@ export function SaveAsDialog(props: Props) {
         <label class={style.field}>
           <span class={style['field-label']}>{t('save-as-dialog.folder')}</span>
           <input type="text"
-                 class="input"
-                 classList={{ [style.shadowed]: shadowed() }}
+                 class={['input', { [style.shadowed]: shadowed() }]}
                  list={list_id}
                  readonly={shadowed()}
                  placeholder={t('save-as-dialog.folder-placeholder')}
                  value={folderDisplay()}
                  onInput={e => { if (!shadowed()) { setFields('folder', e.currentTarget.value); } }}
-                 onkeydown={InputKeyDown} />
+                 onKeyDown={InputKeyDown} />
           <datalist id={list_id}>
             <For each={folderOptions()}>{option => <option value={option} />}</For>
           </datalist>
@@ -284,7 +283,7 @@ export function SaveAsDialog(props: Props) {
                  placeholder={t('save-as-dialog.name-placeholder')}
                  value={fields.name}
                  onInput={e => setFields('name', e.currentTarget.value)}
-                 onkeydown={InputKeyDown} />
+                 onKeyDown={InputKeyDown} />
         </label>
 
         {/* a button pair isn't labelable, so this row is a div with its own
@@ -293,16 +292,16 @@ export function SaveAsDialog(props: Props) {
           <span class={style['field-label']}>{t('save-as-dialog.access')}</span>
           <div class={style.segmented} role="group" aria-label={t('save-as-dialog.access')}>
             <button type="button"
-                    classList={{ [style.active]: fields.access === ACCESS_PUBLIC }}
+                    class={{ [style.active]: fields.access === ACCESS_PUBLIC }}
                     aria-pressed={fields.access === ACCESS_PUBLIC}
-                    onclick={() => setFields('access', ACCESS_PUBLIC)}>
+                    onClick={() => setFields('access', ACCESS_PUBLIC)}>
               <span class={style.icon} innerHTML={icons.public} />
               {t('save-as-dialog.public')}
             </button>
             <button type="button"
-                    classList={{ [style.active]: fields.access === ACCESS_PRIVATE }}
+                    class={{ [style.active]: fields.access === ACCESS_PRIVATE }}
                     aria-pressed={fields.access === ACCESS_PRIVATE}
-                    onclick={() => setFields('access', ACCESS_PRIVATE)}>
+                    onClick={() => setFields('access', ACCESS_PRIVATE)}>
               <span class={style.icon} innerHTML={icons.lock_cells} />
               {t('save-as-dialog.private')}
             </button>
@@ -321,7 +320,7 @@ export function SaveAsDialog(props: Props) {
                         class={style['copy-button']}
                         aria-label={copied() ? t('save-as-dialog.copy-link-copied') : t('save-as-dialog.copy-link')}
                         title={copied() ? t('save-as-dialog.copy-link-copied') : t('save-as-dialog.copy-link')}
-                        onclick={copyLink}>
+                        onClick={copyLink}>
                   <Show when={copied()}
                         fallback={<span class={style.icon} innerHTML={icons.copy} />}>
                     <span class={`${style.icon} ${style['copy-confirmed']}`} innerHTML={icons.copy_confirmed} />
@@ -334,7 +333,7 @@ export function SaveAsDialog(props: Props) {
 
         {/* the overwrite warning sits below the box and keeps its space when
             hidden, so showing it never resizes the dialog */}
-        <div classList={{
+        <div class={{
           [style.warning]: props.allowOverwrite !== false,
           [style.error]: props.allowOverwrite === false,
           [style.hidden]: !collision(),
@@ -344,10 +343,10 @@ export function SaveAsDialog(props: Props) {
 
       </section>
       <footer>
-        <button class="button-primary" disabled={!valid()} onclick={save}>
+        <button class="button-primary" disabled={!valid()} onClick={save}>
           {collision() ? t('save-as-dialog.overwrite') : t('save-as-dialog.save')}
         </button>
-        <button onclick={() => props.setOpen(false)}>{t('dialog-close-label')}</button>
+        <button onClick={() => props.setOpen(false)}>{t('dialog-close-label')}</button>
       </footer>
     </Dialog>
   );

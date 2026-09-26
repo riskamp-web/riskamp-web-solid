@@ -21,7 +21,7 @@ export interface Props {
 export function Toolbar(props: Props) {
 
   return <>
-    <div classList={{
+    <div class={{
       [style.toolbar]: true,
       [style['account-toolbar']]: true,
       'tab-container': true,
@@ -47,17 +47,17 @@ export function Toolbar(props: Props) {
               <Match when={loggedIn()}>
                 <DropMenu label={session().email || ''}>
                 <menu>
-                  <button disabled class={style['menu-item']} onclick={() => goto('/account')}>
+                  <button disabled class={style['menu-item']} onClick={() => goto('/account')}>
                     <div class={style['svg-placeholder']}></div>
                     <span>{t('toolbar.menu-commands.account-page')}</span>
                   </button>
-                  <button class={style['menu-item']} onclick={() => goto('/documents')}>
+                  <button class={style['menu-item']} onClick={() => goto('/documents')}>
                     <div class={style['svg-placeholder']}></div>
                     <span>{t('toolbar.menu-commands.documents')}</span>
                   </button>
 
                   <hr />
-                  <button class={style['menu-item']} onclick={() => goto('/sign-out')}>
+                  <button class={style['menu-item']} onClick={() => goto('/sign-out')}>
                     <div class='display-contents' innerHTML={icons.sign_out}></div>
                     <span>{t('toolbar.menu-commands.sign-out')}</span>
                   </button>

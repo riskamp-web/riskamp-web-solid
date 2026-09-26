@@ -58,15 +58,15 @@ export function ConfirmDialog() {
           when={request().mode === 'alert'}
           fallback={
             <>
-              <button class="button-primary" onclick={() => confirmDialog.settle(true)}>
+              <button class="button-primary" onClick={() => confirmDialog.settle(true)}>
                 {t(request().confirm ?? 'confirm-dialog.confirm')}
               </button>
-              <button onclick={() => confirmDialog.settle(false)}>
+              <button onClick={() => confirmDialog.settle(false)}>
                 {t(request().cancel ?? 'confirm-dialog.cancel')}
               </button>
             </>
           }>
-          <button class="button-primary" onclick={() => confirmDialog.settle(true)}>
+          <button class="button-primary" onClick={() => confirmDialog.settle(true)}>
             {t(request().dismiss ?? 'confirm-dialog.ok')}
           </button>
         </Show>

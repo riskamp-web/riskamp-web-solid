@@ -102,8 +102,8 @@ export function CorrelationDialog(props: Props) {
     </section>
     <footer>
       <div class={style.buttons}> 
-        <button autofocus class="button-primary" onclick={() => close(true)}>{t('correlation-matrix.accept-changes')}</button>
-        <button onclick={() => close(false)}>{t('correlation-matrix.close-dialog')}</button>
+        <button autofocus class="button-primary" onClick={() => close(true)}>{t('correlation-matrix.accept-changes')}</button>
+        <button onClick={() => close(false)}>{t('correlation-matrix.close-dialog')}</button>
 
       </div>
     </footer>

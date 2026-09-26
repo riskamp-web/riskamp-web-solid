@@ -190,39 +190,39 @@ export function NotesSidebar(props: SidebarProps) {
         <input data-label="View" 
                type="radio" 
                name={group} 
-               onclick={e => { if (e.currentTarget.checked) { setSessionData('notes', 'tab', 0)} }}
+               onClick={e => { if (e.currentTarget.checked) { setSessionData('notes', 'tab', 0)} }}
                checked={sessionData.notes?.tab === 0} />
-        <div classList={{ markdown: true, [style['tab-panel']]: true }}
+        <div class={{ markdown: true, [style['tab-panel']]: true }}
              ref={markdown}
-             onclick={HandleClick}
-             onscroll={e => SaveScrollPosition(e, 'view')}
+             onClick={HandleClick}
+             onScroll={e => SaveScrollPosition(e, 'view')}
              innerHTML={formatted()} />
       </div>
       <div class={style.tab}>
         <input data-label="Edit Markdown" 
                type="radio" 
                name={group} 
-               onclick={e => { if (e.currentTarget.checked) { setSessionData('notes', 'tab', 1)} }}
+               onClick={e => { if (e.currentTarget.checked) { setSessionData('notes', 'tab', 1)} }}
                checked={sessionData.notes?.tab === 1} />
-        <textarea classList={{ [style['tab-panel']]: true }} ref={textarea}
-                  onchange={e => UpdateNotes(e)}
-                  onscroll={e => SaveScrollPosition(e, 'edit')}>{notes()}</textarea>
+        <textarea class={{ [style['tab-panel']]: true }} ref={textarea}
+                  onChange={e => UpdateNotes(e)}
+                  onScroll={e => SaveScrollPosition(e, 'edit')}>{notes()}</textarea>
       </div>
 
       <div class={style.controls}>
         <div>
           <Switch>
             <Match when={sessionData.notes?.tab === 1}>
-              <a href='#' onclick={e => ShowTab(e, 0)}>{t('sidebar.notes-panel.view_formatted')}</a>
+              <a href='#' onClick={e => ShowTab(e, 0)}>{t('sidebar.notes-panel.view_formatted')}</a>
             </Match>
             <Match when={true}>
-              <a href='#' onclick={e => ShowTab(e, 1)}>{t('sidebar.notes-panel.edit_markdown')}</a>
+              <a href='#' onClick={e => ShowTab(e, 1)}>{t('sidebar.notes-panel.edit_markdown')}</a>
             </Match>
           </Switch>
         </div>
         <div>
           <label class={style['composite-label']}>
-            <input type="checkbox" checked={openNotesChecked()} onclick={HandleOpenNotes}/>
+            <input type="checkbox" checked={openNotesChecked()} onClick={HandleOpenNotes}/>
             <span>{t('sidebar.notes-panel.open-notes-with-spreadsheet')}</span>
           </label>
         </div>

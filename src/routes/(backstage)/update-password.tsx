@@ -207,7 +207,7 @@ export default function UpdatePassword(props: {
       <div class={bs.subtitle}>{t('update-password-page.subtitle')}</div>
     </div>
 
-    <form class={bs.form} novalidate onsubmit={(event) => { event.preventDefault(); void submit(); }}>
+    <form class={bs.form} novalidate onSubmit={(event) => { event.preventDefault(); void submit(); }}>
 
       <Show when={formError()}>
         <div class={bs['form-error']} role='alert'>{messageText(formError())}</div>
@@ -235,7 +235,7 @@ export default function UpdatePassword(props: {
             aria-invalid={!!tokenError()}
             aria-describedby={tokenError() ? 'update-password-token-error' : undefined}
             value={token()}
-            oninput={(event) => editToken(event.currentTarget.value)} />
+            onInput={(event) => editToken(event.currentTarget.value)} />
         <Show when={tokenError()}>
           <div id='update-password-token-error' class={bs['field-message']}>{messageText(tokenError())}</div>
         </Show>
@@ -255,17 +255,17 @@ export default function UpdatePassword(props: {
               aria-invalid={!!passwordError()}
               aria-describedby={passwordError() ? 'update-password-password-error' : 'update-password-strength'}
               value={password()}
-              oninput={(event) => editPassword(event.currentTarget.value)}
-              onkeydown={trackCapsLock}
-              onkeyup={trackCapsLock}
-              onblur={() => setCapsLock(false)} />
+              onInput={(event) => editPassword(event.currentTarget.value)}
+              onKeyDown={trackCapsLock}
+              onKeyUp={trackCapsLock}
+              onBlur={() => setCapsLock(false)} />
           <button
               type='button'
               class={`${bs['icon-button']} ${bs['password-reveal']}`}
               aria-label={t(revealed() ? 'update-password-page.password.hide.label' : 'update-password-page.password.show.label')}
               aria-pressed={revealed()}
               disabled={pending()}
-              onclick={() => { setRevealed(shown => !shown); password_input?.focus(); }}>
+              onClick={() => { setRevealed(shown => !shown); password_input?.focus(); }}>
             <Show when={revealed()} fallback={<Icon name='eye_on' />}>
               <Icon name='eye_off' />
             </Show>

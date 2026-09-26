@@ -149,13 +149,13 @@ export function Sidebar(props: SidebarProps) {
 
   return <div class={style['names-layout']}>
 
-    <div classList={{
+    <div class={{
       "flex-grow": true,
       "grid-table": true,
       [style['names-table']]: true,
        }} >
 
-      <div classList={{
+      <div class={{
         "grid-table-header": true,
       }}>
         <div></div>
@@ -168,21 +168,21 @@ export function Sidebar(props: SidebarProps) {
       <div class="grid-table-body">
 
         <For each={names()}>{named => 
-          <div class="grid-table-row" onclick={e => Click(e, named)}>
+          <div class="grid-table-row" onClick={e => Click(e, named)}>
             <div innerHTML={named.type === 'expression' ? icons.developer : icons.insert_table} />
             <div>
-              <button class="text-button" onclick={e => Click(e, named)}>
+              <button class="text-button" onClick={e => Click(e, named)}>
                 {named.name}
               </button>
             </div>
             <div>{Scope(named)}</div>
             <div>{RenderNamed(named)}</div>
-            <button classList={{
+            <button class={{
                 'text-button': true,
                 [style['delete-button']]: true,
                 }} 
               title={t('names-panel.label.delete-name')} 
-              onclick={e => DeleteName(e, named)}
+              onClick={e => DeleteName(e, named)}
               innerHTML={icons.close}/>
           </div>  
         }</For>

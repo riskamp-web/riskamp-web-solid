@@ -1,7 +1,6 @@
-import { MetaProvider, Title } from "@solidjs/meta";
-import { Router, RouteSectionProps } from "@solidjs/router";
-import { FileRoutes } from "@solidjs/start/router";
-import { onMount, Suspense } from "solid-js";
+import { Title } from "@solidjs/meta";
+import { createRouter, useNavigate, type RouteSectionProps } from "@solidjs/router";
+import { lazy, Loading } from "solid-js";
 
 import "./reset.css";
 import "./app.css";
@@ -14,50 +13,47 @@ import '~/style/grid-table.css';
 import { Spinner } from '~/components/spinner/spinner';
 import { Toaster } from '~/components/toast/toast';
 import { ConfirmDialog } from '~/components/dialogs/confirm-dialog/confirm-dialog';
-import { useNavigate } from '@solidjs/router';
 import { setNavigator } from '~/lib/navigate';
 import { InitAppData } from './lib/app-data';
 import { HistoryProvider } from './components/history-context';
-import { formatConfig } from '~/lib/raw-llm-support';
 
 import { RouteStats } from './lib/stats';
 
-// render markdown fenced code as plain, always-visible blocks app-wide (the AI
-// chat and notes sidebars). the treb-llm-support default keeps the legacy
-// collapsible <details> disclosure for its other clients; this opts this app
-// out of it. see treb-llm-support/src/md.ts (formatConfig).
-formatConfig.collapsibleCodeBlocks = false;
+// SOLID2: sidebars stage -- restore with the AI/notes sidebars. it drags in
+// treb-llm-support, which nothing on the default route needs yet.
+//
+// import { formatConfig } from '~/lib/raw-llm-support';
+// formatConfig.collapsibleCodeBlocks = false;
 
-
+// SOLID2: backstage stage -- a hand-written table for now, so only the default
+// route (and its imports) is in the module graph. switch to filesystem-routing
+// (`createRouter({ routes: fileRoutes(pageRoutes) })`) when the other routes
+// are ported.
+const Router = createRouter({
+  routes: [
+    { path: '/*document_path', component: lazy(() => import('./routes/[...document_path]')) },
+  ],
+});
 
 function Root(props: RouteSectionProps) {
-  
-  setNavigator(useNavigate());
 
-  onMount(() => {
-    InitAppData();
-  });
+  setNavigator(useNavigate());
+  InitAppData();
 
   return (
     <HistoryProvider>
-      <MetaProvider>
-        <Title>RiskAMP Web</Title>
-        <Suspense>
-          <RouteStats/>
-          {props.children}
-        </Suspense>
-        <Spinner />
-        <Toaster />
-        <ConfirmDialog />
-      </MetaProvider>
+      <Title>RiskAMP Web</Title>
+      <Loading>
+        <RouteStats/>
+        {props.children}
+      </Loading>
+      <Spinner />
+      <Toaster />
+      <ConfirmDialog />
     </HistoryProvider>
   );
 }
 
 export default function App() {
-  return (
-    <Router root={Root}>
-      <FileRoutes />
-    </Router>
-  );
+  return <Router>{(props) => <Root {...props} />}</Router>;
 }

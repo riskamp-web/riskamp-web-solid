@@ -42,7 +42,7 @@ export function Sidebar(main_props: SidebarProps) {
         <span>{t(ToolbarCommandMap[sidebar() as ToolbarCommandKey].title)}</span>
       </Show>
       <button class={style['close-sidebar']} 
-              onclick={() => setSidebar()} 
+              onClick={() => setSidebar()} 
               innerHTML={icons.close} />
     </header>
     <div class={style.container}>

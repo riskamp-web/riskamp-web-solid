@@ -324,7 +324,7 @@ export function Dialog(props: Props) {
               <label>
                 <input disabled={running()} 
                         type="checkbox" 
-                        onchange={e => setPersistentData(produce(s => { s.stepped = e.currentTarget.checked; })) }
+                        onChange={e => setPersistentData(produce(s => { s.stepped = e.currentTarget.checked; })) }
                         checked={persistentData.stepped}></input>
                 <span>{t('run-simulation.screen-updates')}</span>
               </label>
@@ -332,11 +332,11 @@ export function Dialog(props: Props) {
 
             <div class={style.buttons}>
               <button class="control-button button-primary"
-                      onclick={() => Start()}
+                      onClick={() => Start()}
                       ref={start_button}
                       disabled={running() || !allValid()} >
                         {t('run-simulation-start-label')}</button>
-              <button class="control-button" onclick={Cancel} innerText={close_label()} />
+              <button class="control-button" onClick={Cancel} innerText={close_label()} />
             </div>
           </div>
 

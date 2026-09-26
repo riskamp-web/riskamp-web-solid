@@ -25,7 +25,7 @@ type GPTMessage = Exclude<GPTResponsesChatMessages['messages'][number], ClientSi
  * a tool call renders nothing at all.
  */
 function ErrorBlock(props: { text?: string }) {
-  return <div classList={{ [style.message]: true, [style.error]: true }}>
+  return <div class={{ [style.message]: true, [style.error]: true }}>
       <div class={style.part}>
         {props.text || t('llm-chat.error.unknown')}
       </div>
@@ -200,10 +200,10 @@ export function ChatMessages(props: Props) {
                         : null}
                     </For>
                     <Show when={content.some(part => part.type === 'text')}>
-                      <div classList={{ [style.message]: true, [style[role]]: true }}>
+                      <div class={{ [style.message]: true, [style[role]]: true }}>
                         <For each={content}>
                           {part => part.type === 'text'
-                            ? <div classList={{ [style.part]: true, markdown: true }}
+                            ? <div class={{ [style.part]: true, markdown: true }}
                                    innerHTML={DOMPurify.sanitize(Format(part.text))} />
                             : null}
                         </For>
@@ -213,8 +213,8 @@ export function ChatMessages(props: Props) {
               }
 
               // string content: user text
-              return <div classList={{ [style.message]: true, [style[role]]: true }}>
-                  <div classList={{ [style.part]: true, [style.text]: true }}>
+              return <div class={{ [style.message]: true, [style[role]]: true }}>
+                  <div class={{ [style.part]: true, [style.text]: true }}>
                     {item.content}
                   </div>
                 </div>;
@@ -247,10 +247,10 @@ export function ChatMessages(props: Props) {
                     }}
                   </For>
                   <Show when={parts?.some(part => !!part.text)}>
-                    <div classList={classes}>
+                    <div class={classes}>
                       <For each={parts}>
                         {part => part.text
-                          ? <div classList={{ [style.part]: true, [style.text]: true, markdown: true }}
+                          ? <div class={{ [style.part]: true, [style.text]: true, markdown: true }}
                                  innerHTML={DOMPurify.sanitize(Format(part.text || ''))} />
                           : null}
                       </For>
@@ -273,8 +273,8 @@ export function ChatMessages(props: Props) {
               if (!item.type || item.type === 'message') {
                 if (IsNotItemReference(item)) {
                   if (typeof item.content === 'string') {
-                    return <div classList={{ [style.message]: true, [style[item.role]]: true }}>
-                        <div classList={{ [style.part]: true, [style.text]: true }}>
+                    return <div class={{ [style.message]: true, [style[item.role]]: true }}>
+                        <div class={{ [style.part]: true, [style.text]: true }}>
                           {item.content}
                         </div>
                       </div>;
@@ -282,10 +282,10 @@ export function ChatMessages(props: Props) {
                   if (Array.isArray(item.content)) {
                     const content = item.content;
                     return <Show when={content.some(part => part.type === 'output_text')}>
-                        <div classList={{ [style.message]: true, [style[item.role]]: true }}>
+                        <div class={{ [style.message]: true, [style[item.role]]: true }}>
                           <For each={content}>
                             {part => part.type === 'output_text'
-                              ? <div classList={{ [style.part]: true, markdown: true }}
+                              ? <div class={{ [style.part]: true, markdown: true }}
                                      innerHTML={DOMPurify.sanitize(Format(part.text || ''))} />
                               : null}
                           </For>

@@ -95,7 +95,7 @@ export function SparklineDialog(props: InteractiveDialogProps & SparklineProps) 
             <span>{t('sparkline-dialog.sparkline-type')}</span>
             <select class="select" 
                     value={type()}
-                    onchange={e => setType(e.currentTarget.value as SparklineType)}>
+                    onChange={e => setType(e.currentTarget.value as SparklineType)}>
               <option value='column'>{t('sparkline-dialog.sparkline-type-column-chart')}</option>
               <option value='line'>{t('sparkline-dialog.sparkline-type-line-chart')}</option>
             </select>
@@ -121,8 +121,8 @@ export function SparklineDialog(props: InteractiveDialogProps & SparklineProps) 
       <footer>
           <button class="button-primary"
                   disabled={parameters.some(param => !param.valid?.())}
-                  onclick={() => Close(true)}>{t('standard-buttons.accept.title')}</button>
-          <button onclick={() => Close(false)}>{t('standard-buttons.cancel.title')}</button>
+                  onClick={() => Close(true)}>{t('standard-buttons.accept.title')}</button>
+          <button onClick={() => Close(false)}>{t('standard-buttons.cancel.title')}</button>
       </footer>
 
     </InteractiveDialog>

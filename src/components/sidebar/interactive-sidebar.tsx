@@ -67,10 +67,10 @@ export function InteractiveSidebar(props: ParentProps<Props>) {
   return <>
       <div class="display-contents" 
           ref={root_node}
-          oninput={e => HandleInput(e, e.currentTarget, props.sheet(), /* props.update */)} 
-          onfocusin={LocalFocusIn} 
-          onfocusout={LocalFocusOut}
-          onkeydown={e => HandleKeyDown(e, e.currentTarget)}>
+          onInput={e => HandleInput(e, e.currentTarget, props.sheet(), /* props.update */)} 
+          onFocusIn={LocalFocusIn} 
+          onFocusOut={LocalFocusOut}
+          onKeyDown={e => HandleKeyDown(e, e.currentTarget)}>
         {props.children}
       </div>
     </>;

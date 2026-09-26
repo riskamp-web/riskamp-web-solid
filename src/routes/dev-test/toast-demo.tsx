@@ -18,24 +18,24 @@ export default function ToastDemo() {
 
       <div style="display: flex; gap: .5rem; flex-wrap: wrap;">
         <button class="button-primary"
-          onclick={() => toast.success('Saved “Report.xlsx”')}>
+          onClick={() => toast.success('Saved “Report.xlsx”')}>
           Show success
         </button>
 
         <button class="button-primary"
-          onclick={() => toast.error('Couldn’t save “Report.xlsx”.')}>
+          onClick={() => toast.error('Couldn’t save “Report.xlsx”.')}>
           Show error
         </button>
 
         <button class="button-primary"
-          onclick={() => toast.error('Couldn’t save “Report.xlsx”.', {
+          onClick={() => toast.error('Couldn’t save “Report.xlsx”.', {
             action: { label: 'Retry', run: () => toast.success('Retried!') },
           })}>
           Show error + Retry
         </button>
 
         <button class="button-primary"
-          onclick={() => {
+          onClick={() => {
             toast.success(`First (${++counter})`);
             toast.error(`Second (${++counter})`);
             toast.success(`Third (${++counter})`);

@@ -23,8 +23,7 @@ export function Toaster() {
       <For each={toast.items}>
         {item => (
           <div
-            class={styles.toast}
-            classList={{ [styles.error]: item.variant === 'error', [styles.success]: item.variant === 'success' }}
+            class={[styles.toast, { [styles.error]: item.variant === 'error', [styles.success]: item.variant === 'success' }]}
             role={item.variant === 'error' ? 'alert' : 'status'}
           >
             <span class={styles.icon} innerHTML={variantIcon[item.variant]} />

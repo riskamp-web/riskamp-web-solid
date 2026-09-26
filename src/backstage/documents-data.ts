@@ -29,6 +29,7 @@ import { currentLocale, format, t, type StringKey } from '~/i18n/i18n';
 /* the page's view state (scope / folder / search / sort) outlives the page, so
    it's kept in the app's persistent store rather than here -- see savedView() */
 import { persistentData, setPersistentData, type DocumentsView } from '~/lib/app-data';
+import { reconcile } from 'solid-js';
 
 export const ACCESS_PRIVATE = 0;
 export const ACCESS_PUBLIC = 1;
@@ -79,14 +80,14 @@ export function loadDocuments(): Promise<void> {
 
   pending = source()
     .then(list => {
-      setDocuments(list);
+      setDocuments(reconcile(list, 'id'));
       setLoaded(true);
     })
     .catch(error => {
       // logged rather than reported: the page says the list couldn't be
       // fetched, and whatever the cause turns out to be is worth having here
       console.error('loading documents failed', error);
-      setDocuments([]);
+      setDocuments(() => []);
       setFailed(true);
     })
     .finally(() => { pending = undefined; });
@@ -163,7 +164,7 @@ export function upsertDocument(
     // honour anything the caller does supply; synthesise the rest a save doesn't
     // report -- a local negative id (see nextLocalId), the current user, active
     // status, created == modified, and the redesign's own defaults
-    setDocuments(documents.length, {
+    setDocuments(list => { list.push({
       id: saved.id ?? nextLocalId(),
       userid: saved.userid ?? documents[0]?.userid ?? 0,
       name: saved.name ?? '',
@@ -176,7 +177,7 @@ export function upsertDocument(
       app: saved.app,
       api_version: saved.api_version ?? 2,
       starred: saved.starred ?? false,
-    });
+    }); });
   }
   else {
     // only the provided fields, so an in-place save (which reports neither) can't
@@ -187,7 +188,11 @@ export function upsertDocument(
     if (saved.api_version !== undefined) { changes.api_version = saved.api_version; }
     if (saved.starred !== undefined) { changes.starred = saved.starred; }
 
-    setDocuments(doc => doc.path.toLowerCase() === key, prev => ({ ...prev, ...changes }));
+    setDocuments(list => {
+      for (const doc of list) {
+        if (doc.path.toLowerCase() === key) { Object.assign(doc, changes); }
+      }
+    });
   }
 
   const history = options?.history ?? 'record';
@@ -246,13 +251,16 @@ export function renameDocument(from: string, to: RenamedDocument): void {
   // move + merge the existing row, keyed on the still-old path. id, version,
   // created, starred, api_version, etc. all carry over via ...prev -- a rename
   // changes only path, name, (maybe) access, and always the modified time
-  setDocuments(doc => doc.path.toLowerCase() === fromKey, prev => ({
-    ...prev,
-    path: to.path,
-    name: to.name ?? prev.name,
-    access: to.access ?? prev.access,
-    modified,
-  }));
+  setDocuments(list => {
+    for (const doc of list) {
+      if (doc.path.toLowerCase() === fromKey) {
+        doc.path = to.path;
+        doc.name = to.name ?? doc.name;
+        doc.access = to.access ?? doc.access;
+        doc.modified = modified;
+      }
+    }
+  });
 
   // migrate the version history to the new key -- a rename doesn't add a version,
   // so the doc's existing history simply moves address. guarded on fromKey !== key
@@ -261,7 +269,7 @@ export function renameDocument(from: string, to: RenamedDocument): void {
   if (fromKey !== key) {
     const hist = histories[fromKey];
     if (hist) {
-      setHistories(key, hist);
+      setHistories(state => { state[key] = hist; });
       invalidateHistory(from);
     }
   }
@@ -364,13 +372,13 @@ export function loadHistory(path: string): void {
   // silent refetch every time the panel reopens
   if (histories[key]) { return; }
 
-  setHistories(key, { status: 'loading', versions: [] });
+  setHistories(state => { state[key] = { status: 'loading', versions: [] }; });
 
   historySource(path)
-    .then(versions => setHistories(key, { status: 'ready', versions: newestFirst(versions) }))
+    .then(versions => setHistories(state => { state[key] = { status: 'ready', versions: newestFirst(versions) }; }))
     .catch(error => {
       console.error('loading document history failed', path, error);
-      setHistories(key, { status: 'failed', versions: [] });
+      setHistories(state => { state[key] = { status: 'failed', versions: [] }; });
     });
 
 }
@@ -388,7 +396,8 @@ function newestFirst(versions: DocumentVersion[]): DocumentVersion[] {
 
 /** drop a failed (or stale) entry so the next loadHistory() fetches again */
 export function retryHistory(path: string): void {
-  setHistories(historyKey(path), undefined as unknown as DocumentHistory);
+  const key = historyKey(path);
+  setHistories(state => { delete state[key]; });
   loadHistory(path);
 }
 
@@ -422,12 +431,12 @@ export function recordVersion(
     const entry: DocumentVersion = { version: superseded, modified };
     const versions = newestFirst([entry, ...current.versions.filter(v => v.version !== superseded)])
       .slice(0, VERSION_CAP);
-    setHistories(key, 'versions', versions);
+    setHistories(state => { state[key].versions = versions; });
   }
   else if (!current) {
     if (options?.seedIfAbsent ?? true) {
       const versions = superseded === undefined ? [] : [{ version: superseded, modified }];
-      setHistories(key, { status: 'ready', versions });
+      setHistories(state => { state[key] = { status: 'ready', versions }; });
     }
   }
   else {
@@ -439,7 +448,8 @@ export function recordVersion(
 
 /** drop the cached history for a path so the next loadHistory() refetches it */
 export function invalidateHistory(path: string): void {
-  setHistories(historyKey(path), undefined as unknown as DocumentHistory);
+  const key = historyKey(path);
+  setHistories(state => { delete state[key]; });
 }
 
 /**
@@ -985,7 +995,7 @@ export function savedView(): typeof DEFAULT_VIEW {
  * lingering in localStorage.
  */
 export function saveView(view: DocumentsView): void {
-  setPersistentData('documents_view', { ...view });
+  setPersistentData(state => { state.documents_view = { ...view }; });
 }
 
 /**

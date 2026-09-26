@@ -19,8 +19,8 @@ interface Props {
    */
   single_button_style?: boolean;
 
-  onbeforetoggle?: (event: ToggleEvent) => void;
-  ontoggle?: (event: ToggleEvent) => void;
+  onBeforeToggle?: (event: ToggleEvent) => void;
+  onToggle?: (event: ToggleEvent) => void;
 
 }
 
@@ -30,8 +30,8 @@ const Context = createContext<{
   inline_style: string;
   single_button_style?: boolean;
 
-  onbeforetoggle?: (event: ToggleEvent) => void;
-  ontoggle?: (event: ToggleEvent) => void;
+  onBeforeToggle?: (event: ToggleEvent) => void;
+  onToggle?: (event: ToggleEvent) => void;
 }>();
 
 export function MenuButton(props: ParentProps<Props>) {
@@ -50,18 +50,18 @@ export function MenuButton(props: ParentProps<Props>) {
     `left: anchor(--${container_id} left);`,
   ].join(' ');
 
-  return <Context.Provider value={{ 
+  return <Context value={{ 
           popover_id, 
           container_id, 
           inline_style, 
           single_button_style: props.single_button_style,
-          onbeforetoggle: props.onbeforetoggle,
-          ontoggle: props.ontoggle,
+          onBeforeToggle: props.onBeforeToggle,
+          onToggle: props.onToggle,
         }}>
       <div class={style.container} 
           id={container_id} 
           style={`anchor-name: --${container_id}`}>{props.children}</div>
-    </Context.Provider> ;
+    </Context> ;
 
 }
 
@@ -75,7 +75,7 @@ MenuButton.Static = (props: ParentProps<{class?: string}>) => {
   return <>
       <div class={style.composite}>
         <div class={style['static-content']}>{props.children}</div>
-        <button classList={{[shared['bare-button']]: true, [style['caret-button']]: true}} popovertarget={ctx?.popover_id}>
+        <button class={{[shared['bare-button']]: true, [style['caret-button']]: true}} popovertarget={ctx?.popover_id}>
           <span class={style.caret} innerHTML={icons.caret_down} />
         </button>
       </div>
@@ -85,11 +85,11 @@ MenuButton.Static = (props: ParentProps<{class?: string}>) => {
 MenuButton.Menu = (props: ParentProps<{}>) => {
   const ctx = useContext(Context);
   return <>
-      <div classList={{[shared['floating-menu']]: true, [style.menu]: true}}
+      <div class={{[shared['floating-menu']]: true, [style.menu]: true}}
            popover id={ctx?.popover_id}
            data-anchor={`--${ctx?.container_id}`} 
-           onbeforetoggle={ctx?.onbeforetoggle}
-           ontoggle={ctx?.ontoggle}
+           onBeforeToggle={ctx?.onBeforeToggle}
+           onToggle={ctx?.onToggle}
            style={ctx?.inline_style || ''}>
         {props.children}
       </div>

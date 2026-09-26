@@ -267,7 +267,7 @@ export default function CreateAccount() {
       <div class={bs.subtitle}>{t('create-account-page.subtitle')}</div>
     </div>
 
-    <form class={bs.form} novalidate onsubmit={(event) => { event.preventDefault(); void submit(); }}>
+    <form class={bs.form} novalidate onSubmit={(event) => { event.preventDefault(); void submit(); }}>
 
       <Show when={formError()}>
         <div class={bs['form-error']} role='alert'>{messageText(formError())}</div>
@@ -289,7 +289,7 @@ export default function CreateAccount() {
             aria-invalid={!!emailError()}
             aria-describedby={emailError() ? 'create-account-email-error' : undefined}
             value={email()}
-            oninput={(event) => editEmail(event.currentTarget.value)} />
+            onInput={(event) => editEmail(event.currentTarget.value)} />
         <Show when={emailError()}>
           <div id='create-account-email-error' class={bs['field-message']}>{messageText(emailError())}</div>
         </Show>
@@ -310,7 +310,7 @@ export default function CreateAccount() {
             aria-invalid={!!usernameMessage()}
             aria-describedby={usernameMessage() ? 'create-account-username-error' : 'create-account-username-handle'}
             value={username()}
-            oninput={(event) => editUsername(event.currentTarget.value)} />
+            onInput={(event) => editUsername(event.currentTarget.value)} />
 
         {/* the live availability line and the error message share this one slot,
             and it reserves a line of height even when it's showing neither -- so
@@ -328,7 +328,7 @@ export default function CreateAccount() {
               <div id='create-account-username-handle' class={style.checking} aria-live='polite'>{t('create-account-page.username.checking')}</div>
             </Match>
             <Match when={availability.state().status === 'available'}>
-              <div id='create-account-username-handle' classList={{[shared.truncate]: true, [style.available]: true}} aria-live='polite'>{availableText()}</div>
+              <div id='create-account-username-handle' class={{[shared.truncate]: true, [style.available]: true}} aria-live='polite'>{availableText()}</div>
             </Match>
           </Switch>
         </div>
@@ -379,7 +379,7 @@ export default function CreateAccount() {
     <button
         type='button'
         class={`${bs.button} ${bs['sent-action']}`}
-        onclick={restart}>
+        onClick={restart}>
       {t('create-account-page.done.restart')}
     </button>
 

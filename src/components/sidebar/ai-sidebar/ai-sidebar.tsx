@@ -178,12 +178,12 @@ export function Sidebar(props: SidebarProps) {
   }
   
   return <div class={style.layout}>
-    <div classList={{
+    <div class={{
       "tab-container": true,
       "height-100": true,
       [style['tab-container']]: true,
     }}>
-      <div classList={{
+      <div class={{
         "tab-pane": true,
         [style['tab-pane']]: true,
       }}>
@@ -192,12 +192,12 @@ export function Sidebar(props: SidebarProps) {
                  data-label={t('llm-chat.chat-tab.title')} 
                  name={tab_group} 
                  checked={tab() === 0}
-                 onchange={e => { if(e.currentTarget.checked) setTab(0); }}
+                 onChange={e => { if(e.currentTarget.checked) setTab(0); }}
                  ></input>
         </label>
         <div class="tab-content overflow-hidden">
           <Splitter vertical split={split} setSplit={setSplit} splitter-width={17} min={25} max={75}>
-            <div data-top ref={scrollContainer} onScroll={TrackScrollPosition} classList={{
+            <div data-top ref={scrollContainer} onScroll={TrackScrollPosition} class={{
               [style["chat-messages"]]: true,
               "flex-grow": true,
               "overflow-y-scroll": true,
@@ -208,12 +208,12 @@ export function Sidebar(props: SidebarProps) {
 
             </div>
             <div data-bottom class={style.controls}>
-              <textarea ref={textarea} wrap="soft" onkeydown={HandleKey} disabled={controls_disabled()}></textarea>
+              <textarea ref={textarea} wrap="soft" onKeyDown={HandleKey} disabled={controls_disabled()}></textarea>
               <div class={style.buttons}>
                 <button class="control-button" 
-                        onclick={() => messages.messages = []}>{t('llm-chat.buttons.clear-conversation')}</button>
+                        onClick={() => messages.messages = []}>{t('llm-chat.buttons.clear-conversation')}</button>
                 <button class="control-button button-primary" disabled={controls_disabled()}
-                        onclick={LocalSendMessage}>{t('llm-chat.buttons.send-message')}</button>
+                        onClick={LocalSendMessage}>{t('llm-chat.buttons.send-message')}</button>
               </div>
             </div>
           </Splitter>
@@ -221,7 +221,7 @@ export function Sidebar(props: SidebarProps) {
       </div>
 
 
-      <div classList={{
+      <div class={{
         "tab-pane": true,
         [style['tab-pane']]: true,
       }}>
@@ -230,7 +230,7 @@ export function Sidebar(props: SidebarProps) {
                  data-label={t('llm-chat.settings-tab.title')} 
                  name={tab_group} 
                  checked={tab() === 1} 
-                 onchange={e => { if(e.currentTarget.checked) setTab(1); }}
+                 onChange={e => { if(e.currentTarget.checked) setTab(1); }}
                  ></input>
         </label>
         <div class="tab-content">
@@ -241,7 +241,7 @@ export function Sidebar(props: SidebarProps) {
               <select ref={modelSelect}
                       class="select"
                       value={selectedModel()}
-                      onchange={SelectModel}>
+                      onChange={SelectModel}>
                 <option value=''>{t('llm-chat.label.choose-a-model')}</option>
                 {filtered_providers.map(provider => {
                   return <optgroup label={provider.provider.name}>
@@ -260,13 +260,13 @@ export function Sidebar(props: SidebarProps) {
                        type={revealKey() ? 'text' : 'password'}
                        class={`input width-100 ellipsis ${style['key-input']}`}
                        value={apiKey()}
-                       onchange={e => setApiKey(e.currentTarget.value || '')}
+                       onChange={e => setApiKey(e.currentTarget.value || '')}
                        placeholder={t(persistentData.llm_model ? 'llm-chat.label.api-key-placeholder' : 'llm-chat.label.choose-a-model')}></input>
                 <button type="button"
                         class={style['key-reveal']}
                         aria-label={t(revealKey() ? 'llm-chat.label.hide-api-key' : 'llm-chat.label.reveal-api-key')}
                         aria-pressed={revealKey()}
-                        onclick={() => { setRevealKey(v => !v); apiKeyInput?.focus(); }}
+                        onClick={() => { setRevealKey(v => !v); apiKeyInput?.focus(); }}
                         innerHTML={revealKey() ? icons.eye_off : icons.eye_on}></button>
               </div>
             </section>

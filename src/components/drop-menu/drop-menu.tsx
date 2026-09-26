@@ -3,7 +3,8 @@
  * to the bottom left of the button. The button has a caret on the right.
  */
 
-import { ParentProps, JSX, Switch, Match } from 'solid-js';
+import { ParentProps, Switch, Match } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { icons } from '~/components/icon-sets';
 import style from './drop-menu.module.css';
 import shared from '../../style/shared.module.css';
@@ -31,7 +32,7 @@ export function DropMenu(props: ParentProps<Props>) {
 
   return <div class={style["drop-menu"]} id={container_id} style={`anchor-name: --${container_id}`}>
 
-    <button classList={{[style.label]: true, [style.disabled]: props.disabled}} popovertarget={popover_id} >
+    <button class={{[style.label]: true, [style.disabled]: !!props.disabled}} popovertarget={popover_id} >
       <Switch>
         <Match when={typeof props.label === 'string'}>
           <span>
@@ -45,7 +46,7 @@ export function DropMenu(props: ParentProps<Props>) {
       </Switch>
     </button>
 
-    <div classList={{[shared['floating-menu']]: true, [style.menu]: true}} popover id={popover_id} data-anchor={`--${container_id}`} style={inline_style}>
+    <div class={{[shared['floating-menu']]: true, [style.menu]: true}} popover id={popover_id} data-anchor={`--${container_id}`} style={inline_style}>
       {props.children}
     </div>
     

@@ -1,6 +1,5 @@
 
-import { createSignal } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
+import { createSignal, createStore } from 'solid-js';
 
 /** matches HistoryEntry in ~/docs/SVELTE-documents, which is what the service returns */
 export interface DocumentVersion {
@@ -94,7 +93,7 @@ export const [documents, setDocuments] = createStore<BackstageDocument[]>([]);
  * the first no longer holds.
  */
 export function flushDocuments(): void {
-  setDocuments([]);
+  setDocuments(() => []);
   setLoaded(false);
   setFailed(false);
   flushHistories();
@@ -136,5 +135,9 @@ export const [histories, setHistories] = createStore<Record<string, DocumentHist
  * path (rename, move, delete) invalidates the entry it was stored under.
  */
 export function flushHistories(): void {
-  setHistories(reconcile({}));
+  setHistories(state => {
+    for (const key of Object.keys(state)) {
+      delete state[key];
+    }
+  });
 }

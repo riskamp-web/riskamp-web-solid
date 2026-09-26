@@ -86,10 +86,10 @@ export function ListControl<T extends { toString: () => string }>(props: Props<T
       <menu class={style['menu-list']}>
         <For each={props.list()}>
           {(item, index) => <>
-              <li onmouseenter={() => setSelectedIndex(index())}
-                  onclick={event => props.onclick?.(event, item, index())}
+              <li onMouseEnter={() => setSelectedIndex(index())}
+                  onClick={event => props.onclick?.(event, item, index())}
                   ref={element => node_list[index()] = element}
-                  classList={{[style.selected]: index() === selectedIndex()}}>
+                  class={{[style.selected]: index() === selectedIndex()}}>
                 {Label(item)}
               </li>
             </>}

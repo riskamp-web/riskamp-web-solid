@@ -12,7 +12,8 @@
  * plural forms follow currentLocale() through intl() in documents-data.ts.
  */
 
-import { For, JSX, Match, ParentProps, Show, Switch, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
+import { For, Match, ParentProps, Show, Switch, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { A, useNavigate } from '@solidjs/router';
 
 import { useLayoutContext } from '~/components/layout-context';
@@ -111,7 +112,7 @@ function ActionMenu(props: ParentProps<{ label: string, class?: string, trigger?
         popovertarget={uid}
         aria-label={props.label}
         aria-expanded={open()}
-        onclick={(event) => event.stopPropagation()}>
+        onClick={(event) => event.stopPropagation()}>
       {props.trigger ?? <Icon name='overflow' />}
     </button>
 
@@ -120,8 +121,8 @@ function ActionMenu(props: ParentProps<{ label: string, class?: string, trigger?
         id={uid}
         class={bs.menu}
         style={menu_style}
-        ontoggle={(event) => setOpen((event as ToggleEvent).newState === 'open')}
-        onclick={(event) => {
+        onToggle={(event) => setOpen((event as ToggleEvent).newState === 'open')}
+        onClick={(event) => {
           event.stopPropagation();
           // close on any item activation
           if ((event.target as HTMLElement).closest('button')) {
@@ -140,8 +141,8 @@ function MenuItem(props: ParentProps<{ icon?: JSX.Element, danger?: boolean, onc
   return <li>
     <button
         type='button'
-        classList={{ [bs['menu-item']]: true, [bs.danger]: !!props.danger }}
-        onclick={() => props.onclick?.()}>
+        class={{ [bs['menu-item']]: true, [bs.danger]: !!props.danger }}
+        onClick={() => props.onclick?.()}>
       {props.icon ?? <span class={bs['menu-icon-placeholder']} />}
       <span>{props.children}</span>
     </button>
@@ -662,13 +663,13 @@ export default function Documents() {
     }>
       <button
           type='button'
-          classList={{
+          class={{
             [shared['bare-button']]: true,
             [style['sort-button']]: true,
             [style.sorted]: sortKey() === props.column,
             [style.ascending]: sortKey() === props.column && sortDirection() === 'asc',
           }}
-          onclick={() => sortBy(props.column)}>
+          onClick={() => sortBy(props.column)}>
         <span>{props.label}</span>
         <Icon name='caret_down' class={style['sort-caret']} />
       </button>
@@ -710,9 +711,9 @@ export default function Documents() {
         <For each={SCOPES}>{(item) =>
           <button
               type='button'
-              classList={{ [bs['rail-item']]: true, [bs.active]: scope() === item.key && !folder() }}
+              class={{ [bs['rail-item']]: true, [bs.active]: scope() === item.key && !folder() }}
               aria-current={scope() === item.key && !folder() ? 'true' : undefined}
-              onclick={() => selectScope(item.key)}>
+              onClick={() => selectScope(item.key)}>
             {item.icon()}
             <span class={bs['rail-label']}>{t(item.label)}</span>
             <span class={bs['rail-count']}>{formatNumber(counts()[item.key])}</span>
@@ -721,7 +722,7 @@ export default function Documents() {
       </div>
 
       <div class={bs['rail-section']}>
-        <div classList={{[shared['micro-label']]: true, [bs['section-label']]: true}}>{t('documents-page.rail.folders')}</div>
+        <div class={{[shared['micro-label']]: true, [bs['section-label']]: true}}>{t('documents-page.rail.folders')}</div>
         <Show when={folders().length} fallback={
           <div class={bs['rail-item']} style='cursor: default'>
             <span class={bs['rail-label']}>{t('documents-page.rail.no-folders')}</span>
@@ -730,10 +731,10 @@ export default function Documents() {
           <For each={folders()}>{(node) =>
             <button
                 type='button'
-                classList={{ [bs['rail-item']]: true, [bs.active]: folder() === node.path }}
+                class={{ [bs['rail-item']]: true, [bs.active]: folder() === node.path }}
                 aria-current={folder() === node.path ? 'true' : undefined}
                 style={`padding-left: ${8 + node.depth * 13}px`}
-                onclick={() => selectFolder(node.path)}>
+                onClick={() => selectFolder(node.path)}>
               <Icon name='folder' />
               <span class={bs['rail-label']}>{node.name}</span>
               <span class={bs['rail-count']}>{formatNumber(node.count)}</span>
@@ -756,21 +757,21 @@ export default function Documents() {
             <div class={style['selection-divider']} />
             <button type='button' class={`${bs.button} ${bs['button-quiet']} ${bs['button-collapse']}`}
                 aria-label={t('documents-page.selection.make-public.label')}
-                onclick={() => setAccess([...checked()], ACCESS_PUBLIC)}>
+                onClick={() => setAccess([...checked()], ACCESS_PUBLIC)}>
               <Icon name='public' /> <span class={bs['button-label']}>{t('documents-page.action.make-public')}</span>
             </button>
             <button type='button' class={`${bs.button} ${bs['button-quiet']} ${bs['button-collapse']}`}
                 aria-label={t('documents-page.selection.make-private.label')}
-                onclick={() => setAccess([...checked()], ACCESS_PRIVATE)}>
+                onClick={() => setAccess([...checked()], ACCESS_PRIVATE)}>
               <Icon name='lock_cells' /> <span class={bs['button-label']}>{t('documents-page.action.make-private')}</span>
             </button>
             <button type='button' class={`${bs.button} ${bs['button-danger']} ${bs['button-collapse']}`}
                 aria-label={t('documents-page.selection.delete.label')}
-                onclick={() => remove([...checked()])}>
+                onClick={() => remove([...checked()])}>
               <Icon name='trash' /> <span class={bs['button-label']}>{t('documents-page.action.delete')}</span>
             </button>
             <div class={bs.spacer} />
-            <button type='button' class={`${bs.button} ${bs['button-quiet']}`} onclick={() => setChecked(new Set<number>())}>
+            <button type='button' class={`${bs.button} ${bs['button-quiet']}`} onClick={() => setChecked(new Set<number>())}>
               {t('documents-page.action.cancel')}
             </button>
           </div>
@@ -784,13 +785,13 @@ export default function Documents() {
                 placeholder={t('documents-page.search.placeholder')}
                 aria-label={t('documents-page.search.label')}
                 value={search()}
-                oninput={(event) => setSearch(event.currentTarget.value)} />
+                onInput={(event) => setSearch(event.currentTarget.value)} />
             <Show when={search()}>
               <button
                   type='button'
                   class={`${bs['icon-button']} ${bs['search-clear']}`}
                   aria-label={t('documents-page.search.clear.label')}
-                  onclick={() => { setSearch(''); search_input?.focus(); }}>
+                  onClick={() => { setSearch(''); search_input?.focus(); }}>
                 <Icon name='close' />
               </button>
             </Show>
@@ -800,7 +801,7 @@ export default function Documents() {
               class={bs['scope-select']}
               aria-label={t('documents-page.filter.label')}
               value={folder() ?? scope()}
-              onchange={(event) => {
+              onChange={(event) => {
                 const value = event.currentTarget.value;
                 if (value.startsWith('/')) { selectFolder(value); } else { selectScope(value as Scope); }
               }}>
@@ -813,7 +814,7 @@ export default function Documents() {
           <div class={bs.spacer} />
 
           <button type='button' 
-                  onclick={() => navigate('/', { state: {
+                  onClick={() => navigate('/', { state: {
                     operation: 'reset',
                     source: 'documents-page'
                   }})}
@@ -824,17 +825,17 @@ export default function Documents() {
         </Show>
       </header>
 
-      <div classList={{ [style.table]: true, [style.selecting]: !!checkedCount() }} role='table'
+      <div class={{ [style.table]: true, [style.selecting]: !!checkedCount() }} role='table'
           aria-label={t('documents-page.table.label')}>
 
-        <div classList={{[shared['micro-label']]: true, [style['table-header']]: true}} role='row'>
+        <div class={{[shared['micro-label']]: true, [style['table-header']]: true}} role='row'>
           <div class={`${style.cell} ${style['cell-center']}`} role='columnheader'>
             <input
                 type='checkbox'
                 class={`${style.check} ${style['check-all']}`}
                 aria-label={t('documents-page.table.select-all.label')}
                 checked={!!visible().length && checkedCount() >= visible().length}
-                onchange={toggleAll} />
+                onChange={toggleAll} />
           </div>
           <div class={`${style.cell} ${style['cell-center']}`} role='columnheader'>
             <span class='sr-only'>{t('documents-page.column.starred')}</span>
@@ -847,7 +848,7 @@ export default function Documents() {
           <div class={style.cell} role='columnheader'><span class='sr-only'>{t('documents-page.column.actions')}</span></div>
         </div>
 
-        <div ref={table_body} class={style['table-body']} role='rowgroup' onscroll={onScroll}>
+        <div ref={table_body} class={style['table-body']} role='rowgroup' onScroll={onScroll}>
           <Switch>
 
             {/* before the skeleton: a failed load leaves the store unloaded, and
@@ -862,7 +863,7 @@ export default function Documents() {
                 <button
                     type='button'
                     class={`${bs.button} ${bs['empty-action']}`}
-                    onclick={() => refreshDocuments()}>
+                    onClick={() => refreshDocuments()}>
                   {t('documents-page.error.retry')}
                 </button>
               </div>
@@ -903,7 +904,7 @@ export default function Documents() {
                   {format(t('documents-page.no-match.title'), { query: search() })}
                 </div>
                 <div class={bs['empty-detail']}>{t('documents-page.no-match.detail')}</div>
-                <button type='button' class={`${bs.button} ${bs['empty-action']}`} onclick={() => setSearch('')}>
+                <button type='button' class={`${bs.button} ${bs['empty-action']}`} onClick={() => setSearch('')}>
                   {t('documents-page.no-match.action')}
                 </button>
               </div>
@@ -918,7 +919,7 @@ export default function Documents() {
                     ? format(t('documents-page.empty-filter.detail-folder'), { folder: folder()! })
                     : t('documents-page.empty-filter.detail')}
                 </div>
-                <button type='button' class={`${bs.button} ${bs['empty-action']}`} onclick={() => selectScope('all')}>
+                <button type='button' class={`${bs.button} ${bs['empty-action']}`} onClick={() => selectScope('all')}>
                   {t('documents-page.empty-filter.action')}
                 </button>
               </div>
@@ -927,9 +928,9 @@ export default function Documents() {
             <Match when={visible().length}>
               <For each={visible()}>{(doc) =>
                 <div
-                    classList={{ [style['table-row']]: true, [style.selected]: selected() === doc.id }}
+                    class={{ [style['table-row']]: true, [style.selected]: selected() === doc.id }}
                     role='row'
-                    onclick={(event) => openDetail(doc, event.currentTarget as HTMLElement)}>
+                    onClick={(event) => openDetail(doc, event.currentTarget as HTMLElement)}>
 
                   <div class={`${style.cell} ${style['cell-center']}`} role='cell'>
                     <input
@@ -937,19 +938,19 @@ export default function Documents() {
                         class={style.check}
                         aria-label={format(t('documents-page.row.select.label'), { name: displayName(doc) })}
                         checked={checked().has(doc.id)}
-                        onclick={(event) => event.stopPropagation()}
-                        onchange={() => toggleChecked(doc.id)} />
+                        onClick={(event) => event.stopPropagation()}
+                        onChange={() => toggleChecked(doc.id)} />
                   </div>
 
                   <div class={`${style.cell} ${style['cell-center']}`} role='cell'>
                     <button
                         type='button'
-                        classList={{ [bs['icon-button']]: true, [style.star]: true, [style.starred]: isStarred(doc) }}
+                        class={{ [bs['icon-button']]: true, [style.star]: true, [style.starred]: isStarred(doc) }}
                         aria-label={format(
                           t(isStarred(doc) ? 'documents-page.row.unstar.label' : 'documents-page.row.star.label'),
                           { name: displayName(doc) })}
                         aria-pressed={isStarred(doc)}
-                        onclick={(event) => { event.stopPropagation(); toggleStar(doc); }}>
+                        onClick={(event) => { event.stopPropagation(); toggleStar(doc); }}>
                       <Icon name='star' />
                     </button>
                   </div>
@@ -966,7 +967,7 @@ export default function Documents() {
 
                   <div class={`${style.cell} ${style['cell-path']}`} role='cell'>
                     <Show when={folderOf(doc.path)} fallback={
-                      <span classList={{[shared.pill]: true, [style['owner-tag']]: true}}>{ownerOf(doc.path)}</span>
+                      <span class={{[shared.pill]: true, [style['owner-tag']]: true}}>{ownerOf(doc.path)}</span>
                     }>
                       {folderLabel(doc)}
                     </Show>
@@ -975,10 +976,10 @@ export default function Documents() {
                   <div class={`${style.cell} ${style['cell-access']}`} role='cell'>
                     <Show
                         when={doc.access === ACCESS_PUBLIC}
-                        fallback={<span classList={{[shared.pill]: true, [style['access-pill']]: true, [style['access-private']]: true}}>
+                        fallback={<span class={{[shared.pill]: true, [style['access-pill']]: true, [style['access-private']]: true}}>
                           {t('documents-page.access.private')}
                         </span>}>
-                      <span classList={{[shared.pill]: true, [style['access-pill']]: true, [style['access-public']]: true}}>
+                      <span class={{[shared.pill]: true, [style['access-pill']]: true, [style['access-public']]: true}}>
                         {t('documents-page.access.public')}
                       </span>
                     </Show>
@@ -1027,7 +1028,7 @@ export default function Documents() {
 
       {/* detail panel; stays mounted so it can slide out with its content intact */}
       <aside
-          classList={{ [bs['slide-over']]: true, [bs.open]: selected() !== undefined }}
+          class={{ [bs['slide-over']]: true, [bs.open]: selected() !== undefined }}
           aria-label={t('documents-page.panel.label')}
           aria-hidden={selected() === undefined}>
         <Show when={detail()}>{(doc) => <>
@@ -1053,7 +1054,7 @@ export default function Documents() {
               <div class={style['panel-path']}>
                 {/* the path itself, not documentUrl() -- the leading slash it adds
                     reads as noise here; copyLink() below still builds a full url */}
-                <span classList={{[shared.truncate]: true, [style['panel-uri']]: true}}>{doc().path}</span>
+                <span class={{[shared.truncate]: true, [style['panel-uri']]: true}}>{doc().path}</span>
                 <button
                     type='button'
                     class={`${bs['icon-button']} ${style['copy-link']}`}
@@ -1063,7 +1064,7 @@ export default function Documents() {
                     title={copied()
                       ? t('documents-page.panel.copy-link.copied.title')
                       : t('documents-page.panel.copy-link.label')}
-                    onclick={copyLink}>
+                    onClick={copyLink}>
                   <Show when={copied()} fallback={<Icon name='copy' />}>
                     <Icon name='copy_confirmed' class={style['copy-confirmed']} />
                   </Show>
@@ -1081,7 +1082,7 @@ export default function Documents() {
 
             </div>
             <button type='button' class={bs['icon-button']}
-                aria-label={t('documents-page.panel.close.label')} onclick={closeDetail}>
+                aria-label={t('documents-page.panel.close.label')} onClick={closeDetail}>
               <Icon name='close' />
             </button>
           </div>
@@ -1093,14 +1094,14 @@ export default function Documents() {
               <div class={bs.segmented}>
                 <button
                     type='button'
-                    classList={{ [bs.active]: doc().access === ACCESS_PUBLIC }}
-                    onclick={() => setAccess([doc().id], ACCESS_PUBLIC)}>
+                    class={{ [bs.active]: doc().access === ACCESS_PUBLIC }}
+                    onClick={() => setAccess([doc().id], ACCESS_PUBLIC)}>
                   <Icon name='public' /> {t('documents-page.access.public')}
                 </button>
                 <button
                     type='button'
-                    classList={{ [bs.active]: doc().access === ACCESS_PRIVATE }}
-                    onclick={() => setAccess([doc().id], ACCESS_PRIVATE)}>
+                    class={{ [bs.active]: doc().access === ACCESS_PRIVATE }}
+                    onClick={() => setAccess([doc().id], ACCESS_PRIVATE)}>
                   <Icon name='lock_cells' /> {t('documents-page.access.private')}
                 </button>
               </div>
@@ -1111,12 +1112,12 @@ export default function Documents() {
               <div>
                 <button
                     type='button'
-                    classList={{ [bs['icon-button']]: true, [style.star]: true, [style.starred]: isStarred(doc()) }}
+                    class={{ [bs['icon-button']]: true, [style.star]: true, [style.starred]: isStarred(doc()) }}
                     aria-pressed={isStarred(doc())}
                     aria-label={t(isStarred(doc())
                       ? 'documents-page.panel.unstar.label'
                       : 'documents-page.panel.star.label')}
-                    onclick={() => toggleStar(doc())}>
+                    onClick={() => toggleStar(doc())}>
                   <Icon name='star' />
                 </button>
               </div>
@@ -1164,8 +1165,8 @@ export default function Documents() {
                     {t('documents-page.history.error')}
                     <button
                         type='button'
-                        classList={{[shared['bare-button']]: true, [style['version-retry']]: true}}
-                        onclick={() => retryHistory(doc().path)}>
+                        class={{[shared['bare-button']]: true, [style['version-retry']]: true}}
+                        onClick={() => retryHistory(doc().path)}>
                       {t('documents-page.history.retry')}
                     </button>
                   </div>
@@ -1223,7 +1224,7 @@ export default function Documents() {
               this fixed panel width. both stay labelled in the row menu, and
               carry title/aria-label here. */}
           <div class={bs['panel-footer']}>
-            <button type='button' class={bs.button} onclick={() => rename(doc().id)}>
+            <button type='button' class={bs.button} onClick={() => rename(doc().id)}>
               <Icon name='rename' />
               <span>{t('documents-page.action.rename')}</span>
             </button>
@@ -1233,15 +1234,15 @@ export default function Documents() {
                 class={bs['icon-button']}
                 aria-label={t('documents-page.action.duplicate')}
                 title={t('documents-page.action.duplicate')}
-                onclick={() => duplicate(doc().id)}>
+                onClick={() => duplicate(doc().id)}>
               <Icon name='copy' />
             </button>
             <button
                 type='button'
-                classList={{ [bs['icon-button']]: true, [style['panel-delete']]: true }}
+                class={{ [bs['icon-button']]: true, [style['panel-delete']]: true }}
                 aria-label={t('documents-page.action.delete')}
                 title={t('documents-page.action.delete')}
-                onclick={() => remove([doc().id])}>
+                onClick={() => remove([doc().id])}>
               <Icon name='trash' />
             </button>
           </div>

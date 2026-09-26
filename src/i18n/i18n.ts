@@ -1,6 +1,6 @@
 
-import { createSignal, type JSX } from 'solid-js';
-import { createStore } from 'solid-js/store';
+import { createSignal, createStore } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import en from '~/i18n/lang/en';
 import { persistentData } from '~/lib/app-data';
 
@@ -215,7 +215,7 @@ export async function UpdateLanguage(locale?: string) {
       // console.info(`assigning from ${lang}`, { data });
 
       // start with the base, in case anything is missing, then apply the deltas
-      setI18nInstance('strings', deepMerge(en, data));
+      setI18nInstance(state => { state.strings = deepMerge(en, data); });
       setCurrentLocale(locale);
 
       // some things (specific example: the insert function button, which
@@ -233,7 +233,7 @@ export async function UpdateLanguage(locale?: string) {
       requestAnimationFrame(() => window.dispatchEvent(new CustomEvent('update-language')));
     } else {
 
-      setI18nInstance('strings', deepMerge(en));
+      setI18nInstance(state => { state.strings = deepMerge(en); });
       setCurrentLocale('en-us');
 
     }

@@ -129,7 +129,7 @@ export default function ForgotPassword() {
       <div class={bs.subtitle}>{t('forgot-password-page.subtitle')}</div>
     </div>
 
-    <form class={bs.form} novalidate onsubmit={(event) => { event.preventDefault(); void submit(); }}>
+    <form class={bs.form} novalidate onSubmit={(event) => { event.preventDefault(); void submit(); }}>
 
       <Show when={formError()}>
         <div class={bs['form-error']} role='alert'>{messageText(formError())}</div>
@@ -151,7 +151,7 @@ export default function ForgotPassword() {
             aria-invalid={!!emailError()}
             aria-describedby={emailError() ? 'forgot-password-email-error' : undefined}
             value={email()}
-            oninput={(event) => { setEmail(event.currentTarget.value); setEmailError(undefined); setFormError(undefined); }} />
+            onInput={(event) => { setEmail(event.currentTarget.value); setEmailError(undefined); setFormError(undefined); }} />
         <Show when={emailError()}>
           <div id='forgot-password-email-error' class={bs['field-message']}>{messageText(emailError())}</div>
         </Show>
@@ -190,7 +190,7 @@ export default function ForgotPassword() {
     <button
         type='button'
         class={`${bs.button} ${bs['sent-action']}`}
-        onclick={restart}>
+        onClick={restart}>
       {t('forgot-password-page.done.restart')}
     </button>
 

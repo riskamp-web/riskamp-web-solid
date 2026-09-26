@@ -1,9 +1,8 @@
-import { createStore } from 'solid-js/store';
-import { createEffect } from 'solid-js';
+import { createEffect, createStore, onSettled } from 'solid-js';
 import { type Model } from 'treb-llm-support';
 import type { DocumentsRow } from '~/docs/documents';
 import type { DocumentScope, SortDirection, SortKey } from '~/backstage/documents-data';
-import { InitI18N, languages, UpdateLanguage } from '~/i18n/i18n';
+import { InitI18N } from '~/i18n/i18n';
 
 /**
  * FIXME: we should change how this works, make it deeper 
@@ -146,6 +145,25 @@ export const [sessionData, setSessionData] = createStore<SessionData>({
 
 });
 
+/**
+ * the persisted half, as last written to localStorage by InitAppData's effect.
+ * read once, at module load, so the store is *created* with it -- merging it
+ * in later would be a write during setup (an error in 2.0), and would race
+ * the persist effect, which could write the defaults back over it first.
+ */
+function StoredPersistentData(): Partial<PersistentData> {
+  try {
+    const json = globalThis.localStorage?.getItem('app-data');
+    if (json) {
+      return JSON.parse(json) as Partial<PersistentData>;
+    }
+  }
+  catch (err) {
+    console.error(err);
+  }
+  return {};
+}
+
 export const [persistentData, setPersistentData] = createStore<PersistentData>({
   lhs: true,
   stepped: false,
@@ -167,6 +185,8 @@ export const [persistentData, setPersistentData] = createStore<PersistentData>({
   documents_filter: '',
 
   documents_view: {},
+
+  ...StoredPersistentData(),
 
 });
 
@@ -212,32 +232,25 @@ export function CurrentLanguage() {
 }
 */
 
+/**
+ * wires persistence and the theme. creates effects, so call it from a
+ * component body (the app root) -- not from onSettled, which can't create
+ * primitives.
+ */
 export function InitAppData() {
 
-  if (localStorage) {
-    const json = localStorage.getItem('app-data');
-    if (json) {
-      try {
-        const data = JSON.parse(json) as Partial<PersistentData>;
-        setPersistentData(data);
-      }
-      catch (err) {
-        console.error(err);
-      }
-    }
-    InitI18N();
-  }
-
-  createEffect(() => {
-    const json = JSON.stringify(persistentData);
+  createEffect(() => JSON.stringify(persistentData), json => {
     localStorage.setItem('app-data', json);
-  });
+  }, { defer: true });
 
-  createEffect(() => {
-    const theme = persistentData.explicit_theme || 'system';
-    // console.info("set theme:", theme);
+  createEffect(() => persistentData.explicit_theme || 'system', theme => {
     document.documentElement.setAttribute('data-theme', theme);
   });
 
+  // language selection writes the i18n store, which isn't allowed during
+  // setup; run it once the app has settled.
+  onSettled(() => {
+    InitI18N();
+  });
 
 }

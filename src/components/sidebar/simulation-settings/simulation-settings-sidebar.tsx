@@ -82,7 +82,7 @@ export function Sidebar(props: SidebarProps) {
                   <input type='radio'
                          name='random-sampling'
                          checked={!!persistentData.lhs}
-                         onchange={e => { if(e.currentTarget.checked) setPersistentData({ lhs: true })}}
+                         onChange={e => { if(e.currentTarget.checked) setPersistentData({ lhs: true })}}
                          />
                   <span>{t('sidebar.simulation_settings.latin-hypercube-sampling')}</span>
                 </label>
@@ -90,7 +90,7 @@ export function Sidebar(props: SidebarProps) {
                   <input type='radio'
                          name='random-sampling'
                          checked={!persistentData.lhs}
-                         onchange={e => { if(e.currentTarget.checked) setPersistentData({ lhs: false })}}
+                         onChange={e => { if(e.currentTarget.checked) setPersistentData({ lhs: false })}}
                          />
                   <span>{t('sidebar.simulation_settings.standard-random-sampling')}</span>
                 </label>
@@ -107,7 +107,7 @@ export function Sidebar(props: SidebarProps) {
                 <input type="text"
                       class="input width-100"
                       value={persistentData.max_workers?.toString() || ''}
-                      onchange={UpdateMaxWorkers}
+                      onChange={UpdateMaxWorkers}
                       placeholder={(max_workers || 1).toString()} />
               </div>
               <p class={style.note}>
@@ -123,14 +123,14 @@ export function Sidebar(props: SidebarProps) {
                       class="input width-100"
                       ref={seed_input}
                       value={props.sheet()?.user_data?.simulation?.seed || '0'}
-                      onchange={UpdateSeedValue}
+                      onChange={UpdateSeedValue}
                       placeholder={t('sidebar.simulation_settings.random-seed.enter-seed-value')} />
               </div>
               <div class={style.links}>
-                <a href='#' onclick={e => UpdateSeedValue(e, new Date().getTime())}>
+                <a href='#' onClick={e => UpdateSeedValue(e, new Date().getTime())}>
                   {t('sidebar.simulation_settings.random-seed.time-based-seed')}
                 </a>
-                <a href='#' onclick={e => UpdateSeedValue(e, 0)}>
+                <a href='#' onClick={e => UpdateSeedValue(e, 0)}>
                   {t('sidebar.simulation_settings.random-seed.reset-seed-value')}
                 </a>
               </div>

@@ -1,5 +1,5 @@
 
-import { ParentProps, Switch, Match, For, Show, onCleanup, createEffect, on, createSignal, createMemo } from 'solid-js';
+import { ParentProps, Switch, Match, For, Show, createEffect, createSignal, createMemo, onSettled, untrack } from 'solid-js';
 import style from './toolbar.module.css';
 import shared from '../../style/shared.module.css';
 import { Logo } from '../logo';
@@ -8,14 +8,13 @@ import { t } from '~/i18n/i18n';
 
 import '~/components/tabs.css';
 
-import { toolbar_config as base_toolbar_config } from './toolbar-config';
+import { toolbarConfig as toolbar_config, setToolbarConfig, UpdateToolbarConfig } from './toolbar-store';
 import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, 
     CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl, SteppedGroup, 
     IsToolbarMessage} from './toolbar-utils';
 import { ListCommand, ToolbarCommand } from './toolbar-commands';
 import { session, loggedIn } from '~/lib/auth';
 
-import { createMutable, produce } from 'solid-js/store';
 import { icons } from '~/components/icon-sets';
 import { MenuButton } from '../menu-button/menu-button';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
@@ -23,10 +22,10 @@ import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { ResolveColors, UpdateSaveState, UpdateState } from './util';
 import { ColorButton } from './toolbar-color-picker';
 import { CompositeMenu } from './composite-menu';
-import { A } from '@solidjs/router';
-import { CommandPalette } from '../command-palette/command-palette';
+// SOLID2: command palette stage
+// import { CommandPalette } from '../command-palette/command-palette';
 import { sessionData, setSessionData } from '~/lib/app-data';
-import { CommandPaletteDialog } from '../dialogs/command-palette-dialog/command-palette-dialog';
+// import { CommandPaletteDialog } from '../dialogs/command-palette-dialog/command-palette-dialog';
 import { ThemeSelector } from './theme-selector';
 
 //////////////
@@ -71,48 +70,58 @@ function RenderTextButton(control: TextButtonControl) {
 export function Toolbar(props: ParentProps<Props>) {
 
  
-  const toolbar_config = createMutable(base_toolbar_config);
- 
-  let subscription = 0;
-
-  createEffect(on(props.sheet, sheet => {
-    if (sheet && !subscription) {
-      subscription = sheet.Subscribe((event: MCEmbeddedSheetEvent|EmbeddedSheetEvent) => {
-        switch (event.type) {
-          case 'theme-change':
-          case 'load':
-          case 'reset':
-          case 'document-change':
-            ResolveColors(sheet, toolbar_config);
-            // fall through
-
-          case 'selection':
-          case 'annotation-selection':
-          case 'focus-view':
-          case 'view-change':
-            UpdateState(sheet, toolbar_config);
-            break;
-
-        }
-      });
+  // track the sheet's state into the toolbar (active formats, colors, ...).
+  // the subscription is released when the sheet changes or the toolbar goes.
+  createEffect(props.sheet, sheet => {
+    if (!sheet) {
+      return;
     }
 
-    if (sheet) {
-      ResolveColors(sheet, toolbar_config);
-      UpdateState(sheet, toolbar_config);
-    }
+    const subscription = sheet.Subscribe((event: MCEmbeddedSheetEvent|EmbeddedSheetEvent) => {
+      switch (event.type) {
+        case 'theme-change':
+        case 'load':
+        case 'reset':
+        case 'document-change':
+          setToolbarConfig(config => { ResolveColors(sheet, config); });
+          // fall through
 
-  }));
+        case 'selection':
+        case 'annotation-selection':
+        case 'focus-view':
+        case 'view-change':
+          setToolbarConfig(config => { UpdateState(sheet, config); });
+          break;
+
+      }
+    });
+
+    // the updaters read the store and t() as they go: snapshots, refreshed on
+    // every sheet event, not dependencies of this effect.
+    untrack(() => setToolbarConfig(config => {
+      ResolveColors(sheet, config);
+      UpdateState(sheet, config);
+    }));
+
+    return () => sheet.Cancel(subscription);
+  });
 
   const spreadsheet_dirty = createMemo(() => sessionData.document_version !== sessionData.last_saved_version);
 
   const status_menu = createMemo(() => loggedIn() ? toolbar_config.status_menu_signed_in : toolbar_config.status_menu_signed_out);
 
 
-  createEffect(() => {
-    const sheet = props.sheet();
+  // UpdateSaveState also reads loggedIn(); it has to be tracked here, since
+  // the effect function itself is untracked.
+  createEffect(() => ({
+    sheet: props.sheet(),
+    dirty: spreadsheet_dirty(),
+    path: !!props.document_path,
+    logged_in: loggedIn(),
+  }), ({ sheet, dirty, path }) => {
     if (sheet) {
-      UpdateSaveState(sheet, toolbar_config, spreadsheet_dirty(), !!props.document_path, false);
+      // loggedIn() is read again inside, but it's already tracked above
+      untrack(() => setToolbarConfig(config => { UpdateSaveState(sheet, config, dirty, path, false); }));
     }
   });
   
@@ -137,14 +146,9 @@ export function Toolbar(props: ParentProps<Props>) {
     setWidth(window.innerWidth);
   }
 
-  window.addEventListener('resize', ResizeHandler);
-
-  onCleanup(() => {
-    const sheet = props.sheet();
-    if (sheet && subscription) {
-      sheet.Cancel(subscription);
-      subscription = 0;
-    }
+  onSettled(() => {
+    window.addEventListener('resize', ResizeHandler);
+    return () => window.removeEventListener('resize', ResizeHandler);
   });
 
   function HandleCommand(event: Event, command: ToolbarCommand) {
@@ -176,8 +180,10 @@ export function Toolbar(props: ParentProps<Props>) {
   function UpdateNumberFormat(event: Event, command: ToolbarCommand, item?: {value: string, label: string}) {
 
     if (item) {
-      command.text = item.label;
-      command.value = item.value;
+      UpdateToolbarConfig(() => {
+        command.text = item.label;
+        command.value = item.value;
+      });
     }
     else if (event.target instanceof HTMLInputElement) {
 
@@ -188,7 +194,10 @@ export function Toolbar(props: ParentProps<Props>) {
         NumberFormatCache.SymbolicName(event.target.value || '');
       */
 
-      command.text = command.value = event.target.value || '';
+      const value = event.target.value || '';
+      UpdateToolbarConfig(() => {
+        command.text = command.value = value;
+      });
     }
 
     HandleCommand(event, command);
@@ -206,11 +215,11 @@ export function Toolbar(props: ParentProps<Props>) {
                    class={["input", props.control.width || '' ].join(' ')} 
                    placeholder={t(props.control.command.title)} 
                    value={props.control.command.text || ''} 
-                   onchange={e => UpdateNumberFormat(e, props.control.command)}
+                   onChange={e => UpdateNumberFormat(e, props.control.command)}
                    /> 
           </MenuButton.Static>
           <MenuButton.Menu>
-            <menu classList={{ [style.text]: true, [style.overflow]: true }}>
+            <menu class={{ [style.text]: true, [style.overflow]: true }}>
               <For each={(props.control.command as ListCommand).values || []}>
                 {item => <Switch>
                   <Match when={item === 'separator'}>
@@ -219,7 +228,7 @@ export function Toolbar(props: ParentProps<Props>) {
                   <Match when={true}>
                     <li>
                       <button class={style['menu-item']} 
-                          onclick={e => UpdateNumberFormat(e, props.control.command, item as { value: string, label: string })}>
+                          onClick={e => UpdateNumberFormat(e, props.control.command, item as { value: string, label: string })}>
                         {(item as { value: string, label: string }).label}
                       </button>
                     </li>
@@ -290,13 +299,13 @@ export function Toolbar(props: ParentProps<Props>) {
 
     return  <Switch>
               <Match when={true}>
-                <button classList={{ 
+                <button class={{ 
                           [style['toolbar-button']]: true,
                           [style.active]: !!props.control.command.value,
                         }} 
-                        onclick={e => HandleCommand(e, props.control.command)}
+                        onClick={e => HandleCommand(e, props.control.command)}
                         title={t(title())}
-                        ref={(el) => (el.innerHTML = icon() || '')} />
+                        innerHTML={icon() || ''} />
               </Match>
             </Switch>;
 
@@ -330,11 +339,11 @@ export function Toolbar(props: ParentProps<Props>) {
 
     return <div class={style['toolbar-split-button']}>
         <button title={t(props.control.commands[0].title)}
-                onclick={e => HandleCommand(e, props.control.commands[0])}>
+                onClick={e => HandleCommand(e, props.control.commands[0])}>
           {Reformat(props.control.commands[0].text || '', t(props.control.commands[0].title))}
         </button>
         <button title={t(props.control.commands[1].title)}
-                onclick={e => HandleCommand(e, props.control.commands[1])}>
+                onClick={e => HandleCommand(e, props.control.commands[1])}>
           {Reformat(props.control.commands[1].text || '', t(props.control.commands[1].title))}
         </button>
       </div>;
@@ -353,9 +362,9 @@ export function Toolbar(props: ParentProps<Props>) {
               <RenderButton control={item as ButtonControl}/>
             </Match>
             <Match when={item.type === 'text-button'}>
-              <button classList={{[style['toolbar-button']]: true, [style['text-button']]: true }}
-                      onclick={e => HandleCommand(e, (item as TextButtonControl).command)}>
-                <span ref={(el) => (el.innerHTML = (item as TextButtonControl).command.icon || '')} />
+              <button class={{[style['toolbar-button']]: true, [style['text-button']]: true }}
+                      onClick={e => HandleCommand(e, (item as TextButtonControl).command)}>
+                <span innerHTML={(item as TextButtonControl).command.icon || ''} />
                 <span>{t((item as TextButtonControl).command.title)}</span>
               </button>
             </Match>
@@ -387,21 +396,24 @@ export function Toolbar(props: ParentProps<Props>) {
   }
 
   function SteppedGroup(local: {steps: SteppedGroup['steps']}) {
-    const steps = local.steps.sort((a, b) => ((b.step || 0) - (a.step || 0)));
-    const group = createMemo(on(width, width => {
-      for (const step of steps) {
+    // sort a copy: sorting the config's own (store) array in place would be a
+    // write outside the setter.
+    const steps = createMemo(() => [...local.steps].sort((a, b) => ((b.step || 0) - (a.step || 0))));
+    const group = createMemo(() => {
+      const current = width();
+      for (const step of steps()) {
         const compare = step.step || 0;
-        if (width >= compare) {
+        if (current >= compare) {
           return step.controls || [];
         }
       }
       return [];
-    }));
+    });
     return <GroupControls controls={group()} />;
   }
 
   return <>
-    <div classList={{
+    <div class={{
       [style.toolbar]: true,
       'tab-container': true,
     }}>
@@ -418,7 +430,7 @@ export function Toolbar(props: ParentProps<Props>) {
                   <For each={menu.items || []}>
                     {item => <li>
                       {item === 'separator' ? <hr/> :
-                        <button class={style['menu-item']} disabled={item.enabled === false} onclick={event => HandleMenuItem(event, item)}>
+                        <button class={style['menu-item']} disabled={item.enabled === false} onClick={event => HandleMenuItem(event, item)}>
                           <Switch>
                             <Match when={item.menuicon && item.icon}>
                               <div class='display-contents' innerHTML={item.icon || ''} />
@@ -429,7 +441,7 @@ export function Toolbar(props: ParentProps<Props>) {
                           </Switch>
                           <span>{t(item.title)}</span>
                             <div class={style['right-align']}>
-                              <div classList={{[style.dot]: true, [style['dot-visible']]: props.sidebar?.() === item.key}}></div>
+                              <div class={{[style.dot]: true, [style['dot-visible']]: props.sidebar?.() === item.key}}></div>
                             </div>
                         </button>}
                     </li>}
@@ -444,15 +456,15 @@ export function Toolbar(props: ParentProps<Props>) {
 
           <For each={toolbar_config.tabs}>
             {(tab, index) => <div class="tab-pane">
-              <label classList={{"tab": true, [style.tab]: true}}>
+              <label class={{"tab": true, [style.tab]: true}}>
                 <input type="radio" 
                       data-label={t(tab.label)} 
                       name={tab_group_name} 
                       checked={index() === sessionData.active_tab} 
-                      onchange={e => { if (e.currentTarget.checked) { setSessionData(produce(s => s.active_tab = index())) }}}
+                      onChange={e => { if (e.currentTarget.checked) { setSessionData(s => { s.active_tab = index(); }) }}}
                       />
               </label>
-              <div classList={{
+              <div class={{
                   'tab-content': true,
                   [style['tab-content']]: true,
                   }}>
@@ -478,14 +490,9 @@ export function Toolbar(props: ParentProps<Props>) {
         <div class={style.separator}></div>
 
         <div class={style['command-palette-container']}>
-          <Switch>
-            <Match when={useDialogCommandPalette()}>
-              <CommandPaletteDialog sheet={props.sheet} />
-            </Match>
-            <Match when={true}>
-              <CommandPalette sheet={props.sheet} oncommand={props.oncommand}/>
-            </Match>
-          </Switch>
+          {/* SOLID2: command palette stage -- restore the inline palette /
+              dialog switch (on useDialogCommandPalette()) */}
+          <div data-use-dialog={useDialogCommandPalette()} />
         </div>
 
         <div class={style['status-pill-container']}>
@@ -498,7 +505,7 @@ export function Toolbar(props: ParentProps<Props>) {
           */}
 
           <DropMenu disabled={!spreadsheet_dirty()} label={
-            <div classList={{[shared.pill]: true, [style['status-pill']]: true, [style.status_pill_visible]: spreadsheet_dirty()}}>
+            <div class={{[shared.pill]: true, [style['status-pill']]: true, [style.status_pill_visible]: spreadsheet_dirty()}}>
               <div class="flex-row gap-0_5">
                 <span>  
                   {t('status-pill.messages.unsaved-changes')}
@@ -511,12 +518,12 @@ export function Toolbar(props: ParentProps<Props>) {
                 <menu>
                   <For each={status_menu() || []}>
                     {item => <li>
-                      {item === 'separator' ? <hr/> : IsToolbarMessage(item) ? <div classList={{
+                      {item === 'separator' ? <hr/> : IsToolbarMessage(item) ? <div class={{
                           [style['menu-message']]: true, 
                          }}>
                         {t(item.text)}</div>
                       :
-                        <button class={style['menu-item']} disabled={item.enabled === false} onclick={event => HandleMenuItem(event, item)}>
+                        <button class={style['menu-item']} disabled={item.enabled === false} onClick={event => HandleMenuItem(event, item)}>
                           <Switch>
                             <Match when={item.menuicon && item.icon}>
                               <div class='display-contents' innerHTML={item.icon || ''} />
@@ -527,7 +534,7 @@ export function Toolbar(props: ParentProps<Props>) {
                           </Switch>
                           <span>{t(item.title)}</span>
                             <div class={style['right-align']}>
-                              <div classList={{[style.dot]: true, [style['dot-visible']]: props.sidebar?.() === item.key}}></div>
+                              <div class={{[style.dot]: true, [style['dot-visible']]: props.sidebar?.() === item.key}}></div>
                             </div>
                         </button>}
                     </li>}
@@ -543,26 +550,26 @@ export function Toolbar(props: ParentProps<Props>) {
             <Match when={loggedIn()}>
               <DropMenu label={session().email || ''}>
               <menu>
-                <A classList={{[style['menu-item']]: true, [style.disabled]: true }} href='/account'>
+                <a class={{[style['menu-item']]: true, [style.disabled]: true }} href='/account'>
                   <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.account-page')}</span>
-                </A>
-                <A class={style['menu-item']} href='/documents'>
+                </a>
+                <a class={style['menu-item']} href='/documents'>
                   <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.documents')}</span>
-                </A>
+                </a>
 
                 <hr />
-                <A class={style['menu-item']} href='/sign-out'>
+                <a class={style['menu-item']} href='/sign-out'>
                   <div class='display-contents' innerHTML={icons.sign_out}></div>
                   <span>{t('toolbar.menu-commands.sign-out')}</span>
-                </A>
+                </a>
               </menu>
             </DropMenu>
 
             </Match>
             <Match when={true}>
-              <A href='/sign-in'>{t('auth.link.sign-in.text')}</A>
+              <a href='/sign-in'>{t('auth.link.sign-in.text')}</a>
             </Match>
           </Switch>
         </div>
@@ -593,9 +600,9 @@ export function Toolbar(props: ParentProps<Props>) {
             {item =><>
               <button class={style['toolbar-button']} 
                       disabled={(item as ButtonControl).command.enabled === false}
-                      onclick={e => HandleCommand(e, (item as ButtonControl).command)}
+                      onClick={e => HandleCommand(e, (item as ButtonControl).command)}
                       title={t((item as ButtonControl).command.title)}
-                      ref={(el) => (el.innerHTML = (item as ButtonControl).command.icon || '')} />          
+                      innerHTML={(item as ButtonControl).command.icon || ''} />          
             </>}
           </For>
         </div>

@@ -72,9 +72,9 @@ export function LayoutProvider(props: ParentProps) {
   };
 
   return (
-    <LayoutContext.Provider value={{ title, setTitle, requirement, setRequires, userPanel, setUserPanel }}>
+    <LayoutContext value={{ title, setTitle, requirement, setRequires, userPanel, setUserPanel }}>
       {props.children}
-    </LayoutContext.Provider>
+    </LayoutContext>
   );
 
 }

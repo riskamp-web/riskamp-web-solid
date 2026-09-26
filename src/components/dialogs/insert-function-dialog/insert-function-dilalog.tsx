@@ -337,21 +337,21 @@ export function InsertFunctionDialog(props: Props) {
               class="input" 
               ref={query}
               value={search_state.query}
-              oninput={UpdateQuery}
-              onkeydown={HandleKeyDown}
+              onInput={UpdateQuery}
+              onKeyDown={HandleKeyDown}
               placeholder={t('insert-function.search-for-function')}/>
-        <ul classList={{"function-list": true, [style.results]: true }} 
+        <ul class={{"function-list": true, [style.results]: true }} 
             tabindex="0" 
-            onkeydown={HandleKeyDown} 
+            onKeyDown={HandleKeyDown} 
             ref={results_list}
             role="listbox">
           <For each={search_state.results}>
             {(result, index) => <>
                 <li role="option"
                     aria-selected={index() === search_state.selected_index}
-                    onclick={e => SelectEntry(e, result, index())} 
-                    ondblclick={e => SelectFunction(e, result, index())}
-                    classList={{ [style.selected]: index() === search_state.selected_index }} >
+                    onClick={e => SelectEntry(e, result, index())} 
+                    onDblClick={e => SelectFunction(e, result, index())}
+                    class={{ [style.selected]: index() === search_state.selected_index }} >
                   <div class={style.name}>
                     {result.local_name}
                   </div>
@@ -543,13 +543,13 @@ export function InsertFunctionDialog(props: Props) {
       <footer>
         <div class={style.buttons}>
           <Show when={backButton() && state() === 'arguments'}>
-            <button onclick={() => setState('functions')}>{t('standard-buttons.back.title')}</button>
+            <button onClick={() => setState('functions')}>{t('standard-buttons.back.title')}</button>
           </Show>
           <div class="flex-grow"></div>
           <button class="button-primary"
                   disabled={state() === 'functions' && search_state.results.length <= 0}
-                  onclick={AcceptButton}>{t('standard-buttons.accept.title')}</button>
-          <button onclick={() => Cancel()}>{t('standard-buttons.cancel.title')}</button>
+                  onClick={AcceptButton}>{t('standard-buttons.accept.title')}</button>
+          <button onClick={() => Cancel()}>{t('standard-buttons.cancel.title')}</button>
         </div>
       </footer>
     </InteractiveDialog>;

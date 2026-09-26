@@ -9,7 +9,7 @@
  * swept into this pass -- worth deduping next time that page is open.
  */
 
-import { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { A } from '@solidjs/router';
 
 import { IconName, icons } from '~/components/icon-sets';

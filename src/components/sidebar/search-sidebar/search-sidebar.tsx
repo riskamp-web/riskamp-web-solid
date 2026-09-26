@@ -153,14 +153,14 @@ export function Sidebar(props: SidebarProps) {
   }
 
   return <>
-    <div classList={{
+    <div class={{
         [style['find-layout']]: true,
     }}>
       <div class="flex-column gap-1">
           <input type="text" 
                 class="input flex-grow" 
                 style="min-height: 34px;"
-                oninput={HandleInput}
+                onInput={HandleInput}
                 autocomplete="off"
                 ref={search} 
                 placeholder={t('search-panel.search-text.placeholder')}/>
@@ -169,21 +169,21 @@ export function Sidebar(props: SidebarProps) {
           <label>
             {t('search-panel.search-in.text')}
           </label>
-          <select class="select" value={params.type} onchange={e => params.type = e.currentTarget.value as Params['type']}>
+          <select class="select" value={params.type} onChange={e => params.type = e.currentTarget.value as Params['type']}>
             <option value='values'>{t('search-panel.search-type.cell-values')}</option>
             <option value='formulas'>{t('search-panel.search-type.cell-formulas')}</option>
           </select>
-          <select class="select" value={params.scope} onchange={e => params.scope = e.currentTarget.value as Params['scope']}>
+          <select class="select" value={params.scope} onChange={e => params.scope = e.currentTarget.value as Params['scope']}>
             <option value='current'>{t('search-panel.search-scope.current-sheet')}</option>
             <option value='all'>{t('search-panel.search-scope.all-sheets')}</option>
           </select>
           <label class="flex-row gap-0_5">
-            <input type="checkbox" checked={params.wildcards} onchange={e => params.wildcards = e.currentTarget.checked}/>
+            <input type="checkbox" checked={params.wildcards} onChange={e => params.wildcards = e.currentTarget.checked}/>
             <span>{t('search-panel.search-type.wildcards')}</span>
           </label>
         </div>
       </div>
-      <div classList={{
+      <div class={{
           'grid-table flex-grow overflow-hidden': true,
           [style['find-grid-table']]: true,
         }}>
@@ -195,7 +195,7 @@ export function Sidebar(props: SidebarProps) {
         
         <div class="grid-table-body">
           <For each={filtered()}>
-            {result => <div class="grid-table-row cursor-pointer" onclick={e => SelectTarget(e, result)} >
+            {result => <div class="grid-table-row cursor-pointer" onClick={e => SelectTarget(e, result)} >
               <div>
                 {result.sheet_name}
               </div>

@@ -8,8 +8,8 @@ export function Spinner() {
 
   let dialog: HTMLDialogElement|undefined;
 
-  createEffect(() => {
-    if (spinner.visible()) {
+  createEffect(spinner.visible, (visible) => {
+    if (visible) {
       dialog?.showModal();
     }
     else {

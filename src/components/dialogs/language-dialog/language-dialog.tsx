@@ -91,13 +91,13 @@ export function LanguageDialog(props: Props) {
   return <>
     <Dialog {...props} escape modal closebox resizeable moveable>
       <header>{t('select-language-dialog.title')}</header>
-      <section classList={{[style.body]: true, [style.expanded]: true }}>
+      <section class={{[style.body]: true, [style.expanded]: true }}>
         
-        <div classList={{[style.control]: true, 'flex-grow': true }}>
+        <div class={{[style.control]: true, 'flex-grow': true }}>
           <label>{t('select-language-dialog.select-language')}</label>
-          <ul classList={{[style.listbox]: true}}>
-            <li classList={{ [style.selected]: !selectedLanguage() }}
-                onclick={_ => {
+          <ul class={{[style.listbox]: true}}>
+            <li class={{ [style.selected]: !selectedLanguage() }}
+                onClick={_ => {
                   setSelectedLanguage('');
                   setAcceptEnabled(true);
                   setDecimalSeparator('');
@@ -108,18 +108,18 @@ export function LanguageDialog(props: Props) {
               <span class={style.detail}>{systemSetting()}</span>
             </li>
             <For each={languages}>
-              {(entry) => <li onclick={_ => {
+              {(entry) => <li onClick={_ => {
                   setSelectedLanguage(entry.code);
                   setAcceptEnabled(true);
                   setDecimalSeparator(entry.decimal_separator);
                 }} 
-                ondblclick={_ => {
+                onDblClick={_ => {
                   setSelectedLanguage(entry.code);
                   setAcceptEnabled(true);
                   setDecimalSeparator(entry.decimal_separator);
                   Apply();
                 }}
-                classList={{ [style.selected]: entry.code === selectedLanguage() }}>
+                class={{ [style.selected]: entry.code === selectedLanguage() }}>
                 <div>
                   {entry.name}
                 </div>
@@ -141,10 +141,10 @@ export function LanguageDialog(props: Props) {
 
       </section>
       <footer>
-        <button class="button-primary" disabled={!acceptEnabled()} onclick={_ => Apply()}>
+        <button class="button-primary" disabled={!acceptEnabled()} onClick={_ => Apply()}>
           {t('standard-buttons.apply.title')}
         </button>
-        <button onclick={() => props.setOpen(false)}>{t('dialog-close-label')}</button>
+        <button onClick={() => props.setOpen(false)}>{t('dialog-close-label')}</button>
       </footer>
     </Dialog>
   </>;

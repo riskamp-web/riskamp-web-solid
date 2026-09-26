@@ -517,16 +517,16 @@ export function CommandPalette(props: Props) {
       <div class={style.container}
           ref={container}
           style={`anchor-name: --${container_id}`}
-          onfocusin={FocusIn}
-          onfocusout={FocusOut}
-          onkeydown={HandleKeyDown}
+          onFocusIn={FocusIn}
+          onFocusOut={FocusOut}
+          onKeyDown={HandleKeyDown}
           id={container_id} >
 
         <div contenteditable
              class={style['palette-editor']}
              ref={input}
-             onkeydown={HandleKeyDown}
-             oninput={HandleInput}
+             onKeyDown={HandleKeyDown}
+             onInput={HandleInput}
              data-prompt={activeParameter() ? '...' : '>'}
              data-placeholder={placeholder()}
           />

@@ -20,7 +20,7 @@ export function Page(props: ParentProps<Props>) {
 
   return <>
       <Show when={auth.loggedIn()} fallback={<Navigate href="/" />}>
-        <main classList={classes}>
+        <main class={classes}>
           <Toolbar title='documents-page.title' account-info/>
           {props.children}          
         </main>

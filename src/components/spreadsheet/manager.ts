@@ -43,7 +43,7 @@ export function CacheCUrrentState(sheet?: SpreadsheetType, document_path = '', v
       });
     });
 
-    setSessionData('document_version', sheet.state || 0);
+    setSessionData(state => { state.document_version = sheet.state || 0; });
 
 
   }
@@ -148,9 +148,9 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
       // setSessionData('last_saved_version', data.canonical_version || 0);
       // setSessionData('document_version', sheet.state);
 
-      setSessionData({
-        last_saved_version: data.canonical_version || 0,
-        document_version: sheet.state,
+      setSessionData(state => {
+        state.last_saved_version = data.canonical_version || 0;
+        state.document_version = sheet.state;
       });
 
       spinner.hide();
@@ -212,13 +212,13 @@ export async function TryLoadPath(sheet?: SpreadsheetType, path = '', version: s
         sheet.LoadDocument(data.data, { source: 'cache' as LoadSource });
 
         /*
-        setSessionData('last_saved_version', data.canonical_version || 0);
-        setSessionData('document_version', sheet.state);
+        setSessionData(state => { state.last_saved_version = data.canonical_version || 0; });
+        setSessionData(state => { state.document_version = sheet.state; });
         */
 
-        setSessionData({
-          last_saved_version: data.canonical_version || 0,
-          document_version: sheet.state,
+        setSessionData(state => {
+          state.last_saved_version = data.canonical_version || 0;
+          state.document_version = sheet.state;
         });
 
       }

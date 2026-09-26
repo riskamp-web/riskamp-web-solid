@@ -1,4 +1,3 @@
-
 import { createRoot, createEffect } from 'solid-js';
 
 /**
@@ -6,11 +5,10 @@ import { createRoot, createEffect } from 'solid-js';
  */
 export const AwaitSignal = <T>(getter: () => T, condition: (val: T) => boolean = Boolean) => {
   return new Promise<T>((resolve) => {
-    createRoot((dispose) => createEffect(() => {
-      const val = getter();
+    createRoot((dispose) => createEffect(getter, (val) => {
       if (condition(val)) {
-        resolve(val);
         dispose();
+        resolve(val);
       }
     }));
   });

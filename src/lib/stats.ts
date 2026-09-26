@@ -1,8 +1,8 @@
 
 
-import { createEffect, on } from "solid-js";
+import { createEffect } from "solid-js";
 import { useLocation } from "@solidjs/router";
-import { isServer } from "solid-js/web";
+import { isServer } from "@solidjs/web";
 
 let session = '';
 
@@ -43,13 +43,13 @@ export function RouteStats() {
     return; 
   }
 
-  createEffect(on(() => `${location.pathname}${location.search}${location.hash}`, url => {
+  createEffect(() => `${location.pathname}${location.search}${location.hash}`, url => {
     // SSR/hydration phase    
     if (isServer) { 
       return; 
     }
     Notify({url, event: 'load'});
-  }));
+  });
 
   return null;
 }

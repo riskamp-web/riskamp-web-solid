@@ -210,8 +210,8 @@ export function RunSimulationDialog(props: Props) {
           <span>{t('run-simulation.number-of-trials')}</span>
           <input disabled={running()} 
                  value={number_format.Format(persistentData.trials)}
-                 onchange={UpdateTrials}
-                 onkeydown={InputKeyDown}
+                 onChange={UpdateTrials}
+                 onKeyDown={InputKeyDown}
                  type="text" 
                  class="input"></input>
         </div>
@@ -219,7 +219,7 @@ export function RunSimulationDialog(props: Props) {
           <label>
             <input disabled={running()} 
                    type="checkbox" 
-                   onchange={e => setPersistentData(produce(s => { s.stepped = e.currentTarget.checked; })) }
+                   onChange={e => setPersistentData(produce(s => { s.stepped = e.currentTarget.checked; })) }
                    checked={persistentData.stepped}></input>
             <span>{t('run-simulation.screen-updates')}</span>
           </label>
@@ -235,7 +235,7 @@ export function RunSimulationDialog(props: Props) {
       </section>
       <footer>
         <div class={style.buttons}> 
-          <button autofocus class="button-primary" onclick={Start} disabled={running()}>{t('run-simulation-start-label')}</button>
+          <button autofocus class="button-primary" onClick={Start} disabled={running()}>{t('run-simulation-start-label')}</button>
           <button onClick={Stop} >{close_label()}</button>
         </div>
       </footer>
