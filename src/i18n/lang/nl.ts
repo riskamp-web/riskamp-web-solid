@@ -1903,4 +1903,25 @@ export default {
       'unsaved-changes': 'Niet-opgeslagen wijzigingen',
     },
   },
+  'clear-data-page': {
+    title: 'Gegevens wissen',
+    confirm: {
+      heading: 'Alle lokale gegevens wissen?',
+      detail: 'Hiermee worden uw documenten in de cache, uw aanmelding en uw op dit apparaat opgeslagen voorkeuren verwijderd. Wat in uw account is opgeslagen, blijft ongewijzigd en dit kan niet ongedaan worden gemaakt.',
+      submit: 'Alles wissen',
+      cancel: 'Annuleren',
+    },
+    clearing: 'Bezig met wissen…',
+    done: {
+      heading: 'Alle instellingen zijn gewist',
+      detail: 'Uw lokale gegevens, documenten in de cache en voorkeuren op dit apparaat zijn verwijderd.',
+    },
+    error: {
+      heading: 'Kan niet alles wissen',
+      detail: 'Er is iets misgegaan bij het wissen van uw lokale gegevens. Probeer het opnieuw of wis de gegevens van deze site via de instellingen van uw browser.',
+      retry: 'Opnieuw proberen',
+    },
+    'home-link': 'Terug naar de startpagina',
+  },
+
 } satisfies DeepPartial<I18N>;

@@ -1903,4 +1903,25 @@ export default {
       'unsaved-changes': 'Ungespeicherte Änderungen',
     },
   },
+  'clear-data-page': {
+    title: 'Daten löschen',
+    confirm: {
+      heading: 'Alle lokalen Daten löschen?',
+      detail: 'Dadurch werden Ihre zwischengespeicherten Dokumente, Ihre Anmeldung und Ihre auf diesem Gerät gespeicherten Einstellungen entfernt. Was in Ihrem Konto gespeichert ist, bleibt unberührt, und der Vorgang kann nicht rückgängig gemacht werden.',
+      submit: 'Alles löschen',
+      cancel: 'Abbrechen',
+    },
+    clearing: 'Wird gelöscht…',
+    done: {
+      heading: 'Alle Einstellungen wurden gelöscht',
+      detail: 'Ihre lokalen Daten, zwischengespeicherten Dokumente und Einstellungen auf diesem Gerät wurden entfernt.',
+    },
+    error: {
+      heading: 'Es konnte nicht alles gelöscht werden',
+      detail: 'Beim Löschen Ihrer lokalen Daten ist ein Fehler aufgetreten. Versuchen Sie es erneut oder löschen Sie die Daten dieser Website in den Einstellungen Ihres Browsers.',
+      retry: 'Erneut versuchen',
+    },
+    'home-link': 'Zurück zur Startseite',
+  },
+
 } satisfies DeepPartial<I18N>;

@@ -1904,4 +1904,25 @@ export default {
     },
   },
 
+  'clear-data-page': {
+    title: 'Limpar dados',
+    confirm: {
+      heading: 'Limpar todos os dados locais?',
+      detail: 'Isso remove seus documentos em cache, seu login e as preferências salvas neste dispositivo. Não afeta nada que você tenha salvado na sua conta e não pode ser desfeito.',
+      submit: 'Limpar tudo',
+      cancel: 'Cancelar',
+    },
+    clearing: 'Limpando…',
+    done: {
+      heading: 'Todas as configurações foram limpas',
+      detail: 'Seus dados locais, documentos em cache e preferências neste dispositivo foram removidos.',
+    },
+    error: {
+      heading: 'Não foi possível limpar tudo',
+      detail: 'Ocorreu um erro ao limpar seus dados locais. Tente novamente ou limpe os dados deste site nas configurações do seu navegador.',
+      retry: 'Tentar novamente',
+    },
+    'home-link': 'Voltar à página inicial',
+  },
+
 } satisfies DeepPartial<I18N>;

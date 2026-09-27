@@ -1930,4 +1930,25 @@ export default {
       'unsaved-changes': 'Ulagrede endringer',
     },
   },
+  'clear-data-page': {
+    title: 'Tøm data',
+    confirm: {
+      heading: 'Tømme alle lokale data?',
+      detail: 'Dette fjerner de bufrede dokumentene, innloggingen og innstillingene som er lagret på denne enheten. Det påvirker ikke noe som er lagret på kontoen din, og det kan ikke angres.',
+      submit: 'Tøm alt',
+      cancel: 'Avbryt',
+    },
+    clearing: 'Tømmer…',
+    done: {
+      heading: 'Alle innstillinger er tømt',
+      detail: 'De lokale dataene, de bufrede dokumentene og innstillingene på denne enheten er fjernet.',
+    },
+    error: {
+      heading: 'Kunne ikke tømme alt',
+      detail: 'Noe gikk galt under tømmingen av de lokale dataene. Prøv igjen, eller tøm dataene for dette nettstedet i nettleserinnstillingene.',
+      retry: 'Prøv igjen',
+    },
+    'home-link': 'Tilbake til startsiden',
+  },
+
 } satisfies DeepPartial<I18N>;

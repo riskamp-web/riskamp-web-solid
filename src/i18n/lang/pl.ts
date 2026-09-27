@@ -1927,4 +1927,25 @@ export default {
       'unsaved-changes': 'Niezapisane zmiany',
     },
   },
+  'clear-data-page': {
+    title: 'Wyczyść dane',
+    confirm: {
+      heading: 'Wyczyścić wszystkie dane lokalne?',
+      detail: 'Spowoduje to usunięcie dokumentów z pamięci podręcznej, logowania i preferencji zapisanych na tym urządzeniu. Nie ma to wpływu na nic, co zapisano na Twoim koncie, i nie można tego cofnąć.',
+      submit: 'Wyczyść wszystko',
+      cancel: 'Anuluj',
+    },
+    clearing: 'Czyszczenie…',
+    done: {
+      heading: 'Wszystkie ustawienia zostały wyczyszczone',
+      detail: 'Twoje dane lokalne, dokumenty z pamięci podręcznej i preferencje na tym urządzeniu zostały usunięte.',
+    },
+    error: {
+      heading: 'Nie udało się wyczyścić wszystkiego',
+      detail: 'Podczas czyszczenia danych lokalnych wystąpił błąd. Spróbuj ponownie lub wyczyść dane tej witryny w ustawieniach przeglądarki.',
+      retry: 'Spróbuj ponownie',
+    },
+    'home-link': 'Powrót do strony głównej',
+  },
+
 } satisfies DeepPartial<I18N>;

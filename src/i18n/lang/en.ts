@@ -1980,4 +1980,25 @@ export default {
       'unsaved-changes': 'Unsaved changes',
     },
   },
+
+  'clear-data-page': {
+    title: 'Clear data',
+    confirm: {
+      heading: 'Clear all local data?',
+      detail: 'This removes your cached documents, sign-in, and preferences stored on this device. It doesn’t touch anything saved to your account, and it can’t be undone.',
+      submit: 'Clear everything',
+      cancel: 'Cancel',
+    },
+    clearing: 'Clearing…',
+    done: {
+      heading: 'All settings have been cleared',
+      detail: 'Your local data, cached documents, and preferences on this device have been removed.',
+    },
+    error: {
+      heading: 'Couldn’t clear everything',
+      detail: 'Something went wrong while clearing your local data. Try again, or clear this site’s data from your browser settings.',
+      retry: 'Try again',
+    },
+    'home-link': 'Return to the home page',
+  },
 };

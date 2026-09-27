@@ -1,0 +1,67 @@
+/*
+ * standalone /clear-data page -- a backstage route that opts out of the group's
+ * layout (see (backstage).tsx), so it owns its own centred layout.
+ */
+
+.page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.heading {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.detail {
+  margin: 0;
+  max-width: 34rem;
+  color: var(--text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* the destructive action. filled --danger so it reads as the weighty choice next
+   to the quiet Cancel link. focus ring is left to the system (backstage convention). */
+.danger {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--surface-radius);
+  height: var(--control-height);
+  padding: 0 var(--control-padding-x);
+  font: inherit;
+  font-weight: 500;
+  color: var(--on-accent);
+  background: var(--danger);
+  cursor: pointer;
+}
+
+.danger:hover {
+  filter: brightness(1.1);
+}
+
+.home-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.home-link:hover {
+  text-decoration: underline;
+}

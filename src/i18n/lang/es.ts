@@ -1908,4 +1908,25 @@ export default {
     },
   },
 
+  'clear-data-page': {
+    title: 'Borrar datos',
+    confirm: {
+      heading: '¿Borrar todos los datos locales?',
+      detail: 'Esto elimina los documentos en caché, la sesión y las preferencias almacenadas en este dispositivo. No afecta a nada que hayas guardado en tu cuenta y no se puede deshacer.',
+      submit: 'Borrar todo',
+      cancel: 'Cancelar',
+    },
+    clearing: 'Borrando…',
+    done: {
+      heading: 'Se han borrado todos los ajustes',
+      detail: 'Se han eliminado tus datos locales, los documentos en caché y las preferencias de este dispositivo.',
+    },
+    error: {
+      heading: 'No se pudo borrar todo',
+      detail: 'Se produjo un error al borrar tus datos locales. Vuelve a intentarlo o borra los datos de este sitio desde la configuración de tu navegador.',
+      retry: 'Reintentar',
+    },
+    'home-link': 'Volver a la página de inicio',
+  },
+
 } satisfies DeepPartial<I18N>;

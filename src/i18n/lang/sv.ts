@@ -1931,4 +1931,25 @@ export default {
       'unsaved-changes': 'Osparade ändringar',
     },
   },
+  'clear-data-page': {
+    title: 'Rensa data',
+    confirm: {
+      heading: 'Rensa alla lokala data?',
+      detail: 'Detta tar bort dina cachelagrade dokument, din inloggning och de inställningar som sparats på den här enheten. Det påverkar inte något som sparats på ditt konto och kan inte ångras.',
+      submit: 'Rensa allt',
+      cancel: 'Avbryt',
+    },
+    clearing: 'Rensar…',
+    done: {
+      heading: 'Alla inställningar har rensats',
+      detail: 'Dina lokala data, cachelagrade dokument och inställningar på den här enheten har tagits bort.',
+    },
+    error: {
+      heading: 'Kunde inte rensa allt',
+      detail: 'Något gick fel när dina lokala data skulle rensas. Försök igen eller rensa den här webbplatsens data i webbläsarens inställningar.',
+      retry: 'Försök igen',
+    },
+    'home-link': 'Tillbaka till startsidan',
+  },
+
 } satisfies DeepPartial<I18N>;

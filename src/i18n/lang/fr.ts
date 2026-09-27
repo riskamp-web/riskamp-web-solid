@@ -1908,4 +1908,25 @@ export default {
     },
   },
 
+  'clear-data-page': {
+    title: 'Effacer les données',
+    confirm: {
+      heading: 'Effacer toutes les données locales ?',
+      detail: 'Cette action supprime vos documents en cache, votre session et vos préférences enregistrés sur cet appareil. Elle n’affecte rien de ce qui est enregistré dans votre compte et ne peut pas être annulée.',
+      submit: 'Tout effacer',
+      cancel: 'Annuler',
+    },
+    clearing: 'Effacement…',
+    done: {
+      heading: 'Tous les paramètres ont été effacés',
+      detail: 'Vos données locales, vos documents en cache et vos préférences sur cet appareil ont été supprimés.',
+    },
+    error: {
+      heading: 'Impossible de tout effacer',
+      detail: 'Une erreur s’est produite lors de l’effacement de vos données locales. Réessayez ou effacez les données de ce site dans les paramètres de votre navigateur.',
+      retry: 'Réessayer',
+    },
+    'home-link': 'Revenir à la page d’accueil',
+  },
+
 } satisfies DeepPartial<I18N>;

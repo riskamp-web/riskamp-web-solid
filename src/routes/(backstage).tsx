@@ -1,6 +1,6 @@
 
 import { createMemo, ParentProps, Show } from 'solid-js';
-import { Navigate } from '@solidjs/router';
+import { Navigate, useLocation } from '@solidjs/router';
 import { LayoutProvider, useLayoutContext } from '~/components/layout-context';
 
 import { Toolbar } from '~/components/toolbar/account-toolbar';
@@ -25,6 +25,7 @@ import { loggedIn } from '~/lib/auth';
 function Layout(props: ParentProps) {
 
   const { title, requirement, userPanel } = useLayoutContext();
+  const location = useLocation();
 
   const redirect = createMemo(() => {
     switch (requirement()) {
@@ -34,17 +35,21 @@ function Layout(props: ParentProps) {
     }
   });
 
-  // loggedIn() is a signal, so this is live: losing the session on /documents
-  // bounces you out, and signing in on /sign-in bounces you to / by itself.
-  // the toolbar sits outside the gate so the shell doesn't blink on the swap.
-  return <>
+  // /clear-data is filed here with the other account pages for logical grouping,
+  // but it's a bare recovery page that wipes local state (auth, caches, prefs).
+  // it must render without the shell -- the toolbar and auth gate read the very
+  // state it clears -- so it opts out of the layout entirely.
+  return <Show when={location.pathname !== '/clear-data'} fallback={props.children}>
+      {/* loggedIn() is a signal, so this is live: losing the session on /documents
+          bounces you out, and signing in on /sign-in bounces you to / by itself.
+          the toolbar sits outside the gate so the shell doesn't blink on the swap. */}
       <main class="fixed">
         <Toolbar title={title()} account-info={userPanel()} />
         <Show when={redirect()} fallback={props.children}>
           {(href) => <Navigate href={href()} />}
         </Show>
       </main>
-    </>;
+    </Show>;
 }
 
 export default function LayoutWithContext(props: ParentProps) {

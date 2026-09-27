@@ -1908,4 +1908,25 @@ export default {
     },
   },
 
+  'clear-data-page': {
+    title: 'Cancella dati',
+    confirm: {
+      heading: 'Cancellare tutti i dati locali?',
+      detail: 'Questa operazione rimuove i documenti nella cache, l’accesso e le preferenze salvate su questo dispositivo. Non tocca nulla di ciò che è salvato nel tuo account e non può essere annullata.',
+      submit: 'Cancella tutto',
+      cancel: 'Annulla',
+    },
+    clearing: 'Cancellazione…',
+    done: {
+      heading: 'Tutte le impostazioni sono state cancellate',
+      detail: 'I tuoi dati locali, i documenti nella cache e le preferenze su questo dispositivo sono stati rimossi.',
+    },
+    error: {
+      heading: 'Impossibile cancellare tutto',
+      detail: 'Si è verificato un errore durante la cancellazione dei tuoi dati locali. Riprova oppure cancella i dati di questo sito dalle impostazioni del browser.',
+      retry: 'Riprova',
+    },
+    'home-link': 'Torna alla pagina iniziale',
+  },
+
 } satisfies DeepPartial<I18N>;

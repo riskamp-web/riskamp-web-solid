@@ -1930,4 +1930,25 @@ export default {
       'unsaved-changes': 'Ikke-gemte ændringer',
     },
   },
+  'clear-data-page': {
+    title: 'Ryd data',
+    confirm: {
+      heading: 'Ryd alle lokale data?',
+      detail: 'Dette fjerner dine cachelagrede dokumenter, dit login og de indstillinger, der er gemt på denne enhed. Det påvirker ikke noget, der er gemt på din konto, og det kan ikke fortrydes.',
+      submit: 'Ryd alt',
+      cancel: 'Annuller',
+    },
+    clearing: 'Rydder…',
+    done: {
+      heading: 'Alle indstillinger er blevet ryddet',
+      detail: 'Dine lokale data, cachelagrede dokumenter og indstillinger på denne enhed er blevet fjernet.',
+    },
+    error: {
+      heading: 'Kunne ikke rydde alt',
+      detail: 'Der opstod en fejl under rydningen af dine lokale data. Prøv igen, eller ryd webstedets data i din browsers indstillinger.',
+      retry: 'Prøv igen',
+    },
+    'home-link': 'Tilbage til startsiden',
+  },
+
 } satisfies DeepPartial<I18N>;
