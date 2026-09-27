@@ -95,6 +95,9 @@ label.tab {
   align-items: center;
   justify-content: center;
   background: transparent;
+  /* explicit, not left to the UA: desktop's `buttontext` happens to match, but
+     iOS WebKit defaults buttons to system blue, and the icons follow currentColor. */
+  color: var(--toolbar-control-text-color);
   font-size: inherit;
   font-family: inherit;
   gap: .5em;
@@ -184,6 +187,7 @@ button.menu-item, a.menu-item {
 
   border: none;
   background: transparent;
+  color: var(--toolbar-control-text-color);  /* see .toolbar-button */
   cursor: pointer;
   transition: all var(--toolbar-transition-delay);
   overflow: hidden;
