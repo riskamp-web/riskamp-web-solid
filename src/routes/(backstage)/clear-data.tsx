@@ -25,6 +25,15 @@ import style from './clear-data.module.css';
  *
  * The clearing runs client-side only (localStorage, caches, etc. don't exist
  * during SSR). Strings live under the 'clear-data-page' namespace in ~/i18n/lang.
+ *
+ * Intended side-effect -- the UI language resets to the system default. The chosen
+ * language is persisted in persistentData.locale_settings.ui_language (localStorage
+ * 'app-data'); wiping storage removes it, so on the post-clear reload InitI18N finds
+ * nothing stored and falls back to SystemLocale(). Note the two-step nature: the
+ * clear does *not* touch the in-memory i18n store, so the 'done' screen still renders
+ * in whatever language was loaded (e.g. the confirmation reads in Danish), and only
+ * the reload swaps back to the default. That's correct for "clear all local data" --
+ * a persisted preference is exactly the kind of state this page exists to drop.
  */
 
 type Phase = 'confirm' | 'clearing' | 'done' | 'error';
