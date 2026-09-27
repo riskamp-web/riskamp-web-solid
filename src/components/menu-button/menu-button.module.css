@@ -11,6 +11,10 @@
   align-items: center;
   gap: .5em;
   padding: 0;
+  /* explicit, not left to the UA: a bare-button sets no color, so iOS WebKit
+     defaults it to system blue and the caret follows currentColor. see
+     .toolbar-button in toolbar.module.css. */
+  color: var(--toolbar-control-text-color);
 }
 
 /* the caret tracks the button's font size, as the inline glyph it replaced did */

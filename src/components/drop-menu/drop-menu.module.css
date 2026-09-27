@@ -7,6 +7,9 @@
 button.label {
   border: none;
   background: transparent;
+  /* explicit, not left to the UA: iOS WebKit defaults buttons to system blue,
+     and the caret follows currentColor. see .toolbar-button in toolbar.module.css. */
+  color: var(--toolbar-control-text-color);
   font-family: inherit;
   font-size: inherit;
   display: flex;
