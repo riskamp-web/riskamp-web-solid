@@ -45,6 +45,14 @@
 
 .trailer {
   margin-top: 0;
+  /* Pin to the trailing column explicitly: the wrapper carries both the global
+     `.tab-container` (tabs.css) and this module's class, which each set
+     `grid-template-columns` at equal specificity. Which one wins depends on
+     stylesheet source order — and that order differs between dev (per-module
+     <style> injection) and prod (bundled links), so auto-placement lands the
+     trailer in the wrong column in prod. Placing it explicitly makes it robust
+     to whichever grid template wins. (Mirrors the quickview trailer.) */
+  grid-column: 3 / -1;
   text-align: right;
   overflow: hidden;
 
