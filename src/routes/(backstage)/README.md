@@ -222,6 +222,10 @@ rather than the workspace's (2026-10, from the design review and `/dev-test/sign
 The workspace is deliberately left on `system-ui` and the grid on its own font, so it
 feels native. Brand type belongs on the edges.
 
+IBM Plex Sans (riskamp.com's previous face) was previewed on these pages before the
+merge and passed over: the two read about the same here, and Inter matches the current
+site. Treat it as settled unless the site's type changes.
+
 - **Self-hosted**, from `@fontsource-variable/inter`. `(backstage).tsx` imports it, so
   only backstage routes fetch it, and only the unicode subsets a page actually draws.
   No Google Fonts request, which matters behind enterprise firewalls.
