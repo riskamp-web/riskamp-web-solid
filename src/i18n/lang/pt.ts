@@ -907,7 +907,7 @@ export default {
 
     error: {
       title: 'Não foi possível carregar seus documentos',
-      detail: 'O carregamento falhou devido a um erro. Tente novamente mais tarde.',
+      detail: 'Algo deu errado ao carregar a lista. Tente novamente em instantes.',
       retry: 'Tentar novamente',
     },
 
@@ -1649,8 +1649,8 @@ export default {
   },
 
   'sign-in-page': {
-    heading: 'Entrar',
-    subtitle: 'Digite seu nome de usuário e sua senha para entrar.',
+    heading: 'Que bom ver você de novo',
+    subtitle: 'Entre para continuar de onde parou.',
 
     username: {
       label: 'Nome de usuário ou e-mail',
@@ -1712,7 +1712,7 @@ export default {
   'create-account-page': {
     heading: 'Criar conta',
 
-    subtitle: 'Pedimos um endereço de e-mail e um nome de usuário porque os documentos são armazenados sob seu nome de usuário.',
+    subtitle: 'Seu nome de usuário faz parte do endereço de cada documento, então escolha um que você não se importe de compartilhar.',
 
     terms: {
       text: 'Leia nossos {link}.',
@@ -1822,8 +1822,8 @@ export default {
     },
 
     done: {
-      heading: 'Obrigado pelo seu feedback!',
-      body: 'Vamos ler sua mensagem e responder assim que possível.',
+      heading: 'Obrigado pela mensagem',
+      body: 'Se você informou um endereço de e-mail, responderemos assim que possível.',
       home: 'Voltar ao início',
     },
   },
@@ -1883,7 +1883,7 @@ export default {
 
     done: {
       heading: 'Senha atualizada',
-      body: 'Sua nova senha foi salva.',
+      body: 'Tudo pronto — use-a na próxima vez que entrar.',
       'continue': 'Continuar para o aplicativo',
     },
 

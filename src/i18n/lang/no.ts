@@ -909,7 +909,7 @@ export default {
 
     error: {
       title: 'Kunne ikke laste inn dokumentene dine',
-      detail: 'Innlasting mislyktes på grunn av en feil. Prøv igjen senere.',
+      detail: 'Noe gikk galt under innlastingen av listen. Prøv igjen om litt.',
       retry: 'Prøv igjen',
     },
 
@@ -1660,8 +1660,8 @@ export default {
   // toolbar's title, which isn't the same string as the heading on the page).
   //
   'sign-in-page': {
-    heading: 'Logg inn',
-    subtitle: 'Skriv inn brukernavn og passord for å logge inn.',
+    heading: 'Velkommen tilbake',
+    subtitle: 'Logg inn for å fortsette der du slapp.',
 
     username: {
       label: 'Brukernavn eller e-post',
@@ -1730,7 +1730,7 @@ export default {
   'create-account-page': {
     heading: 'Opprett konto',
 
-    subtitle: 'Vi ber om en e-postadresse og et brukernavn fordi dokumenter lagres under brukernavnet ditt.',
+    subtitle: 'Brukernavnet ditt er en del av adressen til hvert dokument, så velg et du gjerne deler.',
 
     // {link} is the terms of service link, spliced in so a translation can put it
     // where its own grammar needs it
@@ -1845,8 +1845,8 @@ export default {
     },
 
     done: {
-      heading: 'Takk for tilbakemeldingen!',
-      body: 'Vi leser meldingen din og kommer tilbake til deg så snart vi kan.',
+      heading: 'Takk for meldingen',
+      body: 'Hvis du oppga en e-postadresse, kommer vi tilbake til deg så snart vi kan.',
       home: 'Tilbake til startsiden',
     },
   },
@@ -1909,7 +1909,7 @@ export default {
 
     done: {
       heading: 'Passord oppdatert',
-      body: 'Det nye passordet ditt er lagret.',
+      body: 'Alt er klart — bruk det neste gang du logger inn.',
       'continue': 'Fortsett til appen',
     },
 

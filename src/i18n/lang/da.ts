@@ -909,7 +909,7 @@ export default {
 
     error: {
       title: 'Dine dokumenter kunne ikke indlæses',
-      detail: 'Indlæsning mislykkedes på grund af en fejl. Prøv igen senere.',
+      detail: 'Noget gik galt under indlæsningen af listen. Prøv igen om lidt.',
       retry: 'Prøv igen',
     },
 
@@ -1660,8 +1660,8 @@ export default {
   // toolbar's title, which isn't the same string as the heading on the page).
   //
   'sign-in-page': {
-    heading: 'Log ind',
-    subtitle: 'Indtast dit brugernavn og din adgangskode for at logge ind.',
+    heading: 'Velkommen tilbage',
+    subtitle: 'Log ind for at fortsætte, hvor du slap.',
 
     username: {
       label: 'Brugernavn eller e-mail',
@@ -1730,7 +1730,7 @@ export default {
   'create-account-page': {
     heading: 'Opret konto',
 
-    subtitle: 'Vi beder om en e-mailadresse og et brugernavn, fordi dokumenter gemmes under dit brugernavn.',
+    subtitle: 'Dit brugernavn indgår i adressen på alle dine dokumenter, så vælg et, du gerne vil dele.',
 
     // {link} is the terms of service link, spliced in so a translation can put it
     // where its own grammar needs it
@@ -1845,8 +1845,8 @@ export default {
     },
 
     done: {
-      heading: 'Tak for din feedback!',
-      body: 'Vi læser din besked og vender tilbage til dig, så snart vi kan.',
+      heading: 'Tak for din besked',
+      body: 'Hvis du har angivet en e-mailadresse, vender vi tilbage til dig, så snart vi kan.',
       home: 'Tilbage til start',
     },
   },
@@ -1909,7 +1909,7 @@ export default {
 
     done: {
       heading: 'Adgangskode opdateret',
-      body: 'Din nye adgangskode er gemt.',
+      body: 'Så er du klar — brug den, næste gang du logger ind.',
       'continue': 'Fortsæt til appen',
     },
 

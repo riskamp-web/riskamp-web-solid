@@ -909,7 +909,7 @@ export default {
 
     error: {
       title: 'Impossible de charger vos documents',
-      detail: 'Le chargement a échoué en raison d’une erreur. Réessayez plus tard.',
+      detail: 'Un problème est survenu lors du chargement de la liste. Réessayez dans un instant.',
       retry: 'Réessayer',
     },
 
@@ -1650,8 +1650,8 @@ export default {
   },
 
   'sign-in-page': {
-    heading: 'Se connecter',
-    subtitle: 'Saisissez votre nom d’utilisateur et votre mot de passe pour vous connecter.',
+    heading: 'Ravis de vous revoir',
+    subtitle: 'Connectez-vous pour reprendre votre travail là où vous l’aviez laissé.',
 
     username: {
       label: 'Nom d’utilisateur ou e-mail',
@@ -1713,7 +1713,7 @@ export default {
   'create-account-page': {
     heading: 'Créer un compte',
 
-    subtitle: 'Nous demandons une adresse e-mail et un nom d’utilisateur car les documents sont stockés sous votre nom d’utilisateur.',
+    subtitle: 'Votre nom d’utilisateur fait partie de l’adresse de chaque document, alors choisissez-en un que vous acceptez de partager.',
 
     terms: {
       text: 'Veuillez consulter nos {link}.',
@@ -1826,8 +1826,8 @@ export default {
     },
 
     done: {
-      heading: 'Merci pour votre retour !',
-      body: 'Nous lirons votre message et vous répondrons dès que possible.',
+      heading: 'Merci pour votre message',
+      body: 'Si vous avez indiqué une adresse e-mail, nous vous répondrons dès que possible.',
       home: 'Retour à l’accueil',
     },
   },
@@ -1887,7 +1887,7 @@ export default {
 
     done: {
       heading: 'Mot de passe mis à jour',
-      body: 'Votre nouveau mot de passe a été enregistré.',
+      body: 'Tout est prêt — utilisez-le lors de votre prochaine connexion.',
       'continue': 'Continuer vers l’application',
     },
 

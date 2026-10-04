@@ -909,7 +909,7 @@ export default {
 
     error: {
       title: 'Nie można załadować Twoich dokumentów',
-      detail: 'Ładowanie nie powiodło się z powodu błędu. Spróbuj ponownie później.',
+      detail: 'Coś poszło nie tak podczas wczytywania listy. Spróbuj ponownie za chwilę.',
       retry: 'Spróbuj ponownie',
     },
 
@@ -1657,8 +1657,8 @@ export default {
   // toolbar's title, which isn't the same string as the heading on the page).
   //
   'sign-in-page': {
-    heading: 'Zaloguj się',
-    subtitle: 'Wprowadź nazwę użytkownika i hasło, aby się zalogować.',
+    heading: 'Witaj ponownie',
+    subtitle: 'Zaloguj się i wróć do pracy.',
 
     username: {
       label: 'Nazwa użytkownika lub e-mail',
@@ -1727,7 +1727,7 @@ export default {
   'create-account-page': {
     heading: 'Utwórz konto',
 
-    subtitle: 'Prosimy o adres e-mail i nazwę użytkownika, ponieważ dokumenty są przechowywane pod Twoją nazwą użytkownika.',
+    subtitle: 'Twoja nazwa użytkownika jest częścią adresu każdego dokumentu, więc wybierz taką, którą możesz bez obaw udostępniać.',
 
     terms: {
       text: 'Zapoznaj się z naszymi {link}.',
@@ -1841,8 +1841,8 @@ export default {
     },
 
     done: {
-      heading: 'Dziękujemy za opinię!',
-      body: 'Przeczytamy Twoją wiadomość i odpowiemy najszybciej, jak to możliwe.',
+      heading: 'Dziękujemy za wiadomość',
+      body: 'Jeśli podano adres e-mail, odpowiemy najszybciej, jak to możliwe.',
       home: 'Wróć na stronę główną',
     },
   },
@@ -1906,7 +1906,7 @@ export default {
 
     done: {
       heading: 'Hasło zaktualizowane',
-      body: 'Twoje nowe hasło zostało zapisane.',
+      body: 'Gotowe — użyj go przy następnym logowaniu.',
       'continue': 'Przejdź do aplikacji',
     },
 

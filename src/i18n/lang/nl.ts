@@ -907,7 +907,7 @@ export default {
 
     error: {
       title: 'Kan uw documenten niet laden',
-      detail: 'Laden is mislukt door een fout. Probeer het later opnieuw.',
+      detail: 'Er ging iets mis bij het laden van de lijst. Probeer het zo meteen opnieuw.',
       retry: 'Opnieuw proberen',
     },
 
@@ -1649,8 +1649,8 @@ export default {
   },
 
   'sign-in-page': {
-    heading: 'Inloggen',
-    subtitle: 'Voer uw gebruikersnaam en wachtwoord in om in te loggen.',
+    heading: 'Welkom terug',
+    subtitle: 'Log in om verder te gaan waar u was gebleven.',
 
     username: {
       label: 'Gebruikersnaam of e-mailadres',
@@ -1712,7 +1712,7 @@ export default {
   'create-account-page': {
     heading: 'Account aanmaken',
 
-    subtitle: 'We vragen om een e-mailadres en een gebruikersnaam omdat documenten onder uw gebruikersnaam worden opgeslagen.',
+    subtitle: 'Uw gebruikersnaam maakt deel uit van het adres van elk document, dus kies er een die u zonder bezwaar deelt.',
 
     terms: {
       text: 'Lees onze {link} door.',
@@ -1822,8 +1822,8 @@ export default {
     },
 
     done: {
-      heading: 'Bedankt voor uw feedback!',
-      body: 'We lezen uw bericht en nemen zo snel mogelijk contact met u op.',
+      heading: 'Bedankt voor uw bericht',
+      body: 'Als u een e-mailadres hebt opgegeven, nemen we zo snel mogelijk contact met u op.',
       home: 'Terug naar start',
     },
   },
@@ -1883,7 +1883,7 @@ export default {
 
     done: {
       heading: 'Wachtwoord bijgewerkt',
-      body: 'Uw nieuwe wachtwoord is opgeslagen.',
+      body: 'Alles is klaar — gebruik het de volgende keer dat u inlogt.',
       'continue': 'Doorgaan naar de app',
     },
 

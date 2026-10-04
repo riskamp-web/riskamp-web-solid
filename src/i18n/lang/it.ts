@@ -909,7 +909,7 @@ export default {
 
     error: {
       title: 'Impossibile caricare i tuoi documenti',
-      detail: 'Il caricamento non è riuscito a causa di un errore. Riprova più tardi.',
+      detail: 'Si è verificato un problema durante il caricamento dell’elenco. Riprova tra un momento.',
       retry: 'Riprova',
     },
 
@@ -1652,8 +1652,8 @@ export default {
   },
 
   'sign-in-page': {
-    heading: 'Accedi',
-    subtitle: 'Inserisci il tuo nome utente e la tua password per accedere.',
+    heading: 'Ti diamo il bentornato',
+    subtitle: 'Accedi per riprendere da dove avevi lasciato.',
 
     username: {
       label: 'Nome utente o email',
@@ -1715,7 +1715,7 @@ export default {
   'create-account-page': {
     heading: 'Crea account',
 
-    subtitle: 'Ti chiediamo un indirizzo email e un nome utente perché i documenti vengono archiviati sotto il tuo nome utente.',
+    subtitle: 'Il tuo nome utente fa parte dell’indirizzo di ogni documento, quindi scegline uno che ti va di condividere.',
 
     terms: {
       text: 'Consulta le nostre {link}.',
@@ -1825,8 +1825,8 @@ export default {
     },
 
     done: {
-      heading: 'Grazie per il tuo feedback!',
-      body: 'Leggeremo il tuo messaggio e ti risponderemo il prima possibile.',
+      heading: 'Grazie per averci scritto',
+      body: 'Se hai lasciato un indirizzo email, ti risponderemo il prima possibile.',
       home: 'Torna alla home',
     },
   },
@@ -1886,7 +1886,7 @@ export default {
 
     done: {
       heading: 'Password aggiornata',
-      body: 'La tua nuova password è stata salvata.',
+      body: 'Tutto pronto — usala al tuo prossimo accesso.',
       'continue': 'Continua all’app',
     },
 

@@ -907,7 +907,7 @@ export default {
 
     error: {
       title: 'Ihre Dokumente konnten nicht geladen werden',
-      detail: 'Das Laden ist aufgrund eines Fehlers fehlgeschlagen. Bitte versuchen Sie es später erneut.',
+      detail: 'Beim Laden der Liste ist etwas schiefgelaufen. Versuchen Sie es gleich noch einmal.',
       retry: 'Erneut versuchen',
     },
 
@@ -1649,8 +1649,8 @@ export default {
   },
 
   'sign-in-page': {
-    heading: 'Anmelden',
-    subtitle: 'Geben Sie Ihren Benutzernamen und Ihr Passwort ein, um sich anzumelden.',
+    heading: 'Willkommen zurück',
+    subtitle: 'Melden Sie sich an, um dort weiterzumachen, wo Sie aufgehört haben.',
 
     username: {
       label: 'Benutzername oder E-Mail-Adresse',
@@ -1712,7 +1712,7 @@ export default {
   'create-account-page': {
     heading: 'Konto erstellen',
 
-    subtitle: 'Wir fragen nach einer E-Mail-Adresse und einem Benutzernamen, weil Dokumente unter Ihrem Benutzernamen gespeichert werden.',
+    subtitle: 'Ihr Benutzername ist Teil der Adresse jedes Dokuments — wählen Sie also einen, den Sie gerne teilen.',
 
     terms: {
       text: 'Bitte lesen Sie unsere {link}.',
@@ -1822,8 +1822,8 @@ export default {
     },
 
     done: {
-      heading: 'Danke für Ihr Feedback!',
-      body: 'Wir lesen Ihre Nachricht und melden uns so schnell wie möglich bei Ihnen.',
+      heading: 'Danke für Ihre Nachricht',
+      body: 'Wenn Sie eine E-Mail-Adresse angegeben haben, melden wir uns so schnell wie möglich bei Ihnen.',
       home: 'Zurück zur Startseite',
     },
   },
@@ -1883,7 +1883,7 @@ export default {
 
     done: {
       heading: 'Passwort aktualisiert',
-      body: 'Ihr neues Passwort wurde gespeichert.',
+      body: 'Alles erledigt — verwenden Sie es bei Ihrer nächsten Anmeldung.',
       'continue': 'Weiter zur App',
     },
 

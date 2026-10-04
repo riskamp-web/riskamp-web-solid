@@ -909,7 +909,7 @@ export default {
 
     error: {
       title: 'Det gick inte att läsa in dina dokument',
-      detail: 'Inläsningen misslyckades på grund av ett fel. Försök igen senare.',
+      detail: 'Något gick fel när listan skulle läsas in. Försök igen om en stund.',
       retry: 'Försök igen',
     },
 
@@ -1660,8 +1660,8 @@ export default {
   // toolbar's title, which isn't the same string as the heading on the page).
   //
   'sign-in-page': {
-    heading: 'Logga in',
-    subtitle: 'Ange ditt användarnamn och lösenord för att logga in.',
+    heading: 'Välkommen tillbaka',
+    subtitle: 'Logga in för att fortsätta där du slutade.',
 
     username: {
       label: 'Användarnamn eller e-post',
@@ -1730,7 +1730,7 @@ export default {
   'create-account-page': {
     heading: 'Skapa konto',
 
-    subtitle: 'Vi ber om en e-postadress och ett användarnamn eftersom dokument lagras under ditt användarnamn.',
+    subtitle: 'Ditt användarnamn ingår i adressen till varje dokument, så välj ett som du gärna delar.',
 
     // {link} is the terms of service link, spliced in so a translation can put it
     // where its own grammar needs it
@@ -1845,8 +1845,8 @@ export default {
     },
 
     done: {
-      heading: 'Tack för din feedback!',
-      body: 'Vi läser ditt meddelande och återkommer så snart vi kan.',
+      heading: 'Tack för ditt meddelande',
+      body: 'Om du angav en e-postadress återkommer vi så snart vi kan.',
       home: 'Tillbaka till startsidan',
     },
   },
@@ -1910,7 +1910,7 @@ export default {
 
     done: {
       heading: 'Lösenord uppdaterat',
-      body: 'Ditt nya lösenord har sparats.',
+      body: 'Allt klart — använd det nästa gång du loggar in.',
       'continue': 'Fortsätt till appen',
     },
 
