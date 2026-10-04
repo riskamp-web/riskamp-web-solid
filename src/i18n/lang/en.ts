@@ -912,7 +912,7 @@ export default {
 
     error: {
       title: 'Couldn’t load your documents',
-      detail: 'Loading failed because of an error. Please try again later.',
+      detail: 'Something went wrong loading the list. Try again in a moment.',
       retry: 'Try again',
     },
 
@@ -1663,8 +1663,8 @@ export default {
   // toolbar's title, which isn't the same string as the heading on the page).
   //
   'sign-in-page': {
-    heading: 'Sign in',
-    subtitle: 'Enter your username and password to sign in.',
+    heading: 'Welcome back',
+    subtitle: 'Sign in to pick up where you left off.',
 
     username: {
       label: 'Username or email',
@@ -1752,7 +1752,7 @@ export default {
     // about this page, and the reason is that the username isn't only a login --
     // it's the first segment of every document address the account owns. the
     // shape that describes is drawn live under the username field.
-    subtitle: 'We ask for an email address and a username because documents are stored under your username.',
+    subtitle: 'Your username is part of every document’s address, so choose one you’re happy to share.',
 
     // {link} is the terms of service link, spliced in so a translation can put it
     // where its own grammar needs it
@@ -1880,8 +1880,8 @@ export default {
     },
 
     done: {
-      heading: 'Thanks for your feedback!',
-      body: 'We will read your message and get back to you as soon as we can.',
+      heading: 'Thanks for writing',
+      body: 'If you left an email address, we’ll get back to you as soon as we can.',
       home: 'Go back home',
     },
   },
@@ -1959,7 +1959,7 @@ export default {
 
     done: {
       heading: 'Password updated',
-      body: 'Your new password has been saved.',
+      body: 'You’re all set — use it the next time you sign in.',
       'continue': 'Continue to app',
     },
 

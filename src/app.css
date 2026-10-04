@@ -3,6 +3,15 @@
 :root {
   --interface-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --mono-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* the brand face (riskamp.com's Inter), for the backstage pages only -- the
+     workspace chrome stays on system-ui and the grid on its own font, so the
+     spreadsheet feels native. self-hosted via @fontsource-variable/inter, which
+     (backstage).tsx imports; anywhere that doesn't load it falls back cleanly. */
+  --brand-font-family: 'Inter Variable', 'InterVariable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* its monospace partner, for addresses and slugs on those pages. Inter has no
+     mono, so IBM Plex Mono (riskamp.com's previous face family) via
+     @fontsource/ibm-plex-mono, loaded alongside it at 400 and 600. */
+  --brand-mono-font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --llm-chat-font-size: 16px;
 
   /* ===== Canonical design tokens =====================================

@@ -8,10 +8,8 @@
  * and the palette isn't adopted. if this ships, they become app.css tokens.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap');
-
 .split {
-  --mockup-display-font: 'Inter', 'InterVariable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mockup-display-font: var(--brand-font-family);
   --mockup-series-1: var(--accent);
   --mockup-series-2: #C9622A;   /* proposed palette, series 2 */
 
@@ -209,12 +207,6 @@
    classes to outrank backstage's single-class .card whatever the load order */
 .card-column .card {
   translate: none;
-}
-
-.title {
-  font-family: var(--mockup-display-font);
-  font-size: 22px;
-  letter-spacing: -0.015em;
 }
 
 .submit-row {

@@ -20,7 +20,9 @@ for the full story.
   `satisfies DeepPartial<I18N>` and fall back to English per key. Never break that
   derivation. Missing/stale keys are invisible to the compiler — mirror `en.ts`
   changes into every other catalogue (`es`, `fr`, `de`, `pt`, `nl`);
-  `npm run check:i18n-coverage` reports gaps. (→ scaling plan below.)
+  `npm run check:i18n-coverage` reports gaps. An English value changed in place
+  without translating goes in `src/i18n/PENDING-TRANSLATIONS.md`, since coverage
+  can't see staleness. (→ scaling plan below.)
 - **i18n — French uses no-break spaces before `: ; ! ?` and inside `« »`.** Strict
   Imprimerie nationale: `U+00A0` before `:`, `U+202F` before `; ! ?` and inside
   guillemets. New/changed French strings must follow it; `npm run check:i18n-fr`

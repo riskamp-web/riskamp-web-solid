@@ -63,7 +63,7 @@ The pages, in `src/routes/(backstage)/`:
 | `documents.tsx` | the documents page |
 | `documents.module.css` | the table and the version list |
 | `sign-in.tsx` | the sign-in page |
-| `sign-in.module.css` | the password reveal, the caps lock hint, the hidden remember row |
+| `sign-in.module.css` | the hidden remember row and the submit spacing |
 | `create-account.tsx` | the create-account page |
 | `create-account.module.css` | the handle preview and the notes under the button |
 | `forgot-password.tsx` | asks for an address and promises a link |
@@ -192,8 +192,8 @@ Settled with the user across several passes. The reasoning matters more than the
   and a hairline above `.links` divides it from them — without one, the button and the links
   read as a single group in which the links look like secondary actions on the form. The rule
   spans the content width rather than bleeding to the card's edges, and the space is split
-  either side of it. Sign-in needs no `.form-actions`: its hidden remember row already supplies
-  that space.
+  either side of it. Sign-in uses its own 6px `.submit-row` instead,
+  from the sign-in mockup.
 - **The detail panel covers the list, it doesn't push it.** Pushing re-lays-out every
   row, and when you're reading the panel the list behind it matters less.
 - **Access is a text-only pill.** Public is the default, so it reads as the quiet one;
@@ -214,6 +214,32 @@ Settled with the user across several passes. The reasoning matters more than the
 - **Columns drop in reverse order of usefulness** as the container narrows: version first
   (it's reference detail, and the panel shows it), then folder, then access.
 - Minimal and subtle over loud and busy, generally.
+
+## Typography
+
+**The pages are set in Inter**, riskamp.com's face, so backstage reads as the site's
+rather than the workspace's (2026-10, from the design review and `/dev-test/sign-in-mockup`).
+The workspace is deliberately left on `system-ui` and the grid on its own font, so it
+feels native. Brand type belongs on the edges.
+
+- **Self-hosted**, from `@fontsource-variable/inter`. `(backstage).tsx` imports it, so
+  only backstage routes fetch it, and only the unicode subsets a page actually draws.
+  No Google Fonts request, which matters behind enterprise firewalls.
+- **One token, `--brand-font-family` in `app.css`**, set on `.page` and on
+  `/clear-data`'s own root (that page renders outside the shell). Every control already
+  inherits its font, so nothing else needed a family.
+- **Addresses use `--brand-mono-font-family`, IBM Plex Mono.** Inter has no mono. It's
+  used for unnamed documents' slugs and the panel's address line. It's a static family,
+  so the layout imports only the two weights drawn (400, 600); add a weight there if a
+  new use needs one, or the browser will fake it.
+- **Headings follow Inter's tracking curve.** It's spaced for text sizes and wants
+  tightening as it grows: about -0.01em at 15–16px, -0.015em at 22px, and -0.02em at
+  24–30px. Body text stays at 0. The card `.title` went from 17px to 22px, the mockup's
+  size, because it's now the page's display moment.
+- **The toolbar is not Inter**, on purpose for now. It's the same component as the
+  workspace's toolbar, and changing it only on backstage routes would make it look
+  different from page to page. Whether it should switch (everywhere, or only here) is
+  open, see below.
 
 ## Sign in
 
@@ -240,11 +266,12 @@ Settled with the user across several passes. The reasoning matters more than the
   only boundary between them. (It was briefly moved onto the toolbar and moved back: a line
   under the toolbar is wrong on the main app page, which is the page it would mostly be seen
   on.)
-- **Remember me is present but `visibility: hidden`.** There's no opt-out to offer yet —
-  sessions are always remembered — but one is coming, so the row holds its space and
-  nothing shifts when it lands. `visibility` rather than `display` also keeps it out of
-  the tab order and the accessibility tree, which is where a control that does nothing
-  belongs.
+- **Remember me is in the markup but `display: none`.** There's no opt-out to offer yet —
+  sessions are always remembered — but one is coming. It used to be `visibility: hidden`
+  so the row kept its space, but the empty band read as a hole in the form, and the Inter
+  pass (2026-10, from `/dev-test/sign-in-mockup`) closed it up; `.submit-row` took 6px to
+  keep the button reading as the action. When the opt-out lands, delete the rule and put
+  `.submit-row` back to 2px.
 - **Visible labels, not placeholder labels.** The i18n keys from the old page used
   placeholders; a label that vanishes when you type isn't a label. That's why the new
   labels got their own keys rather than reusing `sign-in.form.*.placeholder` — the English
@@ -845,8 +872,9 @@ is frequently the address rather than a name.
 - **Unnamed documents show their slug, in monospace.** Deliberately not prettified:
   un-slugifying can't recover `VaR` from `var`, and shouldn't pretend to. Monospace marks
   the value as an address rather than a badly-cased name, and makes the documents still
-  needing a name easy to spot — which matters for migrating the existing set. They are
-  *not* dimmed; muted text would read as disabled.
+  needing a name easy to spot — which matters for migrating the existing set. The face
+  is the brand mono, IBM Plex Mono (see "Typography"). They are *not* dimmed; muted text
+  would read as disabled.
 
 `slugify()` folds diacritics via `NFD` before applying the separator rule, so
 `Análisis de Riesgo` → `analisis-de-riesgo` rather than `an-lisis-de-riesgo`. Note the real
@@ -946,6 +974,13 @@ None of these block the current page.
      over `~/i18n/lang/*.ts`, so anything else is a runtime failure rather than a
      compile-time one. A list of the locales that actually ship, checked before the import,
      would turn that into a fallback.
+10. **TBD: should the toolbar follow the pages into Inter?** The Inter pass left the
+    shared toolbar (`account-toolbar.tsx`, `toolbar.module.css`) on `system-ui`, so on a
+    backstage page the toolbar and the page underneath are in different faces. There are
+    three ways to settle it: leave it as is, set Inter on the toolbar on backstage routes
+    only (consistent per page, but the toolbar changes face on the way in and out of a
+    document), or use Inter for the toolbar everywhere (consistent, but brand type in the
+    workspace chrome, which the review recommended against). The user's call.
 
 ## Gotchas hit while building this
 

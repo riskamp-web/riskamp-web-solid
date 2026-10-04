@@ -80,6 +80,13 @@
   background: var(--surface);
   font-size: var(--base-font-size);
 
+  /* the brand face, so these pages read as riskamp.com's rather than the
+     workspace's. controls inherit it (they all set font: inherit or
+     font-family: inherit). headings 15px and up take Inter's own tracking
+     curve -- it's drawn loose for text sizes and wants tightening as it grows;
+     body text is left at 0, which is what Inter specifies at 13-14px. */
+  font-family: var(--brand-font-family);
+
   container: bs-page / inline-size;
 
 }
@@ -250,6 +257,7 @@
   color: var(--text);
   font-size: var(--heading-font-size);
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .spacer {
@@ -523,10 +531,14 @@
   margin-bottom: 20px;
 }
 
+/* the card heading is the page's display moment, so it's larger than the
+   panel heading step -- 22px against the 13px body, from the sign-in mockup.
+   -0.015em is Inter's tracking at that size. */
 .title {
   margin: 0;
-  font-size: 17px;
+  font-size: 22px;
   font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
 .subtitle {
@@ -941,6 +953,7 @@
     color: var(--text);
     font-size: 15px;
     font-weight: 600;
+    letter-spacing: -0.01em;
   }
 
   & > .empty-detail {

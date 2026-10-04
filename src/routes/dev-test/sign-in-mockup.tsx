@@ -5,6 +5,8 @@ import { LayoutProvider } from '~/components/layout-context';
 import { Toolbar } from '~/components/toolbar/account-toolbar';
 import { t } from '~/i18n/i18n';
 
+import '@fontsource-variable/inter/wght.css';
+
 import bs from '../(backstage)/backstage.module.css';
 import { Icon } from '../(backstage)/backstage-parts';
 import style from './sign-in-mockup.module.css';
@@ -16,8 +18,9 @@ import style from './sign-in-mockup.module.css';
 // rate-demo). If it ships, the panel moves into (backstage)/sign-in.tsx and its
 // strings into the catalogues.
 //
-// Inter is loaded from Google Fonts in the module CSS to match riskamp.com
-// (which self-hosts InterVariable); a real version would self-host it too.
+// the card side has shipped (Inter, the 22px heading, "Welcome back") -- see
+// sign-in.tsx. the brand panel hasn't. this route sits outside the (backstage)
+// layout, so it imports the self-hosted face itself.
 
 // the walkthrough model's NPV histogram (percent of trials per 200k bin, 5,000
 // trials), so the picture is a real RiskAMP result rather than a drawn curve
@@ -104,7 +107,7 @@ function SignInCard() {
       <div class={`${bs.card} ${style.card}`}>
 
         <div class={bs['title-block']}>
-          <h1 class={`${bs.title} ${style.title}`}>Welcome back</h1>
+          <h1 class={bs.title}>{t('sign-in-page.heading')}</h1>
           <div class={bs.subtitle}>{t('sign-in-page.subtitle')}</div>
         </div>
 

@@ -21,5 +21,6 @@ The detailed docs live next to the code they describe. This is the map:
 |---|---|
 | [`src/routes/(backstage)/README.md`](<src/routes/(backstage)/README.md>) | The backstage pages — documents, sign-in, create-account, password recovery. Page architecture, the document and version-history stores, the path/name data model, i18n, and the **dev affordances**: `/documents?dev` opens a signed-in page without a session (dev server only), and `?fail` / `?fail-history` force the load-failure states — e.g. `/documents?dev&fail-history`. |
 | [`src/style/README.md`](src/style/README.md) | CSS architecture — which file owns what, `src/app.css` as the single source of every token/colour, and the three things that fail silently (notably the TREB carve-out: selectors TREB generates that look like dead code). |
+| [`src/i18n/PENDING-TRANSLATIONS.md`](src/i18n/PENDING-TRANSLATIONS.md) | English strings changed in place whose translations are now stale. `check:i18n-coverage` only catches *missing* keys, so these are tracked by hand until the next translation pass. |
 | `src/docs/` | Reference dumps from prior/related implementations (the Svelte-era documents API in `SVELTE-documents.ts`, the local-cache design). Not wired to anything — the source of truth when wiring the real endpoints. |
 
