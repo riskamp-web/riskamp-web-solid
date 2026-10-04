@@ -349,7 +349,7 @@ p {
 
 /** colors from new proposed palette */
 
-.treb-main.treb-main {
+:root {
   --treb-theme-color-1:  #E8EBEF;  /* light background   was #E7E6E6  cool grey, matches the app chrome */
   --treb-theme-color-2:  #2B3440;  /* dark text          was #44546A  slate */
   --treb-theme-color-3:  #0477BE;  /* series 1           was #4472C4  logo blue */
