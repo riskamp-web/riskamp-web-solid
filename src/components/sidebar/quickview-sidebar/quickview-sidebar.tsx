@@ -12,13 +12,12 @@ import { InteractiveSidebar } from '../interactive-sidebar';
 import { PersistentData, persistentData, setPersistentData } from '~/lib/app-data';
 
 import { QuickSort } from  '@trebco/treb/treb-charts/src/quicksort';
-import { MCChart } from 'riskamp-web/mc-charts';
 import * as ChartUtils from '@trebco/treb/treb-charts/src/chart-utils';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 
 import './quickview-charts.css';
 import { ToolbarCommandMap } from '~/components/toolbar/toolbar-commands';
-import { MCEmbeddedSheetEvent } from 'riskamp-web';
+import { MCEmbeddedSheetEvent, StandaloneChart } from 'riskamp-web';
 import { icons } from '~/components/icon-sets';
 
 function Variance(data: number[], sample = false) {
@@ -89,15 +88,10 @@ export function Sidebar(props: SidebarProps) {
 
   */
 
-  const charts = {
-    histogram: new MCChart(),
-    boxplot: new MCChart(),
-  };
+  // one chart per tab, created on mount. charts resize themselves,
+  // including when a hidden tab is shown.
 
-  function Resize() {
-    charts.histogram.Update();
-    charts.boxplot.Update();
-  }
+  let charts: { histogram: StandaloneChart, boxplot: StandaloneChart }|undefined;
 
   // eslint-disable-next-line no-unassigned-vars
   let parameter_element: HTMLDivElement|undefined;
@@ -115,14 +109,15 @@ export function Sidebar(props: SidebarProps) {
 
     requestAnimationFrame(() => {
       parameter_element?.focus();
-      charts.histogram.Initialize(chart_containers[0]);
-      charts.boxplot.Initialize(chart_containers[1]);
+      charts = {
+        histogram: new StandaloneChart(chart_containers[0]),
+        boxplot: new StandaloneChart(chart_containers[1]),
+      };
       RedrawInternal();
     });
 
-    // listen for resize and simulation events
+    // listen for simulation events
 
-    window.addEventListener('resize', Resize);
     subscription = props.sheet()?.Subscribe((event: MCEmbeddedSheetEvent|EmbeddedSheetEvent) => {
       switch (event.type) {
         case 'simulation-progress':
@@ -137,9 +132,10 @@ export function Sidebar(props: SidebarProps) {
 
   onCleanup(() => {
 
-    // clean up event listener and subscription
+    // clean up charts and subscription
 
-    window.removeEventListener('resize', Resize);
+    charts?.histogram.Clear();
+    charts?.boxplot.Clear();
     if (subscription) {
       props.sheet()?.Cancel(subscription);
     }
@@ -169,7 +165,7 @@ function RedrawInternal() {
 
   // console.info({selected_cell, sheet});
 
-  if (!sheet || !selected_cell) {
+  if (!sheet || !selected_cell || !charts) {
     return;
   }
 
@@ -199,11 +195,8 @@ function RedrawInternal() {
   const data = sheet.SimulationData(selected_cell);
   if (!data || !data.length) {
 
-    charts.boxplot.Clear();
-    charts.boxplot.Update();
-
     charts.histogram.Clear();
-    charts.histogram.Update();
+    charts.boxplot.Clear();
     return;
 
   }
@@ -238,8 +231,10 @@ function RedrawInternal() {
 
   switch (persistentData.quickview_tab) {
     case 1:
-      charts.boxplot.CreateBoxPlot(data, persistentData.quickview_minmax === 'minmax');
-      charts.boxplot.Update();
+      charts.boxplot.BoxPlot(data, {
+        minmax: persistentData.quickview_minmax === 'minmax',
+        format: number_format,
+      });
       break;
 
     case 0:
@@ -247,21 +242,14 @@ function RedrawInternal() {
         // console.info(persistentData.quickview_bin_algorithm || 'auto');
         const histogram_data = sheet.Evaluate(`=MC.Histogram(${selected_cell},,,"${persistentData.quickview_bin_algorithm || 'auto'}")`, { argument_separator: ','});
 
+        // MC.Histogram returns its arguments; the chart bins them as the
+        // grid does
+
         if (Array.isArray(histogram_data)) {
-
-          // this is reflected parameters, with the first parameter
-          // switched for metadata
-
-          const metadata = histogram_data[0] as unknown as { type: number, value: { simulation_data?: number[]|Float32Array|Float64Array }, key: string };
-
-          if (metadata?.value?.simulation_data?.length) {
-            charts.histogram.CreateHistogram(histogram_data as any);
-            charts.histogram.Update();
-          }
-
+          charts.histogram.Histogram(histogram_data);
         }
         else {
-          console.info("Narray", histogram_data);
+          charts.histogram.Clear();
         }
       }
       break;
@@ -316,12 +304,6 @@ function RedrawInternal() {
       }, 100);
     }
   }
-
-  createEffect(on(props.split, value => {
-    if (value < 90) {
-      Resize();
-    }
-  }));
 
   createEffect(on([
       () => persistentData.quickview_tab, 

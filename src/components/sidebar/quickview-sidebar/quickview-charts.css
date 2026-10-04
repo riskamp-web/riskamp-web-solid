@@ -1,9 +1,9 @@
 
-.quick-view {
- 
-  .chart-column.series-1 {
-    fill: var(--chart-series-1-color);
-  }
-
+/* 
+ * treb-charts-2 colors series with .theme-color-N, which TREB's CSS only
+ * sets inside the grid. point them at the theme tokens here.
+ */
+.quick-view .treb-chart-container {
+  --treb-chart-series-1: var(--treb-theme-color-3);
+  --treb-chart-series-2: var(--treb-theme-color-4);
 }
-
