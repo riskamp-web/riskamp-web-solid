@@ -111,6 +111,25 @@ build (unresolved module); as a variable it stays a harmless 404 → fallback.
 
 When this lands, delete `riskampLanguages()` and its wiring from `app.config.ts`.
 
+### Fold `raw-tools` into this app — when convenient
+
+**Status:** agreed, deferred (not urgent, doesn't block release).
+
+`raw-tools` (`../raw-tools`, a `file:` dependency) is ~140 lines of
+framework-agnostic insert-function support: `CreateFunctionLib` (function list +
+translations, read from TREB internals via `any` casts), a `fuzzysort` search,
+and its web worker + message types. Its README describes it as shared across
+frontends, but that's stale: the only other consumer, `riskamp-web-5`, was an
+unfinished Svelte rewrite that was abandoned in favour of this app. We are the
+sole real consumer, and the `file:` link is fragile (the build once depended on
+an uncommitted file there).
+
+**Fix:** copy the four `src/insert-function/*.ts` files next to the dialog in
+`src/components/dialogs/insert-function-dialog/` (keep them plain `.ts`), repoint
+the two imports in `insert-function-dilalog.tsx` (including the `?worker`
+import), drop `raw-tools` from `package.json`, rebuild, and check f(x) search in
+the browser. `fuzzysort` is already a direct dependency.
+
 ### i18n catalogue scaling — target 1.1 (post-release)
 
 **Status:** agreed, not started. Does **not** block release. Pick this up early
