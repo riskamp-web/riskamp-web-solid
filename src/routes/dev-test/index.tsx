@@ -7,7 +7,9 @@ import { A } from '@solidjs/router';
 const PAGES: { href: string, title: string, blurb: string }[] = [
   { href: '/dev-test/confirm-demo', title: 'Confirm / alert dialog', blurb: 'The global confirmDialog.confirm() / .alert() singleton — every resolution path.' },
   { href: '/dev-test/save-as-demo', title: 'Save As dialog', blurb: 'SaveAsDialog: plain name, full path in the Name field, collision/overwrite, rename-seed mode.' },
+  { href: '/dev-test/palette', title: 'Proposed chart palette (spec)', blurb: 'Replacement TREB theme colours vs. the Office defaults: slots, sample charts on light and dark, colour-vision simulation. Implements src/style/proposed-theme-palette.css.' },
   { href: '/dev-test/rate-demo', title: 'Rate-this-app prompt (mockup)', blurb: 'Star-rating dialog mockup — hover/click rating, dismiss via Not now, Escape, X or outside click.' },
+  { href: '/dev-test/sign-in-mockup', title: 'Sign-in page with brand panel (mockup)', blurb: 'Brand panel beside the shipped sign-in card: Inter display type, a real walkthrough histogram in the proposed palette, no-account entry points. Not wired.' },
   { href: '/dev-test/toast-demo', title: 'Toast notifications', blurb: 'The toast singleton — success/error variants and the action/Retry button.' },
   { href: '/dev-test/icons', title: 'Icon gallery', blurb: 'Every icon in every set.' },
 ];

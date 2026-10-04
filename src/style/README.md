@@ -30,6 +30,7 @@ it.** An audit that greps for class names will report every one of these as dead
 | `src/style/utility.css` | Atomic helpers (`.flex-row`, `.ellipsis`, …). |
 | `src/style/grid-table.css` | The app's list surface. `documents.module.css` restates it locally **on purpose** while the backstage redesign is still moving. |
 | `src/style/riskamp-dialog.css` | Dialog chrome. Should eventually move under `src/components/dialogs/`. |
+| `src/style/proposed-theme-palette.css` | A **proposal, not imported**: replacement TREB theme colours (chart series). Its header says how to try it and what to check before moving it into `app.css`. |
 | `*.module.css` | Everything else, next to its component. |
 
 ## Tokens

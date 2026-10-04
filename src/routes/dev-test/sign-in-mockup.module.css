@@ -1,0 +1,249 @@
+/*
+ * sign-in mockup -- brand panel beside the existing card.
+ *
+ * the card and form are backstage.module.css as shipped; everything here is the
+ * brand panel and the split. colours come from app.css tokens except the two
+ * chart colours, which are the proposed TREB palette's series 1 and 2 (see
+ * src/style/proposed-theme-palette.css) -- held locally because this is a mockup
+ * and the palette isn't adopted. if this ships, they become app.css tokens.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap');
+
+.split {
+  --mockup-display-font: 'Inter', 'InterVariable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mockup-series-1: var(--accent);
+  --mockup-series-2: #C9622A;   /* proposed palette, series 2 */
+
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(400px, 1fr);
+  border-top: 1px solid var(--border-hairline);
+}
+
+/* ---- brand panel ---- */
+
+/* the diagonal wash echoes riskamp.com's hero: a pale accent plane cut at an
+   angle across a plain surface */
+.brand {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  background: var(--surface);
+  border-right: 1px solid var(--border-hairline);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 0 42%, var(--accent-wash) 42% 100%);
+    pointer-events: none;
+  }
+}
+
+.brand-inner {
+  position: relative;
+  margin: auto;
+  width: 100%;
+  max-width: 560px;
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.wordmark {
+  font-family: var(--mockup-display-font);
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+}
+.wordmark-risk { font-weight: 500; color: var(--text); }
+.wordmark-amp  { font-weight: 300; color: var(--text-muted); }
+.wordmark-web {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.headline {
+  margin: 8px 0 0;
+  font-family: var(--mockup-display-font);
+  font-size: clamp(28px, 3.2vw, 40px);
+  line-height: 1.12;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.lede {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* ---- the histogram ---- */
+
+.figure {
+  margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.histogram {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.body, .tail {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: rise 600ms cubic-bezier(.2, .7, .2, 1) both;
+}
+.body { fill: var(--mockup-series-1); }
+.tail { fill: var(--mockup-series-2); }
+
+@keyframes rise {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .body, .tail { animation: none; }
+}
+
+.baseline { stroke: var(--border-hairline); stroke-width: 1; }
+.marker { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.marker-label {
+  font-family: var(--mockup-display-font);
+  font-size: 11px;
+  font-weight: 500;
+  fill: var(--text-muted);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+
+  & dl {
+    margin: 0;
+    display: flex;
+    gap: 24px;
+  }
+  & dl > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  & dt {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  & dd {
+    margin: 0;
+    font-family: var(--mockup-display-font);
+    font-size: 18px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+}
+.stats-title {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ---- the two ways in that don't need an account ---- */
+
+.paths {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.path {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--surface-radius);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+
+  &:hover { border-color: var(--accent-border); background: var(--accent-wash); }
+  &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+}
+.path-title { font-size: 13px; color: var(--text-muted); }
+.path-body  { font-weight: 500; color: var(--accent); }
+
+/* ---- the card side ---- */
+
+.card-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 32px;
+  background: var(--toolbar-bar-background);
+}
+
+/* the shipped card translates itself up a sixth for the 1:2 placement; here
+   it's centred against the brand panel, so that offset is cancelled. two
+   classes to outrank backstage's single-class .card whatever the load order */
+.card-column .card {
+  translate: none;
+}
+
+.title {
+  font-family: var(--mockup-display-font);
+  font-size: 22px;
+  letter-spacing: -0.015em;
+}
+
+.submit-row {
+  margin-top: 6px;
+}
+
+/* ---- narrow: the brand panel becomes a header strip above the card ---- */
+
+@container bs-page (max-width: 900px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+  }
+  .brand {
+    border-right: 0;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+  .brand-inner {
+    padding: 28px 24px;
+    gap: 12px;
+  }
+  .headline { font-size: 26px; }
+  .figure { display: none; }
+  .card-column {
+    justify-content: flex-start;
+    padding: 24px 16px 48px;
+  }
+}
+
+@container bs-page (max-width: 480px) {
+  .paths { grid-template-columns: minmax(0, 1fr); }
+}

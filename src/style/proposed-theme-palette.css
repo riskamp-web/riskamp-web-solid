@@ -1,0 +1,73 @@
+/*
+ * PROPOSED theme palette -- not imported anywhere. A reference to try out.
+ *
+ * Replaces TREB's default theme colours, which are the stock Office 2013 theme
+ * slot for slot. Visual comparison (slots, sample charts on both app surfaces,
+ * colour-vision simulation): /dev-test/palette on the dev server.
+ *
+ * ---- how TREB uses these ----
+ *
+ * treb-embed/style/theme-defaults.scss draws `.theme-color-N { color:
+ * var(--treb-theme-color-N, <office default>) }`, and Theme loading
+ * (treb-base-types/src/theme.ts) reads those computed colours into
+ * theme.theme_colors = [cell background, cell text, slot 1 .. slot 10].
+ * The chart renderer takes theme_colors.slice(4, 10) -- i.e. slots 3-8 -- as
+ * --treb-applied-theme-color-1..6, which charts.scss uses for .series-1..6.
+ * The app's ApplyThemeColors() (toolbar/theme.ts) then copies those onto
+ * --chart-series-1..6, so the app's own charts follow automatically.
+ *
+ *   slot 1-2   light background / dark text   (theme colours in the picker)
+ *   slot 3-8   accents 1-6  = chart series 1-6
+ *   slot 9-10  hyperlink / followed hyperlink
+ *
+ * ---- to try it ----
+ *
+ * add `import "./style/proposed-theme-palette.css";` after the app.css import
+ * in src/app.tsx and reload. TREB reads the colours when it loads its theme,
+ * so a hot update may not reach an open sheet -- reload the page.
+ *
+ * to adopt it, move the block into src/app.css (the only file allowed to hold
+ * colour literals -- see src/style/README.md) and delete this file.
+ *
+ * ---- dark mode ----
+ *
+ * TREB's dark theme (dark-theme.scss) re-declares only slots 1 and 2, on
+ * `.treb-dark-theme, [data-theme=dark]` and the system-dark media query. The
+ * selector below is a bare `html` -- the lowest specificity that still reaches
+ * the sheet -- so those dark overrides keep winning for slots 1-2 and only the
+ * light values change. Slots 3-10 have no dark override, so the series colours
+ * are shared by both themes; they were chosen to work on both surfaces.
+ *
+ * ---- validation (both surfaces: #ffffff light, #26282c dark) ----
+ *
+ * series 1-6 pass every check of the dataviz palette validator in both modes:
+ * - lightness band and chroma floor: none reads as grey
+ * - adjacent-pair colour-vision separation: worst is ΔE 13.7 (deutan,
+ *   green/violet); the target is >= 8
+ * - normal-vision separation: worst ΔE 21.6
+ * - contrast: every series >= 3:1 against both surfaces
+ * Order matters -- the separation check is on *adjacent* series. Don't reorder
+ * without re-running it. The ochre (slot 7) is at its limit: any brighter gold
+ * fails contrast on white, any lighter one leaves the dark-mode lightness band.
+ *
+ * ---- check before adopting ----
+ *
+ * - XLSX export: treb-export/src/workbook-theme.ts writes accent1-6 into
+ *   exported files. Confirm whether it writes these computed values or fixed
+ *   Office ones; if fixed, exported charts revert to Office colours in Excel.
+ * - Existing documents: cells formatted with theme colours (not explicit hex)
+ *   change appearance when this lands.
+ */
+
+html {
+  --treb-theme-color-1:  #E8EBEF;  /* light background   was #E7E6E6  cool grey, matches the app chrome */
+  --treb-theme-color-2:  #2B3440;  /* dark text          was #44546A  slate */
+  --treb-theme-color-3:  #0477BE;  /* series 1           was #4472C4  logo blue */
+  --treb-theme-color-4:  #C9622A;  /* series 2           was #ED7D31  burnt orange -- the colour-blind-safe partner to blue */
+  --treb-theme-color-5:  #8566B8;  /* series 3           was #A5A5A5  violet (Office's grey series read as "disabled") */
+  --treb-theme-color-6:  #2A7F5A;  /* series 4           was #FFC000  green */
+  --treb-theme-color-7:  #B88B0C;  /* series 5           was #5B9BD5  ochre (Office's pale blue was too close to series 1) */
+  --treb-theme-color-8:  #C2417A;  /* series 6           was #70AD47  raspberry */
+  --treb-theme-color-9:  #0477BE;  /* hyperlink          was #0563C1 */
+  --treb-theme-color-10: #8566B8;  /* followed hyperlink was #954F72 */
+}
