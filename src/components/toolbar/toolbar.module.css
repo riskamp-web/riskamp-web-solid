@@ -104,6 +104,11 @@ label.tab {
   line-height: 0;
 
 
+    /* explicit, since the color above overrides the UA's disabled gray. */
+    &:disabled {
+      opacity: .5;
+    }
+
     &:not([disabled]):hover {
       background: var(--toolbar-control-hover-background);
       color: var(--toolbar-control-hover-color);
@@ -211,6 +216,11 @@ button.menu-item, a.menu-item {
     color: var(--toolbar-control-hover-color);
   }
 
+}
+
+/* explicit, since the color on .menu-item overrides the UA's disabled gray. */
+button.menu-item:disabled {
+  opacity: .5;
 }
 
 a.menu-item.disabled {
