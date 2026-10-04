@@ -347,3 +347,18 @@ p {
   height: 100dvh;
 }
 
+/** colors from new proposed palette */
+
+.treb-main.treb-main {
+  --treb-theme-color-1:  #E8EBEF;  /* light background   was #E7E6E6  cool grey, matches the app chrome */
+  --treb-theme-color-2:  #2B3440;  /* dark text          was #44546A  slate */
+  --treb-theme-color-3:  #0477BE;  /* series 1           was #4472C4  logo blue */
+  --treb-theme-color-4:  #C9622A;  /* series 2           was #ED7D31  burnt orange -- the colour-blind-safe partner to blue */
+  --treb-theme-color-5:  #8566B8;  /* series 3           was #A5A5A5  violet (Office's grey series read as "disabled") */
+  --treb-theme-color-6:  #2A7F5A;  /* series 4           was #FFC000  green */
+  --treb-theme-color-7:  #B88B0C;  /* series 5           was #5B9BD5  ochre (Office's pale blue was too close to series 1) */
+  --treb-theme-color-8:  #C2417A;  /* series 6           was #70AD47  raspberry */
+  --treb-theme-color-9:  #0477BE;  /* hyperlink          was #0563C1 */
+  --treb-theme-color-10: #8566B8;  /* followed hyperlink was #954F72 */
+}
+
