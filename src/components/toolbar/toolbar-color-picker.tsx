@@ -15,6 +15,7 @@ import { MenuButton } from '../menu-button/menu-button';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { Color, ThemeColor } from '@trebco/treb';
 import { Measurement } from '@trebco/treb/treb-utils';
+import { IsDarkTheme, TintedColor, theme_tints } from './color-picker-tints';
 
 interface ColorType {
   color: Color;
@@ -100,18 +101,25 @@ export function ColorButton(props: {
 
       const sheet = props.sheet();
       if (sheet) {
-        const colors: ColorType[][] = [];
+
+        // TREB's own rows are fixed; we only take the base (tint 0) color
+        // of each column from it, and build our rows from theme_tints.
+
         const source = (sheet?.document_styles.theme_colors || []) as ColorType[][];
+        const base = source.slice(0, theme_tints.length).map((column, theme) =>
+          column.find(entry => !(entry.color as ThemeColor).tint) || { color: { theme }, resolved: '' });
 
-        const columns = source.length;
-        const rows = source[0]?.length || 0; 
+        const dark = IsDarkTheme(base[0]?.resolved || '', base[1]?.resolved || '');
+        const colors: ColorType[][] = [base];
 
-        for (let i = 0; i < rows; i++) {
-          const row: ColorType[] = [];
-          for (let j = 0; j < columns; j++) {
-            row.push(source[j][i]);
-          }
-          colors.push(row);
+        for (let i = 0; i < theme_tints[0].length; i++) {
+          colors.push(base.map((entry, theme) => {
+            const tint = theme_tints[theme][i];
+            return {
+              color: { theme, tint },
+              resolved: TintedColor(entry.resolved, tint, dark),
+            };
+          }));
         }
 
         setThemeColors(colors);
@@ -132,6 +140,7 @@ export function ColorButton(props: {
 
     }
 
+    // eslint-disable-next-line no-unassigned-vars -- assigned by the ref
     let native_color_chooser: HTMLInputElement|undefined;
 
     /**
@@ -168,8 +177,19 @@ export function ColorButton(props: {
               <h2>{t('color-picker.theme_colors')}</h2>
               <div class={style.swatches} style={`grid-template-columns: repeat(${
                 themeColors()[0]?.length || 0}, auto)`}>
+                <For each={themeColors()[0]}>
+                  {color => <button class={style.swatch}
+                                    onclick={e => ApplyColor(e, color.color)}
+                                    title={ThemeColorTitle(props.sheet(), color.color)}
+                                    style={`--swatch-color: ${color.resolved};`}
+                                  />}
+                </For>
+              </div>
 
-                <For each={themeColors()}>
+              <div classList={{[style.swatches]: true, [style.tints]: true}} style={`grid-template-columns: repeat(${
+                themeColors()[0]?.length || 0}, auto)`}>
+
+                <For each={themeColors().slice(1)}>
                   {row => <div class="display-contents">
                     <For each={row}>
                       {color => <button class={style.swatch} 

@@ -385,6 +385,13 @@ menu.text.overflow {
 
   }
 
+  /* tint rows sit apart from the base row (as in Excel's picker), with a rule */
+  .swatches.tints {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--toolbar-border-color);
+  }
+
 }
 
 .plaintext-button {
