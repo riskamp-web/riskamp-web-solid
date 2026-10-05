@@ -11,6 +11,14 @@ import { SystemLocale } from '~/i18n/i18n';
 import 'riskamp-web/treb-bundle.css';
 import 'riskamp-web/riskamp-web-bundle.css';
 
+// fonts
+
+// import "~/style/plex-grid-slash-zero.css";
+// import "~/style/plex-grid-dotted-zero.css";
+import "~/style/plex-grid.css";
+// import "~/style/inter-grid.css";
+
+
 interface Props {
   fill?: boolean;
 
@@ -69,7 +77,17 @@ export function Spreadsheet(props: Props) {
         }
       }, { defer: true }));
 
-      sheet.ready.then(() => {
+      const promises: Promise<unknown>[] = [];
+      promises.push(document.fonts.load("700 20px RAW-Default"));
+      promises.push(document.fonts.load("400 20px RAW-Default"));
+      promises.push(document.fonts.load("700 italic 20px RAW-Default"));
+      promises.push(document.fonts.load("400 italic 20px RAW-Default"));
+      promises.push(sheet.ready);
+
+      Promise.all(promises).then(() => {
+
+        sheet.UpdateTheme();
+
         props.setSheet(sheet as SpreadsheetType);
 
         // if there's an explicit spreadsheet language set, use that.

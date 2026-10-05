@@ -1,0 +1,52 @@
+/* Inter for the grid, as 'RAW-Default'. Parallel to plex-grid.css; swap the
+   import in spreadsheet.tsx to choose.
+
+   Inter 4.1's own web builds (rsms/inter release), self-hosted like Plex.
+   Not the @fontsource copy the backstage uses: fontsource strips the
+   stylistic sets, and we want ss04.
+
+   Variable font, so no weight cheat is needed: each face declares a weight
+   *range*, and a requested weight outside it is clamped to the nearest end.
+   TREB only asks for 400 and 700, so
+
+     400 -> 400 (regular)
+     700 -> 600 (semibold, same choice as plex-grid.css)
+
+   To nudge either end, change the range -- e.g. `450 600` paints regular at
+   450, like Plex Text.
+
+   Features are set on the face, so they reach TREB's canvas:
+     tnum  tabular figures, so numbers line up in columns (Inter's default
+           figures are proportional; Plex's are tabular already)
+     ss04  disambiguation without slashed zero (I/l/1 etc.); ss02 is the
+           same set with the slashed zero */
+
+/* 1. Normal */
+@font-face {
+  font-family: 'RAW-Default';
+  src: url('/fonts/InterVariable.woff2') format('woff2-variations');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  font-feature-settings: "tnum" 1, "ss04" 1;
+}
+
+/* 2. Italic */
+@font-face {
+  font-family: 'RAW-Default';
+  src: url('/fonts/InterVariable-Italic.woff2') format('woff2-variations');
+  font-weight: 400 600;
+  font-style: italic;
+  font-display: swap;
+  font-feature-settings: "tnum" 1, "ss04" 1;
+}
+
+.treb-main.treb-main.treb-main {
+  .treb-font-stack-default {
+    font-family: "RAW-Default";
+  }
+}
+
+:root {
+  --treb-default-font: "RAW-Default";
+}
