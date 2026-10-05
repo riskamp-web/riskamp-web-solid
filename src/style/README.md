@@ -65,15 +65,17 @@ charts a palette of their own**, and don't adjust single colours.
 - **Charts use one fixed tint of the theme:** every series is its accent at tint −0.25,
   the picker's first darker row. `.treb-chart-container` computes it with
   `hsl(from var(--treb-theme-color-N) h s calc(l * 0.75))`. That is exactly how TREB
-  applies a tint (relative HSL lightness, `l × (1 + tint)`). Dark mode uses `l × 1.25`,
-  because TREB inverts tints in dark mode.
+  applies a negative tint (`l × (1 + t)`). TREB inverts tints in dark mode, so there it's
+  a +0.25 lightening, `l + (1 − l) × 0.25`.
 - **TREB's theme index is offset by two.** Index 0 is the grid fill, 1 is the grid text,
   then the slots follow, so a stored `{ theme: N }` is `--treb-theme-color-(N − 1)`. The
   fill button's default, `theme: 7`, is slot 6. That's why the yellow lives there (it's
   also Office's yellow slot).
-- **Limits:** Excel compatibility caps the theme at six accents. TREB's *positive* tints
-  don't match Excel's: TREB uses `l × (1 + t)`, Excel uses `l × (1 − t) + t`. With TREB's
-  formula, a base above HSL lightness ≈ 0.67 turns white at +0.5.
+- **Tints follow Excel's formula:** darker is `l × (1 + t)`, lighter is `l + (1 − l) × t`
+  (toward white, never clips). TREB used `l × (1 + t)` for both until 2026-10, which
+  under-lightened mid-tone bases and clipped light ones to white. If the chart CSS is
+  ever touched, keep it in step with `ColorFunctions.Lighten` (`treb-base-types/src/color.ts`).
+- **Limits:** Excel compatibility caps the theme at six accents.
 - **Spec and comparison:** `/dev-test/theme-palette` shows the candidates, the previous
   proposal and TREB's Office 2013 defaults, with picker, sheet and chart mocks and
   contrast and colour-vision checks.

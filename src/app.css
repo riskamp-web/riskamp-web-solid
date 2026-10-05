@@ -357,8 +357,8 @@ p {
 
    Charts don't get their own palette: every series is its accent at one fixed
    tint, -0.25 (the picker's first darker row), applied the way TREB applies a
-   tint -- relative HSL lightness, l * (1 + tint) -- and inverted in dark mode
-   as TREB does. So hsl(from ...) reproduces it exactly. Declared on the chart
+   tint -- darker is l * (1 + t), lighter is l + (1 - l) * t (Excel's rule) --
+   and inverted in dark mode as TREB does. So hsl(from ...) reproduces it exactly. Declared on the chart
    container so it resolves against whatever theme colours reach that element.
    This covers in-grid charts and the quick-view sidebar alike. */
 
@@ -367,7 +367,7 @@ p {
   --treb-theme-color-2:  #2B3440;  /* dark text          was #44546A  slate */
   --treb-theme-color-3:  #2E8FD6;  /* accent 1, series 1 was #4472C4  blue (charts: #206CA3, ~logo blue) */
   --treb-theme-color-4:  #E07B39;  /* accent 2, series 2 was #ED7D31  orange */
-  --treb-theme-color-5:  #9D7FD0;  /* accent 3, series 3 was #A5A5A5  violet; HSL l 0.66 so TREB's +0.5 tint doesn't clip to white */
+  --treb-theme-color-5:  #9D7FD0;  /* accent 3, series 3 was #A5A5A5  violet */
   --treb-theme-color-6:  #F0B716;  /* accent 4, series 4 was #FFC000  highlight yellow (charts: ochre); can't go lighter, chart tint is 3.1:1 on white.
                                       keep it in this slot: it's Office's yellow, and the fill button's default (theme: 7) lands here */
   --treb-theme-color-7:  #3B9E6C;  /* accent 5, series 5 was #5B9BD5  green */
@@ -377,11 +377,11 @@ p {
 }
 
 .treb-chart-container {
-  --treb-chart-series-1: light-dark(hsl(from var(--treb-theme-color-3) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-3) h s min(100, l * 1.25)));
-  --treb-chart-series-2: light-dark(hsl(from var(--treb-theme-color-4) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-4) h s min(100, l * 1.25)));
-  --treb-chart-series-3: light-dark(hsl(from var(--treb-theme-color-5) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-5) h s min(100, l * 1.25)));
-  --treb-chart-series-4: light-dark(hsl(from var(--treb-theme-color-6) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-6) h s min(100, l * 1.25)));
-  --treb-chart-series-5: light-dark(hsl(from var(--treb-theme-color-7) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-7) h s min(100, l * 1.25)));
-  --treb-chart-series-6: light-dark(hsl(from var(--treb-theme-color-8) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-8) h s min(100, l * 1.25)));
+  --treb-chart-series-1: light-dark(hsl(from var(--treb-theme-color-3) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-3) h s calc(l + (100 - l) * 0.25)));
+  --treb-chart-series-2: light-dark(hsl(from var(--treb-theme-color-4) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-4) h s calc(l + (100 - l) * 0.25)));
+  --treb-chart-series-3: light-dark(hsl(from var(--treb-theme-color-5) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-5) h s calc(l + (100 - l) * 0.25)));
+  --treb-chart-series-4: light-dark(hsl(from var(--treb-theme-color-6) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-6) h s calc(l + (100 - l) * 0.25)));
+  --treb-chart-series-5: light-dark(hsl(from var(--treb-theme-color-7) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-7) h s calc(l + (100 - l) * 0.25)));
+  --treb-chart-series-6: light-dark(hsl(from var(--treb-theme-color-8) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-8) h s calc(l + (100 - l) * 0.25)));
 }
 
