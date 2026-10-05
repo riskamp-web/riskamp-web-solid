@@ -347,18 +347,41 @@ p {
   height: 100dvh;
 }
 
-/** colors from new proposed palette */
+/* ===== TREB theme colours ============================================
+   One theme for the sheet and for charts (spec: /dev-test/theme-palette).
+   Bases (tint 0) are light enough for cell fills behind black text, and slot
+   6 is the highlight yellow. Office 2013 values noted for reference.
+
+   TREB's theme index is offset by two (0 = grid fill, 1 = grid text, then
+   these slots), so a stored { theme: N } is --treb-theme-color-(N - 1).
+
+   Charts don't get their own palette: every series is its accent at one fixed
+   tint, -0.25 (the picker's first darker row), applied the way TREB applies a
+   tint -- relative HSL lightness, l * (1 + tint) -- and inverted in dark mode
+   as TREB does. So hsl(from ...) reproduces it exactly. Declared on the chart
+   container so it resolves against whatever theme colours reach that element.
+   This covers in-grid charts and the quick-view sidebar alike. */
 
 :root {
   --treb-theme-color-1:  #E8EBEF;  /* light background   was #E7E6E6  cool grey, matches the app chrome */
   --treb-theme-color-2:  #2B3440;  /* dark text          was #44546A  slate */
-  --treb-theme-color-3:  #0477BE;  /* series 1           was #4472C4  logo blue */
-  --treb-theme-color-4:  #C9622A;  /* series 2           was #ED7D31  burnt orange -- the colour-blind-safe partner to blue */
-  --treb-theme-color-5:  #8566B8;  /* series 3           was #A5A5A5  violet (Office's grey series read as "disabled") */
-  --treb-theme-color-6:  #2A7F5A;  /* series 4           was #FFC000  green */
-  --treb-theme-color-7:  #B88B0C;  /* series 5           was #5B9BD5  ochre (Office's pale blue was too close to series 1) */
-  --treb-theme-color-8:  #C2417A;  /* series 6           was #70AD47  raspberry */
+  --treb-theme-color-3:  #2E8FD6;  /* accent 1, series 1 was #4472C4  blue (charts: #206CA3, ~logo blue) */
+  --treb-theme-color-4:  #E07B39;  /* accent 2, series 2 was #ED7D31  orange */
+  --treb-theme-color-5:  #9D7FD0;  /* accent 3, series 3 was #A5A5A5  violet; HSL l 0.66 so TREB's +0.5 tint doesn't clip to white */
+  --treb-theme-color-6:  #F0B716;  /* accent 4, series 4 was #FFC000  highlight yellow (charts: ochre); can't go lighter, chart tint is 3.1:1 on white.
+                                      keep it in this slot: it's Office's yellow, and the fill button's default (theme: 7) lands here */
+  --treb-theme-color-7:  #3B9E6C;  /* accent 5, series 5 was #5B9BD5  green */
+  --treb-theme-color-8:  #D6738F;  /* accent 6, series 6 was #70AD47  soft rose */
   --treb-theme-color-9:  #0477BE;  /* hyperlink          was #0563C1 */
   --treb-theme-color-10: #8566B8;  /* followed hyperlink was #954F72 */
+}
+
+.treb-chart-container {
+  --treb-chart-series-1: light-dark(hsl(from var(--treb-theme-color-3) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-3) h s min(100, l * 1.25)));
+  --treb-chart-series-2: light-dark(hsl(from var(--treb-theme-color-4) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-4) h s min(100, l * 1.25)));
+  --treb-chart-series-3: light-dark(hsl(from var(--treb-theme-color-5) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-5) h s min(100, l * 1.25)));
+  --treb-chart-series-4: light-dark(hsl(from var(--treb-theme-color-6) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-6) h s min(100, l * 1.25)));
+  --treb-chart-series-5: light-dark(hsl(from var(--treb-theme-color-7) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-7) h s min(100, l * 1.25)));
+  --treb-chart-series-6: light-dark(hsl(from var(--treb-theme-color-8) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-8) h s min(100, l * 1.25)));
 }
 

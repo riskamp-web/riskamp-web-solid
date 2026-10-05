@@ -14,7 +14,7 @@ all four look like dead code to a grep:
 | `src/app.css` | `.treb-address-label` repeated ×4 for specificity, to beat TREB's own rule. Commented `/* patch */`. |
 | `src/style/riskamp-dialog.css` | `.string` / `.call` / `.identifier` and `[data-highlight-index="N"]`. **TREB writes these into our nodes** — `interactive-components.ts` hands the editors to `sheet.ExternalEditor()`, and TREB does the syntax highlighting. Nothing in our source sets them. |
 | `src/style/riskamp-dialog.css` | `--text-reference-color-1..5`, copied off `.treb-main`'s computed style onto the dialog root by that same `Init()`. |
-| `trend-forecasting/chart.css`, `quickview-charts.css` | `.chart-column`, `.series-1`, `.scatter-plot`, `.legend` — all emitted by TREB's chart renderer. |
+| `trend-forecasting/chart.css` | `.chart-column`, `.series-1`, `.scatter-plot`, `.legend` — all emitted by TREB's chart renderer. |
 
 **Never delete a selector here for being "unused" without checking whether TREB generates
 it.** An audit that greps for class names will report every one of these as dead.

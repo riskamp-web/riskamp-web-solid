@@ -15,7 +15,6 @@ import { QuickSort } from  '@trebco/treb/treb-charts/src/quicksort';
 import * as ChartUtils from '@trebco/treb/treb-charts/src/chart-utils';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 
-import './quickview-charts.css';
 import { ToolbarCommandMap } from '~/components/toolbar/toolbar-commands';
 import { MCEmbeddedSheetEvent, StandaloneChart } from 'riskamp-web';
 import { icons } from '~/components/icon-sets';
