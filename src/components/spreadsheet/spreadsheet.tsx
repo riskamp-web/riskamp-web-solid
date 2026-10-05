@@ -12,7 +12,7 @@ import 'riskamp-web/treb-bundle.css';
 import 'riskamp-web/riskamp-web-bundle.css';
 
 // fonts
-// import "~/style/plex-grid.css";
+import "~/style/plex-grid.css";
 
 interface Props {
   fill?: boolean;
@@ -73,15 +73,12 @@ export function Spreadsheet(props: Props) {
       }, { defer: true }));
 
       const promises: Promise<unknown>[] = [
+        document.fonts.load("700 20px RAW-Default"),
+        document.fonts.load("400 20px RAW-Default"),
+        document.fonts.load("700 italic 20px RAW-Default"),
+        document.fonts.load("400 italic 20px RAW-Default"),
         sheet.ready
       ];
-      /*
-      promises.push(document.fonts.load("700 20px RAW-Default"));
-      promises.push(document.fonts.load("400 20px RAW-Default"));
-      promises.push(document.fonts.load("700 italic 20px RAW-Default"));
-      promises.push(document.fonts.load("400 italic 20px RAW-Default"));
-      promises.push();
-      */
 
       Promise.all(promises).then(() => {
 
