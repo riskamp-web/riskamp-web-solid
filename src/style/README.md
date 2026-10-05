@@ -75,6 +75,12 @@ charts a palette of their own**, and don't adjust single colours.
   (toward white, never clips). TREB used `l × (1 + t)` for both until 2026-10, which
   under-lightened mid-tone bases and clipped light ones to white. If the chart CSS is
   ever touched, keep it in step with `ColorFunctions.Lighten` (`treb-base-types/src/color.ts`).
+- **The colour picker uses Excel's tint rows, not TREB's.** Accents and text get
+  +80/+60/+40/−25/−50; the grid fill, grid text and background columns get Excel's own
+  steps. The table is in `toolbar/color-picker-tints.ts`, which also resolves the swatches
+  with a copy of TREB's tint math until TREB exposes its resolver (CLAUDE.md, planned work).
+  In dark mode the +80 row is barely visible: inverted, it lands at about the dark grid's
+  own lightness (#1E1E1E, not black). That's expected, not a bug.
 - **Limits:** Excel compatibility caps the theme at six accents.
 - **Spec and comparison:** `/dev-test/theme-palette` shows the candidates, the previous
   proposal and TREB's Office 2013 defaults, with picker, sheet and chart mocks and

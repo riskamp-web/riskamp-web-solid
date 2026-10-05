@@ -9,8 +9,9 @@ import style from './theme-palette.module.css';
 // proposal (/dev-test/palette, which stays as it was) is here for comparison.
 //
 // Tints follow TREB (treb-base-types/src/theme.ts): a relative change to HSL
-// lightness, inverted in dark mode. TREB's positive tints don't match Excel's
-// formula, so the lighten toggle shows both. Strings are plain English
+// lightness, inverted in dark mode. TREB's positive tints switched to Excel's
+// formula in 2026-10; the lighten toggle still shows the old one for
+// comparison. The picker mock keeps TREB's original rows. Strings are plain English
 // (dev-test convention); colour literals are the page's subject, so they live
 // here rather than in app.css.
 
@@ -109,8 +110,9 @@ function fromHsl([h, s, l]: RGB): RGB {
 }
 
 /**
- * TREB's tint: relative HSL lightness, l * (1 + tint), both directions.
- * Excel darkens the same way but lightens toward white, l * (1 - tint) + tint.
+ * TREB's tint. darker is relative HSL lightness, l * (1 + tint); lighter is
+ * toward white, l * (1 - tint) + tint (Excel's formula; TREB used l * (1 + tint)
+ * for both until 2026-10 -- the 'treb' option).
  * dark mode inverts the tint (TintedColor in theme.ts).
  */
 function tinted(base: string, tint: number, lighten: Lighten, dark = false) {
@@ -378,7 +380,7 @@ const fmt = (n: number) => n.toFixed(1);
 export default function ThemePalette() {
 
   const [key, setKey] = createSignal<PaletteKey>('rose');
-  const [lighten, setLighten] = createSignal<Lighten>('treb');
+  const [lighten, setLighten] = createSignal<Lighten>('excel');
 
   const palette = () => PALETTES[key()];
 
@@ -403,7 +405,7 @@ export default function ThemePalette() {
             <Toggle label='Palette' value={key()} onChange={setKey}
               options={[['rose', 'Rose'], ['slate', 'Slate'], ['previous', 'Previous'], ['office', 'TREB defaults']]} />
             <Toggle label='Lighten formula' value={lighten()} onChange={setLighten}
-              options={[['treb', 'TREB lighten'], ['excel', 'Excel lighten']]} />
+              options={[['excel', 'Excel lighten (current)'], ['treb', 'Old TREB lighten']]} />
           </div>
         </header>
 
@@ -521,11 +523,10 @@ export default function ThemePalette() {
             chart rule.
           </p>
           <p>
-            <b>TREB lightens differently from Excel.</b> TREB uses <code>l × (1 + t)</code>,
-            Excel uses <code>l × (1 − t) + t</code>. Darker tints match, lighter ones don't, so a
-            light fill changes colour when exported to Excel. With TREB's formula, any base above
-            HSL lightness ≈ 0.67 turns white at +0.5; that's why violet sits at 0.66. Switch the
-            toggle to see Excel's version.
+            <b>TREB now lightens like Excel.</b> Lighter tints are <code>l × (1 − t) + t</code>;
+            until 2026-10 TREB used <code>l × (1 + t)</code>, which turned any base above HSL
+            lightness ≈ 0.67 white at +0.5 (that's why violet sits at 0.66) and barely lightened
+            mid-tones. Darker tints were always the same. Switch the toggle to see the old version.
           </p>
           <p>
             <b>Previous proposal, blue and violet.</b> The first-round check only compared adjacent

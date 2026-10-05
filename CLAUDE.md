@@ -134,6 +134,29 @@ the two imports in `insert-function-dilalog.tsx` (including the `?worker`
 import), drop `raw-tools` from `package.json`, rebuild, and check f(x) search in
 the browser. `fuzzysort` is already a direct dependency.
 
+### TREB theme-color resolver API — when convenient
+
+**Status:** proposed, deferred. Additive on the TREB side (no major bump).
+
+**Problem.** The color picker's tint rows follow Excel (+80/+60/+40/−25/−50 for
+accents; own steps for the grid fill, grid text and background columns), but
+TREB's `document_styles.theme_colors` only offers its fixed
+`[.5, .25, 0, −.25, −.5]` rows (`UpdateDocumentStyles()`,
+`treb-embed/src/embedded-spreadsheet.ts`). So `toolbar/color-picker-tints.ts`
+takes each column's base color from TREB and resolves the swatches itself in CSS —
+a copy of TREB's tint math (`ColorFunctions.Lighten`/`Darken`, plus the dark-mode
+inversion and light/dark detection). If TREB's math changes, the swatches silently
+stop matching the cells.
+
+**Fix:** expose TREB's resolver on the spreadsheet — e.g. a public
+`ResolveThemeColor(color: Color): string` wrapping `ResolveThemeColor(this.grid.theme, …)`
+from `treb-base-types/src/theme.ts`. Then have the picker resolve each
+`{ theme, tint }` through it and drop `IsDarkTheme`/`TintedColor` from
+`color-picker-tints.ts` (keep the `theme_tints` table — the rows are the app's
+choice). Leave TREB's own `document_styles` rows alone; other consumers may rely on them.
+The chart CSS in `app.css` (`.treb-chart-container`) stays a copy regardless — CSS
+can't call the resolver — so keep it in step with `Lighten` by hand.
+
 ### i18n catalogue scaling — target 1.1 (post-release)
 
 **Status:** agreed, not started. Does **not** block release. Pick this up early
