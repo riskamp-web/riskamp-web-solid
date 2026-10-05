@@ -1,4 +1,8 @@
 /*
+ * SUPERSEDED (2026-10-05): the adopted theme colours are in src/app.css, and
+ * charts now take them at tint -0.25 (see "Theme colours and charts" in
+ * src/style/README.md). Kept as the reference behind /dev-test/palette.
+ *
  * PROPOSED theme palette -- not imported anywhere. A reference to try out.
  *
  * Replaces TREB's default theme colours, which are the stock Office 2013 theme

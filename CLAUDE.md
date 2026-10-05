@@ -47,6 +47,10 @@ for the full story.
   (e.g. `toolbar/theme.ts`, `dialogs/interactive-dialog/parameters.ts`.)
 - **CSS — `src/app.css` is the single source of every token and colour.** Theme
   colours, metrics, and type all resolve from there. (→ `src/style/README.md`.)
+- **CSS — one theme drives the sheet and the charts.** Charts take every theme
+  accent at one fixed tint (−0.25, computed in CSS) and never get a palette of their
+  own or a per-colour adjustment. TREB's `{ theme: N }` is `--treb-theme-color-(N − 1)`.
+  (→ `src/style/README.md`, "Theme colours and charts".)
 - **CSS — TREB generates selectors that look like dead code.** Don't delete CSS
   that appears unused without checking the TREB carve-out. (→ `src/style/README.md`.)
 - **Dev affordances (dev server only).** `/documents?dev` opens a signed-in page

@@ -30,7 +30,7 @@ it.** An audit that greps for class names will report every one of these as dead
 | `src/style/utility.css` | Atomic helpers (`.flex-row`, `.ellipsis`, …). |
 | `src/style/grid-table.css` | The app's list surface. `documents.module.css` restates it locally **on purpose** while the backstage redesign is still moving. |
 | `src/style/riskamp-dialog.css` | Dialog chrome. Should eventually move under `src/components/dialogs/`. |
-| `src/style/proposed-theme-palette.css` | A **proposal, not imported**: replacement TREB theme colours (chart series). Its header says how to try it and what to check before moving it into `app.css`. |
+| `src/style/proposed-theme-palette.css` | **Superseded, not imported**: the first-round palette proposal. The adopted theme colours live in `app.css` (see *Theme colours and charts* below); kept only as the reference behind `/dev-test/palette`. |
 | `*.module.css` | Everything else, next to its component. |
 
 ## Tokens
@@ -53,6 +53,33 @@ Read the canonical token rather than restating its value:
 
 **Deliberately exempt from the one-accent rule:** `--chart-series-*`, `--sidebar-fit-*` and
 `--dialog-syntax-*` are data encodings, not chrome. Don't pull them toward the accent.
+
+## Theme colours and charts
+
+TREB's theme colours (`--treb-theme-color-1..10`) are set in `app.css`. One theme drives
+both the sheet and the charts, so changing a theme colour changes both. **Don't give
+charts a palette of their own**, and don't adjust single colours.
+
+- **Bases (tint 0) are for the sheet:** light enough for cell fills behind black text. Slot
+  6 is the highlight yellow.
+- **Charts use one fixed tint of the theme:** every series is its accent at tint −0.25,
+  the picker's first darker row. `.treb-chart-container` computes it with
+  `hsl(from var(--treb-theme-color-N) h s calc(l * 0.75))`. That is exactly how TREB
+  applies a tint (relative HSL lightness, `l × (1 + tint)`). Dark mode uses `l × 1.25`,
+  because TREB inverts tints in dark mode.
+- **TREB's theme index is offset by two.** Index 0 is the grid fill, 1 is the grid text,
+  then the slots follow, so a stored `{ theme: N }` is `--treb-theme-color-(N − 1)`. The
+  fill button's default, `theme: 7`, is slot 6. That's why the yellow lives there (it's
+  also Office's yellow slot).
+- **Limits:** Excel compatibility caps the theme at six accents. TREB's *positive* tints
+  don't match Excel's: TREB uses `l × (1 + t)`, Excel uses `l × (1 − t) + t`. With TREB's
+  formula, a base above HSL lightness ≈ 0.67 turns white at +0.5.
+- **Spec and comparison:** `/dev-test/theme-palette` shows the candidates, the previous
+  proposal and TREB's Office 2013 defaults, with picker, sheet and chart mocks and
+  contrast and colour-vision checks.
+- **Open:** the trend-forecasting dialog's chart still reads `--chart-series-N-color`,
+  which `ApplyThemeColors()` (`toolbar/theme.ts`) copies from TREB's untinted applied
+  theme colours. It isn't on the −0.25 rule yet.
 
 `--bs-*` in `backstage.module.css` is not a parallel system. After the alias layer was
 collapsed, a `--bs-*` name means either a value backstage owns or an **override point**
