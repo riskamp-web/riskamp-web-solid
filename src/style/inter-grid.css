@@ -1,9 +1,9 @@
 /* Inter for the grid, as 'RAW-Default'. Parallel to plex-grid.css; swap the
    import in spreadsheet.tsx to choose.
 
-   Inter 4.1's own web builds (rsms/inter release), self-hosted like Plex.
-   Not the @fontsource copy the backstage uses: fontsource strips the
-   stylistic sets, and we want ss04.
+   Inter 4.1's own web builds (rsms/inter release), in ./font-candidates --
+   bundled only when this file is imported, so it ships nothing today. Not
+   the @fontsource copy: fontsource strips the stylistic sets, and we want ss04.
 
    Variable font, so no weight cheat is needed: each face declares a weight
    *range*, and a requested weight outside it is clamped to the nearest end.
@@ -24,7 +24,7 @@
 /* 1. Normal */
 @font-face {
   font-family: 'RAW-Default';
-  src: url('/fonts/InterVariable.woff2') format('woff2-variations');
+  src: url('./font-candidates/InterVariable.woff2') format('woff2-variations');
   font-weight: 400 600;
   font-style: normal;
   font-display: swap;
@@ -34,7 +34,7 @@
 /* 2. Italic */
 @font-face {
   font-family: 'RAW-Default';
-  src: url('/fonts/InterVariable-Italic.woff2') format('woff2-variations');
+  src: url('./font-candidates/InterVariable-Italic.woff2') format('woff2-variations');
   font-weight: 400 600;
   font-style: italic;
   font-display: swap;

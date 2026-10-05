@@ -1,7 +1,8 @@
 /* Source Sans 3 for the grid, as 'RAW-Default'. Parallel to plex-grid.css;
    swap the import in spreadsheet.tsx to choose.
 
-   Source Sans 3.052R (adobe-fonts/source-sans release), self-hosted like Plex.
+   Source Sans 3.052R (adobe-fonts/source-sans release), in ./font-candidates
+   -- bundled only when this file is imported, so it ships nothing today.
    The TrueType-outline variable builds (*.ttf.woff2 in the release zip),
    which hint better on Windows than the CFF ones.
 
@@ -27,7 +28,7 @@
 /* 1. Normal */
 @font-face {
   font-family: 'RAW-Default';
-  src: url('/fonts/SourceSans3VF-Upright.woff2') format('woff2-variations');
+  src: url('./font-candidates/SourceSans3VF-Upright.woff2') format('woff2-variations');
   font-weight: 400 600;
   font-style: normal;
   font-display: swap;
@@ -37,7 +38,7 @@
 /* 2. Italic */
 @font-face {
   font-family: 'RAW-Default';
-  src: url('/fonts/SourceSans3VF-Italic.woff2') format('woff2-variations');
+  src: url('./font-candidates/SourceSans3VF-Italic.woff2') format('woff2-variations');
   font-weight: 400 600;
   font-style: italic;
   font-display: swap;
