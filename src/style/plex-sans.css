@@ -1,0 +1,42 @@
+/* IBM Plex Sans for the app chrome, as 'IBM Plex Sans' (--interface-font in
+   app.css). The same files as the grid's 'RAW-Default' (plex-grid.css), so the
+   browser fetches each once; they're declared again under their own name
+   because the grid's family maps SemiBold to 700 for TREB, while the chrome
+   asks for 400/500/600.
+
+   Text (450) stands in for regular, as in the grid: it holds up better at 13px.
+   Each face covers a weight range so the in-between weights resolve to a real
+   face, never a synthesised one: 500 draws as Text, 700 as SemiBold.
+   Preloaded (the two upright faces) in entry-server.tsx. */
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-Text.woff2') format('woff2');
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-TextItalic.woff2') format('woff2');
+  font-weight: 400 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-SemiBold.woff2') format('woff2');
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-SemiBoldItalic.woff2') format('woff2');
+  font-weight: 600 700;
+  font-style: italic;
+  font-display: swap;
+}

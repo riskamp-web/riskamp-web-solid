@@ -6,12 +6,13 @@ Where a rule belongs, and the three things that fail silently.
 
 The spreadsheet is TREB, which **injects its own stylesheets at runtime**. Those are not
 ours and are out of scope. It renders into a highly-specified containing block with its own
-resets, so the two mostly don't meet — but there are four places ours reaches across, and
-all four look like dead code to a grep:
+resets, so the two mostly don't meet — but there are five places ours reaches across, and
+all five look like dead code to a grep:
 
 | Where | What |
 |---|---|
 | `src/app.css` | `.treb-address-label` repeated ×4 for specificity, to beat TREB's own rule. Commented `/* patch */`. |
+| `src/app.css` | `.treb-note` / `.treb-hover-title` (classes doubled), putting TREB's cell-note and hover-title popups on `--interface-font`. Commented `/* patch */`. |
 | `src/style/riskamp-dialog.css` | `.string` / `.call` / `.identifier` and `[data-highlight-index="N"]`. **TREB writes these into our nodes** — `interactive-components.ts` hands the editors to `sheet.ExternalEditor()`, and TREB does the syntax highlighting. Nothing in our source sets them. |
 | `src/style/riskamp-dialog.css` | `--text-reference-color-1..5`, copied off `.treb-main`'s computed style onto the dialog root by that same `Init()`. |
 | `trend-forecasting/chart.css` | `.chart-column`, `.series-1`, `.scatter-plot`, `.legend` — all emitted by TREB's chart renderer. |
@@ -24,6 +25,7 @@ it.** An audit that greps for class names will report every one of these as dead
 | File | Owns |
 |---|---|
 | `src/app.css` | **Every token, and every themeable colour in the product.** The only file allowed to hold a colour literal. |
+| `src/style/plex-sans.css` | The `@font-face` rules for the interface face (`--interface-font`, IBM Plex Sans). The grid declares the same files separately as `RAW-Default` in `plex-grid.css`. Every page uses it, backstage included. |
 | `src/reset.css` | `box-sizing`, and font inheritance for form elements. Imported first. |
 | `src/style/controls.css` | The control recipe: `.input`, `.select`, `.control-button`, and `.riskamp-dialog footer button`. Global classes, because it has to reach global selectors. |
 | `src/style/shared.module.css` | Recipes shared **between CSS modules**, applied as a second class at the element. See below. |
@@ -48,7 +50,7 @@ Read the canonical token rather than restating its value:
 - surfaces — `--surface`, `--overlay-faint`, `--overlay-faintest`, `--hover`, `--hover-strong`
 - metrics — `--control-height` / `-sm`, `--icon-button-size`, `--control-radius`,
   `--surface-radius`, `--radius-pill`, `--transition-fast`
-- type — `--base-font-size` (13px, the floor), `--prose-font-size`, `--heading-font-size`
+- type — `--interface-font` (IBM Plex Sans, on `body`), `--base-font-size` (13px, the floor), `--prose-font-size`, `--heading-font-size`
 - status — `--danger` (error), `--warning` (caution: important, not critical)
 
 **Deliberately exempt from the one-accent rule:** `--chart-series-*`, `--sidebar-fit-*` and

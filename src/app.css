@@ -1,16 +1,17 @@
 
 
 :root {
-  --interface-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* the workspace face: IBM Plex Sans, the grid's face too, so chrome and cells
+     read as one product. declared in style/plex-sans.css; set on body below. */
+  --interface-font: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --mono-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  /* the brand face (riskamp.com's Inter), for the backstage pages only -- the
-     workspace chrome stays on system-ui and the grid on its own font, so the
-     spreadsheet feels native. self-hosted via @fontsource-variable/inter, which
-     (backstage).tsx imports; anywhere that doesn't load it falls back cleanly. */
+  /* riskamp.com's face (Inter). no shipped page uses it -- backstage moved to
+     Plex Sans with the workspace (2026-10); only /dev-test/sign-in-mockup does,
+     and it imports @fontsource-variable/inter itself. */
   --brand-font-family: 'Inter Variable', 'InterVariable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  /* its monospace partner, for addresses and slugs on those pages. Inter has no
-     mono, so IBM Plex Mono (riskamp.com's previous face family) via
-     @fontsource/ibm-plex-mono, loaded alongside it at 400 and 600. */
+  /* the monospace partner, for addresses and slugs on the backstage pages:
+     IBM Plex Mono via @fontsource/ibm-plex-mono, which (backstage).tsx imports
+     at 400 and 600. */
   --brand-mono-font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --llm-chat-font-size: 16px;
 
@@ -103,8 +104,8 @@
   --base-font-size:    13px;   /* the floor, and the size of every control */
   --prose-font-size:   14px;
   --heading-font-size: 16px;   /* section headings, sentence case */
-  --markdown-font-size: 15px;  /* Format() prose in the notes + AI panels; 16px reads
-                                  chunky in macOS/Safari system-ui, fine on Windows */
+  --markdown-font-size: 15px;  /* Format() prose in the notes + AI panels; 16px read
+                                  chunky (judged under system-ui, before Plex) */
 
   /* Each toolbar color is defined once as light-dark(light, dark). Which side is
      used is decided by `color-scheme` (set below): `light dark` auto-follows the
@@ -249,7 +250,7 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: var(--interface-font);
   padding: 0;
   margin: 0;
   height: 100vh;
@@ -264,6 +265,16 @@ body {
 /* patch */
 .treb-address-label.treb-address-label.treb-address-label.treb-address-label {
     margin-left: .5em
+}
+
+/* patch: TREB's note and hover-title popups set their own system font stack
+   (with a quoted "sans-serif", so no real generic fallback) instead of
+   inheriting, which leaves them the only text off --interface-font. doubled
+   classes to beat TREB's `.treb-main.treb-main .treb-note`. drop this if TREB
+   gets a font variable for them. */
+.treb-main.treb-main .treb-note.treb-note,
+.treb-main.treb-main .treb-hover-title.treb-hover-title {
+  font-family: var(--interface-font);
 }
 
 main.app {

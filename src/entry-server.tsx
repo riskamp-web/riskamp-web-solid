@@ -26,6 +26,10 @@ export default createHandler(() => {
             <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
             <link rel="apple-touch-icon" href="/touch-icon.png" />
 
+            {/* the interface (and grid) face, upright weights -- style/plex-sans.css */}
+            <link rel="preload" href="/fonts/IBMPlexSans-Text.woff2" as="font" type="font/woff2" crossorigin="" />
+            <link rel="preload" href="/fonts/IBMPlexSans-SemiBold.woff2" as="font" type="font/woff2" crossorigin="" />
+
             {/* SEO */}
             <meta name="description" content={description} />
             <link rel="canonical" href="https://web.riskamp.com/" />

@@ -6,12 +6,10 @@ import { LayoutProvider, useLayoutContext } from '~/components/layout-context';
 import { Toolbar } from '~/components/toolbar/account-toolbar';
 import { loggedIn } from '~/lib/auth';
 
-// the brand faces for every backstage page (--brand-font-family and
-// --brand-mono-font-family in app.css). imported by the layout rather than
-// app-wide so the workspace never fetches them; the @font-face rules only
-// download the subsets and weights a page actually draws. the mono is static, so
-// it's the two weights in use: 400 for the list rows, 600 for the panel title.
-import '@fontsource-variable/inter/wght.css';
+// the mono for every backstage page (--brand-mono-font-family in app.css; the
+// sans is the app-wide --interface-font). imported by the layout rather than
+// app-wide so the workspace never fetches it. it's static, so it's the two
+// weights in use: 400 for the list rows, 600 for the panel title.
 import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/600.css';
 

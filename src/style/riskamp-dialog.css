@@ -17,9 +17,9 @@
     padding: 0;
   }
 
-  /* font-family is deliberately not set here: the local stack led with "Segoe UI",
-     "Avenir", so on macOS dialogs drew in Avenir while the rest of the app drew in
-     San Francisco. inheriting body's stack is the whole fix.
+  /* font-family is deliberately not set here: dialogs inherit body's
+     --interface-font like the rest of the chrome. (a local stack once led with
+     "Segoe UI", "Avenir", so macOS dialogs drew in Avenir.)
 
      13px matches the toolbar, the sidebar controls and the backstage pages. prose
      inside a dialog should take --prose-font-size rather than raising this. */

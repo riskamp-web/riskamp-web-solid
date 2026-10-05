@@ -217,33 +217,22 @@ Settled with the user across several passes. The reasoning matters more than the
 
 ## Typography
 
-**The pages are set in Inter**, riskamp.com's face, so backstage reads as the site's
-rather than the workspace's (2026-10, from the design review and `/dev-test/sign-in-mockup`).
-The workspace is deliberately left on `system-ui` and the grid on its own font, so it
-feels native. Brand type belongs on the edges.
+**The pages are set in IBM Plex Sans**, the same face as the workspace and the grid
+(`--interface-font`, inherited from `body`), so the product is one face end to end
+(2026-10-05). The earlier pass set these pages in Inter, riskamp.com's face, and kept
+the workspace on `system-ui`. Plex replaced both once it was chosen for the grid.
 
-IBM Plex Sans (riskamp.com's previous face) was previewed on these pages before the
-merge and passed over: the two read about the same here, and Inter matches the current
-site. Treat it as settled unless the site's type changes.
-
-- **Self-hosted**, from `@fontsource-variable/inter`. `(backstage).tsx` imports it, so
-  only backstage routes fetch it, and only the unicode subsets a page actually draws.
-  No Google Fonts request, which matters behind enterprise firewalls.
-- **One token, `--brand-font-family` in `app.css`**, set on `.page` and on
-  `/clear-data`'s own root (that page renders outside the shell). Every control already
-  inherits its font, so nothing else needed a family.
-- **Addresses use `--brand-mono-font-family`, IBM Plex Mono.** Inter has no mono. It's
+- **No family is set on the pages.** `.page` and `/clear-data`'s root inherit `body`,
+  and every control inherits its font. The faces are declared app-wide in
+  `src/style/plex-sans.css` and preloaded, so the toolbar and the page underneath
+  are in the same face.
+- **Addresses use `--brand-mono-font-family`, IBM Plex Mono**, the sans's partner. It's
   used for unnamed documents' slugs and the panel's address line. It's a static family,
   so the layout imports only the two weights drawn (400, 600); add a weight there if a
   new use needs one, or the browser will fake it.
-- **Headings follow Inter's tracking curve.** It's spaced for text sizes and wants
-  tightening as it grows: about -0.01em at 15–16px, -0.015em at 22px, and -0.02em at
-  24–30px. Body text stays at 0. The card `.title` went from 17px to 22px, the mockup's
-  size, because it's now the page's display moment.
-- **The toolbar is not Inter**, on purpose for now. It's the same component as the
-  workspace's toolbar, and changing it only on backstage routes would make it look
-  different from page to page. Whether it should switch (everywhere, or only here) is
-  open, see below.
+- **Headings carry no tracking.** The negative letter-spacing was Inter's curve and
+  went with it; Plex is spaced for display sizes as drawn. The card `.title` is 22px,
+  the mockup's size, because it's the page's display moment.
 
 ## Sign in
 
@@ -978,13 +967,8 @@ None of these block the current page.
      over `~/i18n/lang/*.ts`, so anything else is a runtime failure rather than a
      compile-time one. A list of the locales that actually ship, checked before the import,
      would turn that into a fallback.
-10. **TBD: should the toolbar follow the pages into Inter?** The Inter pass left the
-    shared toolbar (`account-toolbar.tsx`, `toolbar.module.css`) on `system-ui`, so on a
-    backstage page the toolbar and the page underneath are in different faces. There are
-    three ways to settle it: leave it as is, set Inter on the toolbar on backstage routes
-    only (consistent per page, but the toolbar changes face on the way in and out of a
-    document), or use Inter for the toolbar everywhere (consistent, but brand type in the
-    workspace chrome, which the review recommended against). The user's call.
+10. ~~**Should the toolbar follow the pages into Inter?**~~ Settled 2026-10-05: the
+    pages, the toolbar and the workspace are all IBM Plex Sans.
 
 ## Gotchas hit while building this
 
