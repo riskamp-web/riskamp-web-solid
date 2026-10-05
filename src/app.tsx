@@ -6,6 +6,14 @@ import { onMount, Suspense } from "solid-js";
 import "./reset.css";
 import "./app.css";
 import '~/style/plex-sans.css';
+
+// IBM Plex Mono (--mono-font-family). static, so only the faces drawn: 400 for
+// code and addresses, 600 for bold code and the backstage panel title, 400
+// italic for highlighted comments in code blocks. add a face here if a new use
+// needs one, or the browser will fake it.
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/400-italic.css';
+import '@fontsource/ibm-plex-mono/600.css';
 import '~/style/markdown.css';
 import '~/style/riskamp-dialog.css';
 import '~/style/controls.css';

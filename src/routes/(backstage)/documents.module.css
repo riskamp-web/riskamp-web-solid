@@ -425,7 +425,7 @@
    Mono, the sans's partner, rather than whatever the OS supplies. 13px, not
    the 12px the system mono had, to match the 13px body. */
 .unnamed {
-  font-family: var(--brand-mono-font-family);
+  font-family: var(--mono-font-family);
   font-size: 13px;
 }
 
@@ -445,7 +445,7 @@
 
 .panel-uri {
   min-width: 0;
-  font-family: var(--brand-mono-font-family);
+  font-family: var(--mono-font-family);
 }
 
 .copy-link {

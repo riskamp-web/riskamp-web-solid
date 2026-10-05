@@ -51,7 +51,7 @@ Read the canonical token rather than restating its value:
 - surfaces — `--surface`, `--overlay-faint`, `--overlay-faintest`, `--hover`, `--hover-strong`
 - metrics — `--control-height` / `-sm`, `--icon-button-size`, `--control-radius`,
   `--surface-radius`, `--radius-pill`, `--transition-fast`
-- type — `--interface-font` (IBM Plex Sans, on `body`), `--base-font-size` (13px, the floor), `--prose-font-size`, `--heading-font-size`
+- type — `--interface-font` (IBM Plex Sans, on `body`), `--mono-font-family` (IBM Plex Mono), `--base-font-size` (13px, the floor), `--prose-font-size`, `--heading-font-size`
 - status — `--danger` (error), `--warning` (caution: important, not critical)
 
 **Deliberately exempt from the one-accent rule:** `--chart-series-*`, `--sidebar-fit-*` and

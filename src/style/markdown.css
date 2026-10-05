@@ -14,19 +14,34 @@
   font-size: var(--markdown-font-size);  /* the em scale below follows from this */
   color: var(--text);                    /* theme-aware; not the UA default black */
 
+  /* reading leading. Plex's tall x-height wants more than the app-wide
+     p { line-height: 1.35 } (and lists, which had the font's ~1.3); 1.5 is
+     IBM's own body setting, and what the chat messages already drew at. */
+  line-height: 1.5;
+  p { line-height: inherit; }
+
+  /* a hair of negative tracking: Plex sets a little wide at 15px in a ~350px
+     panel, and this fits a word more per line without looking pinched. */
+  letter-spacing: -0.005em;
+
   :first-child { margin-top: 0; }        /* no leading gap at the top of the panel */
 
   /* headings: a real, confident scale, bound to the text beneath them (more
-     space above than below) */
+     space above than below), in ~2px steps from #### up to # (22.5px, as much
+     as a ~350px panel wants). ### and #### stand clear of the 15px body on
+     their own, since AI replies and people's notes reach for them. tracked in
+     a little more than the body -- Plex opens up as it grows. */
   h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
     line-height: 1.25;
+    letter-spacing: -0.01em;
     margin: 1.4em 0 .4em;
   }
   h1 { font-size: 1.5em; }
-  h2 { font-size: 1.25em; }
-  h3 { font-size: 1.15em; }
-  h4, h5, h6 { font-size: 1em; }
+  h2 { font-size: 1.35em; }
+  h3 { font-size: 1.2em; }
+  h4 { font-size: 1.05em; }
+  h5, h6 { font-size: 1em; }
 
   p { margin: 1em 0; }
   p:first-child { margin-top: 0; }

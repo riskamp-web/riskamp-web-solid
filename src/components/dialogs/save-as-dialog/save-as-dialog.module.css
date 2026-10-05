@@ -110,7 +110,7 @@
 .path {
   flex: 1 1 auto;
   min-width: 0;
-  font-family: var(--mono-font-family, ui-monospace, monospace);
+  font-family: var(--mono-font-family);
 
   /* single line; when it overflows, ellipsis at the START so the slug stays
      visible. css only ellipsizes the line's end, so the line is flipped to rtl

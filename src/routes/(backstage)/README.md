@@ -226,10 +226,11 @@ the workspace on `system-ui`. Plex replaced both once it was chosen for the grid
   and every control inherits its font. The faces are declared app-wide in
   `src/style/plex-sans.css` and preloaded, so the toolbar and the page underneath
   are in the same face.
-- **Addresses use `--brand-mono-font-family`, IBM Plex Mono**, the sans's partner. It's
-  used for unnamed documents' slugs and the panel's address line. It's a static family,
-  so the layout imports only the two weights drawn (400, 600); add a weight there if a
-  new use needs one, or the browser will fake it.
+- **Addresses use `--mono-font-family`, IBM Plex Mono**, the sans's partner and the
+  app's one mono (code in the notes and AI panels uses it too). It's used for unnamed
+  documents' slugs and the panel's address line. It's a static family, so `app.tsx`
+  imports only the faces drawn; add one there if a new use needs it, or the browser
+  will fake it.
 - **Headings carry no tracking.** The negative letter-spacing was Inter's curve and
   went with it; Plex is spaced for display sizes as drawn. The card `.title` is 22px,
   the mockup's size, because it's the page's display moment.
