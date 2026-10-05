@@ -1,0 +1,55 @@
+/* Source Sans 3 for the grid, as 'RAW-Default'. Parallel to plex-grid.css;
+   swap the import in spreadsheet.tsx to choose.
+
+   Source Sans 3.052R (adobe-fonts/source-sans release), self-hosted like Plex.
+   The TrueType-outline variable builds (*.ttf.woff2 in the release zip),
+   which hint better on Windows than the CFF ones.
+
+   Variable font (wght 200-900), so no weight cheat is needed: each face
+   declares a weight *range*, and a requested weight outside it is clamped to
+   the nearest end. TREB only asks for 400 and 700, so
+
+     400 -> 400 (regular)
+     700 -> 600 (semibold, same choice as plex-grid.css)
+
+   To nudge either end, change the range -- e.g. `450 600` paints regular at
+   450, like Plex Text.
+
+   No font-feature-settings needed: Source Sans figures are tabular by
+   default (all ten are the same width), and the default zero is plain.
+   For a slashed zero, add `font-feature-settings: "zero" 1;` to both faces.
+
+   Scaled up with size-adjust: Source Sans is drawn small in the em (x-height
+   0.478 vs Plex Text 0.518, Inter 0.546), so at the same point size it reads
+   about a size smaller. 110% lands just above Plex's x-height (108% would
+   match it exactly). Digits stay narrower than Plex's (0.519 vs 0.600). */
+
+/* 1. Normal */
+@font-face {
+  font-family: 'RAW-Default';
+  src: url('/fonts/SourceSans3VF-Upright.woff2') format('woff2-variations');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 110%;
+}
+
+/* 2. Italic */
+@font-face {
+  font-family: 'RAW-Default';
+  src: url('/fonts/SourceSans3VF-Italic.woff2') format('woff2-variations');
+  font-weight: 400 600;
+  font-style: italic;
+  font-display: swap;
+  size-adjust: 110%;
+}
+
+.treb-main.treb-main.treb-main {
+  .treb-font-stack-default {
+    font-family: "RAW-Default";
+  }
+}
+
+:root {
+  --treb-default-font: "RAW-Default";
+}

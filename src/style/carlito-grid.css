@@ -1,0 +1,67 @@
+/* Carlito for the grid, as 'RAW-Default'. Parallel to plex-grid.css; swap
+   the import in spreadsheet.tsx to choose.
+
+   Carlito is metric-compatible with Calibri (same advance widths), so sheets
+   built in Excel keep their column fits. Static TTFs from google/fonts
+   (ofl/carlito), converted to woff2 with fontTools; full character set kept.
+
+   Static faces with a real Bold, so TREB's 700 paints at 700 -- unlike
+   plex-grid.css, which maps 700 to SemiBold.
+
+   No font-feature-settings needed: figures are tabular by default (all ten
+   are the same width), and the zero is plain.
+
+   No size-adjust: matching Calibri's metrics is the point of this font, and
+   scaling would break that. It is drawn small (x-height 0.478, the same as
+   Source Sans 3), so for a like-for-like comparison with source-sans-grid.css
+   uncomment the size-adjust lines below. */
+
+/* 1. Regular */
+@font-face {
+  font-family: 'RAW-Default';
+  src: url('/fonts/Carlito-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 110%;
+}
+
+/* 2. Italic */
+@font-face {
+  font-family: 'RAW-Default';
+  src: url('/fonts/Carlito-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+  size-adjust: 110%;
+}
+
+/* 3. Bold */
+@font-face {
+  font-family: 'RAW-Default';
+  src: url('/fonts/Carlito-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 110%;
+}
+
+/* 4. Bold Italic */
+@font-face {
+  font-family: 'RAW-Default';
+  src: url('/fonts/Carlito-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+  size-adjust: 110%;
+}
+
+.treb-main.treb-main.treb-main {
+  .treb-font-stack-default {
+    font-family: "RAW-Default";
+  }
+}
+
+:root {
+  --treb-default-font: "RAW-Default";
+}

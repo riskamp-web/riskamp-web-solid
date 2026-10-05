@@ -1,0 +1,53 @@
+/* Red Hat Text for the grid, as 'RAW-Default'. Parallel to plex-grid.css;
+   swap the import in spreadsheet.tsx to choose.
+
+   Red Hat Text (the small-size companion to Red Hat Display), variable
+   builds from google/fonts (ofl/redhattext), converted to woff2 with
+   fontTools.
+
+   Variable font (wght 300-700), so no weight cheat is needed: each face
+   declares a weight *range*, and a requested weight outside it is clamped to
+   the nearest end. TREB only asks for 400 and 700, so
+
+     400 -> 400 (regular)
+     700 -> 600 (semibold, same choice as plex-grid.css)
+
+   Features are set on the face, so they reach TREB's canvas:
+     tnum  tabular figures, so numbers line up in columns (the default
+           figures are proportional; tabular ones are 0.600 em, like Plex)
+   The default zero is plain; add "zero" 1 for a slashed one.
+
+   size-adjust: x-height is 0.488 (Plex Text 0.518), so at 108% it matches
+   Source Sans 3 at 110% (~0.526); 106% would match Plex. */
+
+/* 1. Normal */
+@font-face {
+  font-family: 'RAW-Default';
+  src: url('/fonts/RedHatText.woff2') format('woff2-variations');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  font-feature-settings: "tnum" 1;
+  size-adjust: 120%;
+}
+
+/* 2. Italic */
+@font-face {
+  font-family: 'RAW-Default';
+  src: url('/fonts/RedHatText-Italic.woff2') format('woff2-variations');
+  font-weight: 400 600;
+  font-style: italic;
+  font-display: swap;
+  font-feature-settings: "tnum" 1;
+  size-adjust: 120%;
+}
+
+.treb-main.treb-main.treb-main {
+  .treb-font-stack-default {
+    font-family: "RAW-Default";
+  }
+}
+
+:root {
+  --treb-default-font: "RAW-Default";
+}

@@ -13,11 +13,7 @@ import 'riskamp-web/riskamp-web-bundle.css';
 
 // fonts
 
-// import "~/style/plex-grid-slash-zero.css";
-// import "~/style/plex-grid-dotted-zero.css";
 import "~/style/plex-grid.css";
-// import "~/style/inter-grid.css";
-
 
 interface Props {
   fill?: boolean;
