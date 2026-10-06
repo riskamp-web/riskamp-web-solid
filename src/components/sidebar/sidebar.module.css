@@ -189,6 +189,13 @@ header.sidebar-header {
       padding: .5em 1em;
     }
 
+    /* the editor sets the same text as the rendered view, so it takes the same
+       reading metrics as src/style/markdown.css (leading and tracking) */
+    textarea.tab-panel {
+      line-height: 1.5;
+      letter-spacing: -0.005em;
+    }
+
     .controls {
 
       grid-row: 2/3;
