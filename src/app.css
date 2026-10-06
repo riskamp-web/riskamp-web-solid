@@ -3,12 +3,14 @@
 :root {
   /* the workspace face: IBM Plex Sans, the grid's face too, so chrome and cells
      read as one product. declared in style/plex-sans.css; set on body below. */
-  --interface-font: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* trial: Geist (style/geist-sans.css) in place of 'IBM Plex Sans' */
+  --interface-font: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   /* its monospace partner, IBM Plex Mono, for code (notes + AI panels) and
      addresses/slugs (backstage, save-as). via @fontsource/ibm-plex-mono, which
      app.tsx imports; unicode-range subsets, so nothing downloads until a page
      draws some mono text. */
-  --mono-font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* trial: Geist Mono (style/geist-sans.css) in place of 'IBM Plex Mono' */
+  --mono-font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   /* riskamp.com's face (Inter). no shipped page uses it -- backstage moved to
      Plex Sans with the workspace (2026-10); only /dev-test/sign-in-mockup does,
      and it imports @fontsource-variable/inter itself. */

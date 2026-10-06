@@ -1,0 +1,46 @@
+/* Geist + Geist Mono for the app chrome, as 'Geist' / 'Geist Mono'
+   (--interface-font / --mono-font-family in app.css). Parallel to
+   plex-sans.css; swap the import in app.tsx to choose.
+
+   Vercel's own variable builds (npm `geist` 1.7.2, OFL), in public/fonts. The
+   sans files are the grid's too (geist-grid.css), declared again under their
+   own name: the grid's family clamps 700 to 600 for TREB, while the chrome
+   takes Geist's full weight range as-is. Figures stay proportional here; the
+   grid turns on tnum.
+
+   Gaps vs Plex: no U+202F (French narrow no-break space falls back to the
+   next face in the stack -- it's a space, so it doesn't show) and no Greek.
+
+   Preloaded (the upright sans) in entry-server.tsx. */
+
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-Italic-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMono-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMono-Italic-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
