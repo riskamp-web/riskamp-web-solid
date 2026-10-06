@@ -51,9 +51,9 @@ for the full story.
   accent at one fixed tint (−0.25, computed in CSS) and never get a palette of their
   own or a per-colour adjustment. TREB's `{ theme: N }` is `--treb-theme-color-(N − 1)`.
   (→ `src/style/README.md`, "Theme colours and charts".)
-- **CSS — one face: IBM Plex Sans everywhere (chrome, grid, backstage).** Text
+- **CSS — one face: Fira Sans everywhere (chrome, grid, backstage).** Text
   inherits `--interface-font` from `body`, mono text uses `--mono-font-family`
-  (IBM Plex Mono); never hard-code a font stack. The grid has its own
+  (Fira Mono); never hard-code a font stack. The grid has its own
   `RAW-Default` family over the same files. (→ `src/style/README.md`.)
 - **CSS — TREB generates selectors that look like dead code.** Don't delete CSS
   that appears unused without checking the TREB carve-out. (→ `src/style/README.md`.)

@@ -12,7 +12,7 @@
 
    The grid families follow the RAW-Default recipe (geist-grid.css): weight
    range 400 600, so TREB's 700 draws as semibold, and tnum on the face where
-   the default figures are proportional (Atkinson Next, Mona Sans, Fira). Plex keeps
+   the default figures are proportional (Atkinson Next, Mona Sans, Geist). Plex keeps
    plex-grid.css's mapping (Text for 400, SemiBold for 700).
 
    Recursive and Monaspace Neon carry axes a canvas can't set (MONO, CASL,
@@ -22,7 +22,7 @@
      RecursiveMonoLinear  MONO 1, CASL 0     (italics: slnt -15, CRSV 1)
      MonaspaceNeon        wdth 100, slnt 0   (italic: slnt -11)
    Sources: google/fonts (Atkinson Hyperlegible Next + Mono, Mona Sans,
-   Recursive, Fira Sans + Mono) and githubnext/monaspace v1.400. All OFL;
+   Recursive) and githubnext/monaspace v1.400. All OFL;
    licences alongside. */
 
 
@@ -89,23 +89,9 @@
 @font-face { font-family: 'Trial Recursive Grid'; src: url('./font-candidates/RecursiveSansLinear-Italic-Variable.woff2') format('woff2-variations'); font-weight: 400 600; font-style: italic; font-display: swap; }
 
 
-/* ---- Fira Sans + Fira Mono ---------------------------------------------- */
-/* static files, no variable build. the chrome gets real 400/500/600 (700
-   draws as SemiBold, like Plex); Fira Mono has no italic, so code italics are
-   synthesised, and its Medium covers 500-700 (bold code). the tabular zero is
-   plain -- the slashed one is the opt-in `zero` feature. */
+/* ---- Geist + Geist Mono (the previous trial base) ---------------------- */
+/* chrome and mono are 'Geist' / 'Geist Mono' from geist-sans.css, imported by
+   font-trials.ts; only the grid family is declared here (cf. geist-grid.css) */
 
-@font-face { font-family: 'Trial Fira'; src: url('./font-candidates/FiraSans-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: 'Trial Fira'; src: url('./font-candidates/FiraSans-Italic.woff2') format('woff2'); font-weight: 400; font-style: italic; font-display: swap; }
-@font-face { font-family: 'Trial Fira'; src: url('./font-candidates/FiraSans-Medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
-@font-face { font-family: 'Trial Fira'; src: url('./font-candidates/FiraSans-MediumItalic.woff2') format('woff2'); font-weight: 500; font-style: italic; font-display: swap; }
-@font-face { font-family: 'Trial Fira'; src: url('./font-candidates/FiraSans-SemiBold.woff2') format('woff2'); font-weight: 600 700; font-style: normal; font-display: swap; }
-@font-face { font-family: 'Trial Fira'; src: url('./font-candidates/FiraSans-SemiBoldItalic.woff2') format('woff2'); font-weight: 600 700; font-style: italic; font-display: swap; }
-
-@font-face { font-family: 'Trial Fira Mono'; src: url('./font-candidates/FiraMono-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: 'Trial Fira Mono'; src: url('./font-candidates/FiraMono-Medium.woff2') format('woff2'); font-weight: 500 700; font-style: normal; font-display: swap; }
-
-@font-face { font-family: 'Trial Fira Grid'; src: url('./font-candidates/FiraSans-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; font-feature-settings: "tnum" 1; }
-@font-face { font-family: 'Trial Fira Grid'; src: url('./font-candidates/FiraSans-Italic.woff2') format('woff2'); font-weight: 400; font-style: italic; font-display: swap; font-feature-settings: "tnum" 1; }
-@font-face { font-family: 'Trial Fira Grid'; src: url('./font-candidates/FiraSans-SemiBold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; font-feature-settings: "tnum" 1; }
-@font-face { font-family: 'Trial Fira Grid'; src: url('./font-candidates/FiraSans-SemiBoldItalic.woff2') format('woff2'); font-weight: 700; font-style: italic; font-display: swap; font-feature-settings: "tnum" 1; }
+@font-face { font-family: 'Trial Geist Grid'; src: url('/fonts/Geist-Variable.woff2') format('woff2-variations'); font-weight: 400 600; font-style: normal; font-display: swap; font-feature-settings: "tnum" 1; }
+@font-face { font-family: 'Trial Geist Grid'; src: url('/fonts/Geist-Italic-Variable.woff2') format('woff2-variations'); font-weight: 400 600; font-style: italic; font-display: swap; font-feature-settings: "tnum" 1; }

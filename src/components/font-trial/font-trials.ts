@@ -4,7 +4,8 @@ import type { SpreadsheetType } from '~/lib/spreadsheet-type';
 import '~/style/font-trials.css';
 // the base entry's grid face, RAW-Default -- declared by whichever grid CSS
 // spreadsheet.tsx imports (keep these in step), so /dev-test/fonts has it too
-import '~/style/geist-grid.css';
+import '~/style/fira-grid.css';
+import '~/style/geist-sans.css';
 import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/400-italic.css';
 import '@fontsource/ibm-plex-mono/600.css';
@@ -36,8 +37,10 @@ export interface FontTrial {
 }
 
 export const font_trials: FontTrial[] = [
-  { id: '', label: 'Geist (imported)', note: 'The faces app.css and spreadsheet.tsx import today.',
-    chrome: 'Geist', mono: 'Geist Mono', grid: 'RAW-Default' },
+  { id: '', label: 'Fira (imported)', note: 'The faces app.css and spreadsheet.tsx import today: Mozilla\'s Fira Sans with Fira Mono.',
+    chrome: 'Fira Sans', mono: 'Fira Mono', grid: 'RAW-Default' },
+  { id: 'geist', label: 'Geist', note: 'Vercel\'s Geist with Geist Mono.',
+    chrome: 'Geist', mono: 'Geist Mono', grid: 'Trial Geist Grid' },
   { id: 'plex', label: 'IBM Plex', note: 'The previous face: Plex Sans (Text for regular) with Plex Mono.',
     chrome: 'Trial Plex', mono: 'IBM Plex Mono', grid: 'Trial Plex Grid' },
   { id: 'atkinson', label: 'Atkinson Hyperlegible', note: 'Atkinson Hyperlegible Next with Atkinson Hyperlegible Mono. Built so similar glyphs can\'t be confused.',
@@ -46,8 +49,6 @@ export const font_trials: FontTrial[] = [
     chrome: 'Trial Mona Sans', mono: 'Trial Mona Sans Mono', grid: 'Trial Mona Sans Grid' },
   { id: 'recursive', label: 'Recursive', note: 'Recursive Sans Linear with Recursive Mono: one design, so the pair matches by construction.',
     chrome: 'Trial Recursive', mono: 'Trial Recursive Mono', grid: 'Trial Recursive Grid' },
-  { id: 'fira', label: 'Fira', note: 'Mozilla\'s Fira Sans with Fira Mono. Built for small text on screens.',
-    chrome: 'Trial Fira', mono: 'Trial Fira Mono', grid: 'Trial Fira Grid' },
   { id: 'recursive-casual', label: 'Recursive (casual chrome)', note: 'Recursive with the casual axis on in the chrome only; the grid and mono stay linear.',
     chrome: 'Trial Recursive Casual', mono: 'Trial Recursive Mono', grid: 'Trial Recursive Grid' },
 ];

@@ -12,7 +12,7 @@ const PAGES: { href: string, title: string, blurb: string }[] = [
   { href: '/dev-test/rate-demo', title: 'Rate-this-app prompt (mockup)', blurb: 'Star-rating dialog mockup — hover/click rating, dismiss via Not now, Escape, X or outside click.' },
   { href: '/dev-test/sign-in-mockup', title: 'Sign-in page with brand panel (mockup)', blurb: 'Brand panel beside the shipped sign-in card: Inter display type, a real walkthrough histogram in the proposed palette, no-account entry points. Not wired.' },
   { href: '/dev-test/toast-demo', title: 'Toast notifications', blurb: 'The toast singleton — success/error variants and the action/Retry button.' },
-  { href: '/dev-test/fonts', title: 'Typeface trials', blurb: 'Candidate faces (Plex, Atkinson Hyperlegible, Mona Sans, Recursive, Fira) beside the imported one: chrome, grid and mono samples, plus a switch that applies one app-wide (also the floating switcher; ?fonts shows it).' },
+  { href: '/dev-test/fonts', title: 'Typeface trials', blurb: 'Candidate faces (Plex, Geist, Atkinson Hyperlegible, Mona Sans, Recursive) beside the imported one: chrome, grid and mono samples, plus a switch that applies one app-wide (also the floating switcher; ?fonts shows it).' },
   { href: '/dev-test/icons', title: 'Icon gallery', blurb: 'Every icon in every set.' },
 ];
 

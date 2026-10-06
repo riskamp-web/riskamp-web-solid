@@ -1,18 +1,15 @@
 
 
 :root {
-  /* the workspace face: IBM Plex Sans, the grid's face too, so chrome and cells
-     read as one product. declared in style/plex-sans.css; set on body below. */
-  /* trial: Geist (style/geist-sans.css) in place of 'IBM Plex Sans' */
-  --interface-font: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  /* its monospace partner, IBM Plex Mono, for code (notes + AI panels) and
-     addresses/slugs (backstage, save-as). via @fontsource/ibm-plex-mono, which
-     app.tsx imports; unicode-range subsets, so nothing downloads until a page
-     draws some mono text. */
-  /* trial: Geist Mono (style/geist-sans.css) in place of 'IBM Plex Mono' */
-  --mono-font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* the workspace face: Fira Sans, the grid's face too, so chrome and cells
+     read as one product. declared in style/fira-sans.css; set on body below. */
+  --interface-font: 'Fira Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* its monospace partner, Fira Mono, for code (notes + AI panels) and
+     addresses/slugs (backstage, save-as). also in style/fira-sans.css; nothing
+     downloads until a page draws some mono text. */
+  --mono-font-family: 'Fira Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   /* riskamp.com's face (Inter). no shipped page uses it -- backstage moved to
-     Plex Sans with the workspace (2026-10); only /dev-test/sign-in-mockup does,
+     the workspace face (2026-10); only /dev-test/sign-in-mockup does,
      and it imports @fontsource-variable/inter itself. */
   --brand-font-family: 'Inter Variable', 'InterVariable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --llm-chat-font-size: 16px;

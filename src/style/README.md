@@ -25,9 +25,9 @@ it.** An audit that greps for class names will report every one of these as dead
 | File | Owns |
 |---|---|
 | `src/app.css` | **Every token, and every themeable colour in the product.** The only file allowed to hold a colour literal. |
-| `src/style/plex-sans.css` | The `@font-face` rules for the interface face (`--interface-font`, IBM Plex Sans). The grid declares the same files separately as `RAW-Default` in `plex-grid.css`. Every page uses it, backstage included. |
-| `src/style/*-grid.css`, `font-candidates/` | The grid face, as `RAW-Default`: `plex-grid.css` is the one `spreadsheet.tsx` imports; the rest are unimported candidates. Their font files sit in `font-candidates/` (not `public/`), so Vite bundles one only when its CSS is imported. |
-| `src/style/font-trials.css` | **Dev only.** `@font-face` rules for the typeface trials (Plex, Atkinson Hyperlegible, Mona Sans, Recursive, Fira), switched app-wide at runtime by `components/font-trial` (`?fonts`) and compared at `/dev-test/fonts`. Both importers are behind `import.meta.env.DEV`, so a production build emits none of the files. |
+| `src/style/fira-sans.css` | The `@font-face` rules for the interface face (`--interface-font`, Fira Sans) and its mono (`--mono-font-family`, Fira Mono). The grid declares the same sans files separately as `RAW-Default` in `fira-grid.css`. Every page uses it, backstage included. `plex-sans.css` and `geist-sans.css` are the unimported alternatives (Geist's is used by the trials). |
+| `src/style/*-grid.css`, `font-candidates/` | The grid face, as `RAW-Default`: `fira-grid.css` is the one `spreadsheet.tsx` imports; the rest are unimported candidates. Their font files sit in `font-candidates/` (not `public/`), so Vite bundles one only when its CSS is imported. |
+| `src/style/font-trials.css` | **Dev only.** `@font-face` rules for the typeface trials (Plex, Geist, Atkinson Hyperlegible, Mona Sans, Recursive), switched app-wide at runtime by `components/font-trial` (`?fonts`) and compared at `/dev-test/fonts`. Both importers are behind `import.meta.env.DEV`, so a production build emits none of the files. |
 | `src/reset.css` | `box-sizing`, and font inheritance for form elements. Imported first. |
 | `src/style/controls.css` | The control recipe: `.input`, `.select`, `.control-button`, and `.riskamp-dialog footer button`. Global classes, because it has to reach global selectors. |
 | `src/style/shared.module.css` | Recipes shared **between CSS modules**, applied as a second class at the element. See below. |
@@ -52,7 +52,7 @@ Read the canonical token rather than restating its value:
 - surfaces — `--surface`, `--overlay-faint`, `--overlay-faintest`, `--hover`, `--hover-strong`
 - metrics — `--control-height` / `-sm`, `--icon-button-size`, `--control-radius`,
   `--surface-radius`, `--radius-pill`, `--transition-fast`
-- type — `--interface-font` (IBM Plex Sans, on `body`), `--mono-font-family` (IBM Plex Mono), `--base-font-size` (13px, the floor), `--prose-font-size`, `--heading-font-size`
+- type — `--interface-font` (Fira Sans, on `body`), `--mono-font-family` (Fira Mono), `--base-font-size` (13px, the floor), `--prose-font-size`, `--heading-font-size`
 - status — `--danger` (error), `--warning` (caution: important, not critical)
 
 **Deliberately exempt from the one-accent rule:** `--chart-series-*`, `--sidebar-fit-*` and

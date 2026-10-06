@@ -12,8 +12,7 @@ import 'riskamp-web/treb-bundle.css';
 import 'riskamp-web/riskamp-web-bundle.css';
 
 // fonts
-// import "~/style/plex-grid.css";
-import "~/style/geist-grid.css";
+import "~/style/fira-grid.css"; // alternatives: plex-grid.css, geist-grid.css
 
 interface Props {
   fill?: boolean;

@@ -1,0 +1,27 @@
+/* Fira Sans + Fira Mono for the app chrome, as 'Fira Sans' / 'Fira Mono'
+   (--interface-font / --mono-font-family in app.css). Parallel to
+   plex-sans.css and geist-sans.css; swap the import in app.tsx to choose.
+
+   Mozilla's static builds (google/fonts, OFL), in public/fonts. The sans files
+   are the grid's too (fira-grid.css), declared again under their own name with
+   tabular figures; here the figures stay proportional.
+
+   Static files, so only the weights drawn: 400, 500, and SemiBold for 600-700
+   (bold draws as semibold, as with Plex). Fira Mono has no italic -- code
+   italics are synthesised -- and its Medium covers 500-700 (bold code). Its
+   zero is the dotted one; Fira Sans's is plain.
+
+   Gaps: no U+202F (French narrow no-break space falls back to the next face in
+   the stack -- it's a space, so it doesn't show).
+
+   Preloaded (the upright 400 + SemiBold) in entry-server.tsx. */
+
+@font-face { font-family: 'Fira Sans'; src: url('/fonts/FiraSans-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Fira Sans'; src: url('/fonts/FiraSans-Italic.woff2') format('woff2'); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Fira Sans'; src: url('/fonts/FiraSans-Medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Fira Sans'; src: url('/fonts/FiraSans-MediumItalic.woff2') format('woff2'); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Fira Sans'; src: url('/fonts/FiraSans-SemiBold.woff2') format('woff2'); font-weight: 600 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Fira Sans'; src: url('/fonts/FiraSans-SemiBoldItalic.woff2') format('woff2'); font-weight: 600 700; font-style: italic; font-display: swap; }
+
+@font-face { font-family: 'Fira Mono'; src: url('/fonts/FiraMono-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Fira Mono'; src: url('/fonts/FiraMono-Medium.woff2') format('woff2'); font-weight: 500 700; font-style: normal; font-display: swap; }
