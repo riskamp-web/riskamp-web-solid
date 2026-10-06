@@ -1,7 +1,7 @@
 import { MetaProvider, Title } from "@solidjs/meta";
 import { Router, RouteSectionProps } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { onMount, Suspense } from "solid-js";
+import { lazy, onMount, Suspense } from "solid-js";
 
 import "./reset.css";
 import "./app.css";
@@ -38,6 +38,11 @@ import { RouteStats } from './lib/stats';
 // out of it. see treb-llm-support/src/md.ts (formatConfig).
 formatConfig.collapsibleCodeBlocks = false;
 
+// dev-only typeface switcher (components/font-trial). the DEV guard is what
+// keeps it out of a production build: there the branch is dead code, so the
+// chunk -- and the trial font files it pulls in -- is never even emitted.
+const FontTrialSwitcher = import.meta.env.DEV ? lazy(() => import('~/components/font-trial/font-trial')) : undefined;
+
 
 
 function Root(props: RouteSectionProps) {
@@ -59,6 +64,7 @@ function Root(props: RouteSectionProps) {
         <Spinner />
         <Toaster />
         <ConfirmDialog />
+        {FontTrialSwitcher && <FontTrialSwitcher />}
       </MetaProvider>
     </HistoryProvider>
   );

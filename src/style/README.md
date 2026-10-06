@@ -27,6 +27,7 @@ it.** An audit that greps for class names will report every one of these as dead
 | `src/app.css` | **Every token, and every themeable colour in the product.** The only file allowed to hold a colour literal. |
 | `src/style/plex-sans.css` | The `@font-face` rules for the interface face (`--interface-font`, IBM Plex Sans). The grid declares the same files separately as `RAW-Default` in `plex-grid.css`. Every page uses it, backstage included. |
 | `src/style/*-grid.css`, `font-candidates/` | The grid face, as `RAW-Default`: `plex-grid.css` is the one `spreadsheet.tsx` imports; the rest are unimported candidates. Their font files sit in `font-candidates/` (not `public/`), so Vite bundles one only when its CSS is imported. |
+| `src/style/font-trials.css` | **Dev only.** `@font-face` rules for the typeface trials (Plex, Atkinson Hyperlegible, Mona Sans, Recursive, Fira), switched app-wide at runtime by `components/font-trial` (`?fonts`) and compared at `/dev-test/fonts`. Both importers are behind `import.meta.env.DEV`, so a production build emits none of the files. |
 | `src/reset.css` | `box-sizing`, and font inheritance for form elements. Imported first. |
 | `src/style/controls.css` | The control recipe: `.input`, `.select`, `.control-button`, and `.riskamp-dialog footer button`. Global classes, because it has to reach global selectors. |
 | `src/style/shared.module.css` | Recipes shared **between CSS modules**, applied as a second class at the element. See below. |
