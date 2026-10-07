@@ -238,8 +238,12 @@ function RedrawInternal() {
 
     case 0:
       {
+        // should we show callouts here? if so, what values?
+
+        const callouts = ``; // `group(callout(${box_stats.quartiles[0]},, "dotted",0), callout(${box_stats.quartiles[1]},,"dotted",0), callout(${box_stats.quartiles[2]},,"dotted",0))`;
+
         // console.info(persistentData.quickview_bin_algorithm || 'auto');
-        const histogram_data = sheet.Evaluate(`=MC.Histogram(${selected_cell},,,"${persistentData.quickview_bin_algorithm || 'auto'}")`, { argument_separator: ','});
+        const histogram_data = sheet.Evaluate(`=MC.Histogram(${selected_cell},,,"${persistentData.quickview_bin_algorithm || 'auto'}",${callouts})`, { argument_separator: ','});
 
         // MC.Histogram returns its arguments; the chart bins them as the
         // grid does
