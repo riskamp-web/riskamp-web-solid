@@ -1,0 +1,36 @@
+/* Which faces TREB draws with. TREB has two font hooks, and they do different
+   jobs, so they're assigned here rather than in each face's CSS (plus the
+   charts, which TREB doesn't give a hook of their own yet -- see below):
+
+     .treb-font-stack-default  the cells: the document's default font. Points
+                               at 'RAW-Default', which whichever *-grid.css
+                               spreadsheet.tsx imports declares (those files
+                               hold only @font-face rules, so swapping the
+                               grid face is swapping that one import).
+     --treb-default-font       TREB's own interface: sheet tabs, formula bar,
+                               row and column headers. Follows the app's
+                               interface face, so TREB's chrome matches ours.
+     .annotation-content       charts (and other annotations): document
+                               content, so the grid face, like the cells --
+                               not TREB's interface font, which they'd inherit
+                               otherwise. a stopgap until TREB has a chart
+                               font hook.
+
+   The dev font switcher (components/font-trial) overrides the cell and chart
+   face for trials (font-trials.css); the interface one follows
+   --interface-font by itself. */
+
+.treb-main.treb-main.treb-main {
+  .treb-font-stack-default {
+    font-family: "RAW-Default";
+  }
+
+  .annotation-content, .annotation-content svg {
+    font-family: "RAW-Default";
+  }
+
+}
+
+:root {
+  --treb-default-font: var(--interface-font);
+}

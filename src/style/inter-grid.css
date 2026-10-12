@@ -40,13 +40,3 @@
   font-display: swap;
   font-feature-settings: "tnum" 1, "ss04" 1;
 }
-
-.treb-main.treb-main.treb-main {
-  .treb-font-stack-default {
-    font-family: "RAW-Default";
-  }
-}
-
-:root {
-  --treb-default-font: "RAW-Default";
-}

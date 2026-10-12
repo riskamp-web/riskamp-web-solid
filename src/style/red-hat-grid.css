@@ -41,13 +41,3 @@
   font-feature-settings: "tnum" 1;
   size-adjust: 120%;
 }
-
-.treb-main.treb-main.treb-main {
-  .treb-font-stack-default {
-    font-family: "RAW-Default";
-  }
-}
-
-:root {
-  --treb-default-font: "RAW-Default";
-}

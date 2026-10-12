@@ -34,13 +34,3 @@
   font-style: italic;
   font-display: swap;
 }
-
-.treb-main.treb-main.treb-main {
-  .treb-font-stack-default {
-    font-family: "RAW-Default";
-  }
-}
-
-:root {
-  --treb-default-font: "RAW-Default";
-}

@@ -55,13 +55,3 @@
   font-display: swap;
   size-adjust: 110%;
 }
-
-.treb-main.treb-main.treb-main {
-  .treb-font-stack-default {
-    font-family: "RAW-Default";
-  }
-}
-
-:root {
-  --treb-default-font: "RAW-Default";
-}

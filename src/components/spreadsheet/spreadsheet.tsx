@@ -13,6 +13,7 @@ import 'riskamp-web/riskamp-web-bundle.css';
 
 // fonts
 import "~/style/fira-grid.css"; // alternatives: plex-grid.css, geist-grid.css
+import "~/style/treb-fonts.css"; // assigns the cell and TREB-interface faces
 
 interface Props {
   fill?: boolean;
