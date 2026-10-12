@@ -57,6 +57,10 @@ for the full story.
   `RAW-Default` family over the same files. (→ `src/style/README.md`.)
 - **CSS — TREB generates selectors that look like dead code.** Don't delete CSS
   that appears unused without checking the TREB carve-out. (→ `src/style/README.md`.)
+- **Controls — value pickers stay native `<select>`; custom dropdowns are menus.**
+  Decided 2026-10-12, don't reopen without a new reason: normalize the closed
+  control (shared `select.select` recipe, token sizes), not the widget.
+  (→ `src/style/README.md`, "Value pickers stay native".)
 - **Dev affordances (dev server only).** `/documents?dev` opens a signed-in page
   with no session; `?fail` / `?fail-history` force load-failure states (e.g.
   `/documents?dev&fail-history`). (→ `src/routes/(backstage)/README.md`.)

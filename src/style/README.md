@@ -143,6 +143,36 @@ is emitted before its importers. And a recipe applied at N call sites has to be 
 all N; where that count is high, write the declarations out locally instead. `.cell` in
 `documents.module.css` is the standing example, at fifteen sites.
 
+## Value pickers stay native `<select>`
+
+Decided 2026-10-12, after asking "should we normalize on the custom dropdowns?" — don't
+reopen it without a new reason.
+
+The custom dropdowns (`DropMenu`, `MenuButton`/`composite-menu`, the documents page's
+`ActionMenu`) are **menus**: picking an item runs a command. Every `<select>` picks a
+**value** (distribution, bin method, scope, provider, language). That's a different
+widget — `role=menu` vs. listbox — so reusing a menu component as a picker would be a new
+component, not a reskin. Native selects give keyboard support, typeahead, screen-reader
+semantics, sidebar-safe positioning and the native macOS pop-up for free; a custom listbox
+that matches them is a real build-and-maintain cost whose only payoff is styling the open
+list.
+
+What we normalize instead is the **closed control**: every select goes through the shared
+`select.select` recipe in `controls.css`, and sizes come from tokens, never inheritance. A
+select sitting inside a heading inherits the heading's size, which is how the fit-data
+picker ended up 16px next to quick view's 13px; it's now pinned to `--base-font-size`.
+
+Open follow-ups, cosmetic only:
+- Swap the browser's chevron for our `caret_down` (`appearance: none` + the same glyph) so a
+  closed select matches the custom dropdowns.
+- Bring stragglers onto the recipe (e.g. the documents page's `scope-select`).
+
+When a custom picker *would* earn its place: options that need content a native list can't
+show — e.g. the fit-data picker listing each candidate's error or a tiny curve. Build one
+proper listbox component for that case; don't convert across the board. Revisit styling the
+open list when `appearance: base-select` ships in Safari — it's progressive enhancement on
+the native control.
+
 ## Also worth knowing
 
 - **No `color-mix()`.** It doesn't render reliably in the Safari we target. Derive colours
