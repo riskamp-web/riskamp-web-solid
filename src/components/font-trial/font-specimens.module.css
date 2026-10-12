@@ -58,6 +58,15 @@
   }
 }
 
+/* "Use in app" over "Grid only" */
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  flex: none;
+}
+
 .active {
   border-color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent);

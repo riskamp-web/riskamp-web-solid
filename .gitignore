@@ -33,3 +33,7 @@ Thumbs.db
 
 # Snapshots, screenshots and console logs written by the playwright MCP tool
 .playwright-mcp/
+
+# MB Type fonts (Concourse, Triplicate): licensed, must never be in the repo
+# (licence §7 forbids storing them anywhere non-licensed users can reach)
+/src/style/font-candidates/mbtype/

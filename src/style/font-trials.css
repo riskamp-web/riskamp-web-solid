@@ -21,15 +21,20 @@
      RecursiveSansLinear  MONO 0, CASL 0     RecursiveSansCasual  MONO 0, CASL 1
      RecursiveMonoLinear  MONO 1, CASL 0     (italics: slnt -15, CRSV 1)
      MonaspaceNeon        wdth 100, slnt 0   (italic: slnt -11)
-   Sources: google/fonts (Atkinson Hyperlegible Next + Mono, Mona Sans,
+   Sources: google/fonts (Atkinson Hyperlegible Next + Mono, Mona Sans, Figtree,
    Recursive) and githubnext/monaspace v1.400. All OFL;
    licences alongside. */
 
 
-/* ---- grid: point TREB's default stack at the active trial ---------------- */
+/* ---- grid: point the cells and charts at the active trial ----------------- */
 
-:root[data-font-trial] .treb-main.treb-main.treb-main .treb-font-stack-default {
-  font-family: var(--trial-grid-font);
+/* the cells, and the charts (cf. treb-fonts.css) */
+:root[data-font-trial] .treb-main.treb-main.treb-main {
+  .treb-font-stack-default,
+  .annotation-content,
+  .annotation-content svg {
+    font-family: var(--trial-grid-font);
+  }
 }
 
 
@@ -95,3 +100,27 @@
 
 @font-face { font-family: 'Trial Geist Grid'; src: url('/fonts/Geist-Variable.woff2') format('woff2-variations'); font-weight: 400 600; font-style: normal; font-display: swap; font-feature-settings: "tnum" 1; }
 @font-face { font-family: 'Trial Geist Grid'; src: url('/fonts/Geist-Italic-Variable.woff2') format('woff2-variations'); font-weight: 400 600; font-style: italic; font-display: swap; font-feature-settings: "tnum" 1; }
+
+
+/* ---- Inter (riskamp.com's face) ----------------------------------------- */
+/* rsms's own 4.1 build (cf. inter-grid.css): fontsource strips the stylistic
+   sets. the grid adds tnum and ss04 (I/l/1 disambiguation, plain zero); the
+   opsz axis follows the size by itself. mono is Fira Mono, from fira-sans.css */
+
+@font-face { font-family: 'Trial Inter'; src: url('./font-candidates/InterVariable.woff2') format('woff2-variations'); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trial Inter'; src: url('./font-candidates/InterVariable-Italic.woff2') format('woff2-variations'); font-weight: 100 900; font-style: italic; font-display: swap; }
+
+@font-face { font-family: 'Trial Inter Grid'; src: url('./font-candidates/InterVariable.woff2') format('woff2-variations'); font-weight: 400 600; font-style: normal; font-display: swap; font-feature-settings: "tnum" 1, "ss04" 1; }
+@font-face { font-family: 'Trial Inter Grid'; src: url('./font-candidates/InterVariable-Italic.woff2') format('woff2-variations'); font-weight: 400 600; font-style: italic; font-display: swap; font-feature-settings: "tnum" 1, "ss04" 1; }
+
+
+/* ---- Figtree ------------------------------------------------------------ */
+/* google/fonts v2.002, converted to woff2 with fonttools. figures are
+   proportional by default, so the grid adds tnum, plus ss02 (serifed I,
+   tailed l -- Figtree's disambiguation set). no matching mono: Fira Mono */
+
+@font-face { font-family: 'Trial Figtree'; src: url('./font-candidates/Figtree-Variable.woff2') format('woff2-variations'); font-weight: 300 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trial Figtree'; src: url('./font-candidates/Figtree-Italic-Variable.woff2') format('woff2-variations'); font-weight: 300 900; font-style: italic; font-display: swap; }
+
+@font-face { font-family: 'Trial Figtree Grid'; src: url('./font-candidates/Figtree-Variable.woff2') format('woff2-variations'); font-weight: 400 600; font-style: normal; font-display: swap; font-feature-settings: "tnum" 1, "ss02" 1; }
+@font-face { font-family: 'Trial Figtree Grid'; src: url('./font-candidates/Figtree-Italic-Variable.woff2') format('woff2-variations'); font-weight: 400 600; font-style: italic; font-display: swap; font-feature-settings: "tnum" 1, "ss02" 1; }

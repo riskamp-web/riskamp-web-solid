@@ -1,11 +1,11 @@
 import { For } from 'solid-js';
-import { activeTrial, font_trials, quoted, setFontTrial, type FontTrial } from './font-trials';
+import { activeTrial, font_trials, gridTrial, quoted, setGridTrial, useFontTrial, type FontTrial } from './font-trials';
 import style from './font-specimens.module.css';
 
 // /dev-test/fonts (routes/dev-test/fonts.tsx loads it). Typeface trials side
 // by side: each candidate's chrome, grid and mono faces on the same samples,
-// plus a button that switches the whole app to it (as the floating switcher
-// does). The grid sample is DOM, not
+// plus buttons that switch the whole app to it, or just the grid (as the
+// floating switcher's two selects do). The grid sample is DOM, not
 // TREB's canvas -- for the real thing, switch and open a document.
 
 const GRID_ROWS: [string, string, string][] = [
@@ -22,17 +22,24 @@ const DIGITS = '6,869.96 3,580.69 9,606.38 8,086.90';
 
 function Specimen(props: { trial: FontTrial }) {
   const family = (name: string) => `${quoted(name)}, sans-serif`;
+  const inUse = () => activeTrial() === props.trial.id && gridTrial().id === props.trial.id;
   return (
-    <section classList={{ [style.card]: true, [style.active]: activeTrial() === props.trial.id }}>
+    <section classList={{ [style.card]: true, [style.active]: inUse() }}>
       <header>
         <div>
           <h2 style={{ 'font-family': family(props.trial.chrome) }}>{props.trial.label}</h2>
           <p>{props.trial.note}</p>
         </div>
-        <button type='button' class='control-button' disabled={activeTrial() === props.trial.id}
-            onClick={() => setFontTrial(props.trial.id)}>
-          {activeTrial() === props.trial.id ? 'In use' : 'Use in app'}
-        </button>
+        <div class={style.actions}>
+          <button type='button' class='control-button' disabled={inUse()}
+              onClick={() => useFontTrial(props.trial.id)}>
+            {inUse() ? 'In use' : 'Use in app'}
+          </button>
+          <button type='button' class='control-button' disabled={gridTrial().id === props.trial.id}
+              onClick={() => setGridTrial(props.trial.id)}>
+            {gridTrial().id === props.trial.id ? 'Grid in use' : 'Grid only'}
+          </button>
+        </div>
       </header>
 
       <div class={style.chrome} style={{ 'font-family': family(props.trial.chrome) }}>
