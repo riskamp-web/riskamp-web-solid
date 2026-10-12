@@ -406,6 +406,9 @@ header.sidebar-header {
   max-height: 100vh;
   max-height: 100dvh;
 
+  /* a short panel moves the stats into a tab of their own, see below */
+  container: quick-view / size;
+
   & > div {
     overflow: hidden;
   }
@@ -431,7 +434,7 @@ header.sidebar-header {
 
   .trailer {
     grid-row: 1/2;
-    grid-column: 3/-1;
+    grid-column: -2/-1;   /* the 1fr column after the tabs */
     text-align: right;
     border-bottom: 3px solid transparent;
     padding: .5em;
@@ -544,6 +547,59 @@ header.sidebar-header {
       display: block;
     }
 
+  }
+
+}
+
+/*
+ * quick view in a short panel (small laptops): the stats table takes most
+ * of the height and squashes the chart, so it moves into a third tab and
+ * the chart gets the whole tab area. a tall panel shows the table below
+ * the tabs and hides the stats tab.
+ *
+ * the stats tab's selection persists, so a tall panel can open (or grow)
+ * with it selected; then the histogram stands in for it. the component
+ * draws the histogram for any tab that isn't the box plot.
+ */
+
+.quick-view-layout :global(.tab-container) .stats-pane {
+  display: none;
+}
+
+@container quick-view (height < 760px) {
+
+  .quick-view-layout {
+
+    :global(.tab-container) .stats-pane {
+      display: contents;
+      & > :global(.tab-content) {
+        overflow-y: auto;
+      }
+    }
+
+    & > .box-stats-table {
+      display: none;
+    }
+
+    /* the bin selector belongs to the histogram */
+    :global(.tab-container):has(.stats-pane :checked) .trailer {
+      visibility: hidden;
+    }
+
+  }
+
+}
+
+@container quick-view (height >= 760px) {
+
+  /* outranks the selected-tab rule in tabs.css */
+  .quick-view-layout :global(.tab-container):has(.stats-pane :checked) .histogram-pane {
+    & > :global(label.tab) {
+      border-bottom-color: var(--sidebar-tab-active-color);
+    }
+    & > :global(label.tab) + :global(.tab-content) {
+      display: block;
+    }
   }
 
 }

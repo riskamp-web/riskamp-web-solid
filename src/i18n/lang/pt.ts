@@ -511,6 +511,7 @@ export default {
     'select-cell': 'Selecionar célula',
     'tab-histogram': 'Histograma',
     'tab-box-plot': 'Boxplot',
+    'tab-statistics': 'Estatísticas',
     'show-statistics': 'Estatísticas',
     'histogram-bin-algorithm-long': 'Algoritmo de bins',
     'histogram-bin-algorithm-short': 'Bins',

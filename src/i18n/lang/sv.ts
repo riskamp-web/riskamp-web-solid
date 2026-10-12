@@ -511,6 +511,7 @@ export default {
     'select-cell': 'Välj cell',
     'tab-histogram': 'Histogram',
     'tab-box-plot': 'Lådagram',
+    'tab-statistics': 'Statistik',
     'show-statistics': 'Statistik',
     'histogram-bin-algorithm-long': 'Klassindelningsalgoritm',
     'histogram-bin-algorithm-short': 'Klasser',

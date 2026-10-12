@@ -511,6 +511,7 @@ export default {
     'select-cell': 'Velg celle',
     'tab-histogram': 'Histogram',
     'tab-box-plot': 'Boksplott',
+    'tab-statistics': 'Statistikk',
     'show-statistics': 'Statistikk',
     'histogram-bin-algorithm-long': 'Intervallalgoritme',
     'histogram-bin-algorithm-short': 'Intervaller',

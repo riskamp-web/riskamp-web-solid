@@ -510,6 +510,7 @@ export default {
     'select-cell': 'Sélectionner une cellule',
     'tab-histogram': 'Histogramme',
     'tab-box-plot': 'Boîte à moustaches',
+    'tab-statistics': 'Statistiques',
     'show-statistics': 'Statistiques',
     'histogram-bin-algorithm-long': 'Algorithme d’intervalles',
     'histogram-bin-algorithm-short': 'Intervalles',

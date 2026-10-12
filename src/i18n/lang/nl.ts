@@ -511,6 +511,7 @@ export default {
     'select-cell': 'Cel selecteren',
     'tab-histogram': 'Histogram',
     'tab-box-plot': 'Boxplot',
+    'tab-statistics': 'Statistieken',
     'show-statistics': 'Statistieken',
     'histogram-bin-algorithm-long': 'Binalgoritme',
     'histogram-bin-algorithm-short': 'Bins',

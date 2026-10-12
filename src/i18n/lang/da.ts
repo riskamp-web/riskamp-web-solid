@@ -511,6 +511,7 @@ export default {
     'select-cell': 'Vælg celle',
     'tab-histogram': 'Histogram',
     'tab-box-plot': 'Boksplot',
+    'tab-statistics': 'Statistik',
     'show-statistics': 'Statistik',
     'histogram-bin-algorithm-long': 'Intervalalgoritme',
     'histogram-bin-algorithm-short': 'Intervaller',

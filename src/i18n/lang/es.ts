@@ -510,6 +510,7 @@ export default {
     'select-cell': 'Seleccionar celda',
     'tab-histogram': 'Histograma',
     'tab-box-plot': 'Diagrama de caja',
+    'tab-statistics': 'Estadísticas',
     'show-statistics': 'Estadísticas',
     'histogram-bin-algorithm-long': 'Algoritmo de intervalos',
     'histogram-bin-algorithm-short': 'Intervalos',

@@ -228,6 +228,9 @@ function RedrawInternal() {
 
   ]);
 
+  // tab 2 (statistics) only exists in a short panel; if the panel grows
+  // while it's selected, the css falls back to the histogram, so draw it
+
   switch (persistentData.quickview_tab) {
     case 1:
       charts.boxplot.BoxPlot(data, {
@@ -236,7 +239,7 @@ function RedrawInternal() {
       });
       break;
 
-    case 0:
+    default:
       {
         // should we show callouts here? if so, what values?
 
@@ -327,6 +330,29 @@ function RedrawInternal() {
     });
   }
 
+  // rendered twice: below the tabs in a tall panel, as its own tab in a
+  // short one. the container query in sidebar.module.css picks which.
+
+  function StatsTable() {
+    return <div class={style['box-stats-table']}>
+      <For each={boxStatsTable()}>
+        {row => <>
+          <Switch>
+            <Match when={row === 'separator'}>
+              <div class={style.separator} />
+            </Match>
+            <Match when={true}>
+              <div class={style.row}>
+                <div class={style.label}>{t((row as BoxStatsRow).label)}</div>
+                <div class={style.value}>{(row as BoxStatsRow).value}</div>
+              </div>
+            </Match>
+          </Switch>
+        </>}
+      </For>
+    </div>;
+  }
+
   return <InteractiveSidebar {...props}>
     <div classList={{
         [style['quick-view-layout']]: true,
@@ -360,7 +386,7 @@ function RedrawInternal() {
       </div>
 
         <div class="tab-container">
-          <div class="tab-pane">
+          <div classList={{ 'tab-pane': true, [style['histogram-pane']]: true }}>
             <label class="tab">
               <input type="radio" 
                      data-label={t('quick-view-dialog.tab-histogram')} 
@@ -388,9 +414,22 @@ function RedrawInternal() {
                    ref={chart_containers[1]} />
             </div>
           </div>
+          <div classList={{ 'tab-pane': true, [style['stats-pane']]: true }}>
+            <label class="tab">
+              <input type="radio" 
+                     data-label={t('quick-view-dialog.tab-statistics')} 
+                     name={tab_group_name} 
+                     checked={persistentData.quickview_tab === 2} 
+                     onchange={e => {if (e.currentTarget.checked){ 
+                        setPersistentData({ quickview_tab: 2 })}}} />
+            </label>
+            <div class="tab-content">
+              <StatsTable />
+            </div>
+          </div>
           <div class={style.trailer}>
             <Switch>
-              <Match when={persistentData.quickview_tab === 0}>
+              <Match when={persistentData.quickview_tab !== 1}>
                 <select class="select" 
                         value={persistentData.quickview_bin_algorithm}
                         onchange={
@@ -431,23 +470,7 @@ function RedrawInternal() {
 
         </div>
 
-          <div class={style['box-stats-table']}>
-            <For each={boxStatsTable()}>
-              {row => <>
-                <Switch>
-                  <Match when={row === 'separator'}>
-                    <div class={style.separator} />
-                  </Match>
-                  <Match when={true}>
-                    <div class={style.row}>
-                      <div class={style.label}>{t((row as BoxStatsRow).label)}</div>
-                      <div class={style.value}>{(row as BoxStatsRow).value}</div>
-                    </div>
-                  </Match>
-                </Switch>
-              </>}
-            </For>
-          </div>
+      <StatsTable />
 
     </div>
   </InteractiveSidebar>;

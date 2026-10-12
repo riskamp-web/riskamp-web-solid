@@ -511,6 +511,7 @@ export default {
     'select-cell': 'Wybierz komórkę',
     'tab-histogram': 'Histogram',
     'tab-box-plot': 'Wykres pudełkowy',
+    'tab-statistics': 'Statystyki',
     'show-statistics': 'Statystyki',
     'histogram-bin-algorithm-long': 'Algorytm przedziałów',
     'histogram-bin-algorithm-short': 'Przedziały',

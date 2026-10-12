@@ -501,6 +501,7 @@ export default {
     'select-cell': 'Select cell',
     'tab-histogram': 'Histogram',
     'tab-box-plot': 'Box plot',
+    'tab-statistics': 'Statistics',
     'show-statistics': 'Statistics',
     'histogram-bin-algorithm-long': 'Bin algorithm',
     'histogram-bin-algorithm-short': 'Bins',

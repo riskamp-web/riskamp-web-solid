@@ -511,6 +511,7 @@ export default {
     'select-cell': 'Seleziona cella',
     'tab-histogram': 'Istogramma',
     'tab-box-plot': 'Box plot',
+    'tab-statistics': 'Statistiche',
     'show-statistics': 'Statistiche',
     'histogram-bin-algorithm-long': 'Algoritmo degli intervalli',
     'histogram-bin-algorithm-short': 'Intervalli',
