@@ -3,7 +3,7 @@ import { createEffect } from 'solid-js';
 import { type Model } from 'treb-llm-support';
 import type { DocumentsRow } from '~/docs/documents';
 import type { DocumentScope, SortDirection, SortKey } from '~/backstage/documents-data';
-import { InitI18N, languages, UpdateLanguage } from '~/i18n/i18n';
+import { InitI18N } from '~/i18n/i18n';
 
 /**
  * FIXME: we should change how this works, make it deeper 
@@ -93,6 +93,9 @@ export interface LocaleSettings {
   grouping_separator?: string;
 }
 
+/** the collapsible result sections in the fit data panel */
+export type FitSection = 'function'|'parameters'|'error';
+
 export interface PersistentData {
   lhs: boolean;
   stepped: boolean; 
@@ -108,6 +111,9 @@ export interface PersistentData {
   fit_ignore_blanks: boolean;
   fit_ignore_strings: boolean;
   fit_ignore_boolean: boolean;
+
+  /** fit data result sections the user has collapsed */
+  fit_collapsed: Partial<Record<FitSection, boolean>>;
 
   /* superseded by documents_view below, which the redesigned documents page
      uses -- these are the old skeleton page's and are due to be removed */
@@ -161,6 +167,7 @@ export const [persistentData, setPersistentData] = createStore<PersistentData>({
   fit_ignore_blanks: true,
   fit_ignore_boolean: true,
   fit_ignore_strings: true,
+  fit_collapsed: { error: true },
 
   documents_asc: false,
   documents_sort: 'modified',

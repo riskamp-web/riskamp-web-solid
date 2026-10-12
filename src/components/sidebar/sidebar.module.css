@@ -258,15 +258,11 @@ header.sidebar-header {
 
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: auto auto auto 1fr auto auto;
+  /* range, candidates, chart, then the collapsible result sections */
+  grid-template-rows: auto auto 1fr auto auto auto;
 
   & > * {
     min-height: fit-content;
-  }
-
-  hr {
-    opacity: 30%;
-    width: 100%;
   }
 
   h1 {
@@ -278,6 +274,11 @@ header.sidebar-header {
     font-size: var(--heading-font-size);
     gap: 1em;
     margin-bottom: .5em;
+
+    /* controls inherit their size; one in a heading is still a control */
+    select {
+      font-size: var(--base-font-size);
+    }
 
     &.copy-header {
       display: flex;
@@ -294,6 +295,38 @@ header.sidebar-header {
 
     }
 
+    /* the section title is the toggle, caret first */
+    .section-toggle {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: .25em;
+      flex-grow: 1;
+      padding: 0;
+      color: inherit;
+      font-weight: inherit;
+      text-align: left;
+      cursor: pointer;
+
+      .caret {
+        display: flex;
+        transition: rotate .15s;
+        svg {
+          width: 1em;
+          height: 1em;
+        }
+      }
+    }
+
+  }
+
+  .collapsed {
+    h1 {
+      margin-bottom: 0;
+    }
+    .caret {
+      rotate: -90deg;
+    }
   }
 
   p {
@@ -328,18 +361,23 @@ header.sidebar-header {
 
   }
 
+  /* the svg is taken out of flow so it can't hold the row open; the
+     container takes the leftover height and the component sizes the
+     viewBox to match */
   .graph-container {
     border: 1px solid var(--border-subtle);
     overflow: hidden;
-
-    line-height: 0;
-    svg {
-      line-height: 0;
-      height: 100%;
-    }
+    position: relative;
+    min-height: 0;
     padding: 0;
     margin: 0;
-    
+
+    svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
   }
 
   .fit-data {
@@ -413,7 +451,7 @@ header.sidebar-header {
     overflow: hidden;
   }
 
-  & > div + div {
+  & > .box-stats-table {
     border-top: 1px solid var(--border-subtle);
     padding-top: 1em;
   }

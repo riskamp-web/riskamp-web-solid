@@ -2,43 +2,43 @@
 import style from '../sidebar.module.css';
 import { Register } from '../registry';
 import { t } from '~/i18n/i18n';
-import { createMutable } from 'solid-js/store';
-import { createEffect, createMemo, createSignal, For, Match, on, onCleanup, onMount, ParentProps, Show, Switch } from 'solid-js';
+import { produce } from 'solid-js/store';
+import { createMemo, createSignal, For, on, onCleanup, onMount, ParentProps, Show } from 'solid-js';
 
-import FindWorker from './find-worker?worker';
 import { type SidebarProps } from '../sidebar-main';
 import { EmbeddedSheetEvent } from '@trebco/treb';
 import { IsCellAddress, Area } from '@trebco/treb/treb-base-types';
 import { icons } from '~/components/icon-sets';
-import { createSign } from 'node:crypto';
 import { InteractiveSidebar } from '../interactive-sidebar';
-import { Heuristics } from '@trebco/treb/treb-data-model';
-import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { RenderGraph } from './util';
 import { MCEmbeddedSheetEvent } from 'riskamp-web';
-import { persistentData } from '~/lib/app-data';
+import { type FitSection, persistentData, setPersistentData } from '~/lib/app-data';
 
 export function Sidebar(props: SidebarProps) {
 
+  // eslint-disable-next-line no-unassigned-vars
   let parameter_element: HTMLDivElement|undefined;
-  let initial_value = props.sheet()?.GetSelection(true) || '';
+  const initial_value = props.sheet()?.GetSelection(true) || '';
   const [data, setData] = createSignal<number[]>([]);
   // let distribution_select: HTMLSelectElement|undefined;
   const [selectedIndex, setSelectedIndex] = createSignal(0);
+  // eslint-disable-next-line no-unassigned-vars
   let chart_container: HTMLDivElement|undefined;
 
-  let number_format = 'General';
+  const number_format = 'General';
   let subscription = 0;
 
-  function Resize() {
-    if (chart_container) {
-      const rect = chart_container.getBoundingClientRect();
+  // the chart takes whatever height the other sections leave, which
+  // changes with the window, the sidebar split, and collapsing sections
+
+  const resize_observer = new ResizeObserver(entries => {
+    for (const entry of entries) {
       setGraphSize({
-        width: Math.floor(rect.width),
-        height: Math.floor(rect.height),
+        width: Math.floor(entry.contentRect.width),
+        height: Math.floor(entry.contentRect.height),
       });
     }
-  }
+  });
 
   onMount(() => {
     requestAnimationFrame(() => {
@@ -60,36 +60,21 @@ export function Sidebar(props: SidebarProps) {
       });
     }
 
-    window.addEventListener('resize', Resize);
-    requestAnimationFrame(() => {
-      TollUpdate();
-      Resize();
-    });
+    if (chart_container) {
+      resize_observer.observe(chart_container);
+    }
+    requestAnimationFrame(() => TollUpdate());
 
   });
 
   onCleanup(() => {
-    window.removeEventListener('resize', Resize);
+    resize_observer.disconnect();
     const sheet = props.sheet();
     if (sheet && subscription) {
       sheet.Cancel(subscription);
       subscription = 0;
     }
   });
-
-  function FocusOut(event: FocusEvent) {
-    // placeholder
-  }
-
-  function FocusIn(event: FocusEvent) {
-    // placeholder
-  }
-
-  createEffect(on(props.split, value => {
-    if (value < 90) {
-      Resize();
-    }
-  }));
 
 
   function KeyDown(event: KeyboardEvent) {
@@ -111,7 +96,7 @@ export function Sidebar(props: SidebarProps) {
     return fr;
   });
 
-  const results = createMemo(on([fitResults, selectedIndex], values => {
+  const results = createMemo(on([fitResults, selectedIndex], () => {
     const index = selectedIndex();
     const results = fitResults()[index];
     return results || undefined;
@@ -140,9 +125,8 @@ export function Sidebar(props: SidebarProps) {
     const sheet = props.sheet();
     if (selected && sheet) {
       const argument_separator = sheet?.parser.argument_separator || ',';
-      const decimal_mark = sheet?.parser.decimal_mark || '.';
 
-      const params = Object.entries(selected.parameters).map(([key, value]) => {
+      const params = Object.values(selected.parameters).map(value => {
         return sheet?.FormatNumber(value, number_format) || '';
       }).join(argument_separator + ' ');
 
@@ -278,7 +262,7 @@ export function Sidebar(props: SidebarProps) {
     setData([]);
 
     if (text && sheet) {
-      let resolved = sheet.Resolve(text);
+      const resolved = sheet.Resolve(text);
       if (!resolved) {
         return;
       }
@@ -294,6 +278,9 @@ export function Sidebar(props: SidebarProps) {
             || area.start.column === Infinity
             || area.end.row === Infinity
             || area.end.column === Infinity ) {
+            // the model's Area comes from TREB's source, ours from its
+            // build: the same class under two module paths
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             area = target.RealArea(area as any) as any as Area;
         }
 
@@ -364,9 +351,7 @@ export function Sidebar(props: SidebarProps) {
     }
   }
 
-  let copy_error = false;
-
-  let [copiedData, setCopiedData] = createSignal('');
+  const [copiedData, setCopiedData] = createSignal('');
 
   async function CopyData(text?: string) {
 
@@ -376,32 +361,49 @@ export function Sidebar(props: SidebarProps) {
     
     try {
       await navigator.clipboard.writeText(text);
-      copy_error = false;
       setCopiedData(text);
       setTimeout(() => setCopiedData(''), 3000);
     }
     catch (err) {
       setCopiedData('');
-      copy_error = true;
       console.error(err);
     }
   }
   
-  function CopyHeader(props: ParentProps<{ data: string }>) {
-    return <h1 class={style['copy-header']}>
-      <span>{props.children}</span>
-      <button disabled={!results()}
-              title={
-                copiedData() === props.data ?
-                  t('ui-interaction.copy-to-clipboard.copied') :
-                  t('ui-interaction.copy-to-clipboard.label')
-                }
-              onclick={() => CopyData(props.data)}
-              innerHTML={
-                copiedData() === props.data ?
-                icons.copy_confirmed :
-                icons.copy} />
-    </h1>
+  // the result sections below the chart all collapse, so a short panel
+  // can give the chart more room. the copy button works either way.
+
+  function CollapsibleSection(props: ParentProps<{ section: FitSection, title: string, data: string }>) {
+    const id = `fit-${props.section}-${crypto.randomUUID()}`;
+    const collapsed = () => !!persistentData.fit_collapsed[props.section];
+    const copied = () => !!copiedData() && copiedData() === props.data;
+    return <div classList={{ section: true, 'flex-column': true, [style.collapsed]: collapsed() }}>
+      <h1 class={style['copy-header']}>
+        <button class={style['section-toggle']}
+                aria-expanded={!collapsed()}
+                aria-controls={id}
+                onclick={() => setPersistentData(produce(draft => {
+                  draft.fit_collapsed[props.section] = !collapsed();
+                }))}>
+          <span class={style.caret} innerHTML={icons.caret_down} />
+          <span>{props.title}</span>
+        </button>
+        <button disabled={!results()}
+                title={
+                  copied() ?
+                    t('ui-interaction.copy-to-clipboard.copied') :
+                    t('ui-interaction.copy-to-clipboard.label')
+                  }
+                onclick={() => CopyData(props.data)}
+                innerHTML={
+                  copied() ?
+                  icons.copy_confirmed :
+                  icons.copy} />
+      </h1>
+      <Show when={!collapsed()}>
+        <div id={id} class="flex-column">{props.children}</div>
+      </Show>
+    </div>;
   }
 
   function FormatCopyData(table: string[][]) {
@@ -419,15 +421,12 @@ export function Sidebar(props: SidebarProps) {
                 role="textbox" 
                 spellcheck="false"
                 contenteditable="true"
-                onfocusout={FocusOut}
-                onfocusin={FocusIn}
                 onkeydown={KeyDown}
                 data-placeholder={t('fit-data-panel.select-range')}
-                oninput={e => TollUpdate()}
-                onchange={e => TollUpdate()}
+                oninput={() => TollUpdate()}
+                onchange={() => TollUpdate()}
                 ref={parameter_element}>{initial_value}</div>
         </div>
-      <hr />
     </div>
 
     <div class="section flex-column">
@@ -444,21 +443,6 @@ export function Sidebar(props: SidebarProps) {
       </p>
     </div>
 
-    <div class="section flex-column">
-      <CopyHeader data={FormatCopyData(parametersTable())}>
-        <span>{t('fit-data-panel.distribution-parameters')}</span>
-      </CopyHeader>
-      <div class={style.boxed}>
-        <For each={parametersTable()}>
-          {row => <div class={style.row}>
-              <div>{row[0]}</div>
-              <div>{row[1]}</div>
-              <div class="flex-grow" />
-            </div>}
-        </For>
-      </div>
-    </div>
-
     <div class={style["graph-container"]} ref={chart_container}>
       <svg xmlns="http://www.w3.org/2000/svg" 
           preserveAspectRatio="none"
@@ -472,18 +456,29 @@ export function Sidebar(props: SidebarProps) {
       </svg>   
     </div>
 
-    <div class="section flex-column">
-      <CopyHeader data={spreadsheetFunction() || ''}>
-        <span>{t('fit-data-panel.spreadsheet-function')}</span>
-      </CopyHeader>
+    <CollapsibleSection section='function'
+                        title={t('fit-data-panel.spreadsheet-function')}
+                        data={spreadsheetFunction() || ''}>
       <input type="text" class="input" disabled value={spreadsheetFunction()} />
-    </div>
+    </CollapsibleSection>
 
+    <CollapsibleSection section='parameters'
+                        title={t('fit-data-panel.distribution-parameters')}
+                        data={FormatCopyData(parametersTable())}>
+      <div class={style.boxed}>
+        <For each={parametersTable()}>
+          {row => <div class={style.row}>
+              <div>{row[0]}</div>
+              <div>{row[1]}</div>
+              <div class="flex-grow" />
+            </div>}
+        </For>
+      </div>
+    </CollapsibleSection>
 
-    <div class="section flex-column">
-      <CopyHeader data={FormatCopyData(errorTable())}>
-        <span>{t('fit-data-panel.statistics.error')}</span>
-      </CopyHeader>
+    <CollapsibleSection section='error'
+                        title={t('fit-data-panel.statistics.error')}
+                        data={FormatCopyData(errorTable())}>
       <div class={style.boxed}>
         <For each={errorTable()}>
           {row => <div class={style.row}>
@@ -493,7 +488,7 @@ export function Sidebar(props: SidebarProps) {
             </div>}
         </For>
       </div>
-    </div>
+    </CollapsibleSection>
 
   </div>
   </InteractiveSidebar>;
