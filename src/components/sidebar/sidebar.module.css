@@ -44,8 +44,8 @@ header.sidebar-header {
    14px for every panel indiscriminately.
 
    Two things deliberately opt out: explanatory prose takes --prose-font-size, since
-   reading and operating are different jobs, and the AI chat sits on its own
-   --llm-chat-font-size (16px) and is not affected by this rule at all. */
+   reading and operating are different jobs, and the AI chat sits on
+   --markdown-font-size (15px) and is not affected by this rule at all. */
 .container {
   display: contents;
   font-size: var(--base-font-size);

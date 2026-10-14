@@ -12,7 +12,6 @@
      the workspace face (2026-10); only /dev-test/sign-in-mockup does,
      and it imports @fontsource-variable/inter itself. */
   --brand-font-family: 'Inter Variable', 'InterVariable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --llm-chat-font-size: 16px;
 
   /* ===== Canonical design tokens =====================================
      The one source of truth. Everything below this block — toolbar,
@@ -98,13 +97,15 @@
   --hover-strong: light-dark(rgba(0, 0, 0, .075), rgba(255, 255, 255, .1));
 
   /* type: the base is 13px, set on body from the token below. prose gets its own
-     size because reading and operating are different jobs; the AI chat sits higher
-     still, on --llm-chat-font-size above. */
+     size because reading and operating are different jobs; the notes and AI panels
+     (replies, user messages and their textareas alike) sit higher still, on
+     --markdown-font-size. */
   --base-font-size:    13px;   /* the floor, and the size of every control */
   --prose-font-size:   14px;
   --heading-font-size: 16px;   /* section headings, sentence case */
-  --markdown-font-size: 15px;  /* Format() prose in the notes + AI panels; 16px read
-                                  chunky (judged under system-ui, before Plex) */
+  --markdown-font-size: 15px;  /* the notes + AI panels: Format() prose, chat bubbles
+                                  and textareas; 16px read chunky (judged under
+                                  system-ui, before Plex) */
 
   /* Each toolbar color is defined once as light-dark(light, dark). Which side is
      used is decided by `color-scheme` (set below): `light dark` auto-follows the

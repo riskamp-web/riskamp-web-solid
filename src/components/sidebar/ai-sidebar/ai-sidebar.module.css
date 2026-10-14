@@ -76,7 +76,7 @@
   textarea {
     padding: .5em;
     font-family: inherit;
-    font-size: var(--llm-chat-font-size);
+    font-size: var(--markdown-font-size);   /* a writing surface: match the replies */
     resize: none;
     flex-grow: 1;
     border: 1px solid var(--border-subtle);
@@ -173,7 +173,7 @@
   gap: .6em;
   margin: .5em 0 0 0;
   color: var(--text-muted);
-  font-size: calc(var(--llm-chat-font-size) - 1px);
+  font-size: var(--markdown-font-size);
   line-height: 1.5;
 }
 
@@ -185,7 +185,7 @@
 .messages {
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
-  font-size: var(--llm-chat-font-size);
+  font-size: var(--markdown-font-size);   /* user bubbles at the size of the replies */
   display: flex;
   flex-direction: column;
 }
