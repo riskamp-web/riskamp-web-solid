@@ -9,6 +9,10 @@ import "./app.css";
 // style/plex-sans.css with @fontsource/ibm-plex-mono, or style/geist-sans.css
 import '~/style/fira-sans.css';
 import '~/style/markdown.css';
+// KaTeX's own stylesheet + math fonts, for $…$ in Format() output (AI chat and
+// notes). without it the visually-hidden MathML copy shows too ("x² x2"). keep
+// the katex version in step with the one llm-support-core renders with.
+import 'katex/dist/katex.min.css';
 import '~/style/riskamp-dialog.css';
 import '~/style/controls.css';
 import '~/style/utility.css';
