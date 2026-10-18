@@ -67,6 +67,11 @@ export function Spreadsheet(props: Props) {
       sheet = RiskAMPWeb.CreateSpreadsheet(options);
       sheet.EnsureChartsLib();
 
+      /**
+       * this gets called when you change language from the dialog,
+       * so we don't have to worry about document timing, but it's not
+       * safe to mix the LoadLanguage call with any data changes
+       */
       createEffect(on(() => persistentData.locale_settings, value => {
         if (!/locale=/.test(document.location.search)) { 
           (sheet as SpreadsheetType).LoadLanguage(value?.spreadsheet_language || SystemLocale(), value?.decimal_separator);
@@ -81,11 +86,9 @@ export function Spreadsheet(props: Props) {
         sheet.ready
       ];
 
-      Promise.all(promises).then(() => {
+      Promise.all(promises).then(async () => {
 
         sheet.UpdateTheme();
-
-        props.setSheet(sheet as SpreadsheetType);
 
         // if there's an explicit spreadsheet language set, use that.
         // otherwise follow the normal pattern (i.e. let TREB figure it out)
@@ -94,10 +97,14 @@ export function Spreadsheet(props: Props) {
 
         if (persistentData.locale_settings?.spreadsheet_language && 
             !/locale=/.test(document.location.search)) {
-          (sheet as SpreadsheetType).LoadLanguage(
+
+          await (sheet as SpreadsheetType).LoadLanguage(
             persistentData.locale_settings.spreadsheet_language,
             persistentData.locale_settings.decimal_separator);
+
         }
+
+        props.setSheet(sheet as SpreadsheetType);
 
       });
 

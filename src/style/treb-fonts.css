@@ -29,6 +29,10 @@
     font-family: "RAW-Default";
   }
 
+  .treb-spreadsheet-footer {
+    font-size: 13px;
+  }
+
 }
 
 :root {

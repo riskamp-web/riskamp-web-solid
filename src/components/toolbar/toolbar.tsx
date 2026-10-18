@@ -184,14 +184,6 @@ export function Toolbar(props: ParentProps<Props>) {
       chosen = { text: item.label, value: item.value };
     }
     else if (event.target instanceof HTMLInputElement) {
-
-      /*
-      // what's going on here?? //
-
-      const value = 
-        NumberFormatCache.SymbolicName(event.target.value || '');
-      */
-
       const text = event.target.value || '';
       chosen = { text, value: text };
     }

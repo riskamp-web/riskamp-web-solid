@@ -79,13 +79,6 @@ export function LanguageDialog(props: Props) {
       });
     }
 
-    /*
-    const lang = selectedLanguage();
-    // await UpdateLanguage(lang);
-    // setPersistentData({explicit_locale: lang});
-    props.sheet()?.LoadLanguage(lang);
-    props.setOpen(false);
-    */
   }
 
   return <>

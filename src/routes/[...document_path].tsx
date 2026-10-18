@@ -606,6 +606,8 @@ export default function Page() {
       case 'font-scale':
         if (typeof command.value === 'string') {
           let scale = sheet.ParseNumber(command.value);
+          console.info("CSALE", command.value, scale);
+
           if (typeof scale !== 'number' || !scale || isNaN(scale)) {
             scale = 1;
           }  
@@ -830,6 +832,8 @@ export default function Page() {
 
         // NOTE: the load event here is unecessary if the document
         // comes from cache. can we flag that somehow?
+
+        // console.info("E", event.type, {event});
 
         switch (event.type) {
           case 'load':

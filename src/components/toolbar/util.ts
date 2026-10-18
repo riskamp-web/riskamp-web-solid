@@ -3,7 +3,7 @@ import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 import { toolbar_config } from './toolbar-config';
 import { ColorButtonControl, Control, IsToolbarMessage } from './toolbar-utils';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
-import { t } from '~/i18n/i18n';
+import { StringKey, t } from '~/i18n/i18n';
 import { ResolveThemeColor } from '@trebco/treb/treb-base-types';
 import { ToolbarCommand } from './toolbar-commands';
 import { loggedIn } from '~/lib/auth';
@@ -149,8 +149,9 @@ export function ResolveColors(sheet: SpreadsheetType, config: typeof toolbar_con
     }
   });
 
-  // placeholder
 }
+
+let numberformat_name_map: [string, string][] = [];
 
 function ListNumberFormats(sheet: SpreadsheetType) {
 
@@ -175,6 +176,9 @@ function ListNumberFormats(sheet: SpreadsheetType) {
       ['Short Date', t('number-format.short-date')],
     ];
 
+    numberformat_name_map = [...number_formats, ...date_formats];
+
+    
     const formats = sheet.document_styles.number_formats as string[];
     for (const format of formats) {
       if (NumberFormatCache.SymbolicName(NumberFormatCache.Translate(format))) { continue; }
@@ -280,6 +284,7 @@ export function UpdateState(sheet: SpreadsheetType, config: typeof toolbar_confi
   const list = command_list;
 
   UpdateToolbarState(draft => {
+
     for (const command of list) {
 
       const state = draft.commands[command.key];
@@ -298,7 +303,8 @@ export function UpdateState(sheet: SpreadsheetType, config: typeof toolbar_confi
             if (sheet && command?.type === 'list') {
               state.values = [0.5, 0.75, 0.9, 1, 1.25, 1.5, 2].map(value => {
                 return {
-                  value: value.toString(), 
+                  value: // value.toString(), 
+                    sheet.FormatNumber(value),
                   label: sheet.FormatNumber(value, '0%'),
                 }
               });
@@ -326,10 +332,21 @@ export function UpdateState(sheet: SpreadsheetType, config: typeof toolbar_confi
               state.values = ListNumberFormats(sheet);
               const nf = selection_state.style?.number_format;
               if (nf) {
-                const symbolic_name = NumberFormatCache.SymbolicName(nf);
+                const symbolic_name = NumberFormatCache.SymbolicName(NumberFormatCache.Translate(nf));
                 if (symbolic_name) {
                   state.value = symbolic_name;
+
+                  // should we get translated number format from here, or
+                  // from TREB? not sure
+
                   state.text = symbolic_name; // FIXME: i18n
+                  for (const pair of numberformat_name_map) {
+                    if (pair[0] === symbolic_name) {
+                      state.text = pair[1];
+                      break;
+                    }
+                  }
+
                 }
                 else {
                   state.value = state.text = nf;
