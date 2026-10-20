@@ -46,7 +46,17 @@ export function TranslateDescriptor(source: ExtendedFunctionDescriptor, language
         if (clone.arguments && entry.arguments) {
           for (const [index, arg] of entry.arguments.entries()) {
             if (arg && clone.arguments[index]) {
-              clone.arguments[index].name = arg;
+              if (typeof arg === 'string') {
+                clone.arguments[index].name = arg;
+              }
+              else {
+                if (arg.name) {
+                  clone.arguments[index].name = arg.name;
+                }
+                if (arg.description) {
+                  clone.arguments[index].description = arg.description;
+                }
+              }
             }
           }
         }
@@ -108,10 +118,10 @@ export function CalculateAndRender(sheet: SpreadsheetType, argument: boolean, te
     // errors for incomplete/invalid formulas while typing. wastes
     // cycles though
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const parser = (sheet as any).parser as Parser;
-    const parsed = parser.Parse(text);
-    const calculator: Calculator = (sheet as any).calculator;
+    const parser = sheet.parser;
+    const untranslated = sheet.model.UntranslateFunction(text);
+    const parsed = parser.Parse(untranslated);
+    const calculator: Calculator = sheet.calculator;
 
     if (parsed.error) {
       return { text: 'EXPR', type: ValueType.error };
@@ -142,12 +152,12 @@ export function CalculateAndRender(sheet: SpreadsheetType, argument: boolean, te
       let calculated_result: UnionValue; // = { type: ValueType.undefined };
 
       try {
-        calculated_result = calculator.Evaluate(text, sheet.grid.active_sheet, {}, true);
+        calculated_result = calculator.Evaluate(untranslated, sheet.grid.active_sheet, {}, true);
       }
       catch (err) {
         console.info({text, parsed});
         console.error(err);
-        calculated_result = { type: ValueType.error, value: 'UNK' };
+        calculated_result = { type: ValueType.error, value: 4 };
       }
 
       // return { text: RenderCellValue(sheet, Convert(calculated_result), format, formatter), type: calculated_result.type };
