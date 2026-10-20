@@ -18,6 +18,8 @@ import '~/style/controls.css';
 import '~/style/utility.css';
 import '~/style/grid-table.css';
 
+// testing color icons, rejected for now // import 'riskamp-icon-workbench/palette.css';
+
 import { Spinner } from '~/components/spinner/spinner';
 import { Toaster } from '~/components/toast/toast';
 import { ConfirmDialog } from '~/components/dialogs/confirm-dialog/confirm-dialog';
