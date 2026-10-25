@@ -537,6 +537,11 @@ export default {
     },
   },
 
+  'status-bar': {
+    'simulation-mean': 'Simulation mean',
+    'histogram-title': 'Simulation results ({count} trials)',
+  },
+
   'dialog-close-label': 'Close',
   'dialog-close-title': 'Close dialog',
   'dialog-help-title': 'Help',

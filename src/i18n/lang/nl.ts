@@ -547,6 +547,11 @@ export default {
     },
   },
 
+  'status-bar': {
+    'simulation-mean': 'Simulatiegemiddelde',
+    'histogram-title': 'Simulatieresultaten ({count} uitvoeringen)',
+  },
+
   'dialog-close-label': 'Sluiten',
   'dialog-close-title': 'Dialoogvenster sluiten',
   'dialog-help-title': 'Help',

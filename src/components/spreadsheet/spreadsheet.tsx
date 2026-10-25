@@ -24,6 +24,8 @@ interface Props {
   /** callback for the insert function button */
   'function-handler'?: () => void;
 
+  stats?: MCEmbeddedSpreadsheetOptions['stats'];
+  
 }
 
 export function Spreadsheet(props: Props) {
@@ -44,7 +46,7 @@ export function Spreadsheet(props: Props) {
       
       const options: MCEmbeddedSpreadsheetOptions & { insert_function_button?: boolean } = {
         container,
-        stats: true,
+        stats: typeof props.stats === 'undefined' ? true : props.stats,
         scale_control: true,
         scale: .95,
         add_tab: true,

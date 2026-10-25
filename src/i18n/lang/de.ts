@@ -547,6 +547,11 @@ export default {
     },
   },
 
+  'status-bar': {
+    'simulation-mean': 'Simulationsmittelwert',
+    'histogram-title': 'Simulationsergebnisse ({count} Durchläufe)',
+  },
+
   'dialog-close-label': 'Schließen',
   'dialog-close-title': 'Dialog schließen',
   'dialog-help-title': 'Hilfe',

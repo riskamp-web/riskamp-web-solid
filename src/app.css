@@ -387,6 +387,18 @@ p {
   --treb-theme-color-10: #8566B8;  /* followed hyperlink was #954F72 */
 }
 
+/* status-bar histogram for a cell with simulation results (status-histogram.ts) */
+.treb-stats-histogram {
+  height: 1em;
+  vertical-align: middle;
+
+  /* on the rects, not the svg: TREB styles rect fill directly, which
+     beats inheritance (black bars in dark mode) */
+  rect {
+    fill: var(--logo-color);
+  }
+}
+
 .treb-chart-container {
   --treb-chart-series-1: light-dark(hsl(from var(--treb-theme-color-3) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-3) h s calc(l + (100 - l) * 0.25)));
   --treb-chart-series-2: light-dark(hsl(from var(--treb-theme-color-4) h s calc(l * 0.75)), hsl(from var(--treb-theme-color-4) h s calc(l + (100 - l) * 0.25)));

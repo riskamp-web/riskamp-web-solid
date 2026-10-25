@@ -547,6 +547,11 @@ export default {
     },
   },
 
+  'status-bar': {
+    'simulation-mean': 'Média da simulação',
+    'histogram-title': 'Resultados da simulação ({count} execuções)',
+  },
+
   'dialog-close-label': 'Fechar',
   'dialog-close-title': 'Fechar caixa de diálogo',
   'dialog-help-title': 'Ajuda',

@@ -6,6 +6,7 @@ import { useLocation, useParams } from "@solidjs/router";
 import { useSearchParams } from "@solidjs/router";
 
 import { Spreadsheet } from '~/components/spreadsheet/spreadsheet';
+import { RenderStatusHistogram } from '~/components/spreadsheet/status-histogram';
 import { createEffect, createSignal, on } from 'solid-js';
 import { Splitter } from '~/components/splitter/splitter';
 import { Toolbar } from '~/components/toolbar/toolbar';
@@ -21,7 +22,7 @@ import { Dialog as LasVegasDialog, props as las_vegas_props } from '~/components
 
 import { HijackDialog } from '~/lib/hijack-dialog';
 import { ApplyProperty, BooleanKeys } from '~/lib/typescript-magic';
-import { MCEmbeddedSheetEvent, type CellStyle, type Color } from 'riskamp-web';
+import { MCEmbeddedSheetEvent, type CellStyle, type CellValue, type Color, type StatsEntry } from 'riskamp-web';
 import { AwaitSignal } from '~/lib/await-signal';
 import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline-dialog/sparkline';
 import { TrendForecastingDialog } from '~/components/dialogs/trend-forecasting/trend-forecasting-dialog';
@@ -820,6 +821,68 @@ export default function Page() {
   }
 
   /**
+   * stats panel override. a single cell with simulation results shows a
+   * small histogram of them; anything else falls back to the default 
+   * (count/sum/mean for ranges, nothing for a single cell).
+   */
+  function StatsFunction(_data: CellValue | CellValue[][] | undefined): StatsEntry[] | false {
+    const sheet = getSheet();
+    if (sheet) {
+      const sel = sheet.GetSelectionReference();
+      if (!sel.empty) {
+        if (sel.area.count === 1) {
+          const data = sheet.SimulationData(sel.target);
+          if (Array.isArray(data) && data.length > 1) {
+
+            // use the spreadsheet functions, so the numbers match what a
+            // formula would show. the histogram bins the same way as the
+            // in-cell sparklines; it returns a single row of counts.
+
+            const address = sheet.GetSelection(true);
+            const evaluate = (expression: string) => sheet.Evaluate(expression, { argument_separator: ',' });
+
+            const result = evaluate(`=SimulationHistogram(${address}, 12, FALSE)`);
+            const counts = Array.isArray(result) ? result.flat() : [];
+
+            if (counts.length && counts.every(count => typeof count === 'number')) {
+
+              // format stats like the cell
+
+              let style = sheet.GetStyle(address);
+              if (Array.isArray(style)) {
+                style = style[0][0];
+              }
+              const number_format = style?.number_format || 'General';
+
+              const entries: StatsEntry[] = [];
+
+              for (const [label, fn] of [
+                  [t('status-bar.simulation-mean'), 'SimulationMean'],
+                  [t('quick-view-dialog.stats-label.standard-deviation'), 'SimulationStandardDeviation'],
+                ]) {
+                const value = evaluate(`=${fn}(${address})`);
+                if (typeof value === 'number') {
+                  entries.push({ label, value: sheet.FormatNumber(value, number_format) });
+                }
+              }
+
+              const title = format(t('status-bar.histogram-title'), {
+                count: sheet.FormatNumber(data.length, '#,##0'),
+              });
+              entries.push({ label: t('quick-view-dialog.tab-histogram'), value: RenderStatusHistogram(counts, title) });
+
+              return entries;
+            }
+
+          }
+          return [];
+        }
+      }
+    }
+    return false; // default
+  }
+
+  /**
    * subscribe to sheet events. this happens when the sheet is created
    * and the signal is populated. it's broken out so we can simplify the
    * effect method
@@ -1053,6 +1116,7 @@ export default function Page() {
         <Splitter split={split} setSplit={setSplit} min={40} splitter-width={16} threshold={90}>
           <div data-left>
             <Spreadsheet fill 
+                         stats={StatsFunction}
                          setSheet={setSheet} 
                          function-handler={() => InsertFunction()}/>
           </div>

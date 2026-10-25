@@ -8,6 +8,7 @@ import type { Color } from '@trebco/treb';
 import type { Localization } from '@trebco/treb/treb-base-types';
 import type { Calculator } from '@trebco/treb/treb-calculator';
 import type { SelectionState } from '@trebco/treb/treb-embed/src/selection-state';
+import type { GridSelection } from '@trebco/treb/treb-data-model';
 
 /**
  * this type kind of grew accidentally, it would be nice to clean
@@ -49,6 +50,7 @@ export type SpreadsheetType = EmbeddedSpreadsheet<UserData> & {
   model: DataModel,
   calculator: Calculator,
   selection_state: SelectionState;
+  GetSelectionReference: () => GridSelection;
   HandleToolbarMessage: (event: ToolbarMessage) => void,
   document_styles: {
     number_formats: string[], 

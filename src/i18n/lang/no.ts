@@ -547,6 +547,11 @@ export default {
     },
   },
 
+  'status-bar': {
+    'simulation-mean': 'Simuleringsgjennomsnitt',
+    'histogram-title': 'Simuleringsresultater ({count} forsøk)',
+  },
+
   'dialog-close-label': 'Lukk',
   'dialog-close-title': 'Lukk dialog',
   'dialog-help-title': 'Hjelp',

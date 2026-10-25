@@ -547,6 +547,11 @@ export default {
     },
   },
 
+  'status-bar': {
+    'simulation-mean': 'Średnia z symulacji',
+    'histogram-title': 'Wyniki symulacji (liczba prób: {count})',
+  },
+
   'dialog-close-label': 'Zamknij',
   'dialog-close-title': 'Zamknij okno dialogowe',
   'dialog-help-title': 'Pomoc',

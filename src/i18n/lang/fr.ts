@@ -546,6 +546,11 @@ export default {
     },
   },
 
+  'status-bar': {
+    'simulation-mean': 'Moyenne de la simulation',
+    'histogram-title': 'Résultats de la simulation ({count} essais)',
+  },
+
   'dialog-close-label': 'Fermer',
   'dialog-close-title': 'Fermer la boîte de dialogue',
   'dialog-help-title': 'Aide',

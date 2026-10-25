@@ -547,6 +547,11 @@ export default {
     },
   },
 
+  'status-bar': {
+    'simulation-mean': 'Simuleringens medelvärde',
+    'histogram-title': 'Simuleringsresultat ({count} försök)',
+  },
+
   'dialog-close-label': 'Stäng',
   'dialog-close-title': 'Stäng dialogruta',
   'dialog-help-title': 'Hjälp',
