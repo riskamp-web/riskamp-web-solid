@@ -90,6 +90,12 @@ charts a palette of their own**, and don't adjust single colours.
 - **Spec and comparison:** `/dev-test/theme-palette` shows the candidates, the previous
   proposal and TREB's Office 2013 defaults, with picker, sheet and chart mocks and
   contrast and colour-vision checks.
+- **The status-bar histogram is chrome, not a chart.** With one simulation cell selected,
+  the stats panel shows a small histogram (`spreadsheet/status-histogram.ts`). It's drawn
+  in the logo blue (`--logo-color`), not a theme tint, on purpose: it's part of the app UI,
+  it should look the same in every document, and the logo blue reads in both modes. Its
+  `fill` is set on the `rect`s, not the `svg`. TREB styles `rect` fill directly, which
+  beats inheritance, so bars would otherwise turn black in dark mode.
 - **Open:** the trend-forecasting dialog's chart still reads `--chart-series-N-color`,
   which `ApplyThemeColors()` (`toolbar/theme.ts`) copies from TREB's untinted applied
   theme colours. It isn't on the −0.25 rule yet.

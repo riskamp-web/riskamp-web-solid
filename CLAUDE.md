@@ -50,6 +50,7 @@ for the full story.
 - **CSS — one theme drives the sheet and the charts.** Charts take every theme
   accent at one fixed tint (−0.25, computed in CSS) and never get a palette of their
   own or a per-colour adjustment. TREB's `{ theme: N }` is `--treb-theme-color-(N − 1)`.
+  The status-bar histogram is chrome, not a chart, so it is logo blue on purpose.
   (→ `src/style/README.md`, "Theme colours and charts".)
 - **CSS — one face: Fira Sans everywhere (chrome, grid, backstage).** Text
   inherits `--interface-font` from `body`, mono text uses `--mono-font-family`
