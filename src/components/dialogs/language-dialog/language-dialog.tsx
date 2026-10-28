@@ -6,9 +6,14 @@ import style from './language-dialog.module.css';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { persistentData, setPersistentData } from '~/lib/app-data';
 
+import { type GROUPING_SEPARATOR, IsValidGrouping } from '~/i18n/i18n';
+
+
 interface Props extends DialogProps<boolean> {
   sheet: Accessor<SpreadsheetType|undefined>;
 }
+
+
 
 export function LanguageDialog(props: Props) {
 
@@ -17,9 +22,13 @@ export function LanguageDialog(props: Props) {
 
   const [systemSetting, setSystemSetting] = createSignal('');
   const [decimalSeparator, setDecimalSeparator] = createSignal<','|'.'|''>('');
+  const [groupingSeparator, setGroupingSeparator] = createSignal<GROUPING_SEPARATOR|''>('');
 
   // eslint-disable-next-line no-unassigned-vars
   let decimal_select: HTMLSelectElement|undefined;
+
+  // eslint-disable-next-line no-unassigned-vars
+  let grouping_select: HTMLSelectElement|undefined;
 
   createEffect(on(props.open, value => {
     if (value) {
@@ -33,8 +42,30 @@ export function LanguageDialog(props: Props) {
     }
   }));
 
-  const calculatedDecimalSeparator = createMemo(() => {
+  const calculatedGroupingSeparator = createMemo(() => {
+    const current = groupingSeparator();
+    switch (current) {
+      case ',':
+      case ' ':
+      case '.':
+      case "'":
+      case '_':
+        return current;
+    }
 
+    const lang = SystemLocale();
+    const fmt = new Intl.NumberFormat(lang,
+      {minimumFractionDigits: 0, useGrouping: true}).format(1000).replace(/\d/g, '').replace(/\s+/g, ' ');
+
+    if (IsValidGrouping(fmt)) {
+      return fmt;
+    }
+
+    return ',';
+
+  });
+
+  const calculatedDecimalSeparator = createMemo(() => {
     const current = decimalSeparator();
     switch (current) {
       case ',':
@@ -70,6 +101,7 @@ export function LanguageDialog(props: Props) {
           ui_language: lang,
           spreadsheet_language: lang.substring(0, 2),
           decimal_separator: decimal_select?.value as ('.'|','),
+          grouping_separator: grouping_select?.value,
         }
       });
     }
@@ -94,6 +126,7 @@ export function LanguageDialog(props: Props) {
                   setSelectedLanguage('');
                   setAcceptEnabled(true);
                   setDecimalSeparator('');
+                  setGroupingSeparator('');
                 }}>
               <span>
                 {t('select-language-dialog.system-setting')}
@@ -105,11 +138,13 @@ export function LanguageDialog(props: Props) {
                   setSelectedLanguage(entry.code);
                   setAcceptEnabled(true);
                   setDecimalSeparator(entry.decimal_separator);
+                  setGroupingSeparator(entry.grouping_separator || '');
                 }} 
                 ondblclick={_ => {
                   setSelectedLanguage(entry.code);
                   setAcceptEnabled(true);
                   setDecimalSeparator(entry.decimal_separator);
+                  setGroupingSeparator(entry.grouping_separator || '');
                   Apply(entry.code);
                 }}
                 classList={{ [style.selected]: entry.code === selectedLanguage() }}>
@@ -122,6 +157,8 @@ export function LanguageDialog(props: Props) {
           </ul>
         </div>
         
+        <div class="flex-row gap-1">
+
         <div class={style.control}>
           <label>{t('select-language-dialog.decimal-separator')}</label>
           <div>
@@ -130,6 +167,21 @@ export function LanguageDialog(props: Props) {
               <option value='.'>{t('select-language-dialog.decimal-separator-dot')}</option>
             </select>
           </div>
+        </div>
+
+        <div class={style.control}>
+          <label>{t('select-language-dialog.grouping-separator')}</label>
+          <div>
+            <select ref={grouping_select} class="select" value={calculatedGroupingSeparator()} disabled={selectedLanguage() === ''}>
+              <option value=','>{t('select-language-dialog.grouping-separator-comma')}</option>
+              <option value=' '>{t('select-language-dialog.grouping-separator-space')}</option>
+              <option value='.'>{t('select-language-dialog.grouping-separator-dot')}</option>
+              <option value="'">{t('select-language-dialog.grouping-separator-apostrophe')}</option>
+              <option value='_'>{t('select-language-dialog.grouping-separator-underscore')}</option>
+            </select>
+          </div>
+        </div>
+
         </div>
 
       </section>

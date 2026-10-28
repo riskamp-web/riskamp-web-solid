@@ -6,6 +6,20 @@ import { persistentData } from '~/lib/app-data';
 
 export type I18N = typeof en;
 
+export type GROUPING_SEPARATOR = ','|'.'|' '|"'"|'_';
+
+export function IsValidGrouping(test: string): test is GROUPING_SEPARATOR {
+  switch (test) {
+    case ' ':
+    case ',':
+    case '.':
+    case "'":
+    case '_':
+      return true;
+  }
+  return false;
+}
+
 /**
  * the shape a catalogue has to have: strings at the leaves, namespaces in
  * between. the dot is the separator between segments, which is why it can't
@@ -272,21 +286,22 @@ type _NoDottedKeys = AssertNoDots<DottedKeys<I18N>>;
  * we could switch to generating at complile time
  */
 export const languages = [
-  { code: 'en', name: 'English', decimal_separator: '.' },
-  { code: 'fr', name: 'Français', decimal_separator: ',' },
-  { code: 'es', name: 'Español', decimal_separator: ',' },
-  { code: 'de', name: 'Deutsch', decimal_separator: ',' },
-  { code: 'pt', name: 'Português', decimal_separator: ',' },
-  { code: 'nl', name: 'Nederlands', decimal_separator: ',' },
-  { code: 'da', name: 'Dansk', decimal_separator: ',' },
-  { code: 'it', name: 'Italiano', decimal_separator: ',' },
-  { code: 'no', name: 'Norsk', decimal_separator: ',' },
-  { code: 'sv', name: 'Svenska', decimal_separator: ',' },
-  { code: 'pl', name: 'Polski', decimal_separator: ',' },
+  { code: 'en', name: 'English', decimal_separator: '.', grouping_separator: ',' },
+  { code: 'fr', name: 'Français', decimal_separator: ',', grouping_separator: ' ' },
+  { code: 'es', name: 'Español', decimal_separator: ',', grouping_separator: ' ' },
+  { code: 'de', name: 'Deutsch', decimal_separator: ',', grouping_separator: ' ' },
+  { code: 'pt', name: 'Português', decimal_separator: ',', grouping_separator: ' ' },
+  { code: 'nl', name: 'Nederlands', decimal_separator: ',', grouping_separator: ' ' },
+  { code: 'da', name: 'Dansk', decimal_separator: ',', grouping_separator: ' ' },
+  { code: 'it', name: 'Italiano', decimal_separator: ',', grouping_separator: ' ' },
+  { code: 'no', name: 'Norsk', decimal_separator: ',', grouping_separator: ' ' },
+  { code: 'sv', name: 'Svenska', decimal_separator: ',', grouping_separator: ' ' },
+  { code: 'pl', name: 'Polski', decimal_separator: ',', grouping_separator: ' ' },
 ] satisfies {
   code: string;
   name: string;
   decimal_separator: ','|'.';
+  grouping_separator?: GROUPING_SEPARATOR; 
 }[];
 
 languages.sort((a, b) => a.code.localeCompare(b.code));

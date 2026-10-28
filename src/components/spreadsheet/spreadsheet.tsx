@@ -76,7 +76,7 @@ export function Spreadsheet(props: Props) {
        */
       createEffect(on(() => persistentData.locale_settings, value => {
         if (!/locale=/.test(document.location.search)) { 
-          (sheet as SpreadsheetType).LoadLanguage(value?.spreadsheet_language || SystemLocale(), value?.decimal_separator);
+          (sheet as SpreadsheetType).LoadLanguage(value?.spreadsheet_language || SystemLocale(), value?.decimal_separator, value?.grouping_separator);
         }
       }, { defer: true }));
 

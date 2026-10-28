@@ -16,6 +16,14 @@ export default {
     'decimal-separator': 'Decimal separator',
     'decimal-separator-dot': 'Dot',
     'decimal-separator-comma': 'Comma',
+
+    'grouping-separator': 'Grouping',
+    'grouping-separator-dot': 'Dot',
+    'grouping-separator-space': 'Space',
+    'grouping-separator-comma': 'Comma',
+    'grouping-separator-apostrophe': 'Apostrophe',
+    'grouping-separator-underscore': 'Underscore',
+
   },
 
   about: {
