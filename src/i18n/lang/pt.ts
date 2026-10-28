@@ -26,6 +26,13 @@ export default {
     'decimal-separator': 'Separador decimal',
     'decimal-separator-dot': 'Ponto',
     'decimal-separator-comma': 'Vírgula',
+
+    'grouping-separator': 'Separador de milhares',
+    'grouping-separator-dot': 'Ponto',
+    'grouping-separator-space': 'Espaço',
+    'grouping-separator-comma': 'Vírgula',
+    'grouping-separator-apostrophe': 'Apóstrofo',
+    'grouping-separator-underscore': 'Sublinhado',
   },
 
   about: {

@@ -26,6 +26,13 @@ export default {
     'decimal-separator': 'Decimaalteken',
     'decimal-separator-dot': 'Punt',
     'decimal-separator-comma': 'Komma',
+
+    'grouping-separator': 'Scheidingsteken voor duizendtallen',
+    'grouping-separator-dot': 'Punt',
+    'grouping-separator-space': 'Spatie',
+    'grouping-separator-comma': 'Komma',
+    'grouping-separator-apostrophe': 'Apostrof',
+    'grouping-separator-underscore': 'Onderstrepingsteken',
   },
 
   about: {

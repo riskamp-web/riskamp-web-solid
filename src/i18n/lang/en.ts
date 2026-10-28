@@ -17,7 +17,7 @@ export default {
     'decimal-separator-dot': 'Dot',
     'decimal-separator-comma': 'Comma',
 
-    'grouping-separator': 'Grouping',
+    'grouping-separator': 'Thousands separator',
     'grouping-separator-dot': 'Dot',
     'grouping-separator-space': 'Space',
     'grouping-separator-comma': 'Comma',

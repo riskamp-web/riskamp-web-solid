@@ -26,6 +26,13 @@ export default {
     'decimal-separator': 'Dezimaltrennzeichen',
     'decimal-separator-dot': 'Punkt',
     'decimal-separator-comma': 'Komma',
+
+    'grouping-separator': 'Tausendertrennzeichen',
+    'grouping-separator-dot': 'Punkt',
+    'grouping-separator-space': 'Leerzeichen',
+    'grouping-separator-comma': 'Komma',
+    'grouping-separator-apostrophe': 'Apostroph',
+    'grouping-separator-underscore': 'Unterstrich',
   },
 
   about: {

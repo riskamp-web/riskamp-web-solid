@@ -25,6 +25,13 @@ export default {
     'decimal-separator': 'Separador decimal',
     'decimal-separator-dot': 'Punto',
     'decimal-separator-comma': 'Coma',
+
+    'grouping-separator': 'Separador de miles',
+    'grouping-separator-dot': 'Punto',
+    'grouping-separator-space': 'Espacio',
+    'grouping-separator-comma': 'Coma',
+    'grouping-separator-apostrophe': 'Apóstrofo',
+    'grouping-separator-underscore': 'Guion bajo',
   },
 
   about: {

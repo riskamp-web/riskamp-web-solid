@@ -26,6 +26,13 @@ export default {
     'decimal-separator': 'Desimalskilletegn',
     'decimal-separator-dot': 'Punktum',
     'decimal-separator-comma': 'Komma',
+
+    'grouping-separator': 'Tusenskilletegn',
+    'grouping-separator-dot': 'Punktum',
+    'grouping-separator-space': 'Mellomrom',
+    'grouping-separator-comma': 'Komma',
+    'grouping-separator-apostrophe': 'Apostrof',
+    'grouping-separator-underscore': 'Understrek',
   },
 
   about: {
