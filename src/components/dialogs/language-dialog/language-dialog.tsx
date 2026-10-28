@@ -162,7 +162,7 @@ export function LanguageDialog(props: Props) {
         <div class={style.control}>
           <label>{t('select-language-dialog.decimal-separator')}</label>
           <div>
-            <select ref={decimal_select} class="select" value={calculatedDecimalSeparator()} disabled={selectedLanguage() === ''}>
+            <select ref={decimal_select} class="select" value={calculatedDecimalSeparator()} disabled={selectedLanguage() === ''} onchange={_ => setAcceptEnabled(true)}>
               <option value=','>{t('select-language-dialog.decimal-separator-comma')}</option>
               <option value='.'>{t('select-language-dialog.decimal-separator-dot')}</option>
             </select>
@@ -172,7 +172,7 @@ export function LanguageDialog(props: Props) {
         <div class={style.control}>
           <label>{t('select-language-dialog.grouping-separator')}</label>
           <div>
-            <select ref={grouping_select} class="select" value={calculatedGroupingSeparator()} disabled={selectedLanguage() === ''}>
+            <select ref={grouping_select} class="select" value={calculatedGroupingSeparator()} disabled={selectedLanguage() === ''} onchange={_ => setAcceptEnabled(true)}>
               <option value=','>{t('select-language-dialog.grouping-separator-comma')}</option>
               <option value=' '>{t('select-language-dialog.grouping-separator-space')}</option>
               <option value='.'>{t('select-language-dialog.grouping-separator-dot')}</option>

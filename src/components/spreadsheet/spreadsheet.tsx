@@ -102,7 +102,9 @@ export function Spreadsheet(props: Props) {
 
           await (sheet as SpreadsheetType).LoadLanguage(
             persistentData.locale_settings.spreadsheet_language,
-            persistentData.locale_settings.decimal_separator);
+            persistentData.locale_settings.decimal_separator,
+            persistentData.locale_settings.grouping_separator,
+          );
 
         }
 
