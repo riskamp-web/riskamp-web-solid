@@ -38,6 +38,7 @@ export function LanguageDialog(props: Props) {
       if (lang) {
         setSelectedLanguage(lang.substring(0, 2));
         setDecimalSeparator(persistentData?.locale_settings?.decimal_separator || '');
+        setGroupingSeparator((persistentData?.locale_settings?.grouping_separator || '') as GROUPING_SEPARATOR);
       }
     }
   }));
