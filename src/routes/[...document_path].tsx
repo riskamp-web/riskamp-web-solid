@@ -939,7 +939,10 @@ export default function Page() {
             if (sheet.user_data?.auto_show_notes === false) {
               // ... do nothing ...
             }
-            else {
+            else if (event.source !== 'undo') {
+
+              // don't do this on undo
+              
               if (sheet.user_data?.note) {
                 setSidebar('notes');
               }
