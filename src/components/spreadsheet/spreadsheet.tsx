@@ -8,8 +8,7 @@ import { SystemLocale } from '~/i18n/i18n';
 
 // import statically. we add some dummy nodes to the page to prevent injection
 
-import 'riskamp-web/treb-bundle.css';
-import 'riskamp-web/riskamp-web-bundle.css';
+import 'riskamp-web/riskamp-web.css';
 
 // fonts
 import "~/style/fira-grid.css"; // alternatives: plex-grid.css, geist-grid.css
@@ -32,9 +31,24 @@ export function Spreadsheet(props: Props) {
 
   // eslint-disable-next-line no-unassigned-vars
   let container: HTMLDivElement|undefined;
-  let sheet: EmbeddedSpreadsheet;
+  let sheet: EmbeddedSpreadsheet; // unset until CreateSpreadsheet resolves
 
-  onMount(() => {
+  /**
+   * this gets called when you change language from the dialog,
+   * so we don't have to worry about document timing, but it's not
+   * safe to mix the LoadLanguage call with any data changes.
+   *
+   * created here, not in onMount: that's async, and an effect created
+   * after its first await has no owner, so it would never be disposed.
+   * the sheet doesn't exist until CreateSpreadsheet resolves, hence the guard
+   */
+  createEffect(on(() => persistentData.locale_settings, value => {
+    if (sheet && !/locale=/.test(document.location.search)) {
+      (sheet as SpreadsheetType).LoadLanguage(value?.spreadsheet_language || SystemLocale(), value?.decimal_separator, value?.grouping_separator);
+    }
+  }, { defer: true }));
+
+  onMount(async () => {
     if (container) {
 
       let max_workers = persistentData.max_workers || 0;
@@ -66,31 +80,17 @@ export function Spreadsheet(props: Props) {
         max_workers: max_workers || undefined, // default instead of 0
       };
 
-      sheet = RiskAMPWeb.CreateSpreadsheet(options);
+      sheet = await RiskAMPWeb.CreateSpreadsheet(options);
       sheet.EnsureChartsLib();
 
-      /**
-       * this gets called when you change language from the dialog,
-       * so we don't have to worry about document timing, but it's not
-       * safe to mix the LoadLanguage call with any data changes
-       */
-      createEffect(on(() => persistentData.locale_settings, value => {
-        if (!/locale=/.test(document.location.search)) { 
-          (sheet as SpreadsheetType).LoadLanguage(value?.spreadsheet_language || SystemLocale(), value?.decimal_separator, value?.grouping_separator);
-        }
-      }, { defer: true }));
+      // no longer necessary to load fonts maually, if they're in the 
+      // stylesheet the grid will load them when you update the theme
 
-      const promises: Promise<unknown>[] = [
-        document.fonts.load("700 20px RAW-Default"),
-        document.fonts.load("400 20px RAW-Default"),
-        document.fonts.load("700 italic 20px RAW-Default"),
-        document.fonts.load("400 italic 20px RAW-Default"),
-        sheet.ready
-      ];
+      // we can still wait on ready(), though, if you want
 
-      Promise.all(promises).then(async () => {
+      sheet.ready.then(async () => {
 
-        sheet.UpdateTheme();
+        await sheet.UpdateTheme(); // probably not necessary here? not sure
 
         // if there's an explicit spreadsheet language set, use that.
         // otherwise follow the normal pattern (i.e. let TREB figure it out)

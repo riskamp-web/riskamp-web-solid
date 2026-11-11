@@ -22,20 +22,12 @@
      RecursiveMonoLinear  MONO 1, CASL 0     (italics: slnt -15, CRSV 1)
      MonaspaceNeon        wdth 100, slnt 0   (italic: slnt -11)
    Sources: google/fonts (Atkinson Hyperlegible Next + Mono, Mona Sans, Figtree,
-   Recursive) and githubnext/monaspace v1.400. All OFL;
+   Recursive, Roboto Flex) and githubnext/monaspace v1.400. All OFL;
    licences alongside. */
 
 
-/* ---- grid: point the cells and charts at the active trial ----------------- */
-
-/* the cells, and the charts (cf. treb-fonts.css) */
-:root[data-font-trial] .treb-main.treb-main.treb-main {
-  .treb-font-stack-default,
-  .annotation-content,
-  .annotation-content svg {
-    font-family: var(--trial-grid-font);
-  }
-}
+/* the grid face is switched by font-trials.ts, which sets TREB's
+   --treb-grid-font-family inline on <html>; nothing to do here */
 
 
 /* ---- IBM Plex (the previous face) --------------------------------------- */
@@ -124,3 +116,61 @@
 
 @font-face { font-family: 'Trial Figtree Grid'; src: url('./font-candidates/Figtree-Variable.woff2') format('woff2-variations'); font-weight: 400 600; font-style: normal; font-display: swap; font-feature-settings: "tnum" 1, "ss02" 1; }
 @font-face { font-family: 'Trial Figtree Grid'; src: url('./font-candidates/Figtree-Italic-Variable.woff2') format('woff2-variations'); font-weight: 400 600; font-style: italic; font-display: swap; font-feature-settings: "tnum" 1, "ss02" 1; }
+
+
+/* ---- Calibri (local) ---------------------------------------------------- */
+/* the installed Calibri (Windows, or a Mac with Office); no file ships, and
+   each face is a single local() with no fallback, so without Calibri the face
+   simply isn't there. Calibri has no semibold, so 600-700 is Bold; its default figures are already tabular, so
+   the grid needs no tnum. Calibri's x-height is small (0.464 vs Fira
+   Sans's 0.527), so size-adjust: 113% matches the two (caps then run a
+   little taller than Fira's: 0.714 vs 0.689). no matching mono: Fira Mono */
+
+@font-face { font-family: 'Trial Calibri'; src: local('Calibri'); font-weight: 400 500; font-style: normal; font-display: swap; size-adjust: 113%; }
+@font-face { font-family: 'Trial Calibri'; src: local('Calibri Italic'); font-weight: 400 500; font-style: italic; font-display: swap; size-adjust: 113%; }
+@font-face { font-family: 'Trial Calibri'; src: local('Calibri Bold'); font-weight: 600 700; font-style: normal; font-display: swap; size-adjust: 113%; }
+@font-face { font-family: 'Trial Calibri'; src: local('Calibri Bold Italic'); font-weight: 600 700; font-style: italic; font-display: swap; size-adjust: 113%; }
+
+@font-face { font-family: 'Trial Calibri Grid'; src: local('Calibri'); font-weight: 400; font-style: normal; font-display: swap; size-adjust: 113%; }
+@font-face { font-family: 'Trial Calibri Grid'; src: local('Calibri Italic'); font-weight: 400; font-style: italic; font-display: swap; size-adjust: 113%; }
+@font-face { font-family: 'Trial Calibri Grid'; src: local('Calibri Bold'); font-weight: 700; font-style: normal; font-display: swap; size-adjust: 113%; }
+@font-face { font-family: 'Trial Calibri Grid'; src: local('Calibri Bold Italic'); font-weight: 700; font-style: italic; font-display: swap; size-adjust: 113%; }
+
+
+/* ---- Avenir (local) ----------------------------------------------------- */
+/* the installed Avenir (a macOS system font); no file ships, and each face is
+   a single local() with no fallback, as with Calibri. Avenir has no bold:
+   400 is Roman, 500 Medium, and 600-700 Heavy. no size-adjust yet. no
+   matching mono: Fira Mono */
+
+@font-face { font-family: 'Trial Avenir'; src: local('Avenir Roman'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trial Avenir'; src: local('Avenir Oblique'); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Trial Avenir'; src: local('Avenir Medium'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trial Avenir'; src: local('Avenir Medium Oblique'); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Trial Avenir'; src: local('Avenir Heavy'); font-weight: 600 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trial Avenir'; src: local('Avenir Heavy Oblique'); font-weight: 600 700; font-style: italic; font-display: swap; }
+
+@font-face { font-family: 'Trial Avenir Grid'; src: local('Avenir Roman'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trial Avenir Grid'; src: local('Avenir Oblique'); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Trial Avenir Grid'; src: local('Avenir Heavy'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trial Avenir Grid'; src: local('Avenir Heavy Oblique'); font-weight: 700; font-style: italic; font-display: swap; }
+
+
+/* ---- Roboto Flex -------------------------------------------------------- */
+/* google/fonts' file as is (renamed only; the original name is
+   RobotoFlex[GRAD,XOPQ,...,wght].ttf). it has no italic, only a slnt axis
+   (0 to -10), so the italic faces are the same file declared oblique 10deg,
+   which the browser maps onto slnt. figures are tabular by default and the
+   zero is plain, so the grid needs no features. 'Trial Roboto Flex Light
+   Grid' sets grade (GRAD, -200 to 150) to -100: lighter strokes, same
+   widths. Chrome honours a font-variation-settings descriptor on the canvas
+   too. the file has no TrueType hinting (no fpgm). no matching mono: Fira Mono */
+
+@font-face { font-family: 'Trial Roboto Flex'; src: url('./font-candidates/RobotoFlex-Variable.ttf') format('truetype-variations'); font-weight: 100 1000; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trial Roboto Flex'; src: url('./font-candidates/RobotoFlex-Variable.ttf') format('truetype-variations'); font-weight: 100 1000; font-style: oblique 10deg; font-display: swap; }
+
+@font-face { font-family: 'Trial Roboto Flex Grid'; src: url('./font-candidates/RobotoFlex-Variable.ttf') format('truetype-variations'); font-weight: 400 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trial Roboto Flex Grid'; src: url('./font-candidates/RobotoFlex-Variable.ttf') format('truetype-variations'); font-weight: 400 600; font-style: oblique 10deg; font-display: swap; }
+
+@font-face { font-family: 'Trial Roboto Flex Light Grid'; src: url('./font-candidates/RobotoFlex-Variable.ttf') format('truetype-variations'); font-weight: 400 600; font-style: normal; font-display: swap; font-variation-settings: 'GRAD' -100; }
+@font-face { font-family: 'Trial Roboto Flex Light Grid'; src: url('./font-candidates/RobotoFlex-Variable.ttf') format('truetype-variations'); font-weight: 400 600; font-style: oblique 10deg; font-display: swap; font-variation-settings: 'GRAD' -100; }

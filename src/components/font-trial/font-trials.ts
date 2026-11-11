@@ -34,10 +34,10 @@ if (typeof document !== 'undefined') {
  *
  * a trial overrides --interface-font and --mono-font-family inline on <html>
  * (beating app.css's :root), which TREB's own interface follows too
- * (--treb-default-font, style/treb-fonts.css), and points the cells at its
- * grid family through --trial-grid-font. TREB reads its fonts once per
- * UpdateTheme(), and a canvas never loads a face by itself, so the faces are
- * loaded first and the sheet repainted after.
+ * (--treb-ui-font-family, style/treb-fonts.css), and points the cells at its
+ * grid family by overriding --treb-grid-font-family the same way. TREB reads
+ * its fonts once per UpdateTheme(), which also loads the grid face it finds
+ * there, so the sheet only needs that call after the switch.
  *
  * the grid face can be picked apart from the chrome (activeGridTrial: a trial
  * id, or SAME_AS_UI to use the UI trial's own grid face). both choices persist
@@ -72,6 +72,14 @@ export const font_trials: FontTrial[] = [
     chrome: 'Trial Inter', mono: 'Fira Mono', grid: 'Trial Inter Grid' },
   { id: 'figtree', label: 'Figtree', note: 'Erik Kennedy\'s geometric Figtree, with Fira Mono (it has no mono of its own).',
     chrome: 'Trial Figtree', mono: 'Fira Mono', grid: 'Trial Figtree Grid' },
+  { id: 'roboto-flex', label: 'Roboto Flex', note: 'Google\'s parametric Roboto Flex (weight and optical size follow the CSS), with Fira Mono.',
+    chrome: 'Trial Roboto Flex', mono: 'Fira Mono', grid: 'Trial Roboto Flex Grid' },
+  { id: 'roboto-flex-light', label: 'Roboto Flex (grid grade −100)', note: 'Roboto Flex with the grid at grade −100: lighter strokes at the same widths. The chrome is unchanged.',
+    chrome: 'Trial Roboto Flex', mono: 'Fira Mono', grid: 'Trial Roboto Flex Light Grid' },
+  { id: 'calibri', label: 'Calibri (local)', note: 'The installed Calibri through @font-face local(), no file shipped: Windows, or a Mac with Office. With Fira Mono.',
+    chrome: 'Trial Calibri', mono: 'Fira Mono', grid: 'Trial Calibri Grid' },
+  { id: 'avenir', label: 'Avenir (local)', note: 'The installed Avenir through @font-face local(), no file shipped: a macOS system font. With Fira Mono.',
+    chrome: 'Trial Avenir', mono: 'Fira Mono', grid: 'Trial Avenir Grid' },
   { id: 'system', label: 'System defaults', note: 'No web font: the system stack app.css falls back to for the chrome and mono, and TREB\'s own default stack (Calibri first) for the grid.',
     chrome: SANS_FALLBACK, mono: MONO_FALLBACK, grid: TREB_DEFAULT_STACK },
   ...(has_mbtype ? [
@@ -183,25 +191,24 @@ async function applyFontTrial() {
     root.dataset.fontTrial = `${ui.id || 'base'}/${grid.id || 'base'}`;
     root.style.setProperty('--interface-font', withFallback(ui.chrome, SANS_FALLBACK));
     root.style.setProperty('--mono-font-family', withFallback(ui.mono, MONO_FALLBACK));
-    root.style.setProperty('--trial-grid-font', quoted(grid.grid));
+    root.style.setProperty('--treb-grid-font-family', quoted(grid.grid));
   }
   else {
     delete root.dataset.fontTrial;
-    for (const property of ['--interface-font', '--mono-font-family', '--trial-grid-font']) {
+    for (const property of ['--interface-font', '--mono-font-family', '--treb-grid-font-family']) {
       root.style.removeProperty(property);
     }
   }
 
-  // the four faces TREB asks for in the cells (cf. spreadsheet.tsx), and the
-  // interface face its canvas headers use (--treb-default-font, treb-fonts.css)
-  await Promise.all([
-    ...['400', '700', 'italic 400', 'italic 700'].map(face => document.fonts.load(`${face} 20px ${quoted(grid.grid)}`)),
-    document.fonts.load(`400 20px ${quoted(ui.chrome)}`),
-  ]);
+  // UpdateTheme() loads the grid face itself, but not the interface face its
+  // canvas row/column headers draw with (.grid-headers inherits the UI font).
+  // allSettled: a local() face that isn't installed (Calibri, Avenir) rejects
+  // with a NetworkError, which mustn't stop the repaint
+  await Promise.allSettled([document.fonts.load(`400 20px ${quoted(ui.chrome)}`)]);
 
   const sheet = await waitForSheet();
   if (sheet && gridTrial() === grid && findTrial(activeTrial()) === ui) {
-    sheet.UpdateTheme();
+    await sheet.UpdateTheme();
   }
 
 }
