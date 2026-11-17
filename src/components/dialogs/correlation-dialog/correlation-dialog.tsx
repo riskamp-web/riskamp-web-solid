@@ -58,9 +58,9 @@ export function CorrelationDialog(props: Props) {
 
   let local_sheet: SpreadsheetType|undefined;
 
-  onMount(() => {
+  onMount(async () => {
     if (container && 1) {
-      local_sheet = RiskAMPWeb.CreateSpreadsheet({
+      local_sheet = await RiskAMPWeb.CreateSpreadsheet({
         container,
         collapsed: true,
         resizable: false,

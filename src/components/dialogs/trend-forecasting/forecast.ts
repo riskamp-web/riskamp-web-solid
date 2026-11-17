@@ -1,9 +1,8 @@
 
 
 import { Heuristics } from '@trebco/treb/treb-data-model';
-import { Area, IsArea, ValueType } from '@trebco/treb/treb-base-types';
+import { Area, IsArea } from '@trebco/treb/treb-base-types';
 import { t } from '~/i18n/i18n';
-import { BorderConstants } from '@trebco/treb/treb-grid';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 
 export interface ForecastData {
@@ -90,14 +89,14 @@ export function CreateForecastSheet(sheet: SpreadsheetType, data: Partial<Foreca
       sheet.SetRange('E1', t('forecast-sheet-statistics.mean.header'));
       sheet.SetRange('F1', t('forecast-sheet-statistics.p80-range.header'));
       sheet.SetRange('G1', t('forecast-sheet-statistics.p80-range.header'));
-      sheet.ApplyBorders('A1:G1', BorderConstants.Bottom, 1);
+      sheet.ApplyBorders('A1:G1', 'bottom', 1);
     }
     else {
       sheet.SetRange('C1', t('forecast-sheet-forecast-header'));
-      sheet.ApplyBorders('A1:C1', BorderConstants.Bottom, 1);
+      sheet.ApplyBorders('A1:C1', 'bottom', 1);
     }
     sheet.SetRange('L1', t('forecast-sheet-statistics-header'));
-    sheet.ApplyBorders('L1:M1', BorderConstants.Bottom, 1);
+    sheet.ApplyBorders('L1:M1', 'bottom', 1);
 
   };
 
@@ -443,7 +442,7 @@ export function FindForecastData(sheet: SpreadsheetType) {
 
             for (let j = column.end.row; j > column.start.row; j--) {
               const data = sheet.grid.active_sheet.CellData({row: j, column: i});
-              if (!data || data.type === ValueType.undefined) {
+              if (!data || data.type === 'undefined') {
                 column = new Area(column.start, {column: i, row: j - 1});
               }
             }

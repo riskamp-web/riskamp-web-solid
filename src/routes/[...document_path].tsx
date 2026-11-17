@@ -27,7 +27,7 @@ import { AwaitSignal } from '~/lib/await-signal';
 import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline-dialog/sparkline';
 import { TrendForecastingDialog } from '~/components/dialogs/trend-forecasting/trend-forecasting-dialog';
 import { RunTrendForecast, trend_forecast_props } from '~/components/dialogs/trend-forecasting/trend-forecasting';
-import { BorderConstants, EmbeddedSheetEvent } from '@trebco/treb';
+import { type BorderConstants, EmbeddedSheetEvent } from '@trebco/treb';
 import { sessionData, setPersistentData, setSessionData } from '~/lib/app-data';
 
 import { CacheCUrrentState, RemoveFromCache, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';

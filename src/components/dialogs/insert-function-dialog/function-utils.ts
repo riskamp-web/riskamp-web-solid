@@ -2,7 +2,7 @@
 import type { ExtendedFunctionDescriptor } from '@trebco/treb/treb-calculator/src/descriptors';
 import type { LanguageModel } from '@trebco/treb/treb-data-model';
 import type { CellValue, EmbeddedSpreadsheet } from '@trebco/treb';
-import { IsComplex, ValueType, type UnionValue } from '@trebco/treb/treb-base-types';
+import { IsComplex, type ValueType, type UnionValue } from '@trebco/treb/treb-base-types';
 import type { ExpressionUnit, Parser } from '@trebco/treb/treb-parser';
 import { NumberFormat, NumberFormatCache } from '@trebco/treb/treb-format';
 import type { FunctionLibrary } from '@trebco/treb/treb-calculator/src/function-library';
@@ -72,22 +72,22 @@ export function TranslateDescriptor(source: ExtendedFunctionDescriptor, language
 
 export function FormatValue2(sheet: EmbeddedSpreadsheet, cell_format: string, value: UnionValue): string {
 
-  if (value.type === ValueType.array) {
+  if (value.type === 'array') {
     return value.value.map(col => col.map(cell => FormatValue2(sheet, cell_format, cell)).join(',')).join(',');
   }
 
   switch (value.type) {
-    case ValueType.error:
+    case 'error':
       return '#' + value.value.toString();
 
-    case ValueType.boolean:
+    case 'boolean':
       return value.value.toString();
 
-    case ValueType.string:
+    case 'string':
       return value.value;
 
-    case ValueType.complex:
-    case ValueType.number:
+    case 'complex':
+    case 'number':
       return sheet.FormatNumber(value.value, cell_format);
 
     default:
@@ -106,10 +106,10 @@ export function CalculateAndRender(sheet: SpreadsheetType, argument: boolean, te
 } {
 
   if (text === '') {
-    return { text: '', type: ValueType.undefined };
+    return { text: '', type: 'undefined' };
   }
   else if (argument && (text[0] === '=')) {
-    return { text: 'EXPR', type: ValueType.error };
+    return { text: 'EXPR', type: 'error' };
   }
   else {
     
@@ -124,10 +124,11 @@ export function CalculateAndRender(sheet: SpreadsheetType, argument: boolean, te
     const calculator: Calculator = sheet.calculator;
 
     if (parsed.error) {
-      return { text: 'EXPR', type: ValueType.error };
+      return { text: 'EXPR', type: 'error' };
     }
     else {
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- library is private on Calculator
       const lib = (calculator as any).library as FunctionLibrary;
       let is_volatile = false;
 
@@ -146,10 +147,10 @@ export function CalculateAndRender(sheet: SpreadsheetType, argument: boolean, te
       }
 
       if (is_volatile) {
-        return { text: '', type: ValueType.undefined, volatile: true };
+        return { text: '', type: 'undefined', volatile: true };
       }
 
-      let calculated_result: UnionValue; // = { type: ValueType.undefined };
+      let calculated_result: UnionValue; // = { type: 'undefined' };
 
       try {
         calculated_result = calculator.Evaluate(untranslated, sheet.grid.active_sheet, {}, true);
@@ -157,7 +158,7 @@ export function CalculateAndRender(sheet: SpreadsheetType, argument: boolean, te
       catch (err) {
         console.info({text, parsed});
         console.error(err);
-        calculated_result = { type: ValueType.error, value: 4 };
+        calculated_result = { type: 'error', value: 4 };
       }
 
       // return { text: RenderCellValue(sheet, Convert(calculated_result), format, formatter), type: calculated_result.type };
@@ -177,22 +178,22 @@ export function RenderCellValue2(sheet: SpreadsheetType, value: UnionValue|Union
   if(Array.isArray(value)) {
     return value.map(element => RenderCellValue2(sheet, element, format, formatter)).join(', ');
   }
-  else if (value.type === ValueType.array) {
+  else if (value.type === 'array') {
     return value.value.map(element => RenderCellValue2(sheet, element, format, formatter)).join(', ');
   }
 
   switch (value.type) {
-    case ValueType.undefined:
+    case 'undefined':
       return '';
-    case ValueType.number:
+    case 'number':
       return sheet?.FormatNumber(value.value, format) || '';
-    case ValueType.string:
+    case 'string':
       return `"` + value.value + `"`;
-    case ValueType.complex: 
+    case 'complex': 
       return sheet.FormatNumber(value.value, format);     
-    case ValueType.error:
+    case 'error':
       return '#' + value.value;
-    case ValueType.boolean:
+    case 'boolean':
       if (sheet.model.language_model) {
         return value.value ? sheet.model.language_model.boolean_true || 'TRUE' :
           sheet.model.language_model.boolean_false || 'FALSE';

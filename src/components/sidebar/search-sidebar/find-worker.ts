@@ -1,7 +1,7 @@
 
 import type { TREBDocument, ICellAddress } from '@trebco/treb';
 import { Sheet } from '@trebco/treb/treb-data-model';
-import { ValueType, type Cell } from '@trebco/treb/treb-base-types';
+import type { Cell } from '@trebco/treb/treb-base-types';
 import { ParseWildcards } from '@trebco/treb/treb-calculator/src/utilities';
 
 /*
@@ -66,7 +66,7 @@ export const Find = (message: QueryMessage) => {
   const results: FindResult[] = [];
 
   const Store = (sheet: Sheet, row: number, column: number, cell: Cell) => {
-      if (cell.type === ValueType.formula) {
+      if (cell.type === 'formula') {
         results.push({
           sheet_name: sheet.name,
           address: { row, column, sheet_id: sheet.id },
@@ -98,7 +98,7 @@ export const Find = (message: QueryMessage) => {
   if (message.find === 'values') {
     for (const sheet of sheets) {
       for (const { cell, row, column } of sheet.cells.IterateRC()) {
-        let value: string|undefined = undefined;
+        let value: string|undefined;
         if (cell.formatted !== undefined) {
           console.info("CF", cell.formatted);
           if (typeof cell.formatted === 'string') {
@@ -121,7 +121,7 @@ export const Find = (message: QueryMessage) => {
   else { // formulas
     for (const sheet of sheets) {
       for (const { cell, row, column } of sheet.cells.IterateRC()) {
-        if (cell.type === ValueType.formula && cell.value && rexp.test(cell.value.toString())) {
+        if (cell.type === 'formula' && cell.value && rexp.test(cell.value.toString())) {
           Store(sheet, row, column, cell);
         }
       }
