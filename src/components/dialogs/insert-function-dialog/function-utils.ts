@@ -2,11 +2,11 @@
 import type { ExtendedFunctionDescriptor } from '@trebco/treb/treb-calculator/src/descriptors';
 import type { LanguageModel } from '@trebco/treb/treb-data-model';
 import type { CellValue, EmbeddedSpreadsheet } from '@trebco/treb';
-import { IsComplex, type ValueType, type UnionValue } from '@trebco/treb/treb-base-types';
+import { IsComplex, type ValueType, type UnionValue, ErrorValue } from '@trebco/treb/treb-base-types';
 import type { ExpressionUnit, Parser } from '@trebco/treb/treb-parser';
 import { NumberFormat, NumberFormatCache } from '@trebco/treb/treb-format';
 import type { FunctionLibrary } from '@trebco/treb/treb-calculator/src/function-library';
-import type { Calculator } from '@trebco/treb/treb-calculator';
+import { NameError, type Calculator } from '@trebco/treb/treb-calculator';
 import { MCCompositeFunctionDescriptor } from '../../../../../RAW/treb-mc/src/descriptors';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 
@@ -137,7 +137,7 @@ export function CalculateAndRender(sheet: SpreadsheetType, argument: boolean, te
           if (unit.type === 'call') {
             // console.info(unit.name);
             const resolved = lib.Get(unit.name);
-            if (resolved.volatile || (resolved as MCCompositeFunctionDescriptor).simulation_volatile) {
+            if (!!resolved && (resolved.volatile || (resolved as MCCompositeFunctionDescriptor).simulation_volatile)) {
               is_volatile = true;
               return false;
             }
@@ -158,7 +158,7 @@ export function CalculateAndRender(sheet: SpreadsheetType, argument: boolean, te
       catch (err) {
         console.info({text, parsed});
         console.error(err);
-        calculated_result = { type: 'error', value: 4 };
+        calculated_result = NameError(); // { type: 'error', value: 4 as ErrorValue };
       }
 
       // return { text: RenderCellValue(sheet, Convert(calculated_result), format, formatter), type: calculated_result.type };
@@ -192,7 +192,7 @@ export function RenderCellValue2(sheet: SpreadsheetType, value: UnionValue|Union
     case 'complex': 
       return sheet.FormatNumber(value.value, format);     
     case 'error':
-      return '#' + value.value;
+      return sheet.model.RenderError(value.value);
     case 'boolean':
       if (sheet.model.language_model) {
         return value.value ? sheet.model.language_model.boolean_true || 'TRUE' :

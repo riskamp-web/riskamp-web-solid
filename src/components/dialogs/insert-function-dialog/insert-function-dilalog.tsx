@@ -11,7 +11,7 @@ import { createStore, produce } from 'solid-js/store';
 import style from './insert-function-dialog.module.css';
 import { Size } from '../dialog-base/dialog';
 import { ApplyArgs, CalculateAndRender, FunctionArg, TranslateDescriptor } from './function-utils';
-import { Calculator, ExtendedFunctionDescriptor } from '@trebco/treb/treb-calculator';
+import { Calculator, ExtendedFunctionDescriptor, NameError } from '@trebco/treb/treb-calculator';
 import { FunctionLibrary } from '@trebco/treb/treb-calculator/src/function-library';
 import { icons } from '~/components/icon-sets';
 // import { CellValue } from '@trebco/treb';
@@ -135,11 +135,18 @@ export function InsertFunctionDialog(props: Props) {
         setState(data.target ? 'arguments' : 'functions');
         if (data.target && sheet) {
           const lib = (sheet.calculator as Calculator & {library: FunctionLibrary}).library;
-          const fd = TranslateDescriptor(lib.Get(data.target.name || ''), sheet.model.language_model);
-          setFunctionData({
-            data: fd,
-            args: ApplyArgs(sheet, fd, data.target.args || [], props.data()?.cell_format || 'General'),
-          });
+          const fn = lib.Get(data.target.name || '') || {
+            name: data.target.name,
+            canonical_name: data.target.name,
+            fn: () => NameError(),
+          };
+          if (fn) {
+            const fd = TranslateDescriptor(fn, sheet.model.language_model);
+            setFunctionData({
+              data: fd,
+              args: ApplyArgs(sheet, fd, data.target.args || [], props.data()?.cell_format || 'General'),
+            });
+          }
         }
       }
     }

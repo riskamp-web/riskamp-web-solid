@@ -313,7 +313,7 @@ export const CheckFunction = (sheet: SpreadsheetType): CheckFunctionData => {
     // console.info("overlay editor editing");
     
     const edit_state = overlay_editor.GetEditState();
-    console.info({edit_state});
+    // console.info({edit_state});
     source = 'overlay-editor';
     full_text = edit_state.text;
     if (full_text && !full_text.startsWith('=') && full_text !== '=') {
